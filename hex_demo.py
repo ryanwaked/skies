@@ -2,7 +2,7 @@ import marimo
 
 __generated_with = "0.23.13"
 app = marimo.App(
-    width="medium",
+    width="full",
     app_title="Evaluating Rent Burden Against Income in Major US Metropolitan Areas",
 )
 

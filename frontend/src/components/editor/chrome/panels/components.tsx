@@ -29,8 +29,9 @@ PanelAccordionItem.displayName = "PanelAccordionItem";
 
 /**
  * Styled AccordionTrigger for sidebar panels.
- * Applies compact, quiet styling and wraps children in a flex container
- * with gap for icon + label layout.
+ * Hex section header: 10px/600 uppercase with 0.05em tracking, muted color,
+ * small (12px) chevron. Wraps children in a flex container with gap for
+ * icon + label layout.
  */
 const PanelAccordionTrigger = React.forwardRef<
   React.ComponentRef<typeof AccordionTrigger>,
@@ -39,7 +40,7 @@ const PanelAccordionTrigger = React.forwardRef<
   <AccordionTrigger
     ref={ref}
     className={cn(
-      "px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:no-underline",
+      "px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-muted-foreground hover:text-foreground hover:no-underline [&>svg]:h-3 [&>svg]:w-3",
       className,
     )}
     {...props}

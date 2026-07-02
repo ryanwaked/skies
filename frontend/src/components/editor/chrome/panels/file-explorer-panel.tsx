@@ -59,8 +59,8 @@ const FileExplorerComponent: React.FC<{ height: number }> = ({ height }) => {
   );
 };
 
-// Height of each accordion trigger (px-3 py-1.5 text-xs = ~29px)
-const TRIGGER_HEIGHT = 29;
+// Height of each accordion trigger (px-3 py-1.5 text-[10px] uppercase = ~28px)
+const TRIGGER_HEIGHT = 28;
 
 const FileExplorerPanel: React.FC = () => {
   const { ref: panelRef, height: panelHeight = 500 } =
@@ -111,7 +111,7 @@ const FileExplorerPanel: React.FC = () => {
       >
         <PanelAccordionItem value="remote-storage">
           <PanelAccordionTrigger>
-            <HardDrive className="w-4 h-4" /> Remote storage
+            <HardDrive className="w-3 h-3" /> Remote storage
             {remoteStorageConnections > 0 && (
               <PanelBadge>{remoteStorageConnections}</PanelBadge>
             )}
@@ -126,7 +126,7 @@ const FileExplorerPanel: React.FC = () => {
 
         <PanelAccordionItem value="files">
           <PanelAccordionTrigger>
-            <FileIcon className="w-4 h-4" />
+            <FileIcon className="w-3 h-3" />
             Files
           </PanelAccordionTrigger>
           <PanelAccordionContent>

@@ -19,7 +19,8 @@ export const DatasourceLabel: React.FC<{
   return (
     <div
       className={cn(
-        "flex gap-1.5 items-center font-medium py-1.5 text-muted-foreground text-xs",
+        // Hex section header: 10px/600 uppercase, 0.05em tracking, muted color
+        "flex gap-1.5 items-center py-1.5 text-muted-foreground text-[10px] font-semibold uppercase tracking-[0.05em]",
         className,
       )}
       style={style}

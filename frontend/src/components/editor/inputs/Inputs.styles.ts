@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 import "./Inputs.css";
 
 export const button = cva(
-  "flex items-center justify-center m-0 leading-none font-medium border border-foreground/10 shadow-xs-solid active:shadow-none dark:border-border text-sm",
+  "flex items-center justify-center m-0 leading-none font-medium border border-foreground/10 dark:border-border text-sm",
   {
     variants: {
       color: {
@@ -18,10 +18,10 @@ export const button = cva(
         yellow: "mo-button yellow",
         // for actions that will change state but are not destructive
         "hint-green": "mo-button hint-green",
-        disabled: "mo-button disabled active:shadow-xs-solid",
+        disabled: "mo-button disabled",
       },
       shape: {
-        rectangle: "rounded",
+        rectangle: "rounded-[3px]",
         circle: "rounded-full",
       },
       size: {

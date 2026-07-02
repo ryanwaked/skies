@@ -500,6 +500,7 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
       <span
         className={cn(
           "flex items-center pl-1 py-0.5 cursor-pointer text-[13px] hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground rounded-[3px] flex-1 overflow-hidden group",
+          node.isSelected && "bg-[rgba(63,66,87,0.4)] text-foreground",
           node.willReceiveDrop &&
             node.data.isDirectory &&
             "bg-accent/80 hover:bg-accent/80 text-accent-foreground",

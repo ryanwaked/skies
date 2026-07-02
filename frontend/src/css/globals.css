@@ -157,11 +157,10 @@
   --shadow-none: none;
   --shadow-xxs: 0px 0px 2px 0px var(--base-shadow-darker);
 
-  /* oxfmt-ignore: definition needs to be oneline or breaks variants */
-  --shadow-xs: 1px 1px 2px 0px var(--base-shadow), 0px 0px 2px 0px hsl(0deg 0% 25% / var(--base-shadow-opacity));
-
-  /* oxfmt-ignore: definition needs to be oneline or breaks variants */
-  --shadow-sm: 2px 2px 2px 0px var(--base-shadow), 0px 0px 2px 0px hsl(0deg 0% 25% / var(--base-shadow-opacity));
+  /* Button/input-level shadows are flat in Hex's design language; only
+     overlays (md and up: menus, popovers, dialogs) keep soft elevation. */
+  --shadow-xs: none;
+  --shadow-sm: none;
 
   /* oxfmt-ignore: definition needs to be oneline or breaks variants */
   --shadow-md: 4px 4px 4px 0px var(--base-shadow), 0 0px 4px 0px hsl(0deg 0% 60% / var(--base-shadow-opacity));
@@ -175,31 +174,14 @@
   /* oxfmt-ignore: definition needs to be oneline or breaks variants */
   --shadow-2xl: 10px 12px 10px 0px var(--base-shadow), 0 0px 8px 0px hsl(0deg 0% 90% / var(--base-shadow-opacity));
 
-  /* oxfmt-ignore: definition needs to be oneline or breaks variants */
-  --shadow-xs-solid: 1px 1px 0px 0px var(--base-shadow-darker), 0px 0px 2px 0px hsl(0deg 0% 50% / 20%);
-
-  /* oxfmt-ignore: definition needs to be oneline or breaks variants */
-  --shadow-sm-solid: 2px 2px 0px 0px var(--base-shadow-darker), 0px 0px 2px 0px hsl(0deg 0% 50% / 20%);
-
-  /* oxfmt-ignore: definition needs to be oneline or breaks variants */
-  --shadow-md-solid: 4px 4px 0px 0px var(--base-shadow-darker), 0 0px 2px 0px hsl(0deg 0% 60% / 50%);
-
-  /* oxfmt-ignore: definition needs to be oneline or breaks variants */
-  --shadow-lg-solid: 5px 6px 0px 0px var(--base-shadow-darker), 0 0px 4px 0px hsl(0deg 0% 75% / 50%);
-
-  /* oxfmt-ignore: definition needs to be oneline or breaks variants */
-  --shadow-xl-solid: 7px 8px 0px 0px var(--base-shadow-darker), 0 0px 4px 0px hsl(0deg 0% 85% / 50%);
-
-  /* oxfmt-ignore: definition needs to be oneline or breaks variants */
-  --shadow-2xl-solid: 10px 12px 0px 0px var(--base-shadow-darker), 0 0px 8px 0px hsl(0deg 0% 90% / 50%);
-
-  /* Solid shadows with lighter shade color */
-
-  /* oxfmt-ignore: definition needs to be oneline or breaks variants */
-  --shadow-sm-solid-shade:
-    2px 2px 0px 0px var(--base-shadow), 0px 0px 2px 0px hsl(0deg 0% 50% / 20%);
-
-  /* oxfmt-ignore: definition needs to be oneline or breaks variants */
-  --shadow-md-solid-shade:
-    4px 4px 0px 0px var(--base-shadow), 0 0px 2px 0px hsl(0deg 0% 60% / 50%);
+  /* Marimo's signature offset "solid" shadows are intentionally disabled:
+     Hex's design language is flat (borders only, no offset shadows). */
+  --shadow-xs-solid: none;
+  --shadow-sm-solid: none;
+  --shadow-md-solid: none;
+  --shadow-lg-solid: none;
+  --shadow-xl-solid: none;
+  --shadow-2xl-solid: none;
+  --shadow-sm-solid-shade: none;
+  --shadow-md-solid-shade: none;
 }

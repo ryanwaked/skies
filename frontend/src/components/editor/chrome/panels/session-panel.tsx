@@ -71,7 +71,7 @@ const SessionPanel: React.FC = () => {
     >
       <PanelAccordionItem value="datasources">
         <PanelAccordionTrigger>
-          <DatabaseIcon className="w-4 h-4" />
+          <DatabaseIcon className="w-3 h-3" />
           Data sources
           {showDatasourcesBadge && <PanelBadge>{datasourcesCount}</PanelBadge>}
         </PanelAccordionTrigger>
@@ -82,12 +82,12 @@ const SessionPanel: React.FC = () => {
 
       <PanelAccordionItem value="variables" lastItem={true}>
         <PanelAccordionTrigger>
-          <VariableIcon className="w-4 h-4" />
+          <VariableIcon className="w-3 h-3" />
           Variables
         </PanelAccordionTrigger>
         <PanelAccordionContent>
           {Object.keys(variables).length === 0 ? (
-            <div className="px-3 py-4 text-sm text-muted-foreground">
+            <div className="px-3 py-4 text-xs leading-4 text-muted-foreground">
               No variables defined
             </div>
           ) : (

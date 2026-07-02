@@ -343,10 +343,11 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
     <ErrorBoundary>
       <PanelSectionProvider value="sidebar">
         <div className="flex flex-col h-full flex-1 overflow-hidden mr-[-4px] bg-background">
-          <div className="px-3 h-9 shrink-0 border-b border-border flex justify-between items-center gap-2">
+          {/* Hex panel header: ~30px row, 14px/500 title, small muted icon buttons right */}
+          <div className="px-3 h-[30px] shrink-0 border-b border-border flex justify-between items-center gap-2">
             {selectedPanel === "dependencies" ? (
               <div className="flex items-center justify-between flex-1">
-                <span className="text-[13px] font-semibold text-foreground">
+                <span className="text-sm font-medium text-foreground">
                   {panelTitle(selectedPanel)}
                 </span>
                 <Tabs
@@ -398,7 +399,7 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
                 </TabsList>
               </Tabs>
             ) : (
-              <span className="text-[13px] font-semibold text-foreground flex-1 truncate">
+              <span className="text-sm font-medium text-foreground flex-1 truncate">
                 {panelTitle(selectedPanel)}
               </span>
             )}
@@ -454,7 +455,15 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
       onResize={(size, prevSize) => {
         // This means it started closed and is opening for the first time
         if (prevSize === 0 && size === 10) {
-          sidebarRef.current?.resize(30);
+          // Hex opens its sidebar panel at 293px. react-resizable-panels only
+          // takes percentages, so convert against the horizontal space next to
+          // the 48px icon rail.
+          const availableWidth = Math.max(window.innerWidth - 48, 1);
+          const hexDefaultPct = Math.min(
+            75,
+            Math.max(10, (293 / availableWidth) * 100),
+          );
+          sidebarRef.current?.resize(hexDefaultPct);
         }
       }}
       onCollapse={() => setIsSidebarOpen(false)}

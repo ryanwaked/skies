@@ -24,7 +24,10 @@ export const PanelEmptyState = ({
           })}
         <span className="mt-1 text-accent-foreground">{title}</span>
       </div>
-      <span className="text-muted-foreground text-sm">{description}</span>
+      {/* Hex help text: 12px/16px, muted */}
+      <span className="text-muted-foreground text-xs leading-4">
+        {description}
+      </span>
       {action && <div className="mt-2">{action}</div>}
     </div>
   );

@@ -120,7 +120,7 @@ export const Sidebar: React.FC = () => {
   return (
     <div
       data-testid="chrome-sidebar"
-      className="h-full w-10 shrink-0 pt-3 pb-2 flex flex-col items-center gap-1 text-muted-foreground text-sm select-none z-50 bg-background border-r border-border print:hidden hide-on-fullscreen"
+      className="h-full w-12 shrink-0 pt-1.5 pb-1.5 flex flex-col items-center gap-0 text-foreground text-sm select-none z-50 bg-background border-r border-border print:hidden hide-on-fullscreen"
     >
       <ReorderableList<PanelDescriptor>
         value={sidebarItems}
@@ -139,7 +139,7 @@ export const Sidebar: React.FC = () => {
           </span>
         )}
         ariaLabel="Sidebar panels"
-        className="flex flex-col items-center gap-1"
+        className="flex flex-col items-center gap-0"
         minItems={0}
         onAction={(panel) => toggleApplication(panel.type)}
         onItemPreloadHint={(panel) => PANEL_PRELOADERS[panel.type]?.()}
@@ -156,13 +156,14 @@ export const Sidebar: React.FC = () => {
           </SidebarItem>
         )}
       />
+      <div className="flex-1" />
+      <QueuedOrRunningStack />
+      {/* Bottom-anchored cluster (Hex keeps help/shortcuts pinned to the rail bottom) */}
       <FeedbackButton>
         <SidebarItem tooltip="Send feedback!" selected={false}>
           <MessageCircleQuestionIcon className="h-4 w-4" />
         </SidebarItem>
       </FeedbackButton>
-      <div className="flex-1" />
-      <QueuedOrRunningStack />
     </div>
   );
 };
@@ -212,11 +213,12 @@ const SidebarItem: React.FC<
     onClick?: () => void;
   }>
 > = ({ children, tooltip, selected, className, onClick }) => {
+  // Hex rail geometry: 36x36 hit area, 16x16 icon, 3px radius, zero gap.
+  // Inactive icons are full foreground (not muted) on a transparent bg.
   const itemClassName = cn(
-    "flex items-center justify-center h-7 w-7 rounded-[3px]",
-    !selected &&
-      "text-muted-foreground hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground",
-    selected && "bg-primary/8 text-primary",
+    "flex items-center justify-center h-9 w-9 rounded-[3px]",
+    !selected && "text-foreground hover:bg-[rgba(63,66,87,0.2)]",
+    selected && "bg-primary/7 text-primary",
     className,
   );
 

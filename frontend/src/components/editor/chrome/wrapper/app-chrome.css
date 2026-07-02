@@ -23,10 +23,10 @@
 
 /*
  * Hex-style sidebar panel trees (data browser, etc.).
- * Dense rows: ~24px tall, 13px text, 3px radius, quiet hover/selection.
+ * Dense rows: ~26px tall, 13px text, 3px radius, quiet hover/selection.
  */
 .sidebar-tree [cmdk-item] {
-  min-height: 24px;
+  min-height: 26px;
   padding-top: 2px;
   padding-bottom: 2px;
   font-size: 13px;

@@ -370,8 +370,8 @@ export const DataSources: React.FC = () => {
 
         {dataConnections.length > 0 && tables.length > 0 && (
           <DatasourceLabel className="pr-2" style={indentStyle(INDENT.engine)}>
-            <PythonIcon className="h-4 w-4 text-muted-foreground" />
-            <span className="text-xs">Python</span>
+            <PythonIcon className="h-3 w-3 text-muted-foreground" />
+            <span>Python</span>
           </DatasourceLabel>
         )}
         {tables.length > 0 && (
@@ -402,11 +402,12 @@ const Engine: React.FC<{
     <>
       <DatasourceLabel className="pr-2" style={indentStyle(INDENT.engine)}>
         <DatabaseLogo
-          className="h-4 w-4 text-muted-foreground"
+          className="h-3 w-3 text-muted-foreground"
           name={connection.dialect}
         />
-        <span className="text-xs">{dbDisplayName(connection.dialect)}</span>
-        <span className="text-xs text-muted-foreground">
+        <span>{dbDisplayName(connection.dialect)}</span>
+        {/* normal-case: variable names are real identifiers, don't uppercase */}
+        <span className="text-muted-foreground normal-case tracking-normal">
           (<EngineVariable variableName={engineName as VariableName} />)
         </span>
         {!internalEngine && (
