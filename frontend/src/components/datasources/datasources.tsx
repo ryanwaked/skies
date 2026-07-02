@@ -304,25 +304,25 @@ export const DataSources: React.FC = () => {
 
   return (
     <Command
-      className="border-b bg-background rounded-none h-full pb-10 overflow-auto outline-hidden"
+      className="sidebar-tree bg-background rounded-none h-full pb-10 overflow-auto outline-hidden"
       shouldFilter={false}
     >
-      <div className="flex items-center w-full border-b">
+      <div className="flex items-center gap-1 w-full px-2 py-1.5 border-b shrink-0">
         <CommandInput
           placeholder="Search tables..."
-          className="h-6 m-1"
+          className="h-6 py-0 text-xs placeholder:text-muted-foreground"
           value={searchValue}
           onValueChange={(value) => {
             // If searching, remove open previews
             closeAllColumns(value.length > 0);
             setSearchValue(value);
           }}
-          rootClassName="flex-1 border-r border-b-0"
+          rootClassName="flex-1 h-7 px-2 rounded-[3px] border bg-card"
         />
         {hasSearch && (
           <button
             type="button"
-            className="float-right border-b px-2 m-0 h-full hover:bg-accent hover:text-accent-foreground"
+            className="px-1 h-7 rounded-[3px] text-muted-foreground hover:text-foreground"
             onClick={() => setSearchValue("")}
           >
             <XIcon className="h-4 w-4" />
@@ -336,21 +336,21 @@ export const DataSources: React.FC = () => {
           showTooltip="Show empty schemas and databases"
           hideTooltip="Hide empty schemas and databases"
           size="sm"
-          className="px-2 rounded-none focus-visible:outline-hidden"
+          className="px-2 rounded-[3px] focus-visible:outline-hidden"
         />
 
         <AddConnectionDialog>
           <Button
             variant="ghost"
             size="sm"
-            className="px-2 rounded-none focus-visible:outline-hidden"
+            className="px-2 rounded-[3px] focus-visible:outline-hidden"
           >
             <PlusIcon className="h-4 w-4" />
           </Button>
         </AddConnectionDialog>
       </div>
 
-      <CommandList className="flex flex-col">
+      <CommandList className="flex flex-col px-1 py-1">
         {dataConnections.map((connection) => (
           <Engine
             key={connection.name}
@@ -539,7 +539,7 @@ const DatabaseItem: React.FC<{
   return (
     <>
       <CommandItem
-        className="text-sm flex flex-row gap-1 items-center cursor-pointer rounded-none"
+        className="text-[13px] flex flex-row gap-1 items-center cursor-pointer"
         style={indentStyle(INDENT.database)}
         onSelect={() => {
           setIsExpanded(!isExpanded);
@@ -693,7 +693,7 @@ const SchemaNode: React.FC<SchemaNodeProps> = (props) => {
   return (
     <>
       <CommandItem
-        className="text-sm flex flex-row gap-1 items-center cursor-pointer rounded-none"
+        className="text-[13px] flex flex-row gap-1 items-center cursor-pointer"
         style={indentStyle(schemaHeaderIndentRem(depth))}
         onSelect={() => {
           setIsExpanded(!isExpanded);
@@ -987,7 +987,7 @@ const DatasetTableItem: React.FC<{
     <>
       <CommandItem
         className={cn(
-          "rounded-none group h-8 cursor-pointer",
+          "group h-7 cursor-pointer",
           (isExpanded || isSearching) && "font-semibold",
         )}
         style={indentStyle(tableRem)}
@@ -998,7 +998,7 @@ const DatasetTableItem: React.FC<{
       >
         <div className="flex gap-2 items-center flex-1 pl-1">
           {renderTableType()}
-          <span className="text-sm">{table.name}</span>
+          <span>{table.name}</span>
         </div>
         {renderRowsByColumns()}
         <Tooltip content="Add table to notebook" delayDuration={400}>
@@ -1075,7 +1075,7 @@ const DatasetColumnItem: React.FC<{
   return (
     <>
       <CommandItem
-        className="rounded-none py-1 group cursor-pointer"
+        className="py-1 group cursor-pointer"
         key={`${table.name}.${column.name}`}
         value={`${table.name}.${column.name}`}
         onSelect={() => setIsExpanded(!isExpanded)}

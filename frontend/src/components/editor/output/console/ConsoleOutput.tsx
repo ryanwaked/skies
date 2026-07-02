@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tooltip } from "@/components/ui/tooltip";
 import type { CellId } from "@/core/cells/ids";
-import { isInternalCellName } from "@/core/cells/names";
 import { useExpandedConsoleOutput } from "@/core/cells/outputs";
 import type { WithResponse } from "@/core/cells/types";
 import type { OutputMessage } from "@/core/kernel/messages";
@@ -26,7 +25,6 @@ import { useOverflowDetection } from "@/hooks/useOverflowDetection";
 import { useSelectAllContent } from "@/hooks/useSelectAllContent";
 import { cn } from "@/utils/cn";
 import { invariant } from "@/utils/invariant";
-import { NameCellContentEditable } from "../../actions/name-cell-input";
 import { ErrorBoundary } from "../../boundary/ErrorBoundary";
 import { type OnRefactorWithAI, OutputRenderer } from "../../Output";
 import { useWrapText } from "../useWrapText";
@@ -113,7 +111,6 @@ const ConsoleOutputInternal = (props: Props): React.ReactNode => {
     consoleOutputs: rawConsoleOutputs,
     stale,
     interrupted,
-    cellName,
     cellId,
     onSubmitDebugger,
     onClear,
@@ -165,7 +162,9 @@ const ConsoleOutputInternal = (props: Props): React.ReactNode => {
     }
   });
 
-  if (!hasOutputs && isInternalCellName(cellName)) {
+  // The cell name renders on the frame label (Hex-style); the console area
+  // only exists when there is actual output.
+  if (!hasOutputs) {
     return null;
   }
 
@@ -298,11 +297,6 @@ const ConsoleOutputInternal = (props: Props): React.ReactNode => {
             </React.Fragment>
           );
         })}
-        <NameCellContentEditable
-          value={cellName}
-          cellId={cellId}
-          className="bg-(--slate-4) border-(--slate-4) hover:bg-(--slate-5) dark:border-(--sky-5) dark:bg-(--sky-6) dark:text-(--sky-12) text-(--slate-12) rounded-l rounded-br-lg absolute right-0 bottom-0 text-xs px-1.5 py-0.5 font-mono max-w-[75%] whitespace-nowrap overflow-hidden"
-        />
       </div>
     </div>
   );

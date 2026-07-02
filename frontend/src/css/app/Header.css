@@ -23,3 +23,45 @@
   animation-iteration-count: infinite;
   animation-delay: 1000ms;
 }
+
+/* Hex-style notebook top bar.
+ *
+ * Restyle the reused marimo controls (notebook menu, config, shutdown) from
+ * their default circular "mo-button" look into muted, ghost icon buttons so
+ * they blend into the slim bar. */
+.hex-topbar button.mo-button {
+  height: 28px;
+  width: 28px;
+  padding: 5px;
+  border: none;
+  border-radius: 3px;
+  background-color: transparent;
+  background-image: none;
+  box-shadow: none;
+  color: var(--muted-foreground);
+}
+
+.hex-topbar button.mo-button:hover {
+  background-color: rgb(63 66 87 / 20%);
+  border: none;
+  color: var(--foreground);
+}
+
+.hex-topbar button.mo-button.disabled,
+.hex-topbar button.mo-button:disabled {
+  color: var(--muted-foreground);
+  opacity: 0.5;
+}
+
+/* Unnamed-notebook input: drop the centered, boxed look inside the bar. */
+.hex-topbar .missing-filename {
+  text-align: left;
+  border-radius: 3px;
+  box-shadow: none;
+}
+
+.hex-topbar .missing-filename:hover,
+.hex-topbar .missing-filename:focus {
+  background-color: rgb(63 66 87 / 20%);
+  box-shadow: none;
+}

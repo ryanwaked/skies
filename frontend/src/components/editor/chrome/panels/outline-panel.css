@@ -4,3 +4,16 @@
   text-decoration: underline;
   @apply decoration-primary;
 }
+
+/* Hex-style dense rows for the outline sidebar panel (leaves the floating
+   outline untouched). */
+.outline-panel-tree > div {
+  min-height: 24px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border-radius: 3px;
+}
+
+.outline-panel-tree > div:hover {
+  background-color: rgb(63 66 87 / 0.2);
+}

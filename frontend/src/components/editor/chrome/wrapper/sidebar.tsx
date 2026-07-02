@@ -35,7 +35,7 @@ export const Sidebar: React.FC = () => {
   const aiEnabled = useAtomValue(aiEnabledAtom);
 
   const renderIcon = ({ Icon }: PanelDescriptor, className?: string) => {
-    return <Icon className={cn("h-5 w-5", className)} />;
+    return <Icon className={cn("h-4 w-4", className)} />;
   };
 
   // Get panels available for sidebar context menu
@@ -120,7 +120,7 @@ export const Sidebar: React.FC = () => {
   return (
     <div
       data-testid="chrome-sidebar"
-      className="h-full pt-4 pb-1 px-1 flex flex-col items-start text-muted-foreground text-md select-none text-sm z-50 dark:bg-background print:hidden hide-on-fullscreen"
+      className="h-full w-10 shrink-0 pt-3 pb-2 flex flex-col items-center gap-1 text-muted-foreground text-sm select-none z-50 bg-background border-r border-border print:hidden hide-on-fullscreen"
     >
       <ReorderableList<PanelDescriptor>
         value={sidebarItems}
@@ -139,7 +139,7 @@ export const Sidebar: React.FC = () => {
           </span>
         )}
         ariaLabel="Sidebar panels"
-        className="flex flex-col gap-0"
+        className="flex flex-col items-center gap-1"
         minItems={0}
         onAction={(panel) => toggleApplication(panel.type)}
         onItemPreloadHint={(panel) => PANEL_PRELOADERS[panel.type]?.()}
@@ -158,7 +158,7 @@ export const Sidebar: React.FC = () => {
       />
       <FeedbackButton>
         <SidebarItem tooltip="Send feedback!" selected={false}>
-          <MessageCircleQuestionIcon className="h-5 w-5" />
+          <MessageCircleQuestionIcon className="h-4 w-4" />
         </SidebarItem>
       </FeedbackButton>
       <div className="flex-1" />
@@ -172,7 +172,7 @@ const ErrorPanelIcon: React.FC<{ Icon: PanelDescriptor["Icon"] }> = ({
 }) => {
   const errorCount = useAtomValue(cellErrorCount);
   return (
-    <Icon className={cn("h-5 w-5", errorCount > 0 && "text-destructive")} />
+    <Icon className={cn("h-4 w-4", errorCount > 0 && "text-destructive")} />
   );
 };
 
@@ -213,9 +213,10 @@ const SidebarItem: React.FC<
   }>
 > = ({ children, tooltip, selected, className, onClick }) => {
   const itemClassName = cn(
-    "flex items-center p-2 text-sm mx-px shadow-inset font-mono rounded",
-    !selected && "hover:bg-(--sage-3)",
-    selected && "bg-(--sage-4)",
+    "flex items-center justify-center h-7 w-7 rounded-[3px]",
+    !selected &&
+      "text-muted-foreground hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground",
+    selected && "bg-primary/8 text-primary",
     className,
   );
 

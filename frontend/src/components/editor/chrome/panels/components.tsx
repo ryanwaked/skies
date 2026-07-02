@@ -29,7 +29,7 @@ PanelAccordionItem.displayName = "PanelAccordionItem";
 
 /**
  * Styled AccordionTrigger for sidebar panels.
- * Applies compact uppercase styling and wraps children in a flex container
+ * Applies compact, quiet styling and wraps children in a flex container
  * with gap for icon + label layout.
  */
 const PanelAccordionTrigger = React.forwardRef<
@@ -39,7 +39,7 @@ const PanelAccordionTrigger = React.forwardRef<
   <AccordionTrigger
     ref={ref}
     className={cn(
-      "px-3 py-2 text-xs font-semibold uppercase tracking-wide hover:no-underline",
+      "px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:no-underline",
       className,
     )}
     {...props}

@@ -248,7 +248,7 @@ export const FileExplorer: React.FC<{
             }
           }}
           padding={15}
-          rowHeight={30}
+          rowHeight={26}
           indent={INDENT_STEP}
           overscanCount={1000}
           // Disable multi-selection
@@ -499,17 +499,17 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
       <FolderArrow node={node} />
       <span
         className={cn(
-          "flex items-center pl-1 py-1 cursor-pointer hover:bg-accent/50 hover:text-accent-foreground rounded-l flex-1 overflow-hidden group",
+          "flex items-center pl-1 py-0.5 cursor-pointer text-[13px] hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground rounded-[3px] flex-1 overflow-hidden group",
           node.willReceiveDrop &&
             node.data.isDirectory &&
             "bg-accent/80 hover:bg-accent/80 text-accent-foreground",
         )}
       >
         {node.data.isMarimoFile ? (
-          <MarimoIcon className="w-5 h-5 shrink-0 mr-2" strokeWidth={1.5} />
+          <MarimoIcon className="w-4 h-4 shrink-0 mr-1.5" strokeWidth={1.5} />
         ) : (
           <Icon
-            className={cn("w-5 h-5 shrink-0 mr-2", FILE_ICON_COLOR[fileType])}
+            className={cn("w-4 h-4 shrink-0 mr-1.5", FILE_ICON_COLOR[fileType])}
             strokeWidth={1.5}
           />
         )}
@@ -520,7 +520,7 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
         )}
         <FileActionsDropdown
           testId="file-explorer-more-button"
-          iconClassName="w-5 h-5"
+          iconClassName="w-4 h-4"
         >
           {!node.data.isDirectory && (
             <DropdownMenuItem

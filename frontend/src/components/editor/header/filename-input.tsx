@@ -32,6 +32,11 @@ interface FilenameInputProps {
   resetOnBlur?: boolean;
   placeholderText?: string;
   initialValue?: string | null;
+  /**
+   * Optional value shown while the input is not focused (e.g. the filename
+   * without its extension). Editing always starts from `initialValue`.
+   */
+  displayValue?: string | null;
   className?: string;
   flexibleWidth?: boolean;
   onNameChange: (value: string) => void;
@@ -41,6 +46,7 @@ export const FilenameInput = ({
   resetOnBlur = false,
   placeholderText,
   initialValue = null,
+  displayValue = null,
   flexibleWidth = false,
   onNameChange,
   className,
@@ -150,8 +156,10 @@ export const FilenameInput = ({
     </CommandList>
   );
 
+  const restingValue = displayValue ?? initialValue;
+  const shownValue = focused ? searchValue : restingValue;
   const size =
-    Math.max(20, searchValue?.length || placeholderText?.length || 0) * 10;
+    Math.max(8, shownValue?.length || placeholderText?.length || 0) * 10;
 
   return (
     <ErrorBoundary>
@@ -170,7 +178,7 @@ export const FilenameInput = ({
                 tabIndex={-1}
                 rootClassName="border-none justify-center px-1"
                 spellCheck="false"
-                value={focused ? searchValue || "" : initialValue || ""}
+                value={shownValue || ""}
                 onKeyDown={(e) => {
                   if (e.key === "Escape") {
                     e.currentTarget.blur();
@@ -183,8 +191,8 @@ export const FilenameInput = ({
                 autoComplete="off"
                 style={flexibleWidth ? { maxWidth: size } : undefined}
                 className={cn(
-                  className,
                   "w-full px-4 py-1 my-1 h-9 font-mono text-foreground/60",
+                  className,
                 )}
               />
             </PopoverAnchor>

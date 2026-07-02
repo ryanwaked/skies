@@ -49,6 +49,7 @@ import {
   useCellRuntime,
 } from "../../core/cells/cells";
 import { type CellId, SETUP_CELL_ID } from "../../core/cells/ids";
+import { isInternalCellName } from "../../core/cells/names";
 import {
   cellNeedsRun,
   cellStatusClasses,
@@ -61,6 +62,7 @@ import type { Theme } from "../../theme/useTheme";
 import { Functions } from "../../utils/functions";
 import { Logger } from "../../utils/Logger";
 import { renderShortcut } from "../shortcuts/renderShortcut";
+import { NameCellContentEditable } from "./actions/name-cell-input";
 import { CellStatusComponent } from "./cell/CellStatus";
 import { CreateCellButton } from "./cell/CreateCellButton";
 import {
@@ -509,19 +511,6 @@ const EditableCellComponent = ({
 
   const outputArea = hasOutput && !isEmptyMarkdownContent && (
     <div className="relative" onDoubleClick={showHiddenCodeIfMarkdown}>
-      <div className="absolute top-5 -left-7 z-20 print:hidden">
-        <CollapseToggle
-          isCollapsed={isCollapsed}
-          onClick={() => {
-            if (isCollapsed) {
-              actions.expandCell({ cellId });
-            } else {
-              actions.collapseCell({ cellId });
-            }
-          }}
-          canCollapse={canCollapse}
-        />
-      </div>
       <OutputArea
         // Only allow expanding in edit mode
         allowExpand={true}
@@ -591,15 +580,38 @@ const EditableCellComponent = ({
           <div
             tabIndex={-1}
             {...navigationProps}
-            className={cn(
-              className,
-              navigationProps.className,
-              "focus:ring-1 focus:ring-(--slate-8) focus:ring-offset-2",
-            )}
+            className={cn(className, navigationProps.className)}
             ref={cellContainerRef}
             {...cellDomProps(cellId, cellData.name)}
           >
-            <CellLeftSideActions cellId={cellId} actions={actions} />
+            {!isInternalCellName(cellData.name) && (
+              <NameCellContentEditable
+                value={cellData.name}
+                cellId={cellId}
+                className="cell-frame-label border-transparent"
+              />
+            )}
+            <CellLeftSideActions cellId={cellId} actions={actions}>
+              <div className="cell-gutter-actions flex flex-col items-center z-20 print:hidden">
+                <span className={cn(!isCollapsed && "hover-action")}>
+                  <CollapseToggle
+                    isCollapsed={isCollapsed}
+                    onClick={() => {
+                      if (isCollapsed) {
+                        actions.expandCell({ cellId });
+                      } else {
+                        actions.collapseCell({ cellId });
+                      }
+                    }}
+                    canCollapse={canCollapse}
+                  />
+                </span>
+                <CellDragHandle />
+              </div>
+            </CellLeftSideActions>
+            {!isCellCodeShown && !isMarkdown && (
+              <span className="cell-code-collapsed-note">Code collapsed</span>
+            )}
             {cellOutput === "above" && (outputArea || emptyMarkdownPlaceholder)}
             <div
               className={cn("tray")}
@@ -820,10 +832,9 @@ const CellRightSideActions = memo(
     return (
       <div className={cn("shoulder-right z-20", className)}>
         {!isCellStatusInline && cellStatusComponent}
-        <div className="flex gap-2 items-end">
-          <CellDragHandle />
-          {isCellStatusInline && cellStatusComponent}
-        </div>
+        {isCellStatusInline && (
+          <div className="flex gap-2 items-end">{cellStatusComponent}</div>
+        )}
       </div>
     );
   },
@@ -836,9 +847,14 @@ const CellLeftSideActions = memo(
     className?: string;
     cellId: CellId;
     actions: CellComponentActions;
+    /**
+     * Gutter affordances (collapse chevron, drag handle) rendered below the
+     * create-above button, at the top of the cell.
+     */
+    children?: React.ReactNode;
   }) => {
     const connection = useAtomValue(connectionAtom);
-    const { className, actions, cellId } = props;
+    const { className, actions, cellId, children } = props;
 
     const createBelow = useEvent(
       (opts: { code?: string; hideCode?: boolean } = {}) =>
@@ -866,6 +882,7 @@ const CellLeftSideActions = memo(
             oneClickShortcut={oneClickShortcut}
           />
         </div>
+        {children}
         <div className="flex-1 pointer-events-none w-3" />
         {/* <div className="flex-1 pointer-events-none bg-border w-px mx-auto hover-action opacity-70" /> */}
         <div className="-mb-2 min-h-7">
@@ -1084,10 +1101,7 @@ const SetupCellComponent = ({
             data-status={cellRuntime.status}
             ref={cellRef}
             {...mergeProps(navigationProps, {
-              className: cn(
-                className,
-                "focus:ring-1 focus:ring-(--slate-8) focus:ring-offset-2",
-              ),
+              className: cn(className),
               onBlur: closeCompletionHandler,
               onKeyDown: resumeCompletionHandler,
             })}
@@ -1096,6 +1110,13 @@ const SetupCellComponent = ({
             tabIndex={-1}
             data-setup-cell={true}
           >
+            {!isInternalCellName(cellData.name) && (
+              <NameCellContentEditable
+                value={cellData.name}
+                cellId={cellId}
+                className="cell-frame-label border-transparent"
+              />
+            )}
             <div
               className={cn("tray")}
               data-has-output-above={false}

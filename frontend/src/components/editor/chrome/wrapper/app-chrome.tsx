@@ -70,6 +70,19 @@ import { useAiPanelTab } from "./useAiPanel";
 import { useDependencyPanelTab } from "./useDependencyPanelTab";
 import { handleDragging } from "./utils";
 
+// Hex-style display titles for the sidebar panel header. Falls back to the
+// panel's registry label.
+const PANEL_TITLE_OVERRIDES: Partial<Record<PanelType, string>> = {
+  variables: "Data browser",
+};
+
+function panelTitle(panel: PanelType | undefined): string {
+  if (!panel) {
+    return "";
+  }
+  return PANEL_TITLE_OVERRIDES[panel] ?? PANEL_MAP.get(panel)?.label ?? panel;
+}
+
 // Placeholder that matches the eventual xterm theme background so the
 // transition into the loaded terminal is seamless rather than a blank flash.
 const TerminalSkeleton: React.FC = () => {
@@ -329,12 +342,12 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
   const helpPaneBody = (
     <ErrorBoundary>
       <PanelSectionProvider value="sidebar">
-        <div className="flex flex-col h-full flex-1 overflow-hidden mr-[-4px]">
-          <div className="p-3 border-b flex justify-between items-center">
+        <div className="flex flex-col h-full flex-1 overflow-hidden mr-[-4px] bg-background">
+          <div className="px-3 h-9 shrink-0 border-b border-border flex justify-between items-center gap-2">
             {selectedPanel === "dependencies" ? (
               <div className="flex items-center justify-between flex-1">
-                <span className="text-sm text-(--slate-11) uppercase tracking-wide font-semibold">
-                  Dependencies
+                <span className="text-[13px] font-semibold text-foreground">
+                  {panelTitle(selectedPanel)}
                 </span>
                 <Tabs
                   value={dependencyPanelTab}
@@ -347,13 +360,13 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
                   <TabsList>
                     <TabsTrigger
                       value="minimap"
-                      className="py-0.5 text-xs uppercase tracking-wide font-bold"
+                      className="py-0.5 text-xs font-medium rounded-[3px]"
                     >
                       Minimap
                     </TabsTrigger>
                     <TabsTrigger
                       value="graph"
-                      className="py-0.5 text-xs uppercase tracking-wide font-bold"
+                      className="py-0.5 text-xs font-medium rounded-[3px]"
                     >
                       Graph
                     </TabsTrigger>
@@ -372,31 +385,31 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
                 <TabsList>
                   <TabsTrigger
                     value="chat"
-                    className="py-0.5 text-xs uppercase tracking-wide font-bold"
+                    className="py-0.5 text-xs font-medium rounded-[3px]"
                   >
                     Chat
                   </TabsTrigger>
                   <TabsTrigger
                     value="agents"
-                    className="py-0.5 text-xs uppercase tracking-wide font-bold"
+                    className="py-0.5 text-xs font-medium rounded-[3px]"
                   >
                     Agents
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
             ) : (
-              <span className="text-sm text-(--slate-11) uppercase tracking-wide font-semibold flex-1">
-                {selectedPanel}
+              <span className="text-[13px] font-semibold text-foreground flex-1 truncate">
+                {panelTitle(selectedPanel)}
               </span>
             )}
             <Button
               data-testid="close-helper-pane"
-              className="m-0"
+              className="m-0 text-muted-foreground hover:text-foreground"
               size="xs"
               variant="text"
               onClick={() => setIsSidebarOpen(false)}
             >
-              <XIcon className="w-4 h-4" />
+              <XIcon className="w-3.5 h-3.5" />
             </Button>
           </div>
           <Suspense>
@@ -431,8 +444,8 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
       collapsedSize={0}
       collapsible={true}
       className={cn(
-        "dark:bg-(--slate-1) print:hidden hide-on-fullscreen",
-        isSidebarOpen && "border-r border-l border-(--slate-7)",
+        "bg-background print:hidden hide-on-fullscreen",
+        isSidebarOpen && "border-r border-border",
       )}
       minSize={10}
       // We can't make the default size greater than 0, otherwise it will start open

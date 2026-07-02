@@ -1,6 +1,47 @@
 /* This must be kept in sync with the fonts used in the static HTML download,
 but instead use the Google Fonts CDN.
 see frontend/src/core/static/download-html.ts */
+
+/* Primary fonts (Hex-style theme):
+   - IBM Plex Sans: UI text
+   - Headings use IBM Plex Sans 600 (matches Hex's live markdown headings)
+   - IBM Plex Mono: code */
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: block;
+  src: url("../../fonts/IBM_Plex_Sans/IBMPlexSans-VariableFont_wght.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("../../fonts/IBM_Plex_Mono/IBMPlexMono-Regular.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url("../../fonts/IBM_Plex_Mono/IBMPlexMono-Medium.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url("../../fonts/IBM_Plex_Mono/IBMPlexMono-Bold.woff2") format("woff2");
+}
+
+/* Legacy fonts, kept for user font overrides (--marimo-*-font). */
 @font-face {
   font-family: Lora;
   font-style: normal;

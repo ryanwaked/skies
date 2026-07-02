@@ -9,15 +9,19 @@
  * */
 .marimo-cell {
   position: relative;
-  border-radius: 10px;
+  border-radius: 3px;
   max-width: inherit;
   width: 100%;
-  border: 1px solid var(--gray-4);
 
-  @apply divide-y divide-(--gray-5);
+  /* Hex-style frame: always-visible 1px border on a surface slightly
+   * lighter than the canvas. */
+  border: 1px solid var(--border);
+
+  /* Very subtle divider between code editor and output. */
+  @apply divide-y divide-border/50;
 
   &:hover {
-    border-color: var(--gray-6);
+    border-color: var(--cell-border-hover);
   }
 
   &:focus-visible {
@@ -31,7 +35,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    border-radius: 10px;
+    border-radius: 3px;
     pointer-events: none;
     opacity: 0.5;
     box-shadow: 0px 0px 10px 0px var(--cyan-9);
@@ -58,7 +62,7 @@
       content: "";
       position: absolute;
       inset: 0;
-      border-radius: 10px;
+      border-radius: 3px;
       pointer-events: none;
       opacity: 0.6;
       box-shadow: 0px 0px 10px 0px var(--red-9);
@@ -141,22 +145,30 @@
     }
 
     & > :first-child {
-      border-top-left-radius: 9px;
-      border-top-right-radius: 9px;
+      border-top-left-radius: 2px;
+      border-top-right-radius: 2px;
     }
 
     & > :last-child {
-      border-bottom-left-radius: 9px;
-      border-bottom-right-radius: 9px;
+      border-bottom-left-radius: 2px;
+      border-bottom-right-radius: 2px;
     }
 
+    /* Focused/selected cell: faint blush-pink ring (Hex accent). */
     &:focus-within {
-      @apply shadow-md-solid shadow-shade;
+      border-color: var(--cell-focus-border);
+      box-shadow: var(--cell-focus-shadow);
     }
 
     .cm {
-      border-radius: 8px;
+      border-radius: 2px;
     }
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--cell-focus-border);
+    box-shadow: var(--cell-focus-shadow);
   }
 
   > [data-hidden="true"] ~ * {
@@ -194,7 +206,7 @@
   }
 
   &.disabled:hover {
-    border-color: var(--gray-6);
+    border-color: var(--cell-border-hover);
   }
 
   /* Error styles for Cell, less precedence than needs run */
@@ -243,10 +255,10 @@
 
   &.focus-outline {
     transition: all 0.6s;
-    border-color: var(--blue-8) !important;
+    border-color: var(--cell-focus-border) !important;
 
     /* custom shadow until our theme overrides can support colored shadow */
-    @apply shadow-lg shadow-[var(--blue-8)];
+    @apply shadow-lg shadow-[rgba(245,192,192,0.25)];
   }
 
   /* Published - when its just the output */
@@ -284,17 +296,22 @@
     }
   }
 
-  /* Borderless styles for Cell */
+  /* Hex frames every prose cell, so "borderless" markdown cells keep the
+   * regular frame — except heading-only cells (a lone h1/h2/h3), which Hex
+   * renders directly on the canvas as section headings. */
   &.borderless {
-    border-color: transparent;
-
     & > * {
       border-bottom: none;
     }
+  }
 
-    /* Apply the original styles */
-    &:focus {
-      border: 1px solid var(--gray-4);
+  &:has(.output-area > .output > .markdown > :is(h1, h2, h3):only-child) {
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+
+    &:hover {
+      border-color: color-mix(in srgb, var(--border), transparent 50%);
     }
   }
 
@@ -317,14 +334,63 @@
     right: 2px;
   }
 
-  @apply bg-background;
+  /* Cell surface is slightly lighter than the canvas. */
+  @apply bg-card;
+}
+
+/*
+ * Hex-style "fieldset legend": the cell's name sits on the top border line,
+ * interrupting it. The canvas-colored background masks the border underneath.
+ */
+.marimo-cell .cell-frame-label {
+  position: absolute;
+  top: -8px;
+  left: 14px;
+  z-index: 25;
+  padding: 0 6px;
+  font-size: 0.75rem;
+  line-height: 16px;
+  font-weight: 400;
+  color: var(--muted-foreground);
+  background-color: var(--background);
+  border: none;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  max-width: calc(100% - 40px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.marimo-cell.published .cell-frame-label {
+  display: none;
+}
+
+/* Note shown inside the frame when the cell's code editor is hidden. */
+.marimo-cell .cell-code-collapsed-note {
+  display: block;
+  padding: 6px 14px 2px;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--muted-foreground);
+  border-bottom: none;
+  user-select: none;
+}
+
+/* Left-gutter affordances (collapse chevron + drag handle). */
+.marimo-cell .cell-gutter-actions {
+  & button:hover,
+  & [data-testid="drag-button"]:hover {
+    background-color: var(--cell-hover-tint);
+    border-radius: 3px;
+  }
 }
 
 .dark .marimo-cell {
   @apply border-border;
 
   &:hover {
-    border: 1px solid var(--gray-9);
+    border: 1px solid var(--cell-border-hover);
   }
 
   &.needs-run:hover {
@@ -336,15 +402,18 @@
   }
 
   &.borderless {
-    border-color: transparent;
-
     & > * {
       border-bottom: none;
     }
+  }
 
-    /* Apply the original styles */
+  &:has(.output-area > .output > .markdown > :is(h1, h2, h3):only-child) {
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+
     &:hover {
-      border: 1px solid var(--gray-4);
+      border-color: color-mix(in srgb, var(--border), transparent 50%);
     }
   }
 
@@ -397,8 +466,8 @@
 
   /* Round the top of the code editor unless there is output above or the AI prompt input is open */
   &[data-has-output-above="false"] .cm-editor {
-    border-top-left-radius: 9px;
-    border-top-right-radius: 9px;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
   }
 
   div[data-ai-input-open="true"] .cm-editor {
@@ -407,8 +476,8 @@
   }
 
   &:last-child .cm-editor {
-    border-bottom-left-radius: 9px;
-    border-bottom-right-radius: 9px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
   }
 
   /* expand the hover area left and right */
@@ -443,6 +512,19 @@
   /* Set a fixed gutter width to ensure the hover area is always wide enough */
   /* And make the gutter bigger when the window is super wide */
   --gutter-width: 100px;
+
+  /* Hex.tech cell-frame tokens (no semantic vars exist for these yet). */
+
+  /* Border DEFAULT; resting border uses the muted var(--border). */
+  --cell-border-hover: #42425a;
+
+  /* Blush-pink brand accent (#F5C0C0) focus ring. */
+  --cell-focus-border: rgba(245, 192, 192, 0.5);
+  --cell-focus-shadow:
+    0 0 0 1px rgba(245, 192, 192, 0.5), 0 0 0 2px rgba(245, 192, 192, 0.05);
+
+  /* Hover background tint for gutter affordances. */
+  --cell-hover-tint: rgba(63, 66, 87, 0.2);
 }
 
 /* ------------------------ CodeMirror Editor ----------------------------- */
@@ -451,11 +533,11 @@
 }
 
 .cm-editor {
-  font-size: var(--marimo-code-editor-font-size, 0.9rem);
+  font-size: var(--marimo-code-editor-font-size, 0.75rem);
 }
 
 .cm-lineNumbers {
-  font-size: var(--marimo-code-editor-font-size, 0.9rem);
+  font-size: var(--marimo-code-editor-font-size, 0.75rem);
 }
 
 /* .marimo-cell is needed to take precedence over codemirror's generated class ... */
@@ -486,17 +568,20 @@
   }
 
   .cm-content {
-    font-size: var(--marimo-code-editor-font-size, 0.9rem);
+    font-size: var(--marimo-code-editor-font-size, 0.75rem);
     font-family: var(--monospace-font);
+
+    /* Hex's Monaco runs 12px type on an 18px line box. */
+    line-height: 1.5;
   }
 }
 
 .dark .marimo-cell .cm-editor.cm-focused .cm-activeLineGutter {
-  background: #0e1e25;
+  background: rgb(63 66 87 / 20%);
 }
 
 .dark .marimo-cell .cm-editor.cm-focused .cm-activeLine {
-  background: hsl(210deg 100% 2% / 20%);
+  background: rgb(63 66 87 / 12%);
 }
 
 /* ------------------------------ Output Areas ------------------------------ */
@@ -534,5 +619,5 @@
 }
 
 .console-output-area {
-  background-color: var(--gray-1);
+  background-color: var(--muted);
 }

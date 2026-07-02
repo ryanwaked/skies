@@ -16,6 +16,11 @@ interface Props {
   isRunning: boolean;
   width: AppConfig["width"];
   onReconnect?: () => void;
+  /**
+   * Hide the floating "running" icon; used when the notebook header bar
+   * already renders an inline status indicator.
+   */
+  hideRunningIndicator?: boolean;
 }
 
 export const AppContainer: React.FC<PropsWithChildren<Props>> = ({
@@ -24,6 +29,7 @@ export const AppContainer: React.FC<PropsWithChildren<Props>> = ({
   isRunning,
   children,
   onReconnect,
+  hideRunningIndicator,
 }) => {
   const connectionState = connection.state;
 
@@ -34,6 +40,7 @@ export const AppContainer: React.FC<PropsWithChildren<Props>> = ({
         connection={connection}
         isRunning={isRunning}
         onReconnect={onReconnect}
+        hideRunningIndicator={hideRunningIndicator}
       />
       <PyodideLoader>
         <WrappedWithSidebar>

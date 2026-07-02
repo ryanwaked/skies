@@ -18,7 +18,12 @@ export const StatusOverlay: React.FC<{
   connection: ConnectionStatus;
   isRunning: boolean;
   onReconnect?: () => void;
-}> = ({ connection, isRunning, onReconnect }) => {
+  /**
+   * Hide the floating "running" icon; used when the notebook header bar
+   * already renders an inline status indicator.
+   */
+  hideRunningIndicator?: boolean;
+}> = ({ connection, isRunning, onReconnect, hideRunningIndicator = false }) => {
   const { mode } = useAtomValue(viewStateAtom);
   const isClosed = connection.state === WebSocketState.CLOSED;
   const isOpen = connection.state === WebSocketState.OPEN;
@@ -36,7 +41,7 @@ export const StatusOverlay: React.FC<{
           mode === "read" ? "fixed" : "absolute",
         )}
       >
-        {isOpen && isRunning && <RunningIcon />}
+        {isOpen && isRunning && !hideRunningIndicator && <RunningIcon />}
         {isClosed && (
           <DisconnectedIcon
             onReconnect={canReconnect ? onReconnect : undefined}

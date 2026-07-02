@@ -47,7 +47,9 @@
 .markdown h4,
 .markdown h5,
 .markdown h6 {
-  font-weight: inherit;
+  /* Hex-style display headings: measured live at 600 weight, -0.04em */
+  font-weight: 600;
+  letter-spacing: -0.04em;
   font-family: var(--heading-font);
 
   /*
@@ -61,6 +63,44 @@
   margin-top: 1.5rem;
   margin-bottom: 1rem;
   line-height: 1.25;
+}
+
+/*
+Hex type scale measured from the live app: 14px/22px body prose,
+h1 36px (1.2 line-height), stepping down h2 27 / h3 20 / h4 16. Since this
+file is unlayered it wins over the (layered) Tailwind Typography styles, so
+the slides theme — which carries its own larger scale — must be excluded.
+*/
+.markdown p:not(.mo-slides-theme *),
+.markdown li:not(.mo-slides-theme *),
+.markdown .paragraph:not(.mo-slides-theme *) {
+  font-size: 0.875rem;
+  line-height: 1.575;
+}
+
+.markdown h1:not(.mo-slides-theme *) {
+  font-size: 2.25rem;
+  line-height: 1.2;
+}
+
+.markdown h2:not(.mo-slides-theme *) {
+  font-size: 1.6875rem;
+}
+
+.markdown h3:not(.mo-slides-theme *) {
+  font-size: 1.25rem;
+}
+
+.markdown h4:not(.mo-slides-theme *) {
+  font-size: 1rem;
+}
+
+/* Inline code: mono chip on a subtle raised background */
+.markdown code:not(pre code, .mo-slides-theme *) {
+  font-family: var(--monospace-font);
+  background-color: light-dark(var(--slate-3), hsl(231deg 16% 30%));
+  border-radius: 3px;
+  padding: 0.125rem 0.25rem;
 }
 
 .markdown hr {

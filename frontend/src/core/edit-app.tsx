@@ -10,7 +10,7 @@ import { useEffect } from "react";
 import { NotStartedConnectionAlert } from "@/components/editor/alerts/connecting-alert";
 import { Controls } from "@/components/editor/controls/Controls";
 import { AppHeader } from "@/components/editor/header/app-header";
-import { FilenameForm } from "@/components/editor/header/filename-form";
+import { NotebookHeader } from "@/components/editor/header/notebook-header";
 import { MultiCellActionToolbar } from "@/components/editor/navigation/multi-cell-action-toolbar";
 import { ViewerBanner } from "@/components/editor/viewer-banner";
 import { cn } from "@/utils/cn";
@@ -72,6 +72,9 @@ export const EditApp: React.FC<AppProps> = ({
   const isEditing = viewState.mode === "edit";
   const isPresenting = viewState.mode === "present";
   const isRunning = useAtomValue(notebookIsRunningAtom);
+  // The Hex-style top bar is shown in both edit and present mode; present
+  // mode needs it to switch back via the Notebook/App builder control.
+  const showHeaderBar = !hideControls && (isEditing || isPresenting);
 
   // Initialize RuntimeState event-listeners
   useEffect(() => {
@@ -163,19 +166,22 @@ export const EditApp: React.FC<AppProps> = ({
         isRunning={isRunning}
         width={appConfig.width}
         onReconnect={reconnect}
+        hideRunningIndicator={showHeaderBar}
       >
         <AppHeader
           connection={connection}
           className={cn(
-            "pt-4 sm:pt-12 pb-2 mb-4 print:hidden z-50",
+            "print:hidden z-50",
             // Keep the header sticky when scrolling horizontally, for column mode
             "sticky left-0",
+            showHeaderBar
+              ? // Pin the notebook top bar while scrolling vertically
+                "top-0 mb-4"
+              : "pt-4 sm:pt-12 pb-2 mb-4",
           )}
         >
-          {!hideControls && isEditing && (
-            <div className="flex items-center justify-center container">
-              <FilenameForm filename={filename} />
-            </div>
+          {showHeaderBar && (
+            <NotebookHeader filename={filename} connection={connection} />
           )}
         </AppHeader>
 

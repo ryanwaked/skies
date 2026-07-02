@@ -19,7 +19,7 @@ export const DatasourceLabel: React.FC<{
   return (
     <div
       className={cn(
-        "flex gap-1.5 items-center font-bold py-1.5 text-muted-foreground bg-(--slate-2) text-sm",
+        "flex gap-1.5 items-center font-medium py-1.5 text-muted-foreground text-xs",
         className,
       )}
       style={style}
@@ -36,7 +36,7 @@ export const EmptyState: React.FC<{
 }> = ({ content, className, style }) => {
   return (
     <div
-      className={cn("text-sm text-muted-foreground py-1", className)}
+      className={cn("text-xs text-muted-foreground py-1", className)}
       style={style}
     >
       {content}

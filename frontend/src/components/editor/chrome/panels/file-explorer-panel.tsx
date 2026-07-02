@@ -59,8 +59,8 @@ const FileExplorerComponent: React.FC<{ height: number }> = ({ height }) => {
   );
 };
 
-// Height of each accordion trigger (px-3 py-2 text-xs = ~33px)
-const TRIGGER_HEIGHT = 33;
+// Height of each accordion trigger (px-3 py-1.5 text-xs = ~29px)
+const TRIGGER_HEIGHT = 29;
 
 const FileExplorerPanel: React.FC = () => {
   const { ref: panelRef, height: panelHeight = 500 } =

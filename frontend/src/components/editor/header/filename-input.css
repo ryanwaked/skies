@@ -11,11 +11,13 @@
 }
 
 .filename {
-  text-align: center;
+  text-align: left;
   box-shadow: none;
+  border-radius: 3px;
 }
 
 .filename:hover,
 .filename:focus {
-  @apply border shadow-lg-solid;
+  background-color: rgb(63 66 87 / 20%);
+  box-shadow: none;
 }

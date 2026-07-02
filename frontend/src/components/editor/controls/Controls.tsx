@@ -10,17 +10,11 @@ import {
 } from "lucide-react";
 import type { JSX } from "react";
 import { KeyboardShortcuts } from "@/components/editor/controls/keyboard-shortcuts";
-import { NotebookMenuDropdown } from "@/components/editor/controls/notebook-menu-dropdown";
-import { ShutdownButton } from "@/components/editor/controls/shutdown-button";
 import { Button } from "@/components/editor/inputs/Inputs";
 import { FindReplace } from "@/components/find-replace/find-replace";
 import type { AppConfig } from "@/core/config/config-schema";
 import { canInteractWithAppAtom } from "@/core/network/connection";
 import { SaveComponent } from "@/core/saving/save-component";
-import {
-  getConnectionTooltip,
-  isAppInteractionDisabled,
-} from "@/core/websocket/connection-utils";
 import { WebSocketState } from "@/core/websocket/types";
 import { cn } from "@/utils/cn";
 import { Functions } from "@/utils/functions";
@@ -30,12 +24,10 @@ import {
   undoLabelAtom,
   useCellActions,
 } from "../../../core/cells/cells";
-import { ConfigButton } from "../../app-config/app-config-button";
 import { renderShortcut } from "../../shortcuts/renderShortcut";
 import { Tooltip } from "../../ui/tooltip";
 import { useShouldShowInterrupt } from "../cell/useShouldShowInterrupt";
 import { HideInKioskMode } from "../kiosk-mode";
-import { LayoutSelect } from "../renderers/layout-select";
 import { CommandPaletteButton } from "./command-palette-button";
 
 interface ControlsProps {
@@ -79,32 +71,12 @@ export const Controls = ({
     );
   }
 
-  const disabled = isAppInteractionDisabled(connectionState);
-  const connectionTooltip = disabled
-    ? getConnectionTooltip(connectionState)
-    : undefined;
   return (
     <>
       {!presenting && <FindReplace />}
 
-      {!closed && (
-        <div
-          data-testid="chrome-controls-top-right"
-          className={topRightControls}
-        >
-          {presenting && <LayoutSelect />}
-          <NotebookMenuDropdown
-            disabled={disabled}
-            tooltip={connectionTooltip}
-          />
-          <ConfigButton disabled={disabled} tooltip={connectionTooltip} />
-          <ShutdownButton
-            description="This will terminate the Python kernel. You'll lose all data that's in memory."
-            disabled={disabled}
-            tooltip={connectionTooltip}
-          />
-        </div>
-      )}
+      {/* The notebook menu, config, shutdown, and layout controls moved into
+          the NotebookHeader top bar. */}
 
       <div
         data-testid="chrome-controls-bottom-right"
@@ -218,9 +190,6 @@ const StopControlButton = ({
     </Tooltip>
   );
 };
-
-const topRightControls =
-  "absolute top-3 right-5 m-0 flex items-center gap-2 min-h-[28px] print:hidden pointer-events-auto z-30";
 
 const bottomRightControls =
   "absolute bottom-5 right-5 flex flex-col gap-2 items-center print:hidden pointer-events-auto z-30";

@@ -31,6 +31,7 @@ const OutlinePanel: React.FC = () => {
 
   return (
     <OutlineList
+      className="outline-panel-tree py-2 pl-2 pr-1 text-[13px]"
       items={items}
       activeHeaderId={activeHeaderId}
       activeOccurrences={activeOccurrences}
