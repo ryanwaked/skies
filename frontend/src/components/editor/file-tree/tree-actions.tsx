@@ -21,8 +21,9 @@ export const TreeChevron: React.FC<{
   className?: string;
 }> = ({ isExpanded, className }) => (
   <ChevronRightIcon
+    strokeWidth={1.5}
     className={cn(
-      "shrink-0 transition-transform",
+      "shrink-0 transition-transform text-muted-foreground",
       isExpanded && "rotate-90",
       className,
     )}
@@ -59,12 +60,13 @@ export const RefreshIconButton: React.FC<{
     <Button
       variant="text"
       size="xs"
-      className={className}
+      className={cn("text-muted-foreground hover:text-foreground", className)}
       onClick={handleClick}
     >
       <RefreshCwIcon
+        strokeWidth={1.5}
         className={cn(
-          "h-4 w-4",
+          "h-3.5 w-3.5",
           iconClassName,
           isSpinning && "animate-[spin_0.5s]",
         )}
@@ -107,11 +109,19 @@ export const VisibilityToggleButton: React.FC<{
         data-testid={dataTestId}
         variant="text"
         size={size}
-        className={className}
+        className={cn(
+          "text-muted-foreground hover:text-foreground",
+          className,
+        )}
         onClick={onToggle}
       >
         <Icon
-          className={cn("h-4 w-4", isVisible && "text-primary", iconClassName)}
+          strokeWidth={1.5}
+          className={cn(
+            "h-3.5 w-3.5",
+            isVisible && "text-primary",
+            iconClassName,
+          )}
         />
       </Button>
     </Tooltip>
@@ -138,12 +148,16 @@ export const MoreActionsButton = React.forwardRef<
     size="xs"
     className={cn(
       "mb-0 opacity-0 group-hover:opacity-100 transition-opacity",
+      "text-muted-foreground hover:text-foreground",
       className,
     )}
     aria-label="More options"
     {...props}
   >
-    <MoreVerticalIcon className={cn("w-4 h-4", iconClassName)} />
+    <MoreVerticalIcon
+      strokeWidth={1.5}
+      className={cn("w-3.5 h-3.5", iconClassName)}
+    />
   </Button>
 ));
 MoreActionsButton.displayName = "MoreActionsButton";

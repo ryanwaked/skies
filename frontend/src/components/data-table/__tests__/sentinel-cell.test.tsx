@@ -20,7 +20,7 @@ describe("SentinelCell", () => {
     expect(span.textContent).toBe("None");
     expect(span.getAttribute("aria-label")).toBe("None");
     expect(span.className).toContain("italic");
-    expect(span.className).toContain("bg-muted");
+    expect(span.className).toContain("bg-[rgba(63,66,87,0.2)]");
   });
 
   it("renders empty string as <empty>", () => {

@@ -51,9 +51,9 @@ export const DataTableContextMenu = <TData,>({
     }
 
     if (open) {
-      cellElement.classList.add("bg-primary/[0.15]");
+      cellElement.classList.add("bg-primary/[0.12]");
     } else {
-      cellElement.classList.remove("bg-primary/[0.15]");
+      cellElement.classList.remove("bg-primary/[0.12]");
     }
   });
 
@@ -121,12 +121,12 @@ export const CellContextMenu = <TData,>({
   return (
     <ContextMenuContent>
       <ContextMenuItem onClick={handleCopyCell}>
-        <CopyIcon className="mo-dropdown-icon h-3 w-3" />
+        <CopyIcon className="mo-dropdown-icon h-3 w-3" strokeWidth={1.5} />
         Copy cell
       </ContextMenuItem>
       {multipleSelectedCells && (
         <ContextMenuItem onClick={copySelectedCells}>
-          <SquareStack className="mo-dropdown-icon h-3 w-3" />
+          <SquareStack className="mo-dropdown-icon h-3 w-3" strokeWidth={1.5} />
           Copy selected cells
         </ContextMenuItem>
       )}
@@ -136,13 +136,19 @@ export const CellContextMenu = <TData,>({
           <ContextMenuItem
             onClick={() => handleFilterCell(membershipFilterType, "in")}
           >
-            <FilterIcon className="mo-dropdown-icon h-3 w-3" />
+            <FilterIcon
+              className="mo-dropdown-icon h-3 w-3"
+              strokeWidth={1.5}
+            />
             Filter by this value
           </ContextMenuItem>
           <ContextMenuItem
             onClick={() => handleFilterCell(membershipFilterType, "not_in")}
           >
-            <FilterIcon className="mo-dropdown-icon h-3 w-3" />
+            <FilterIcon
+              className="mo-dropdown-icon h-3 w-3"
+              strokeWidth={1.5}
+            />
             Remove rows with this value
           </ContextMenuItem>
         </>

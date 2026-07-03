@@ -5,7 +5,6 @@ import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { merge } from "lodash-es";
 import {
   AlertTriangleIcon,
-  BrainIcon,
   CpuIcon,
   EditIcon,
   FlaskConicalIcon,
@@ -56,7 +55,6 @@ import { keyboardShortcutsAtom } from "../editor/controls/keyboard-shortcuts";
 import { Badge } from "../ui/badge";
 import { ExternalLink } from "../ui/links";
 import { Tooltip } from "../ui/tooltip";
-import { AiConfig } from "./ai-config";
 import { formItemClasses, SettingGroup } from "./common";
 import { DataForm } from "./data-form";
 import { applyManualInjections, getDirtyValues } from "./get-dirty-values";
@@ -93,12 +91,6 @@ const categories = [
     className: "",
   },
   {
-    id: "ai",
-    label: "AI",
-    Icon: BrainIcon,
-    className: "",
-  },
-  {
     id: "optionalDeps",
     label: "Optional Dependencies",
     Icon: FolderCog2,
@@ -112,7 +104,9 @@ const categories = [
   },
 ] as const;
 
-export type SettingCategoryId = (typeof categories)[number]["id"];
+// "ai" is not a rendered category (AI features are removed in this fork) but
+// stays in the union so dormant AI code paths that link to it still compile.
+export type SettingCategoryId = (typeof categories)[number]["id"] | "ai";
 
 export const activeUserConfigCategoryAtom = atom<SettingCategoryId>(
   categories[0].id,
@@ -432,21 +426,6 @@ export const UserConfigForm: React.FC = () => {
                       When unchecked, code completion is still available through
                       a hotkey.
                     </FormDescription>
-
-                    <div>
-                      <Button
-                        variant="link"
-                        className="mb-0 px-0"
-                        type="button"
-                        onClick={(evt) => {
-                          evt.preventDefault();
-                          evt.stopPropagation();
-                          setActiveCategory("ai");
-                        }}
-                      >
-                        Edit AI autocomplete
-                      </Button>
-                    </div>
                   </div>
                 )}
               />
@@ -1221,8 +1200,6 @@ export const UserConfigForm: React.FC = () => {
             </FormDescription>
           </SettingGroup>
         );
-      case "ai":
-        return <AiConfig form={form} config={config} onSubmit={onSubmit} />;
       case "optionalDeps":
         return <OptionalFeatures />;
       case "labs":

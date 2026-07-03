@@ -79,7 +79,8 @@ export const DatasetColumnPreview: React.FC<{
             );
           })}
         >
-          <PlusSquareIcon className="h-3 w-3 mr-1" /> Add SQL cell
+          <PlusSquareIcon className="h-3 w-3 mr-1" strokeWidth={1.5} /> Add SQL
+          cell
         </Button>
       </span>
     );
@@ -128,7 +129,7 @@ export const DatasetColumnPreview: React.FC<{
           );
         })}
       >
-        <PlusSquareIcon className="h-3 w-3" />
+        <PlusSquareIcon className="h-3 w-3" strokeWidth={1.5} />
       </Button>
     </Tooltip>
   );
@@ -158,7 +159,7 @@ export function renderPreviewError({
   refetchPreview?: () => void;
 }) {
   return (
-    <div className="text-xs text-muted-foreground p-2 border border-border rounded flex items-center justify-between">
+    <div className="text-xs text-muted-foreground p-2 border border-border rounded-sm flex items-center justify-between">
       <span>{error}</span>
       {missingPackages && (
         <InstallPackageButton
@@ -180,7 +181,7 @@ interface RenderStatsProps {
 
 export function renderStats({ stats, dataType, locale }: RenderStatsProps) {
   return (
-    <div className="gap-x-16 gap-y-1 grid grid-cols-2-fit border rounded p-2 empty:hidden">
+    <div className="gap-x-16 gap-y-1 grid grid-cols-2-fit border rounded-sm p-2 empty:hidden">
       {Object.entries(stats).map(([key, value]) => {
         if (value == null) {
           return null;
@@ -188,10 +189,11 @@ export function renderStats({ stats, dataType, locale }: RenderStatsProps) {
 
         return (
           <div key={key} className="flex items-center gap-1 group">
-            <span className="text-xs min-w-[60px] capitalize">
+            <span className="text-xs min-w-[60px] capitalize text-muted-foreground">
               {convertStatsName(key as ColumnHeaderStatsKey, dataType)}
             </span>
-            <span className="text-xs font-bold text-muted-foreground tracking-wide">
+            {/* Numeric values read as code: mono, regular weight */}
+            <span className="text-xs font-code">
               {prettyNumber(value, locale)}
             </span>
             <CopyClipboardIcon
@@ -269,7 +271,7 @@ export const AddDataframeChart: React.FC<{
         className="z-10 bg-background absolute right-1 -top-0.5"
         onClick={Events.stopPropagation(() => handleAddColumn(chartCode))}
       >
-        <PlusSquareIcon className="h-3 w-3" />
+        <PlusSquareIcon className="h-3 w-3" strokeWidth={1.5} />
       </Button>
     </Tooltip>
   );

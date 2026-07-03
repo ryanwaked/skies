@@ -95,11 +95,11 @@ const COLUMNS = [
       const [dataType, value] = getValue();
       return (
         <div className="max-w-[150px]">
-          <div className="text-ellipsis overflow-hidden whitespace-nowrap text-muted-foreground font-mono text-xs">
+          <div className="text-ellipsis overflow-hidden whitespace-nowrap text-muted-foreground text-xs">
             {dataType}
           </div>
           <div
-            className="text-ellipsis overflow-hidden whitespace-nowrap"
+            className="text-ellipsis overflow-hidden whitespace-nowrap font-code text-xs"
             title={value ?? ""}
           >
             {value}
@@ -147,7 +147,10 @@ const COLUMNS = [
         <div className="flex flex-col gap-1 py-1">
           <div className="flex flex-row overflow-auto gap-2 items-center">
             <span title="Declared by">
-              <SquareEqualIcon className="w-3.5 h-3.5 text-muted-foreground" />
+              <SquareEqualIcon
+                className="w-3.5 h-3.5 text-muted-foreground"
+                strokeWidth={1.5}
+              />
             </span>
 
             {declaredBy.length === 1 ? (
@@ -177,7 +180,10 @@ const COLUMNS = [
           </div>
           <div className="flex flex-row overflow-auto gap-2 items-baseline">
             <span title="Used by">
-              <WorkflowIcon className="w-3.5 h-3.5 text-muted-foreground" />
+              <WorkflowIcon
+                className="w-3.5 h-3.5 text-muted-foreground"
+                strokeWidth={1.5}
+              />
             </span>
 
             <CellLinkList
@@ -300,16 +306,17 @@ export const VariableTable: React.FC<Props> = memo(
         />
         <Table
           className={cn(
-            "w-full text-sm flex-1 border-separate border-spacing-0",
+            "w-full text-[13px] flex-1 border-separate border-spacing-0",
             className,
           )}
         >
           <TableHeader>
-            <TableRow className="whitespace-nowrap text-xs">
+            {/* Hex section-header scale: 10px/600 uppercase muted */}
+            <TableRow className="whitespace-nowrap text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
               {table.getFlatHeaders().map((header) => (
                 <TableHead
                   key={header.id}
-                  className="sticky top-0 bg-background border-b"
+                  className="sticky top-0 h-8 bg-background border-b"
                 >
                   {flexRender(
                     header.column.columnDef.header,
@@ -321,9 +328,9 @@ export const VariableTable: React.FC<Props> = memo(
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} className="hover:bg-accent">
+              <TableRow key={row.id} className="hover:bg-[rgba(63,66,87,0.2)]">
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="border-b">
+                  <TableCell key={cell.id} className="py-1 border-b">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}

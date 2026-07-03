@@ -24,7 +24,7 @@ export const FileNameInput = ({ node }: { node: NodeApi<FileInfo> }) => {
   return (
     <input
       ref={ref}
-      className="flex-1 bg-transparent border border-border text-muted-foreground"
+      className="flex-1 min-w-0 bg-transparent border border-input rounded-[3px] px-1 text-[13px] text-foreground outline-none focus:border-primary/60"
       defaultValue={node.data.name}
       onClick={(e) => e.stopPropagation()}
       onBlur={() => node.reset()}

@@ -112,11 +112,17 @@ export const FileViewer: React.FC<Props> = ({ file, onOpenNotebook }) => {
   if (!data.contents && !isEditable) {
     // Show details instead of contents
     return (
-      <div className="grid grid-cols-2 gap-2 p-6">
-        <div className="font-bold text-muted-foreground">Name</div>
-        <div>{data.file.name}</div>
-        <div className="font-bold text-muted-foreground">Type</div>
-        <div>{mimeType}</div>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-2 p-4">
+        <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          Name
+        </div>
+        <div className="text-xs text-foreground truncate">
+          {data.file.name}
+        </div>
+        <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          Type
+        </div>
+        <div className="text-xs text-foreground truncate">{mimeType}</div>
       </div>
     );
   }
@@ -159,9 +165,10 @@ export const FileViewer: React.FC<Props> = ({ file, onOpenNotebook }) => {
               <Button
                 variant="text"
                 size="xs"
+                className="text-muted-foreground hover:text-foreground"
                 onClick={(evt) => onOpenNotebook(evt)}
               >
-                <ExternalLinkIcon className="h-3.5 w-3.5" />
+                <ExternalLinkIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
               </Button>
             </Tooltip>
           )}
@@ -171,21 +178,23 @@ export const FileViewer: React.FC<Props> = ({ file, onOpenNotebook }) => {
                 <Button
                   variant="text"
                   size="xs"
+                  className="text-muted-foreground hover:text-foreground"
                   onClick={async () => {
                     await copyToClipboard(internalValue);
                   }}
                 >
-                  <CopyIcon className="h-3.5 w-3.5" />
+                  <CopyIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
                 </Button>
               </Tooltip>
               <Tooltip content={renderShortcut("global.save")}>
                 <Button
                   variant="text"
                   size="xs"
+                  className="text-muted-foreground hover:text-foreground"
                   onClick={handleSaveFile}
                   disabled={internalValue === data.contents}
                 >
-                  <SaveIcon className="h-3.5 w-3.5" />
+                  <SaveIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
                 </Button>
               </Tooltip>
             </>
@@ -200,8 +209,8 @@ export const FileViewer: React.FC<Props> = ({ file, onOpenNotebook }) => {
 
   const warningBanner = isText && isActiveNotebook && (
     <Alert variant="warning" className="rounded-none">
-      <AlertTriangleIcon className="h-4 w-4" />
-      <AlertDescription>
+      <AlertTriangleIcon className="h-4 w-4" strokeWidth={1.5} />
+      <AlertDescription className="text-xs">
         Editing the notebook file directly while running in marimo's editor may
         cause unintended changes. Please use with caution.
       </AlertDescription>

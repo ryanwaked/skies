@@ -114,10 +114,14 @@ export const FilterPills = <TData,>({
         <button
           type="button"
           onClick={() => setOverflowOpen(true)}
-          className="shrink-0 inline-flex items-center gap-0.5 rounded-sm border border-border bg-background px-2 py-0.5 text-xs text-foreground hover:bg-accent hover:text-accent-foreground"
+          className="shrink-0 inline-flex items-center gap-0.5 rounded-sm border border-border bg-muted px-2 py-0.5 text-xs text-muted-foreground hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground transition-colors"
           aria-label="See all filters"
         >
-          <MoreHorizontalIcon className="h-3.5 w-3.5" aria-hidden={true} />
+          <MoreHorizontalIcon
+            className="h-3.5 w-3.5"
+            strokeWidth={1.5}
+            aria-hidden={true}
+          />
           <span>See all</span>
         </button>
       )}
@@ -196,7 +200,7 @@ const FilterPill = <TData,>({
       return (
         <span
           className={cn(
-            "font-semibold text-foreground",
+            "font-medium text-foreground",
             truncateValue &&
               "inline-block max-w-[24ch] overflow-hidden text-ellipsis whitespace-nowrap align-middle",
           )}
@@ -223,7 +227,7 @@ const FilterPill = <TData,>({
 
   const renderSegments = (truncateValue: boolean) => (
     <>
-      <span className="font-semibold text-foreground">{columnId}</span>
+      <span className="font-medium text-foreground">{columnId}</span>
       <Separator />
       <span
         className={cn(
@@ -252,11 +256,11 @@ const FilterPill = <TData,>({
       type="button"
       size="icon"
       variant="ghost"
-      className="ml-1 rounded-full text-destructive/60 hover:text-destructive hover:shadow-none hover:bg-transparent"
+      className="ml-1 rounded-sm text-muted-foreground/70 hover:text-error hover:shadow-none hover:bg-transparent"
       onClick={handleRemove}
       aria-label="Remove filter"
     >
-      <XIcon className="h-3.5 w-3.5" aria-hidden={true} />
+      <XIcon className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden={true} />
     </Button>
   );
 
@@ -265,9 +269,9 @@ const FilterPill = <TData,>({
       <Badge
         variant="outline"
         className={cn(
-          "bg-background border-border text-foreground",
-          "hover:bg-accent hover:text-accent-foreground",
-          "has-data-[state=open]:bg-accent has-data-[state=open]:text-accent-foreground",
+          "rounded-sm bg-muted border-border text-foreground font-normal",
+          "hover:bg-[rgba(63,66,87,0.2)]",
+          "has-data-[state=open]:bg-primary/[0.07] has-data-[state=open]:border-primary/50",
           "transition-colors",
         )}
       >

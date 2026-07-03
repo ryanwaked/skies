@@ -79,7 +79,7 @@ export const MiniMap: React.FC<{
               item.level === 4 && "w-2",
               occurrences === activeOccurrences &&
                 activeHeaderId === identifier &&
-                "bg-foreground",
+                "bg-primary",
             )}
             onClick={() => scrollToOutlineItem(item, occurrences)}
           />
@@ -108,14 +108,15 @@ export const OutlineList: React.FC<{
         const key = `${identifier}-${idx}`;
         const sharedProps = {
           className: cn(
-            "px-2 py-1 cursor-pointer hover:bg-accent/50 hover:text-accent-foreground rounded-l",
-            item.level === 1 && "font-semibold",
-            item.level === 2 && "ml-3",
-            item.level === 3 && "ml-6",
-            item.level === 4 && "ml-9",
+            "px-2 py-1 cursor-pointer rounded-[3px] hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground",
+            item.level === 1 && "font-medium",
+            // Subtle indent guides for nested headings
+            item.level === 2 && "ml-3 border-l border-border/60",
+            item.level === 3 && "ml-6 border-l border-border/60",
+            item.level === 4 && "ml-9 border-l border-border/60",
             occurrences === activeOccurrences &&
               activeHeaderId === identifier &&
-              "text-accent-foreground",
+              "bg-primary/[0.07] text-primary hover:bg-primary/[0.07] hover:text-primary",
           ),
           onClick: () => scrollToOutlineItem(item, occurrences),
         };

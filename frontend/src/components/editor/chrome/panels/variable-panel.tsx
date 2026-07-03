@@ -16,7 +16,7 @@ const VariablePanel: React.FC = () => {
       <PanelEmptyState
         title="No variables"
         description="Global variables will appear here."
-        icon={<FunctionSquareIcon />}
+        icon={<FunctionSquareIcon strokeWidth={1.5} />}
       />
     );
   }

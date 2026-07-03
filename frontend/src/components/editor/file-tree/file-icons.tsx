@@ -102,17 +102,21 @@ export const FILE_ICON: Record<FileIconType, LucideIcon> = {
   unknown: FileIcon,
 };
 
+/**
+ * Hex-style file trees keep icons quiet and monochrome; every file type
+ * renders in the muted foreground token so the tree reads as one surface.
+ */
 export const FILE_ICON_COLOR: Record<FileIconType, string> = {
-  directory: "text-amber-500",
-  python: "text-blue-500",
-  code: "text-blue-500",
-  json: "text-blue-500",
+  directory: "text-muted-foreground",
+  python: "text-muted-foreground",
+  code: "text-muted-foreground",
+  json: "text-muted-foreground",
   text: "text-muted-foreground",
-  image: "text-purple-500",
-  audio: "text-orange-500",
-  video: "text-orange-500",
-  data: "text-green-500",
-  pdf: "text-red-500",
+  image: "text-muted-foreground",
+  audio: "text-muted-foreground",
+  video: "text-muted-foreground",
+  data: "text-muted-foreground",
+  pdf: "text-muted-foreground",
   zip: "text-muted-foreground",
   unknown: "text-muted-foreground",
 };
@@ -128,5 +132,10 @@ export function renderFileIcon(
   const type = guessFileIconType(name);
   const Icon = FILE_ICON[type];
   const color = FILE_ICON_COLOR[type];
-  return <Icon className={cn("h-3.5 w-3.5 shrink-0", color, className)} />;
+  return (
+    <Icon
+      strokeWidth={1.5}
+      className={cn("h-3.5 w-3.5 shrink-0", color, className)}
+    />
+  );
 }

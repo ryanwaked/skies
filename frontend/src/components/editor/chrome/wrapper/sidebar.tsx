@@ -35,7 +35,9 @@ export const Sidebar: React.FC = () => {
   const aiEnabled = useAtomValue(aiEnabledAtom);
 
   const renderIcon = ({ Icon }: PanelDescriptor, className?: string) => {
-    return <Icon className={cn("h-4 w-4", className)} />;
+    return (
+      <Icon strokeWidth={1.5} className={cn("h-[18px] w-[18px]", className)} />
+    );
   };
 
   // Get panels available for sidebar context menu
@@ -161,7 +163,10 @@ export const Sidebar: React.FC = () => {
       {/* Bottom-anchored cluster (Hex keeps help/shortcuts pinned to the rail bottom) */}
       <FeedbackButton>
         <SidebarItem tooltip="Send feedback!" selected={false}>
-          <MessageCircleQuestionIcon className="h-4 w-4" />
+          <MessageCircleQuestionIcon
+            strokeWidth={1.5}
+            className="h-[18px] w-[18px]"
+          />
         </SidebarItem>
       </FeedbackButton>
     </div>
@@ -173,7 +178,10 @@ const ErrorPanelIcon: React.FC<{ Icon: PanelDescriptor["Icon"] }> = ({
 }) => {
   const errorCount = useAtomValue(cellErrorCount);
   return (
-    <Icon className={cn("h-4 w-4", errorCount > 0 && "text-destructive")} />
+    <Icon
+      strokeWidth={1.5}
+      className={cn("h-[18px] w-[18px]", errorCount > 0 && "text-destructive")}
+    />
   );
 };
 
@@ -213,12 +221,13 @@ const SidebarItem: React.FC<
     onClick?: () => void;
   }>
 > = ({ children, tooltip, selected, className, onClick }) => {
-  // Hex rail geometry: 36x36 hit area, 16x16 icon, 3px radius, zero gap.
-  // Inactive icons are full foreground (not muted) on a transparent bg.
+  // Hex rail geometry: 32x32 hit area, 18px icon, 3px radius, zero gap.
+  // Inactive icons are muted; hover lifts to foreground on a faint neutral bg.
   const itemClassName = cn(
-    "flex items-center justify-center h-9 w-9 rounded-[3px]",
-    !selected && "text-foreground hover:bg-[rgba(63,66,87,0.2)]",
-    selected && "bg-primary/7 text-primary",
+    "flex items-center justify-center h-8 w-8 rounded-sm",
+    !selected &&
+      "text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]",
+    selected && "bg-primary/[0.07] text-primary",
     className,
   );
 

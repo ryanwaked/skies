@@ -108,7 +108,7 @@ export function SentinelCell({
 
   return (
     <span
-      className="italic text-muted-foreground bg-muted rounded-sm px-1"
+      className="italic text-muted-foreground bg-[rgba(63,66,87,0.2)] rounded-sm px-1"
       aria-label={ariaLabel}
       title={tooltip}
     >

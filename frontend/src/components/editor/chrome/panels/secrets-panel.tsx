@@ -66,7 +66,7 @@ const SecretsPanel: React.FC = () => {
           <div className="flex justify-start h-8 border-b">
             <button
               type="button"
-              className="border-r px-2 m-0 h-full hover:bg-accent hover:text-accent-foreground"
+              className="border-r px-2 m-0 h-full text-muted-foreground hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground"
               onClick={() =>
                 openModal(
                   <WriteSecretModal
@@ -80,7 +80,7 @@ const SecretsPanel: React.FC = () => {
                 )
               }
             >
-              <PlusIcon className="h-4 w-4" />
+              <PlusIcon strokeWidth={1.5} className="h-4 w-4" />
             </button>
           </div>
           <Table className="overflow-auto flex-1 mb-16">
@@ -126,7 +126,7 @@ const SecretsPanel: React.FC = () => {
           </Table>
         </div>
       </Panel>
-      <PanelResizeHandle className="w-1 bg-border hover:bg-primary/50 transition-colors" />
+      <PanelResizeHandle className="w-1 bg-border hover:bg-primary/30 transition-colors" />
       <Panel defaultSize={50}>
         <div />
       </Panel>
@@ -157,9 +157,15 @@ const CopyButton: React.FC<{
       aria-label={ariaLabel}
     >
       {copied ? (
-        <CheckIcon className="w-3 h-3 text-green-700 rounded" />
+        <CheckIcon
+          strokeWidth={1.5}
+          className="w-3 h-3 text-success rounded-[3px]"
+        />
       ) : (
-        <CopyIcon className="w-3 h-3 hover:bg-muted rounded" />
+        <CopyIcon
+          strokeWidth={1.5}
+          className="w-3 h-3 hover:bg-[rgba(63,66,87,0.2)] rounded-[3px]"
+        />
       )}
     </button>
   );

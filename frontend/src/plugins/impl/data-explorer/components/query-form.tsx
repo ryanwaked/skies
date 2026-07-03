@@ -87,13 +87,17 @@ export const QueryForm: React.FC<Props> = ({ schema, mark }) => {
   );
 
   return (
-    <div className="grid gap-x-2 gap-y-4 justify-items-start py-3 pl-4 pr-2 bg-(--slate-1) border rounded items-center grid-template-columns-[repeat(2,_minmax(0,_min-content))] self-start">
+    <div className="grid gap-x-2 gap-y-4 justify-items-start py-3 pl-4 pr-2 bg-card border border-border rounded-sm items-center grid-template-columns-[repeat(2,_minmax(0,_min-content))] self-start">
       <span className="col-span-2 flex items-center justify-between w-full">
-        <div className="text-sm font-semibold">Encodings</div>
+        <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          Encodings
+        </div>
       </span>
       {ENCODINGS.map(renderChannel)}
-      <span className="col-span-2 text-sm font-semibold w-full border-t border-divider flex items-center justify-between pt-2 pr-[30px]">
-        <div>Mark</div>
+      <span className="col-span-2 w-full border-t border-border flex items-center justify-between pt-2 pr-[30px]">
+        <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          Mark
+        </div>
         {markSelect}
       </span>
       {MARK_ENCODINGS.map(renderChannel)}
@@ -156,7 +160,9 @@ const FieldSelect = ({
 
   return (
     <>
-      <Label className="text-(--slate-11) font-semibold">{label}</Label>
+      <Label className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+        {label}
+      </Label>
       <div className="flex flex-row gap-1 h-[26px]">
         <Select
           value={field}

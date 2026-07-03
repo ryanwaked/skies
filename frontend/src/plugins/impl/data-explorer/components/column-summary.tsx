@@ -50,10 +50,10 @@ export const ColumnSummary: React.FC<Props> = ({ schema }) => {
   return (
     <div className="flex flex-col justify-center items-center h-full flex-1 gap-2">
       {icon}
-      <span className="text-muted-foreground font-semibold">
+      <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
         {fields.length > 0 ? fields.length : "No"} fields
       </span>
-      <div className="hidden lg:grid grid-cols-2 xl:grid-cols-3 gap-2 p-2 bg-(--slate-1) border rounded lg:items-center items-start w-fit grid-flow-dense max-h-[300px] overflow-auto">
+      <div className="hidden lg:grid grid-cols-2 xl:grid-cols-3 gap-x-2 gap-y-1 p-2 bg-card border border-border rounded-sm lg:items-center items-start w-fit grid-flow-dense max-h-[300px] overflow-auto">
         {fieldsToShow.map((field) => {
           const cardinality = schema.cardinality({
             channel: "x",
@@ -63,8 +63,10 @@ export const ColumnSummary: React.FC<Props> = ({ schema }) => {
             <span
               key={field}
               className={cn(
-                "hover:bg-muted self-start px-2 py-2 rounded flex flex-row gap-1 items-center cursor-pointer lg:justify-center text-sm truncate shrink-0 overflow-hidden",
-                selectedField === field && "bg-muted",
+                "self-start h-[26px] px-2 rounded-sm flex flex-row gap-1.5 items-center cursor-pointer lg:justify-center text-[13px] truncate shrink-0 overflow-hidden",
+                selectedField === field
+                  ? "bg-primary/[0.07] text-primary"
+                  : "hover:bg-[rgba(63,66,87,0.2)]",
               )}
               onClick={() => {
                 if (selectedField === field) {
@@ -128,10 +130,10 @@ export const ColumnSummary: React.FC<Props> = ({ schema }) => {
         </Select>
       </div>
       {selectedField && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2 p-2 text-sm">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2 p-2 text-xs">
           {STAT_KEYS.map((key) => (
             <div key={key} className="flex flex-row gap-2 min-w-[100px]">
-              <span className="font-semibold">{key}</span>
+              <span className="font-medium text-muted-foreground">{key}</span>
               <span>
                 <FormatStat value={stats?.[key]} />
               </span>

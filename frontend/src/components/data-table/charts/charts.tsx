@@ -224,6 +224,7 @@ export const TablePanel: React.FC<TablePanelProps> = ({
           >
             {tab.tabName}
             <XIcon
+              strokeWidth={1.5}
               className="w-3 h-3 ml-1 mt-[0.5px] hover:text-destructive"
               onClick={(e) => {
                 e.stopPropagation();
@@ -402,22 +403,31 @@ export const ChartPanel: React.FC<{
       <Tabs defaultValue="chart">
         <div className="flex flex-row gap-1.5 items-center">
           <TabsList>
-            <TabsTrigger value="chart" className="h-6">
-              <ChartColumnIcon className="text-muted-foreground mr-2 w-4 h-4" />
+            <TabsTrigger value="chart" className="h-6 text-xs">
+              <ChartColumnIcon
+                className="text-muted-foreground mr-1.5 w-3.5 h-3.5"
+                strokeWidth={1.5}
+              />
               Chart
             </TabsTrigger>
-            <TabsTrigger value="code" className="h-6">
-              <PythonIcon className="text-muted-foreground mr-2" />
+            <TabsTrigger value="code" className="h-6 text-xs">
+              <PythonIcon className="text-muted-foreground mr-1.5" />
               Python code
             </TabsTrigger>
             {developmentMode && (
               <>
-                <TabsTrigger value="formValues" className="h-6">
-                  <CodeIcon className="text-muted-foreground mr-2 w-4 h-4" />
+                <TabsTrigger value="formValues" className="h-6 text-xs">
+                  <CodeIcon
+                    className="text-muted-foreground mr-1.5 w-3.5 h-3.5"
+                    strokeWidth={1.5}
+                  />
                   Form values (debug)
                 </TabsTrigger>
-                <TabsTrigger value="vegaSpec" className="h-6">
-                  <CodeIcon className="text-muted-foreground mr-2 w-4 h-4" />
+                <TabsTrigger value="vegaSpec" className="h-6 text-xs">
+                  <CodeIcon
+                    className="text-muted-foreground mr-1.5 w-3.5 h-3.5"
+                    strokeWidth={1.5}
+                  />
                   Vega spec (debug)
                 </TabsTrigger>
               </>
@@ -475,26 +485,26 @@ export const ChartPanel: React.FC<{
   );
 
   return (
-    <div className="flex flex-row gap-2 h-full rounded-md border-t pr-2">
+    <div className="flex flex-row h-full border-t border-border">
       <div
-        className={`relative flex flex-col gap-2 overflow-auto px-2 py-3 scrollbar-thin transition-width duration-200 ${formCollapsed ? "w-8" : "w-[300px]"}`}
+        className={`relative flex flex-col gap-2 overflow-auto py-3 scrollbar-thin transition-width duration-200 shrink-0 border-r border-border ${formCollapsed ? "w-9 px-1.5" : "w-[280px] px-3"}`}
       >
         {!formCollapsed && chartForm}
         <Button
-          variant="outline"
+          variant="text"
           size="icon"
-          className="border-border ml-auto"
+          className="ml-auto text-muted-foreground hover:text-foreground"
           onClick={() => setFormCollapsed((prev) => !prev)}
           title={formCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {formCollapsed ? (
-            <ChevronRightIcon className="w-4 h-5" />
+            <ChevronRightIcon className="w-4 h-4" strokeWidth={1.5} />
           ) : (
-            <ChevronLeftIcon className="w-4 h-5" />
+            <ChevronLeftIcon className="w-4 h-4" strokeWidth={1.5} />
           )}
         </Button>
       </div>
-      <div className="flex-1 overflow-auto h-full w-full mt-3">
+      <div className="flex-1 min-w-0 overflow-auto h-full pt-3 px-3">
         {renderChartDisplay()}
       </div>
     </div>
@@ -541,12 +551,18 @@ const ChartFormContainer = ({
         <form onSubmit={(e) => e.preventDefault()} onChange={debouncedSave}>
           <Tabs defaultValue="data">
             <TabsList className="w-full">
-              <TabsTrigger value="data" className="w-1/2 h-6">
-                <DatabaseIcon className="w-4 h-4 mr-2" />
+              <TabsTrigger value="data" className="w-1/2 h-6 text-xs">
+                <DatabaseIcon
+                  className="w-3.5 h-3.5 mr-1.5"
+                  strokeWidth={1.5}
+                />
                 Data
               </TabsTrigger>
-              <TabsTrigger value="style" className="w-1/2 h-6">
-                <PaintRollerIcon className="w-4 h-4 mr-2" />
+              <TabsTrigger value="style" className="w-1/2 h-6 text-xs">
+                <PaintRollerIcon
+                  className="w-3.5 h-3.5 mr-1.5"
+                  strokeWidth={1.5}
+                />
                 Style
               </TabsTrigger>
             </TabsList>

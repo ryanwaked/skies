@@ -5,11 +5,16 @@ import type { CSSProperties } from "react";
 import { TreeChevron } from "@/components/editor/file-tree/tree-actions";
 import type { DataType } from "@/core/kernel/messages";
 import { cn } from "@/utils/cn";
-import { DATA_TYPE_ICON, getDataTypeColor } from "../datasets/icons";
+import { DATA_TYPE_ICON } from "../datasets/icons";
 
 export const RotatingChevron: React.FC<{ isExpanded: boolean }> = ({
   isExpanded,
-}) => <TreeChevron isExpanded={isExpanded} className="h-3 w-3" />;
+}) => (
+  <TreeChevron
+    isExpanded={isExpanded}
+    className="h-3 w-3 text-muted-foreground [stroke-width:1.5]"
+  />
+);
 
 export const DatasourceLabel: React.FC<{
   children: React.ReactNode;
@@ -54,12 +59,12 @@ export const ErrorState: React.FC<{
   return (
     <div
       className={cn(
-        "text-sm bg-error/10 text-error flex items-center gap-2 p-2 h-8",
+        "text-xs bg-error/10 text-error rounded-sm flex items-center gap-2 p-2 h-7",
         className,
       )}
       style={style}
     >
-      {showIcon && <XIcon className="h-4 w-4 mt-0.5" />}
+      {showIcon && <XIcon className="h-3.5 w-3.5" strokeWidth={1.5} />}
       {error.message}
     </div>
   );
@@ -73,12 +78,12 @@ export const LoadingState: React.FC<{
   return (
     <div
       className={cn(
-        "text-sm bg-blue-50 dark:bg-(--accent) text-blue-500 dark:text-muted-foreground flex items-center gap-2 p-2 h-8",
+        "text-xs text-muted-foreground flex items-center gap-2 p-2 h-7",
         className,
       )}
       style={style}
     >
-      <LoaderCircle className="h-4 w-4 animate-spin" />
+      <LoaderCircle className="h-3.5 w-3.5 animate-spin" strokeWidth={1.5} />
       {message}
     </div>
   );
@@ -103,12 +108,14 @@ export const ColumnName = ({
   dataType: DataType;
 }) => {
   const Icon = DATA_TYPE_ICON[dataType];
-  const color = getDataTypeColor(dataType);
 
+  // Hex data browser: type icons are quiet, thin-stroke, muted glyphs —
+  // no colored chips.
   return (
     <div className="flex flex-row items-center gap-1.5">
       <Icon
-        className={`w-4 h-4 p-0.5 rounded-sm stroke-card-foreground ${color}`}
+        className="w-3.5 h-3.5 shrink-0 text-muted-foreground"
+        strokeWidth={1.5}
       />
       {columnName}
     </div>

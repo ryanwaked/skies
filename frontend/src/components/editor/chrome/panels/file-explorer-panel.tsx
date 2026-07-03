@@ -48,7 +48,7 @@ const FileExplorerComponent: React.FC<{ height: number }> = ({ height }) => {
       >
         <input {...getInputProps()} />
         {isDragActive && (
-          <div className="absolute inset-0 flex items-center uppercase justify-center text-xl font-bold text-primary/90 bg-accent/85 z-10 border-2 border-dashed border-primary/90 rounded-lg pointer-events-none">
+          <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none rounded-[3px] border border-dashed border-primary/60 bg-background/90 text-xs font-semibold uppercase tracking-wide text-primary">
             Drop files here
           </div>
         )}
@@ -111,7 +111,7 @@ const FileExplorerPanel: React.FC = () => {
       >
         <PanelAccordionItem value="remote-storage">
           <PanelAccordionTrigger>
-            <HardDrive className="w-3 h-3" /> Remote storage
+            <HardDrive className="w-3 h-3" strokeWidth={1.5} /> Remote storage
             {remoteStorageConnections > 0 && (
               <PanelBadge>{remoteStorageConnections}</PanelBadge>
             )}
@@ -126,7 +126,7 @@ const FileExplorerPanel: React.FC = () => {
 
         <PanelAccordionItem value="files">
           <PanelAccordionTrigger>
-            <FileIcon className="w-3 h-3" />
+            <FileIcon className="w-3 h-3" strokeWidth={1.5} />
             Files
           </PanelAccordionTrigger>
           <PanelAccordionContent>

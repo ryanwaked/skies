@@ -48,7 +48,7 @@ export const ChartSkeleton: React.FC<Props> = ({ seed, width, height }) => {
       {heights.map((barHeight, index) => (
         <div
           key={index}
-          className="bg-muted animate-pulse"
+          className="bg-border/50 animate-pulse"
           style={{ width: barWidth - 2, height: barHeight }}
         />
       ))}

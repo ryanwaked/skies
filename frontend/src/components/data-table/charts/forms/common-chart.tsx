@@ -48,9 +48,12 @@ export const CommonChartForm: React.FC = () => {
         delayDuration={100}
         content="To persist a chart, add the generated Python code to a new cell."
       >
-        <div className="flex items-center gap-1">
-          <TriangleAlert className="h-3.5 w-3.5 mb-0.5 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">Charts are not saved.</p>
+        <div className="flex items-center gap-1.5">
+          <TriangleAlert
+            className="h-3 w-3 text-muted-foreground"
+            strokeWidth={1.5}
+          />
+          <p className="text-xs text-muted-foreground">Charts are not saved.</p>
         </div>
       </Tooltip>
 
@@ -149,8 +152,11 @@ export const StyleForm: React.FC = () => {
             }))}
           />
           <ColorArrayField fieldName="color.range" label="Color range" />
-          <p className="text-xs">
-            <InfoIcon className="w-2.5 h-2.5 inline mb-1 mr-1" />
+          <p className="text-xs text-muted-foreground">
+            <InfoIcon
+              className="w-2.5 h-2.5 inline mb-1 mr-1"
+              strokeWidth={1.5}
+            />
             If you are using color range, color scheme will be ignored.
           </p>
         </AccordionFormContent>

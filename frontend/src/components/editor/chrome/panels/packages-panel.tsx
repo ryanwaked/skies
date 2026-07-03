@@ -111,10 +111,10 @@ const PackagesPanel: React.FC = () => {
             <button
               type="button"
               className={cn(
-                "px-2 py-1 text-xs rounded",
+                "px-2 py-0.5 text-xs font-medium rounded-[3px]",
                 viewMode === "list"
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:text-foreground",
+                  ? "bg-primary/[0.07] text-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]",
               )}
               onClick={() => setUserViewMode("list")}
             >
@@ -123,10 +123,10 @@ const PackagesPanel: React.FC = () => {
             <button
               type="button"
               className={cn(
-                "px-2 py-1 text-xs rounded",
+                "px-2 py-0.5 text-xs font-medium rounded-[3px]",
                 viewMode === "tree"
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:text-foreground",
+                  ? "bg-primary/[0.07] text-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]",
               )}
               onClick={() => setUserViewMode("tree")}
             >
@@ -135,7 +135,7 @@ const PackagesPanel: React.FC = () => {
           </div>
           <div className="flex items-center gap-2">
             <div
-              className="items-center border px-2 py-0.5 text-xs transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground rounded-sm text-ellipsis block overflow-hidden max-w-fit font-medium"
+              className="items-center border border-border px-1.5 py-0 text-[10px] font-semibold uppercase tracking-[0.05em] text-muted-foreground rounded-[3px] text-ellipsis block overflow-hidden max-w-fit"
               title={isSandbox ? "sandbox" : "project"}
             >
               {isSandbox ? "sandbox" : "project"}
@@ -143,7 +143,9 @@ const PackagesPanel: React.FC = () => {
             {name && !isSandbox && (
               <span className="text-xs text-muted-foreground">
                 {name}
-                {version && ` v${version}`}
+                {version && (
+                  <span className="font-code text-xs"> v{version}</span>
+                )}
               </span>
             )}
           </div>
@@ -212,8 +214,9 @@ const InstallPackageForm: React.FC<{
           ) : (
             <Tooltip content="Change package manager">
               <BoxIcon
+                strokeWidth={1.5}
                 onClick={() => openSettings("packageManagementAndData")}
-                className="mr-2 h-4 w-4 shrink-0 opacity-50 hover:opacity-80 cursor-pointer"
+                className="mr-2 h-4 w-4 shrink-0 text-muted-foreground hover:text-foreground cursor-pointer"
               />
             </Tooltip>
           )
@@ -278,6 +281,7 @@ const InstallPackageForm: React.FC<{
         }
       >
         <HelpCircleIcon
+          strokeWidth={1.5}
           className={
             "h-4 w-4 cursor-help text-muted-foreground hover:text-foreground bg-transparent"
           }
@@ -286,8 +290,8 @@ const InstallPackageForm: React.FC<{
       <button
         type="button"
         className={cn(
-          "float-right px-2 m-0 h-full text-sm text-secondary-foreground ml-2",
-          input && "bg-accent text-accent-foreground",
+          "float-right px-2 m-0 h-full text-xs font-medium text-muted-foreground ml-2 hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground",
+          input && "bg-primary/[0.07] text-primary hover:text-primary",
           "disabled:cursor-not-allowed disabled:opacity-50",
         )}
         onClick={installPackages}
@@ -334,8 +338,10 @@ const PackagesList: React.FC<{
               });
             }}
           >
-            <TableCell>{item.name}</TableCell>
-            <TableCell>{item.version}</TableCell>
+            <TableCell className="text-[13px]">{item.name}</TableCell>
+            <TableCell className="font-code text-xs text-muted-foreground">
+              {item.version}
+            </TableCell>
             <TableCell className="flex justify-end">
               <UpgradeButton packageName={item.name} onSuccess={onSuccess} />
               <RemoveButton packageName={item.name} onSuccess={onSuccess} />
@@ -528,8 +534,8 @@ const DependencyTreeNode: React.FC<{
     <div>
       <div
         className={cn(
-          "flex items-center group cursor-pointer text-sm whitespace-nowrap",
-          "hover:bg-(--slate-2) focus:bg-(--slate-2) focus:outline-hidden",
+          "flex items-center group cursor-pointer text-[13px] whitespace-nowrap min-h-[26px] rounded-[3px]",
+          "hover:bg-[rgba(63,66,87,0.2)] focus:bg-[rgba(63,66,87,0.2)] focus:outline-hidden",
           hasChildren && "select-none",
           isTopLevel ? "px-2 py-0.5" : "",
         )}
@@ -544,19 +550,25 @@ const DependencyTreeNode: React.FC<{
         {/* Expand/collapse arrow */}
         {hasChildren ? (
           isExpanded ? (
-            <ChevronDownIcon className="w-4 h-4 mr-2 shrink-0" />
+            <ChevronDownIcon
+              strokeWidth={1.5}
+              className="w-3.5 h-3.5 mr-2 shrink-0 text-muted-foreground"
+            />
           ) : (
-            <ChevronRightIcon className="w-4 h-4 mr-2 shrink-0" />
+            <ChevronRightIcon
+              strokeWidth={1.5}
+              className="w-3.5 h-3.5 mr-2 shrink-0 text-muted-foreground"
+            />
           )
         ) : (
-          <div className="w-4 mr-2 shrink-0" />
+          <div className="w-3.5 mr-2 shrink-0" />
         )}
 
         {/* Package info */}
-        <div className="flex items-center gap-2 flex-1 min-w-0 py-1.5">
+        <div className="flex items-center gap-2 flex-1 min-w-0 py-0.5">
           <span className="font-medium truncate">{node.name}</span>
           {node.version && (
-            <span className="text-muted-foreground text-xs">
+            <span className="font-code text-xs text-muted-foreground">
               v{node.version}
             </span>
           )}
@@ -565,11 +577,16 @@ const DependencyTreeNode: React.FC<{
         {/* Tags */}
         <div className="flex items-center gap-1 ml-2">
           {node.tags.map((tag, index) => {
+            const tagClassName =
+              "items-center border px-1.5 py-0 text-[10px] font-medium rounded-[3px] text-ellipsis block overflow-hidden max-w-fit";
             if (tag.kind === "cycle") {
               return (
                 <div
                   key={index}
-                  className="items-center border px-2 py-0.5 text-xs transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground rounded-sm text-ellipsis block overflow-hidden max-w-fit font-medium border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-300"
+                  className={cn(
+                    tagClassName,
+                    "border-action-foreground/40 text-action-foreground",
+                  )}
                   title="cycle"
                 >
                   cycle
@@ -580,7 +597,7 @@ const DependencyTreeNode: React.FC<{
               return (
                 <div
                   key={index}
-                  className="items-center border px-2 py-0.5 text-xs transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground rounded-sm text-ellipsis block overflow-hidden max-w-fit font-medium border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300"
+                  className={cn(tagClassName, "border-link/40 text-link")}
                   title={tag.value}
                 >
                   {tag.value}
@@ -591,7 +608,7 @@ const DependencyTreeNode: React.FC<{
               return (
                 <div
                   key={index}
-                  className="items-center border px-2 py-0.5 text-xs transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground rounded-sm text-ellipsis block overflow-hidden max-w-fit font-medium border-green-300 dark:border-green-700 text-green-700 dark:text-green-300"
+                  className={cn(tagClassName, "border-success/40 text-success")}
                   title={tag.value}
                 >
                   {tag.value}

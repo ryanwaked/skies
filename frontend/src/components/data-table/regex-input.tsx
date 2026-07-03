@@ -46,7 +46,7 @@ export const RegexInput = React.forwardRef<HTMLInputElement, RegexInputProps>(
         autoFocus={autoFocus}
         aria-label={ariaLabel}
         rootClassName="flex-1 min-w-0"
-        className="border-0 mb-0 h-full shadow-none! hover:shadow-none! focus-visible:shadow-none! focus-visible:ring-0 focus-visible:border-0 rounded-none bg-transparent"
+        className="border-0 mb-0 h-full text-xs shadow-none! hover:shadow-none! focus-visible:shadow-none! focus-visible:ring-0 focus-visible:border-0 rounded-none bg-transparent"
       />
       <Slash />
     </div>
@@ -55,7 +55,7 @@ export const RegexInput = React.forwardRef<HTMLInputElement, RegexInputProps>(
 RegexInput.displayName = "RegexInput";
 
 const Slash = () => (
-  <span className="px-1.5 flex items-center text-muted-foreground font-code text-sm select-none">
+  <span className="px-1.5 flex items-center text-muted-foreground font-code text-xs select-none">
     /
   </span>
 );

@@ -24,9 +24,10 @@ const LogsPanel: React.FC = () => {
         title="No logs"
         description={
           <span>
-            <code className="border rounded px-1">stdout</code> and{" "}
-            <code className="border rounded px-1">stderr</code> logs will appear
-            here.
+            <code className="border rounded-[3px] px-1 font-code">stdout</code>{" "}
+            and{" "}
+            <code className="border rounded-[3px] px-1 font-code">stderr</code>{" "}
+            logs will appear here.
           </span>
         }
         icon={<FileTextIcon />}
@@ -51,7 +52,7 @@ export const LogViewer: React.FC<Props> = ({ logs, className }) => {
     "opacity-70 group-hover:bg-[rgba(63,66,87,0.2)] group-hover:opacity-100";
   return (
     <div className={cn("flex flex-col", className)}>
-      <pre className="grid text-xs font-mono gap-1 whitespace-break-spaces font-semibold align-left">
+      <pre className="grid text-xs font-code gap-1 whitespace-break-spaces align-left">
         <div
           className="grid grid-cols-[30px_1fr]"
           style={{ whiteSpace: "pre-wrap" }}

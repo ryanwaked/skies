@@ -169,7 +169,7 @@ export const TableBottomBar = <TData,>({
         className,
       )}
     >
-      <div className="flex flex-col text-sm text-muted-foreground px-2 shrink-0">
+      <div className="flex flex-col text-xs text-muted-foreground px-2 shrink-0">
         <div className="flex items-center gap-1">{renderTotal()}</div>
         <CellSelectionStats table={table} className="lg:hidden" />
       </div>

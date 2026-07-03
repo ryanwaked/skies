@@ -1,18 +1,11 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { ChevronDown } from "lucide-react";
-import { Select as SelectPrimitive } from "radix-ui";
 import React from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import type { z } from "zod";
-import { buttonVariants } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/components/ui/select";
+import { Tooltip } from "@/components/ui/tooltip";
 import type { DataType } from "@/core/kernel/messages";
+import { cn } from "@/utils/cn";
 import { capitalize } from "@/utils/strings";
 import { isFieldSet } from "../chart-spec/spec";
 import { convertDataTypeToSelectable } from "../chart-spec/types";
@@ -136,38 +129,42 @@ export const ChartTypeSelect: React.FC<{
   onValueChange: (value: ChartType) => void;
 }> = ({ value, onValueChange }) => {
   return (
-    <Select value={value} onValueChange={onValueChange}>
-      <div className="flex flex-row gap-2 items-center">
-        <SelectPrimitive.Trigger
-          className={buttonVariants({
-            variant: "outline",
-            className: "user-select-none w-full justify-between px-3",
-          })}
-        >
-          <SelectValue />
-          <SelectPrimitive.Icon asChild={true}>
-            <ChevronDown className="h-4 w-4 opacity-50" />
-          </SelectPrimitive.Icon>
-        </SelectPrimitive.Trigger>
-        <SelectContent>
-          {CHART_TYPES.map((chartType) => (
-            <ChartSelectItem key={chartType} chartType={chartType} />
-          ))}
-        </SelectContent>
+    <div className="flex flex-col gap-1.5">
+      <Title text="Chart Type" />
+      <div
+        className="flex flex-row items-center gap-1"
+        role="radiogroup"
+        aria-label="Chart type"
+      >
+        {CHART_TYPES.map((chartType) => {
+          const Icon = CHART_TYPE_ICON[chartType];
+          const isSelected = chartType === value;
+          return (
+            <Tooltip
+              key={chartType}
+              content={capitalize(chartType)}
+              delayDuration={200}
+            >
+              <button
+                type="button"
+                role="radio"
+                aria-checked={isSelected}
+                aria-label={capitalize(chartType)}
+                onClick={() => onValueChange(chartType)}
+                className={cn(
+                  "flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-sm border transition-colors",
+                  isSelected
+                    ? "border-primary/40 bg-primary/[0.07] text-primary"
+                    : "border-transparent text-muted-foreground hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground",
+                )}
+              >
+                <Icon className="h-4 w-4" strokeWidth={1.5} />
+              </button>
+            </Tooltip>
+          );
+        })}
       </div>
-    </Select>
-  );
-};
-
-const ChartSelectItem: React.FC<{ chartType: ChartType }> = ({ chartType }) => {
-  const Icon = CHART_TYPE_ICON[chartType];
-  return (
-    <SelectItem value={chartType} className="gap-2">
-      <div className="flex items-center">
-        <Icon className="w-4 h-4 mr-2" />
-        {capitalize(chartType)}
-      </div>
-    </SelectItem>
+    </div>
   );
 };
 
@@ -314,7 +311,7 @@ export const Facet: React.FC = () => {
     return (
       <div className="flex flex-col gap-1">
         <div className="flex flex-row justify-between">
-          <p className="font-semibold">{capitalize(facet)}</p>
+          <p className="text-xs font-medium">{capitalize(facet)}</p>
           <ColumnSelector
             fieldName={`general.facet.${facet}.field`}
             columns={fields}

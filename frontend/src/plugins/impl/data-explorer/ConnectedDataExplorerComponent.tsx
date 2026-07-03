@@ -217,7 +217,7 @@ export const DataExplorerComponent = ({
                       actions.setEncoding(encoding);
                     }}
                   >
-                    <ListFilterIcon className="w-4 h-4" />
+                    <ListFilterIcon className="w-4 h-4" strokeWidth={1.5} />
                   </Button>
                 </Tooltip>
               }
@@ -259,8 +259,8 @@ const HorizontalCarouselItem = ({
   children: React.ReactNode;
 }): React.ReactNode => {
   return (
-    <div className="shrink-0 bg-card shadow-md border overflow-hidden rounded snap-start">
-      <div className="flex flex-row justify-between items-center bg-(--slate-3) py-0.5 px-2">
+    <div className="shrink-0 bg-card border border-border overflow-hidden rounded-sm snap-start">
+      <div className="flex flex-row justify-between items-center border-b border-border py-1 px-2">
         <div className="text-sm font-medium">{title}</div>
         {actions}
       </div>

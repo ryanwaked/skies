@@ -291,7 +291,7 @@ export const DataSources: React.FC = () => {
           <AddConnectionDialog>
             <Button variant="outline" size="sm">
               Add database or catalog
-              <PlusIcon className="h-4 w-4 ml-2" />
+              <PlusIcon className="h-4 w-4 ml-2" strokeWidth={1.5} />
             </Button>
           </AddConnectionDialog>
         }
@@ -345,7 +345,7 @@ export const DataSources: React.FC = () => {
             size="sm"
             className="px-2 rounded-[3px] focus-visible:outline-hidden"
           >
-            <PlusIcon className="h-4 w-4" />
+            <PlusIcon className="h-4 w-4" strokeWidth={1.5} />
           </Button>
         </AddConnectionDialog>
       </div>
@@ -557,7 +557,7 @@ const DatabaseItem: React.FC<{
               : "text-muted-foreground",
           )}
         />
-        <span className={cn(isSelected && isExpanded && "font-semibold")}>
+        <span>
           {database.name === "" ? <i>Not connected</i> : database.name}
         </span>
       </CommandItem>
@@ -709,9 +709,7 @@ const SchemaNode: React.FC<SchemaNodeProps> = (props) => {
             isSelected && isExpanded && "text-foreground",
           )}
         />
-        <span className={cn(isSelected && isExpanded && "font-semibold")}>
-          {schema.name}
-        </span>
+        <span>{schema.name}</span>
       </CommandItem>
       {isExpanded && (
         <>
@@ -973,8 +971,13 @@ const DatasetTableItem: React.FC<{
     const TableTypeIcon = table.type === "table" ? TableIcon : ViewIcon;
     return (
       <TableTypeIcon
-        className="h-3 w-3"
-        strokeWidth={isExpanded || isSearching ? 2.5 : undefined}
+        className={cn(
+          "h-3.5 w-3.5",
+          isExpanded || isSearching
+            ? "text-foreground"
+            : "text-muted-foreground",
+        )}
+        strokeWidth={1.5}
       />
     );
   };
@@ -987,10 +990,7 @@ const DatasetTableItem: React.FC<{
   return (
     <>
       <CommandItem
-        className={cn(
-          "group h-7 cursor-pointer",
-          (isExpanded || isSearching) && "font-semibold",
-        )}
+        className="group h-7 cursor-pointer"
         style={indentStyle(tableRem)}
         value={uniqueId}
         aria-selected={isExpanded}
@@ -1009,7 +1009,7 @@ const DatasetTableItem: React.FC<{
             size="icon"
             onClick={Events.stopPropagation(() => handleAddTable())}
           >
-            <PlusSquareIcon className="h-3 w-3" />
+            <PlusSquareIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
           </Button>
         </Tooltip>
       </CommandItem>
@@ -1062,15 +1062,17 @@ const DatasetColumnItem: React.FC<{
   }) => {
     return (
       <Tooltip content={tooltipContent} delayDuration={100}>
-        <span className="text-xs text-muted-foreground bg-muted rounded-sm px-1">
+        {/* Hex chip: 3px radius, muted fill, 1px border */}
+        <span className="text-[10px] font-medium text-muted-foreground bg-muted border rounded-sm px-1">
           {content}
         </span>
       </Tooltip>
     );
   };
 
+  // Active/expanded rows get Hex's subtle pink tint, never bold text.
   const columnText = (
-    <span className={isExpanded ? "font-semibold" : ""}>{column.name}</span>
+    <span className={isExpanded ? "text-primary" : ""}>{column.name}</span>
   );
 
   return (

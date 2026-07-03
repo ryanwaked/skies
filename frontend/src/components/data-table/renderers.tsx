@@ -230,7 +230,10 @@ export const DataTableBody = <TData,>({
     if (rows.length === 0) {
       return (
         <TableRow>
-          <TableCell colSpan={totalColSpan} className="h-24 text-center">
+          <TableCell
+            colSpan={totalColSpan}
+            className="h-24 text-center text-xs text-muted-foreground"
+          >
             No results.
           </TableCell>
         </TableRow>

@@ -70,8 +70,8 @@ const SnippetsPanel: React.FC = () => {
                 rootClassName="flex-1 border-r"
               />
               <ContributeSnippetButton>
-                <button className="float-right px-2 m-0 h-full hover:bg-accent hover:text-accent-foreground">
-                  <PlusIcon className="h-4 w-4" />
+                <button className="float-right px-2 m-0 h-full text-muted-foreground hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground">
+                  <PlusIcon strokeWidth={1.5} className="h-4 w-4" />
                 </button>
               </ContributeSnippetButton>
             </div>
@@ -85,7 +85,7 @@ const SnippetsPanel: React.FC = () => {
         </Panel>
         <PanelResizeHandle
           className={cn(
-            "bg-border hover:bg-primary/50 transition-colors",
+            "bg-border hover:bg-primary/30 transition-colors",
             isVertical ? "h-1" : "w-1",
           )}
         />
@@ -148,15 +148,15 @@ const SnippetViewer: React.FC<{ snippet: Snippet; onClose: () => void }> = ({
 
   return (
     <>
-      <div className="text-sm font-semibold bg-muted border-y px-2 py-1 flex justify-between items-center">
-        <span>{snippet.title}</span>
+      <div className="text-[13px] font-medium text-foreground border-b px-3 py-1.5 flex justify-between items-center">
+        <span className="truncate">{snippet.title}</span>
         <Button
           size="sm"
           variant="ghost"
           onClick={onClose}
-          className="h-6 w-6 p-0 hover:bg-muted-foreground/10"
+          className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]"
         >
-          <XIcon className="h-4 w-4" />
+          <XIcon strokeWidth={1.5} className="h-3.5 w-3.5" />
         </Button>
       </div>
       <div className="px-2 py-2 space-y-4 overflow-auto flex-1">
@@ -169,7 +169,10 @@ const SnippetViewer: React.FC<{ snippet: Snippet; onClose: () => void }> = ({
               onClick={handleInsertSnippet}
             >
               Insert snippet
-              <BetweenHorizontalStartIcon className="ml-2 h-4 w-4" />
+              <BetweenHorizontalStartIcon
+                strokeWidth={1.5}
+                className="ml-2 h-4 w-4"
+              />
             </Button>
           </HideInKioskMode>
         </div>
@@ -202,7 +205,10 @@ const SnippetViewer: React.FC<{ snippet: Snippet; onClose: () => void }> = ({
                       handleInsertCode(code);
                     }}
                   >
-                    <BetweenHorizontalStartIcon className="h-5 w-5" />
+                    <BetweenHorizontalStartIcon
+                      strokeWidth={1.5}
+                      className="h-4 w-4"
+                    />
                   </Button>
                 </Tooltip>
               </HideInKioskMode>
@@ -230,15 +236,15 @@ const SnippetList: React.FC<{
   snippets: Snippet[];
 }> = ({ snippets, onSelect }) => {
   return (
-    <CommandList className="flex flex-col overflow-auto">
+    <CommandList className="flex flex-col overflow-auto p-1">
       {snippets.map((snippet) => (
         <CommandItem
-          className="rounded-none"
+          className="rounded-[3px] min-h-[26px] py-0.5 text-[13px] aria-selected:bg-primary/[0.07] aria-selected:text-primary"
           key={snippet.title}
           onSelect={() => onSelect(snippet)}
         >
           <div className="flex flex-row gap-2 items-center">
-            <span className="mt-1 text-accent-foreground">{snippet.title}</span>
+            <span className="truncate">{snippet.title}</span>
           </div>
         </CommandItem>
       ))}

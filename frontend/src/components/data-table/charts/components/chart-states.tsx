@@ -5,9 +5,9 @@ import { ErrorBanner } from "@/plugins/impl/common/error-banner";
 import { cn } from "@/utils/cn";
 
 export const ChartLoadingState: React.FC = () => (
-  <div className="flex items-center gap-2 justify-center">
-    <Loader2 className="w-10 h-10 animate-spin" strokeWidth={1} />
-    <span>Loading chart...</span>
+  <div className="flex h-full min-h-32 items-center gap-2 justify-center text-muted-foreground">
+    <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} />
+    <span className="text-xs">Loading chart...</span>
   </div>
 );
 
@@ -28,10 +28,11 @@ export const ChartInfoState: React.FC<{
         className,
       )}
     >
-      <ChartPieIcon className="w-10 h-10 text-muted-foreground" />
-      <span className="text-md font-semibold text-muted-foreground">
-        {children}
-      </span>
+      <ChartPieIcon
+        className="w-8 h-8 text-muted-foreground"
+        strokeWidth={1.5}
+      />
+      <span className="text-xs text-muted-foreground">{children}</span>
     </div>
   );
 };

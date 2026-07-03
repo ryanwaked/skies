@@ -133,11 +133,13 @@ export const ExportMenu: React.FC<ExportActionProps> = (props) => {
       variant="text"
       disabled={disabled}
       className={cn(
-        "print:hidden text-xs gap-1",
-        downloadMenuOpen ? "text-primary" : "text-muted-foreground",
+        "print:hidden h-7 text-xs gap-1.5 rounded-[3px] transition-colors",
+        downloadMenuOpen
+          ? "bg-primary/[0.07] text-primary hover:bg-primary/[0.07]"
+          : "text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]",
       )}
     >
-      <DownloadIcon className="w-3.5 h-3.5" />
+      <DownloadIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
       Export
     </Button>
   );

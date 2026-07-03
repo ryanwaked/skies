@@ -77,10 +77,13 @@ export const DataTablePagination = <TData,>({
           <DropdownMenuTrigger asChild={true}>
             <button
               type="button"
-              className="border rounded-sm justify-between pl-1.5 pr-0.5 h-6 text-xs items-center hover:bg-accent inline-flex gap-0.5"
+              className="border border-border rounded-sm justify-between pl-1.5 pr-0.5 h-6 text-xs text-muted-foreground items-center hover:text-foreground hover:bg-[rgba(63,66,87,0.2)] inline-flex gap-0.5 transition-colors"
             >
               {pageSize} / page
-              <ChevronDown className="h-3 w-3 opacity-50 mb-px" />
+              <ChevronDown
+                className="h-3 w-3 opacity-50 mb-px"
+                strokeWidth={1.5}
+              />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="center" sideOffset={6}>
@@ -92,7 +95,7 @@ export const DataTablePagination = <TData,>({
                 key={size}
                 className={cn(
                   "text-xs cursor-pointer",
-                  size === pageSize && "font-semibold bg-accent",
+                  size === pageSize && "bg-primary/[0.07] text-primary",
                 )}
                 onSelect={() => table.setPageSize(size)}
                 onMouseDown={Events.preventFocus}
@@ -117,12 +120,12 @@ export const DataTablePagination = <TData,>({
             size="xs"
             variant="text"
             data-testid="first-page-button"
-            className="hidden h-6 w-5 p-0 lg:flex"
+            className="hidden h-6 w-6 p-0 lg:flex rounded-[3px] text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]"
             onClick={() => handlePageChange(() => table.setPageIndex(0))}
             onMouseDown={Events.preventFocus}
             disabled={!table.getCanPreviousPage()}
           >
-            <ChevronsLeft className="h-4 w-4" />
+            <ChevronsLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
           </Button>
         </Tooltip>
         <Tooltip content="Previous page">
@@ -130,15 +133,15 @@ export const DataTablePagination = <TData,>({
             size="xs"
             variant="text"
             data-testid="previous-page-button"
-            className="h-6 w-5 p-0"
+            className="h-6 w-6 p-0 rounded-[3px] text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]"
             onClick={() => handlePageChange(() => table.previousPage())}
             onMouseDown={Events.preventFocus}
             disabled={!table.getCanPreviousPage()}
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
           </Button>
         </Tooltip>
-        <div className="flex items-center justify-center text-xs font-medium gap-1">
+        <div className="flex items-center justify-center text-xs text-muted-foreground gap-1">
           <span>Page</span>
           <PageSelector
             currentPage={currentPage}
@@ -156,12 +159,12 @@ export const DataTablePagination = <TData,>({
             size="xs"
             variant="text"
             data-testid="next-page-button"
-            className="h-6 w-5 p-0"
+            className="h-6 w-6 p-0 rounded-[3px] text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]"
             onClick={() => handlePageChange(() => table.nextPage())}
             onMouseDown={Events.preventFocus}
             disabled={!table.getCanNextPage()}
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
           </Button>
         </Tooltip>
         <Tooltip content="Last page">
@@ -169,7 +172,7 @@ export const DataTablePagination = <TData,>({
             size="xs"
             variant="text"
             data-testid="last-page-button"
-            className="hidden h-6 w-5 p-0 lg:flex"
+            className="hidden h-6 w-6 p-0 lg:flex rounded-[3px] text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]"
             onClick={() =>
               handlePageChange(() =>
                 table.setPageIndex(table.getPageCount() - 1),
@@ -178,7 +181,7 @@ export const DataTablePagination = <TData,>({
             onMouseDown={Events.preventFocus}
             disabled={!table.getCanNextPage()}
           >
-            <ChevronsRight className="h-4 w-4" />
+            <ChevronsRight className="h-3.5 w-3.5" strokeWidth={1.5} />
           </Button>
         </Tooltip>
       </div>
@@ -300,16 +303,16 @@ export const PageSelector = ({
         <button
           type="button"
           className={cn(
-            "border rounded-sm justify-between pl-1.5 pr-0.5 h-6 min-w-9 text-xs items-center inline-flex gap-0.5",
+            "border border-border rounded-sm justify-between pl-1.5 pr-0.5 h-6 min-w-9 text-xs items-center inline-flex gap-0.5 transition-colors",
             totalPages > 1
-              ? "hover:bg-accent cursor-pointer"
+              ? "hover:text-foreground hover:bg-[rgba(63,66,87,0.2)] cursor-pointer"
               : "opacity-50 cursor-default",
           )}
           data-testid="page-select"
           disabled={totalPages <= 1}
         >
           {currentPage}
-          <ChevronDown className="h-3 w-3 opacity-50 mb-px" />
+          <ChevronDown className="h-3 w-3 opacity-50 mb-px" strokeWidth={1.5} />
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-36 p-0" align="center" sideOffset={6}>
@@ -414,7 +417,7 @@ const VirtualizedPageList = ({
               aria-selected={page === currentPage}
               className={cn(
                 "text-xs cursor-pointer",
-                page === currentPage && "font-semibold bg-accent",
+                page === currentPage && "bg-primary/[0.07] text-primary",
               )}
               style={{
                 position: "absolute",

@@ -159,21 +159,23 @@
   --shadow-xxs: 0px 0px 2px 0px var(--base-shadow-darker);
 
   /* Button/input-level shadows are flat in Hex's design language; only
-     overlays (md and up: menus, popovers, dialogs) keep soft elevation. */
+     overlays (md and up: menus, popovers, dialogs) keep soft elevation.
+     Elevation is centered and diffuse — marimo's diagonal offset shadows
+     are part of its brand and must never reappear. */
   --shadow-xs: none;
   --shadow-sm: none;
 
   /* oxfmt-ignore: definition needs to be oneline or breaks variants */
-  --shadow-md: 4px 4px 4px 0px var(--base-shadow), 0 0px 4px 0px hsl(0deg 0% 60% / var(--base-shadow-opacity));
+  --shadow-md: 0 2px 8px 0 light-dark(rgb(0 0 0 / 12%), rgb(0 0 0 / 40%));
 
   /* oxfmt-ignore: definition needs to be oneline or breaks variants */
-  --shadow-lg: 5px 6px 4px 0px var(--base-shadow), 0 0px 4px 0px hsl(0deg 0% 75% / var(--base-shadow-opacity));
+  --shadow-lg: 0 4px 16px 0 light-dark(rgb(0 0 0 / 14%), rgb(0 0 0 / 45%));
 
   /* oxfmt-ignore: definition needs to be oneline or breaks variants */
-  --shadow-xl: 8px 9px 4px 0px var(--base-shadow), 0 0px 6px 0px hsl(0deg 0% 85% / var(--base-shadow-opacity));
+  --shadow-xl: 0 8px 24px 0 light-dark(rgb(0 0 0 / 16%), rgb(0 0 0 / 50%));
 
   /* oxfmt-ignore: definition needs to be oneline or breaks variants */
-  --shadow-2xl: 10px 12px 10px 0px var(--base-shadow), 0 0px 8px 0px hsl(0deg 0% 90% / var(--base-shadow-opacity));
+  --shadow-2xl: 0 12px 32px 0 light-dark(rgb(0 0 0 / 18%), rgb(0 0 0 / 55%));
 
   /* Marimo's signature offset "solid" shadows are intentionally disabled:
      Hex's design language is flat (borders only, no offset shadows). */

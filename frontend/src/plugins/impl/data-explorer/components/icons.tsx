@@ -13,18 +13,33 @@ import {
  */
 export const PRIMITIVE_TYPE_ICON: Record<PrimitiveType, React.ReactNode> = {
   [PrimitiveType.BOOLEAN]: (
-    <ToggleLeftIcon className="h-5 w-5 inline-flex opacity-60" />
+    <ToggleLeftIcon
+      className="h-4 w-4 inline-flex text-muted-foreground"
+      strokeWidth={1.5}
+    />
   ),
   [PrimitiveType.DATETIME]: (
-    <CalendarIcon className="h-5 w-5 inline-flex opacity-60" />
+    <CalendarIcon
+      className="h-4 w-4 inline-flex text-muted-foreground"
+      strokeWidth={1.5}
+    />
   ),
   [PrimitiveType.NUMBER]: (
-    <HashIcon className="h-5 w-5 inline-flex opacity-60" />
+    <HashIcon
+      className="h-4 w-4 inline-flex text-muted-foreground"
+      strokeWidth={1.5}
+    />
   ),
   [PrimitiveType.STRING]: (
-    <TypeIcon className="h-5 w-5 inline-flex opacity-60" />
+    <TypeIcon
+      className="h-4 w-4 inline-flex text-muted-foreground"
+      strokeWidth={1.5}
+    />
   ),
   [PrimitiveType.INTEGER]: (
-    <ListOrderedIcon className="h-5 w-5 inline-flex opacity-60" />
+    <ListOrderedIcon
+      className="h-4 w-4 inline-flex text-muted-foreground"
+      strokeWidth={1.5}
+    />
   ),
 };

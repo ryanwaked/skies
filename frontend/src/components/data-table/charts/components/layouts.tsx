@@ -15,11 +15,11 @@ export const Title: React.FC<{ text: string; tooltip?: string }> = ({
   tooltip,
 }) => {
   return (
-    <h2 className="font-semibold my-0 flex items-center gap-1">
+    <h2 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground my-0 flex items-center gap-1">
       {text}
       {tooltip && (
         <Tooltip content={tooltip}>
-          <InfoIcon className="w-3 h-3 mt-0.5" />
+          <InfoIcon className="w-3 h-3" strokeWidth={1.5} />
         </Tooltip>
       )}
     </h2>

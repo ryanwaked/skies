@@ -34,7 +34,7 @@ export const LoadingTable = ({
               <TableRow key={i}>
                 {Array.from({ length: NUM_COLUMNS }).map((_, j) => (
                   <TableHead key={j}>
-                    <div className="h-4 bg-muted animate-pulse rounded-md w-[70%]" />
+                    <div className="h-4 bg-border/50 animate-pulse rounded-sm w-[70%]" />
                   </TableHead>
                 ))}
               </TableRow>
@@ -45,7 +45,7 @@ export const LoadingTable = ({
               <TableRow key={i}>
                 {Array.from({ length: NUM_COLUMNS }).map((__, j) => (
                   <TableCell key={j}>
-                    <div className="h-4 bg-muted animate-pulse rounded-md w-[90%]" />
+                    <div className="h-4 bg-border/50 animate-pulse rounded-sm w-[90%]" />
                   </TableCell>
                 ))}
               </TableRow>

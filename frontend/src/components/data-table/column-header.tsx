@@ -2,7 +2,14 @@
 "use no memo";
 
 import type { Column, Table } from "@tanstack/react-table";
-import { EllipsisIcon, FilterIcon, ListFilterIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ChevronsUpDownIcon,
+  ChevronUpIcon,
+  EllipsisIcon,
+  FilterIcon,
+  ListFilterIcon,
+} from "lucide-react";
 import { useLocale } from "react-aria";
 import {
   DropdownMenu,
@@ -23,7 +30,6 @@ import {
   DataType,
   FormatOptions,
   HideColumn,
-  renderSortIcon,
   Sorts,
 } from "./header-items";
 
@@ -65,6 +71,7 @@ export const DataTableColumnHeader = <TData, TValue>({
     return (
       <div
         className={cn(
+          "text-xs font-medium",
           justify === "center" && "text-center",
           justify === "right" && "text-right",
           className,
@@ -90,7 +97,10 @@ export const DataTableColumnHeader = <TData, TValue>({
 
   return (
     <div
-      className={cn("group flex flex-col my-1 w-full select-none", className)}
+      className={cn(
+        "group flex flex-col my-1 w-full select-none text-xs font-medium",
+        className,
+      )}
     >
       <div
         className={cn(
@@ -116,11 +126,11 @@ export const DataTableColumnHeader = <TData, TValue>({
           <DropdownMenuTrigger asChild={true}>
             <button
               type="button"
-              className="inline-flex items-center justify-center h-5 w-5 rounded-sm hover:bg-accent text-muted-foreground opacity-0 group-hover:opacity-100 focus:opacity-100 group-focus-within:opacity-100 data-[state=open]:opacity-100 data-[state=open]:text-accent-foreground"
+              className="inline-flex items-center justify-center h-5 w-5 rounded-sm hover:bg-[rgba(63,66,87,0.2)] text-muted-foreground opacity-0 group-hover:opacity-100 focus:opacity-100 group-focus-within:opacity-100 data-[state=open]:opacity-100 data-[state=open]:bg-primary/[0.07] data-[state=open]:text-primary"
               aria-label="Column options"
               data-testid="data-table-column-menu-button"
             >
-              <EllipsisIcon className="h-3.5 w-3.5" />
+              <EllipsisIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
@@ -169,7 +179,7 @@ const FilterIndicator = () => (
     className="inline-flex items-center justify-center h-5 w-5 text-primary"
     aria-label="Column is filtered"
   >
-    <FilterIcon className="h-3 w-3" aria-hidden={true} />
+    <FilterIcon className="h-3 w-3" strokeWidth={1.5} aria-hidden={true} />
   </span>
 );
 
@@ -196,9 +206,9 @@ const SortButton = <TData, TValue>({
       type="button"
       onClick={handleClick}
       className={cn(
-        "inline-flex items-center justify-center h-5 w-5 rounded-sm hover:bg-accent",
+        "inline-flex items-center justify-center h-5 w-5 rounded-sm hover:bg-[rgba(63,66,87,0.2)]",
         sortDirection
-          ? "text-accent-foreground"
+          ? "text-primary"
           : "text-muted-foreground opacity-0 group-hover:opacity-100 focus:opacity-100 group-focus-within:opacity-100",
       )}
       aria-label={
@@ -210,7 +220,13 @@ const SortButton = <TData, TValue>({
       }
       data-testid="data-table-sort-button"
     >
-      {renderSortIcon(column)}
+      {sortDirection === "asc" ? (
+        <ChevronUpIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
+      ) : sortDirection === "desc" ? (
+        <ChevronDownIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
+      ) : (
+        <ChevronsUpDownIcon className="h-3 w-3" strokeWidth={1.5} />
+      )}
     </button>
   );
 };

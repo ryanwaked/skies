@@ -11,12 +11,10 @@ import { useHotkey } from "@/hooks/useHotkey";
 import { ShowInKioskMode } from "../../kiosk-mode";
 import { panelLayoutAtom, useChromeActions, useChromeState } from "../state";
 import { FooterItem } from "./footer-item";
-import { AIStatusIcon } from "./footer-items/ai-status";
 import {
   BackendConnectionStatus,
   connectionStatusAtom,
 } from "./footer-items/backend-status";
-import { CopilotStatusIcon } from "./footer-items/copilot-status";
 import { MachineStats } from "./footer-items/machine-stats";
 import { PyodideStatus } from "./footer-items/pyodide-status";
 import { RTCStatus } from "./footer-items/rtc-status";
@@ -107,8 +105,6 @@ export const Footer: React.FC = () => {
 
       <div className="flex items-center shrink-0 min-w-0">
         <MachineStats />
-        <AIStatusIcon />
-        <CopilotStatusIcon />
         <RTCStatus />
       </div>
     </footer>

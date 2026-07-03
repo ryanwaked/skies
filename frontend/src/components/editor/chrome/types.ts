@@ -2,21 +2,20 @@
 
 import {
   ActivityIcon,
-  BotIcon,
+  AlertCircleIcon,
+  BookOpenIcon,
   BoxIcon,
+  CodeIcon,
+  DatabaseIcon,
   DatabaseZapIcon,
   FileTextIcon,
-  FolderTreeIcon,
+  FolderIcon,
   KeyRoundIcon,
+  ListIcon,
   type LucideIcon,
   NetworkIcon,
-  NotebookPenIcon,
-  ScrollTextIcon,
-  SquareDashedBottomCodeIcon,
-  TerminalSquareIcon,
-  TextSearchIcon,
-  VariableIcon,
-  XCircleIcon,
+  PenLineIcon,
+  SquareTerminalIcon,
 } from "lucide-react";
 import { getFeatureFlag } from "@/core/config/feature-flag";
 import type { Capabilities } from "@/core/kernel/messages";
@@ -71,7 +70,7 @@ export const PANELS: PanelDescriptor[] = [
   // Sidebar defaults
   {
     type: "files",
-    Icon: FolderTreeIcon,
+    Icon: FolderIcon,
     label: "Files",
     tooltip: "View files",
     defaultSection: "sidebar",
@@ -79,7 +78,7 @@ export const PANELS: PanelDescriptor[] = [
   },
   {
     type: "variables",
-    Icon: VariableIcon,
+    Icon: DatabaseIcon,
     label: "Variables",
     tooltip: "Explore variables and data sources",
     defaultSection: "sidebar",
@@ -93,17 +92,12 @@ export const PANELS: PanelDescriptor[] = [
     defaultSection: "sidebar",
     additionalKeywords: ["dependencies", "pip", "install"],
   },
-  {
-    type: "ai",
-    Icon: BotIcon,
-    label: "AI",
-    tooltip: "Chat & Agents",
-    defaultSection: "sidebar",
-    additionalKeywords: ["chat", "copilot", "assistant"],
-  },
+  // The "ai" panel is intentionally absent: AI features are removed in this
+  // fork (see aiEnabledAtom). The PanelType union keeps "ai" so persisted
+  // layouts referencing it still parse; PANEL_MAP lookups simply miss.
   {
     type: "outline",
-    Icon: ScrollTextIcon,
+    Icon: ListIcon,
     label: "Outline",
     tooltip: "View outline",
     defaultSection: "sidebar",
@@ -111,7 +105,7 @@ export const PANELS: PanelDescriptor[] = [
   },
   {
     type: "documentation",
-    Icon: TextSearchIcon,
+    Icon: BookOpenIcon,
     label: "Docs",
     tooltip: "View live docs",
     defaultSection: "sidebar",
@@ -128,7 +122,7 @@ export const PANELS: PanelDescriptor[] = [
   // Developer panel defaults
   {
     type: "errors",
-    Icon: XCircleIcon,
+    Icon: AlertCircleIcon,
     label: "Errors",
     tooltip: "View errors",
     defaultSection: "developer-panel",
@@ -136,7 +130,7 @@ export const PANELS: PanelDescriptor[] = [
   },
   {
     type: "scratchpad",
-    Icon: NotebookPenIcon,
+    Icon: PenLineIcon,
     label: "Scratchpad",
     tooltip: "Scratchpad",
     defaultSection: "developer-panel",
@@ -169,7 +163,7 @@ export const PANELS: PanelDescriptor[] = [
   },
   {
     type: "terminal",
-    Icon: TerminalSquareIcon,
+    Icon: SquareTerminalIcon,
     label: "Terminal",
     tooltip: "Terminal",
     hidden: isWasm(),
@@ -179,7 +173,7 @@ export const PANELS: PanelDescriptor[] = [
   },
   {
     type: "snippets",
-    Icon: SquareDashedBottomCodeIcon,
+    Icon: CodeIcon,
     label: "Snippets",
     tooltip: "Snippets",
     defaultSection: "developer-panel",

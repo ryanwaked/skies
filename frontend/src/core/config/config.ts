@@ -74,17 +74,14 @@ export function getResolvedMarimoConfig() {
   return store.get(resolvedMarimoConfigAtom);
 }
 
-export const aiEnabledAtom = atom<boolean>((get) => {
-  return isAiEnabled(get(resolvedMarimoConfigAtom));
-});
+// AI features are removed in this fork: every gate resolves to false
+// regardless of user config, so no AI chrome (panels, buttons, completions)
+// can be enabled.
+export const aiEnabledAtom = atom<boolean>(() => false);
 
-export const aiModelConfiguredAtom = atom<boolean>((get) => {
-  return isAiModelConfigured(get(resolvedMarimoConfigAtom));
-});
+export const aiModelConfiguredAtom = atom<boolean>(() => false);
 
-export const aiFeaturesEnabledAtom = atom<boolean>((get) => {
-  return isAiFeatureEnabled(get(resolvedMarimoConfigAtom));
-});
+export const aiFeaturesEnabledAtom = atom<boolean>(() => false);
 
 export const editorFontSizeAtom = atom<number>((get) => {
   return get(resolvedMarimoConfigAtom).display.code_editor_font_size;

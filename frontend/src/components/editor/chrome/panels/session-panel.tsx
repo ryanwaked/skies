@@ -71,7 +71,7 @@ const SessionPanel: React.FC = () => {
     >
       <PanelAccordionItem value="datasources">
         <PanelAccordionTrigger>
-          <DatabaseIcon className="w-3 h-3" />
+          <DatabaseIcon className="w-3 h-3" strokeWidth={1.5} />
           Data sources
           {showDatasourcesBadge && <PanelBadge>{datasourcesCount}</PanelBadge>}
         </PanelAccordionTrigger>
@@ -82,7 +82,7 @@ const SessionPanel: React.FC = () => {
 
       <PanelAccordionItem value="variables" lastItem={true}>
         <PanelAccordionTrigger>
-          <VariableIcon className="w-3 h-3" />
+          <VariableIcon className="w-3 h-3" strokeWidth={1.5} />
           Variables
         </PanelAccordionTrigger>
         <PanelAccordionContent>

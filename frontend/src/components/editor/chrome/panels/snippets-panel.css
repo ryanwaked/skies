@@ -1,11 +1,12 @@
 @reference "../../../../css/globals.css";
 
+/* Hex panel chrome scale: quiet, medium-weight headings inside the viewer */
 .snippet-viewer {
   h1 {
     text-align: left;
-    @apply text-base font-bold;
+    @apply text-base font-semibold;
   }
   h2 {
-    @apply text-sm font-bold;
+    @apply text-sm font-semibold;
   }
 }

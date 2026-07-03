@@ -70,7 +70,6 @@ describe("mergePanelLayout", () => {
         "files",
         "variables",
         "packages",
-        "ai",
         "outline",
         "documentation",
         "dependencies",
@@ -174,7 +173,6 @@ describe("mergePanelLayout", () => {
       sidebar: [
         "files",
         "packages",
-        "ai",
         "outline",
         "documentation",
         "dependencies",
@@ -202,7 +200,6 @@ describe("mergePanelLayout", () => {
         "files",
         "variables",
         "packages",
-        "ai",
         "outline",
         "documentation",
         "dependencies",

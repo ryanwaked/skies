@@ -67,14 +67,17 @@ export const TableTopBar = <TData,>({
   }, [debouncedSearch, onSearch]);
 
   return (
-    <div className="flex items-center h-10 px-2 border-b gap-2">
+    <div className="flex items-center h-10 px-2 border-b border-border gap-2">
       {onSearchQueryChange && showSearch && (
-        <div className="flex flex-1 items-center gap-1 px-2 rounded-sm focus-within:ring-1 focus-within:ring-border transition-shadow">
-          <SearchIcon className="w-4 h-4 text-muted-foreground shrink-0" />
+        <div className="flex flex-1 items-center gap-1.5 h-7 px-2 rounded-[3px] border border-input focus-within:border-primary transition-colors">
+          <SearchIcon
+            className="w-3.5 h-3.5 text-muted-foreground shrink-0"
+            strokeWidth={1.5}
+          />
           <input
             ref={inputRef}
             type="text"
-            className="h-6 border-none bg-transparent focus:outline-hidden text-sm w-full min-w-0"
+            className="h-full border-none bg-transparent focus:outline-hidden text-xs w-full min-w-0 placeholder:text-muted-foreground"
             value={internalValue}
             onKeyDown={(e) => {
               if (e.key === "Escape") {
@@ -90,28 +93,33 @@ export const TableTopBar = <TData,>({
             <Button
               variant="text"
               size="xs"
-              className="h-5 w-5 p-0 shrink-0"
+              className="h-5 w-5 p-0 shrink-0 rounded-[3px] hover:bg-[rgba(63,66,87,0.2)]"
               onClick={() => setInternalValue("")}
             >
-              <XIcon className="w-3 h-3 text-muted-foreground" />
+              <XIcon
+                className="w-3 h-3 text-muted-foreground"
+                strokeWidth={1.5}
+              />
             </Button>
           )}
         </div>
       )}
 
-      <div className="flex items-center shrink-0 ml-auto">
+      <div className="flex items-center gap-0.5 shrink-0 ml-auto">
         <ColumnVisibilityDropdown table={table} />
         {showChartBuilder && (
           <Button
             variant="text"
             size="xs"
             className={cn(
-              "print:hidden text-xs gap-1",
-              isChartBuilderOpen ? "text-primary" : "text-muted-foreground",
+              "print:hidden h-7 text-xs gap-1.5 rounded-[3px] transition-colors",
+              isChartBuilderOpen
+                ? "bg-primary/[0.07] text-primary hover:bg-primary/[0.07]"
+                : "text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]",
             )}
             onClick={toggleDisplayHeader}
           >
-            <ChartSplineIcon className="w-3.5 h-3.5" />
+            <ChartSplineIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
             Visualize
           </Button>
         )}
@@ -120,12 +128,14 @@ export const TableTopBar = <TData,>({
             variant="text"
             size="xs"
             className={cn(
-              "print:hidden text-xs gap-1",
-              isAnyPanelOpen ? "text-primary" : "text-muted-foreground",
+              "print:hidden h-7 text-xs gap-1.5 rounded-[3px] transition-colors",
+              isAnyPanelOpen
+                ? "bg-primary/[0.07] text-primary hover:bg-primary/[0.07]"
+                : "text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]",
             )}
             onClick={() => togglePanel(PANEL_TYPES.ROW_VIEWER)}
           >
-            <PanelRightIcon className="w-3.5 h-3.5" />
+            <PanelRightIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
             Explore
           </Button>
         )}

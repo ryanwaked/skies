@@ -66,6 +66,11 @@ import { IconWithText } from "./layouts";
 
 const CLEAR_VALUE = "__clear__";
 
+// Hex field labels: 12px regular muted text next to flat bordered controls
+const FIELD_LABEL_CLASS = "text-xs font-normal text-muted-foreground";
+// Hex compact control: 28px tall, 12px text
+const FIELD_CONTROL_CLASS = "h-7 text-xs";
+
 export type FieldName = Path<z.infer<typeof ChartSchema>>;
 
 export interface Field {
@@ -141,7 +146,7 @@ export const ColumnSelector = ({
               value={field.value ?? EMPTY_VALUE}
             >
               <SelectTrigger
-                className="w-40 truncate"
+                className={cn("w-40 truncate", FIELD_CONTROL_CLASS)}
                 onClear={field.value ? clear : undefined}
               >
                 <SelectValue placeholder="Select column" />
@@ -208,14 +213,14 @@ export const SelectField = ({
       name={fieldName}
       render={({ field }) => (
         <FormItem className="flex flex-row items-center justify-between">
-          <FormLabel>{label}</FormLabel>
+          <FormLabel className={FIELD_LABEL_CLASS}>{label}</FormLabel>
           <FormControl>
             <Select
               {...field}
               onValueChange={field.onChange}
               value={field.value ?? defaultValue}
             >
-              <SelectTrigger className="truncate">
+              <SelectTrigger className={cn("truncate", FIELD_CONTROL_CLASS)}>
                 <SelectValue placeholder="Select an option" />
               </SelectTrigger>
               <SelectContent>
@@ -251,13 +256,13 @@ export const InputField = ({
       name={fieldName}
       render={({ field }) => (
         <FormItem className="flex flex-row gap-2 items-center">
-          <FormLabel>{label}</FormLabel>
+          <FormLabel className={FIELD_LABEL_CLASS}>{label}</FormLabel>
           <FormControl>
             <DebouncedInput
               {...field}
               value={field.value ?? EMPTY_VALUE}
               onValueChange={field.onChange}
-              className="text-xs h-5"
+              className={FIELD_CONTROL_CLASS}
             />
           </FormControl>
         </FormItem>
@@ -287,7 +292,9 @@ export const NumberField = ({
       name={fieldName}
       render={({ field }) => (
         <FormItem className={cn("flex flex-row items-center gap-2", className)}>
-          <FormLabel className="whitespace-nowrap">{label}</FormLabel>
+          <FormLabel className={cn("whitespace-nowrap", FIELD_LABEL_CLASS)}>
+            {label}
+          </FormLabel>
           <FormControl>
             <DebouncedNumberInput
               {...field}
@@ -324,7 +331,7 @@ export const BooleanField = ({
       name={fieldName}
       render={({ field }) => (
         <FormItem className={cn("flex flex-row items-center gap-2", className)}>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel className={FIELD_LABEL_CLASS}>{label}</FormLabel>
           <FormControl>
             <Checkbox
               checked={field.value ?? defaultValue ?? false}
@@ -378,7 +385,7 @@ export const SliderField = ({
           <FormItem
             className={cn("flex flex-row items-center gap-2 w-1/2", className)}
           >
-            <FormLabel>{label}</FormLabel>
+            <FormLabel className={FIELD_LABEL_CLASS}>{label}</FormLabel>
             <FormControl>
               <Slider
                 {...field}
@@ -444,7 +451,7 @@ export const ColorArrayField = ({
       name={fieldName}
       render={() => (
         <FormItem className={cn("flex flex-col gap-2", className)}>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel className={FIELD_LABEL_CLASS}>{label}</FormLabel>
           <div className="flex flex-col gap-2">
             {colors.map((color, index) => (
               <div key={index} className="flex items-center gap-2">
@@ -463,7 +470,7 @@ export const ColorArrayField = ({
                   onClick={() => removeColor(index)}
                   className="h-4 w-4 p-0"
                 >
-                  <XIcon className="h-2 w-2" />
+                  <XIcon className="h-2 w-2" strokeWidth={1.5} />
                 </Button>
               </div>
             ))}
@@ -473,7 +480,7 @@ export const ColorArrayField = ({
               onClick={addColor}
               className="w-fit h-6 text-xs"
             >
-              <PlusIcon className="h-3 w-3 mr-1" />
+              <PlusIcon className="h-3 w-3 mr-1" strokeWidth={1.5} />
               Add Color
             </Button>
           </div>
@@ -519,7 +526,7 @@ export const TimeUnitSelect = ({
       render={({ field }) => {
         return (
           <FormItem className="flex flex-row items-center justify-between w-full">
-            <FormLabel>{label}</FormLabel>
+            <FormLabel className={FIELD_LABEL_CLASS}>{label}</FormLabel>
             <FormControl>
               <Select
                 {...field}
@@ -532,7 +539,10 @@ export const TimeUnitSelect = ({
                 }}
                 value={field.value ?? DEFAULT_TIME_UNIT}
               >
-                <SelectTrigger onClear={field.value ? clear : undefined}>
+                <SelectTrigger
+                  className={FIELD_CONTROL_CLASS}
+                  onClear={field.value ? clear : undefined}
+                >
                   <SelectValue placeholder="Select unit" />
                 </SelectTrigger>
                 <SelectContent className="w-72">
@@ -582,7 +592,7 @@ export const DataTypeSelect = ({
       name={fieldName}
       render={({ field }) => (
         <FormItem className="flex flex-row items-center justify-between w-full">
-          <FormLabel>{label}</FormLabel>
+          <FormLabel className={FIELD_LABEL_CLASS}>{label}</FormLabel>
           <FormControl>
             <Select
               {...field}
@@ -594,7 +604,7 @@ export const DataTypeSelect = ({
               open={isOpen}
               onOpenChange={setIsOpen}
             >
-              <SelectTrigger>
+              <SelectTrigger className={FIELD_CONTROL_CLASS}>
                 <SelectValue placeholder="Select an option" />
               </SelectTrigger>
               <SelectContent>
@@ -719,7 +729,7 @@ export const AggregationSelect = ({
                 });
               }}
             >
-              <SelectTrigger variant="ghost">
+              <SelectTrigger variant="ghost" className={FIELD_CONTROL_CLASS}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

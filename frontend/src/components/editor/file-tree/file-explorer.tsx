@@ -166,17 +166,19 @@ export const FileExplorer: React.FC<{
   if (openFile) {
     return (
       <>
-        <div className="flex items-center pl-1 pr-3 shrink-0 border-b justify-between">
+        <div className="flex items-center h-[30px] pl-1 pr-3 shrink-0 border-b border-border justify-between">
           <Button
             onClick={() => setOpenFile(null)}
             data-testid="file-explorer-back-button"
             variant="text"
             size="xs"
-            className="mb-0"
+            className="mb-0 text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeftIcon size={16} />
+            <ArrowLeftIcon size={14} strokeWidth={1.5} />
           </Button>
-          <span className="font-bold">{openFile.name}</span>
+          <span className="text-sm font-medium text-foreground truncate">
+            {openFile.name}
+          </span>
         </div>
         <Suspense>
           <FileViewer
@@ -261,7 +263,7 @@ export const FileExplorer: React.FC<{
   );
 };
 
-const INDENT_STEP = 15;
+const INDENT_STEP = 12;
 
 interface ToolbarProps {
   onRefresh: () => void;
@@ -288,16 +290,19 @@ const Toolbar = ({
     noDragEventsBubbling: true,
   });
 
+  const ghostIconButton = "text-muted-foreground hover:text-foreground";
+
   return (
-    <div className="flex items-center justify-end px-2 shrink-0 border-b">
+    <div className="flex items-center justify-end h-[30px] px-2 shrink-0 border-b border-border">
       <Tooltip content="Add notebook">
         <Button
           data-testid="file-explorer-add-notebook-button"
           onClick={onCreateNotebook}
           variant="text"
           size="xs"
+          className={ghostIconButton}
         >
-          <NotebookPenIcon size={16} />
+          <NotebookPenIcon size={14} strokeWidth={1.5} />
         </Button>
       </Tooltip>
       <Tooltip content="Add file">
@@ -306,8 +311,9 @@ const Toolbar = ({
           onClick={onCreateFile}
           variant="text"
           size="xs"
+          className={ghostIconButton}
         >
-          <FilePlus2Icon size={16} />
+          <FilePlus2Icon size={14} strokeWidth={1.5} />
         </Button>
       </Tooltip>
       <Tooltip content="Add folder">
@@ -316,26 +322,31 @@ const Toolbar = ({
           onClick={onCreateFolder}
           variant="text"
           size="xs"
+          className={ghostIconButton}
         >
-          <FolderPlusIcon size={16} />
+          <FolderPlusIcon size={14} strokeWidth={1.5} />
         </Button>
       </Tooltip>
       <Tooltip content="Upload file">
         <button
           data-testid="file-explorer-upload-button"
           {...getRootProps({})}
-          className={buttonVariants({
-            variant: "text",
-            size: "xs",
-          })}
+          className={cn(
+            buttonVariants({
+              variant: "text",
+              size: "xs",
+            }),
+            ghostIconButton,
+          )}
         >
-          <UploadIcon size={16} />
+          <UploadIcon size={14} strokeWidth={1.5} />
         </button>
       </Tooltip>
       <input {...getInputProps({})} type="file" />
       <RefreshIconButton
         data-testid="file-explorer-refresh-button"
         onClick={onRefresh}
+        className={ghostIconButton}
       />
       <VisibilityToggleButton
         data-testid="file-explorer-hidden-files-button"
@@ -343,6 +354,7 @@ const Toolbar = ({
         onToggle={onHidden}
         showTooltip="Show hidden files"
         hideTooltip="Hide hidden files"
+        className={ghostIconButton}
       />
       <Tooltip content="Collapse all folders">
         <Button
@@ -350,8 +362,9 @@ const Toolbar = ({
           onClick={onCollapseAll}
           variant="text"
           size="xs"
+          className={ghostIconButton}
         >
-          <CopyMinusIcon size={16} />
+          <CopyMinusIcon size={14} strokeWidth={1.5} />
         </Button>
       </Tooltip>
     </div>
@@ -382,7 +395,7 @@ const Show = ({
       {node.data.isMarimoFile && !isWasm() && (
         <span
           data-testid="file-explorer-open-marimo-button"
-          className="shrink-0 ml-2 text-sm hidden group-hover:inline hover:underline"
+          className="shrink-0 ml-2 text-xs text-primary hidden group-hover:inline hover:underline"
           onClick={onOpenMarimoFile}
         >
           open <ExternalLinkIcon className="inline ml-1" size={12} />
@@ -499,11 +512,13 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
       <FolderArrow node={node} />
       <span
         className={cn(
-          "flex items-center pl-1 py-0.5 cursor-pointer text-[13px] hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground rounded-[3px] flex-1 overflow-hidden group",
-          node.isSelected && "bg-[rgba(63,66,87,0.4)] text-foreground",
+          "flex items-center pl-1 py-0.5 cursor-pointer text-[13px] rounded-[3px] flex-1 overflow-hidden group",
+          node.isSelected
+            ? "bg-primary/[0.07] text-primary"
+            : "hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground",
           node.willReceiveDrop &&
             node.data.isDirectory &&
-            "bg-accent/80 hover:bg-accent/80 text-accent-foreground",
+            "bg-primary/[0.07] hover:bg-primary/[0.07] text-primary hover:text-primary",
         )}
       >
         {node.data.isMarimoFile ? (
@@ -513,7 +528,10 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
           />
         ) : (
           <Icon
-            className={cn("w-4 h-4 shrink-0 mr-1.5", FILE_ICON_COLOR[fileType])}
+            className={cn(
+              "w-4 h-4 shrink-0 mr-1.5",
+              node.isSelected ? "text-primary" : FILE_ICON_COLOR[fileType],
+            )}
             strokeWidth={1.5}
           />
         )}
@@ -687,10 +705,10 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
 
 const FolderArrow = ({ node }: { node: NodeApi<FileInfo> }) => {
   if (!node.data.isDirectory) {
-    return <span className="w-4 h-4 shrink-0" />;
+    return <span className="w-3.5 h-3.5 shrink-0" />;
   }
 
-  return <TreeChevron isExpanded={node.isOpen} className="w-4 h-4" />;
+  return <TreeChevron isExpanded={node.isOpen} className="w-3.5 h-3.5" />;
 };
 
 function openMarimoNotebook(

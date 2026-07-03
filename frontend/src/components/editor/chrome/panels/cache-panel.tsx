@@ -60,7 +60,7 @@ const CachePanel = () => {
       {isFetching ? (
         <Spinner size="small" className="w-4 h-4 mr-2" />
       ) : (
-        <RefreshCwIcon className="w-4 h-4 mr-2" />
+        <RefreshCwIcon strokeWidth={1.5} className="w-4 h-4 mr-2" />
       )}
       Refresh
     </Button>
@@ -111,6 +111,7 @@ const CachePanel = () => {
             disabled={isFetching}
           >
             <RefreshCwIcon
+              strokeWidth={1.5}
               className={cn(
                 "h-4 w-4 text-muted-foreground hover:text-foreground",
                 isFetching && "animate-[spin_0.5s]",
@@ -121,7 +122,9 @@ const CachePanel = () => {
 
         {/* Statistics Section */}
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-foreground">Statistics</h3>
+          <h3 className="text-[10px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+            Statistics
+          </h3>
           <div className="grid grid-cols-2 gap-3">
             <StatCard
               label="Time saved"
@@ -151,7 +154,9 @@ const CachePanel = () => {
         {/* Storage Section */}
         {diskTotal > 0 && (
           <div className="space-y-3 pt-2 border-t">
-            <h3 className="text-sm font-semibold text-foreground">Storage</h3>
+            <h3 className="text-[10px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+              Storage
+            </h3>
             <div className="grid grid-cols-1 gap-3">
               <StatCard
                 label="Disk usage"
@@ -186,7 +191,7 @@ const CachePanel = () => {
               {purging ? (
                 <Spinner size="small" className="w-3 h-3 mr-2" />
               ) : (
-                <Trash2Icon className="w-3 h-3 mr-2" />
+                <Trash2Icon strokeWidth={1.5} className="w-3 h-3 mr-2" />
               )}
               Purge Cache
             </Button>
@@ -203,9 +208,11 @@ const StatCard: React.FC<{
   description?: string;
 }> = ({ label, value, description }) => {
   return (
-    <div className="flex flex-col gap-1 p-3 rounded-lg border bg-card">
-      <span className="text-xs text-muted-foreground">{label}</span>
-      <span className="text-lg font-semibold">{value}</span>
+    <div className="flex flex-col gap-1 p-3 rounded-[3px] border bg-card">
+      <span className="text-[10px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+        {label}
+      </span>
+      <span className="text-base font-medium font-code">{value}</span>
       {description && (
         <span className="text-xs text-muted-foreground">{description}</span>
       )}
