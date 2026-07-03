@@ -6,22 +6,25 @@
   .cm-tooltip-autocomplete {
     /* CodeMirror's default is too wide. */
     max-width: 250px;
+
     @apply bg-popover shadow-md border border-border;
   }
 
   /* Autocomplete list */
   .cm-tooltip-autocomplete > ul {
     @apply max-h-[300px] overflow-y-auto;
+
     scrollbar-width: thin;
     min-width: unset;
   }
 
-  /* Autocomplete list items */
+  /* Autocomplete list items: 12px mono rows on Hex's ~22px line box */
   .cm-tooltip-autocomplete > ul > li {
     padding: 0;
     padding-right: 6px;
-    height: 18px;
+    height: 22px;
     min-width: 60px;
+
     @apply flex items-center gap-2 cursor-pointer;
   }
 
@@ -29,41 +32,48 @@
     padding-top: 1px;
     padding-bottom: 1px;
     padding-right: 12px;
+
     @apply text-xs font-mono;
   }
 
   .cm-completionDetail {
     flex-grow: 1;
     text-align: right;
+    font-style: normal;
+
+    @apply text-xs text-muted-foreground;
   }
 
+  /* Section headers follow Hex's 10px/600 uppercase muted style */
   .cm-tooltip-autocomplete > ul > completion-section {
-    @apply text-xs bg-muted-foreground/10 border-y border-border;
+    @apply text-[10px] font-semibold uppercase tracking-wide
+      text-muted-foreground bg-muted-foreground/10 border-y border-border;
   }
 
-  /* Hover state for list items */
+  /* Hover state for list items: neutral hover tint */
   .cm-tooltip-autocomplete > ul > li:hover {
     background-color: rgb(63 66 87 / 20%);
   }
 
-  /* Selected item in autocomplete */
+  /* Selected item: Hex active state — subtle brand tint, brand text
+     (never a solid fill) */
   .cm-tooltip-autocomplete > ul > li[aria-selected] {
-    background-color: rgb(63 66 87 / 40%);
-    color: inherit;
+    background-color: color-mix(in srgb, var(--primary) 7%, transparent);
+    color: var(--primary);
   }
 
-  /* Completion icons container */
+  /* Completion icons container. Hex/Monaco-dark keeps type icons muted:
+     one quiet gray for every kind, no colored chips. */
   .cm-completionIcon {
     width: 1rem;
     height: 100%;
     flex-shrink: 0;
-    line-height: 18px;
+    line-height: 22px;
     font-weight: bold;
     opacity: 0.9;
     padding: 0 1px;
-    /* Default colors */
-    color: var(--gray-11);
-    background-color: var(--gray-3);
+    color: var(--muted-foreground);
+    background-color: transparent;
 
     @apply flex items-center justify-center font-medium;
 
@@ -73,140 +83,66 @@
     }
   }
 
-  .cm-completionIcon-variable {
-    color: var(--blue-11);
-    background-color: var(--blue-3);
-
-    &::after {
-      content: "𝑣"; /* Italic small v for variables */
-    }
+  .cm-completionIcon-variable::after {
+    content: "𝑣"; /* Italic small v for variables */
   }
 
-  .cm-completionIcon-property {
-    color: var(--lime-11);
-    background-color: var(--lime-3);
-
-    &::after {
-      content: "≡"; /* Identical to symbol for properties */
-    }
+  .cm-completionIcon-property::after {
+    content: "≡"; /* Identical to symbol for properties */
   }
 
-  .cm-completionIcon-method {
-    color: var(--amber-11);
-    background-color: var(--amber-3);
-
-    &::after {
-      content: "⚙"; /* Gear symbol for methods */
-    }
+  .cm-completionIcon-method::after {
+    content: "⚙"; /* Gear symbol for methods */
   }
 
-  .cm-completionIcon-function {
-    color: var(--purple-11);
-    background-color: var(--purple-3);
-
-    &::after {
-      content: "ƒ"; /* Function symbol for functions */
-    }
+  .cm-completionIcon-function::after {
+    content: "ƒ"; /* Function symbol for functions */
   }
 
-  .cm-completionIcon-class {
-    color: var(--orange-11);
-    background-color: var(--orange-3);
-
-    &::after {
-      content: "C"; /* Capital C for classes */
-    }
+  .cm-completionIcon-class::after {
+    content: "C"; /* Capital C for classes */
   }
 
-  .cm-completionIcon-module {
-    color: var(--grass-11);
-    background-color: var(--grass-3);
-
-    &::after {
-      content: "⧉"; /* Interlocking squares for modules */
-    }
+  .cm-completionIcon-module::after {
+    content: "⧉"; /* Interlocking squares for modules */
   }
 
-  .cm-completionIcon-statement {
-    color: var(--red-11);
-    background-color: var(--red-3);
-
-    &::after {
-      content: "§"; /* Section symbol for statements */
-    }
+  .cm-completionIcon-statement::after {
+    content: "§"; /* Section symbol for statements */
   }
 
-  .cm-completionIcon-keyword {
-    color: var(--cyan-11);
-    background-color: var(--cyan-3);
-
-    &::after {
-      content: "⌘"; /* Command symbol for keywords */
-    }
+  .cm-completionIcon-keyword::after {
+    content: "⌘"; /* Command symbol for keywords */
   }
 
-  .cm-completionIcon-reference {
-    color: var(--gray-11);
-    background-color: var(--gray-3);
-
-    &::after {
-      content: "→"; /* Right arrow for references */
-    }
+  .cm-completionIcon-reference::after {
+    content: "→"; /* Right arrow for references */
   }
 
-  .cm-completionIcon-file {
-    color: var(--crimson-11);
-    background-color: var(--crimson-3);
-
-    &::after {
-      content: "𝌆"; /* File symbol for files */
-    }
+  .cm-completionIcon-file::after {
+    content: "𝌆"; /* File symbol for files */
   }
 
-  .cm-completionIcon-table {
-    color: var(--gray-11);
-    background-color: var(--gray-3);
-
-    &::after {
-      content: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2NjY2NjYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1kYXRhYmFzZS1pY29uIGx1Y2lkZS1kYXRhYmFzZSI+PGVsbGlwc2UgY3g9IjEyIiBjeT0iNSIgcng9IjkiIHJ5PSIzIi8+PHBhdGggZD0iTTMgNVYxOUE5IDMgMCAwIDAgMjEgMTlWNSIvPjxwYXRoIGQ9Ik0zIDEyQTkgMyAwIDAgMCAyMSAxMiIvPjwvc3ZnPg=="); /* Database icon for tables */
-    }
+  .cm-completionIcon-table::after {
+    /* Database icon for tables, stroked in the muted foreground (#b1b6c4) */
+    content: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="%23b1b6c4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>');
   }
 
-  .cm-completionIcon-dataframe {
-    color: var(--gray-11);
-    background-color: var(--gray-3);
-
-    &::after {
-      content: "𝌆"; /* Dataframe icon for tables */
-    }
+  .cm-completionIcon-dataframe::after {
+    content: "𝌆"; /* Dataframe icon for tables */
   }
 
-  .cm-completionIcon-error {
-    color: var(--red-11);
-    background-color: var(--red-3);
-
-    &::after {
-      content: "𝑒"; /* Italic e for errors */
-    }
+  .cm-completionIcon-error::after {
+    content: "𝑒"; /* Italic e for errors */
   }
 
-  .cm-completionIcon-datasource {
-    color: var(--purple-11);
-    background-color: var(--purple-3);
-
-    &::after {
-      content: "⚙"; /* Gear icon for datasources */
-    }
+  .cm-completionIcon-datasource::after {
+    content: "⚙"; /* Gear icon for datasources */
   }
 
   /* Completion info tooltip */
   .cm-completionInfo {
     @apply max-w-md border-l border-border;
-  }
-
-  .cm-completionDetail {
-    font-style: normal;
-    @apply text-xs text-muted-foreground;
   }
 
   /* Completion matching text highlight */
@@ -273,7 +209,9 @@
   padding: 0.5rem !important;
   scrollbar-width: thin;
   line-height: normal;
-  @apply bg-popover shadow-md border border-border rounded-md text-sm py-1 px-2 font-prose;
+
+  /* Hex hover/signature docs run 12px on the popover surface. */
+  @apply bg-popover shadow-md border border-border rounded-md text-xs py-1 px-2 font-prose;
 
   /* Paragraphs */
   & p {
@@ -302,12 +240,13 @@
   & h1,
   & h2 {
     font-weight: 600;
-    @apply text-base border-b pb-1 mb-1 text-primary;
+
+    @apply text-sm border-b pb-1 mb-1 text-primary;
   }
 
   & h3,
   & h4 {
-    @apply text-sm font-semibold mt-2 mb-1;
+    @apply text-xs font-semibold mt-2 mb-1;
   }
 
   /* Definition lists */
@@ -332,12 +271,13 @@
   & pre > code {
     width: 100%;
     display: inline-block;
+
     @apply p-2 mb-1;
   }
 
   /* Tables */
   & table {
-    @apply text-sm border rounded my-2;
+    @apply text-xs border rounded my-2;
   }
 
   & table th,
@@ -356,6 +296,7 @@
   /* Blockquotes */
   & blockquote {
     white-space: pre-wrap;
+
     @apply pl-2 ml-2;
   }
 
@@ -363,6 +304,7 @@
     padding: 0;
     white-space: normal;
     font-weight: initial;
+
     @apply text-xs font-mono;
   }
 
@@ -404,6 +346,7 @@
   .doctest-block,
   .literal-block {
     white-space: pre-wrap;
+
     @apply bg-muted p-2 rounded text-xs;
   }
 
@@ -411,6 +354,7 @@
     width: 100%;
     display: inline-block;
     white-space: pre-wrap;
+
     @apply bg-muted border p-2 rounded-md font-mono text-xs;
   }
 
@@ -419,6 +363,7 @@
     padding: 0;
     white-space: normal;
     font-weight: initial;
+
     @apply text-xs font-mono;
   }
 }

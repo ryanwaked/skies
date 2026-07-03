@@ -139,7 +139,7 @@ const GalleryPage: React.FC = () => {
             )}
             {filteredFiles.length === 0 ? (
               <Banner kind="warn" className="rounded p-4">
-                No marimo apps found.
+                No apps found.
               </Banner>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

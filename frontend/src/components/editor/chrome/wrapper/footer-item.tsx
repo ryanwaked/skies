@@ -18,9 +18,9 @@ export const FooterItem: React.FC<FooterItemProps> = forwardRef<
     <div
       ref={ref}
       className={cn(
-        "h-full flex items-center p-2 text-sm cursor-pointer rounded-sm",
+        "h-full flex items-center px-1.5 text-[11px] cursor-pointer rounded-sm",
         !selected && "hover:bg-[rgba(63,66,87,0.2)]",
-        selected && "bg-primary/7 text-primary",
+        selected && "bg-primary/[0.07] text-primary",
         className,
       )}
       {...rest}

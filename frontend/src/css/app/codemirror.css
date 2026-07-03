@@ -27,6 +27,31 @@
 
 .dark .cm .cm-gutters {
   background-color: transparent;
+
+  /* Hex/Monaco-dark line numbers: dim gray resting state (--cm-comment is
+     the same #6b7280 Hex uses for gutter digits). */
+  color: var(--cm-comment);
+}
+
+.dark .cm .cm-gutters .cm-activeLineGutter {
+  color: var(--muted-foreground);
+}
+
+/* -- Fold placeholder ("…" chip) -- */
+
+.cm .cm-foldPlaceholder {
+  background-color: var(--muted);
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  border-radius: var(--radius);
+  padding: 0 4px;
+  margin: 0 2px;
+}
+
+/* -- Placeholder text -- */
+
+.cm .cm-placeholder {
+  color: color-mix(in srgb, var(--muted-foreground) 60%, transparent);
 }
 
 .marimo-cell .cm-scroller {
@@ -40,7 +65,9 @@
   border-radius: var(--radius);
   z-index: 1000;
 
-  @apply bg-popover shadow-md border-border;
+  /* CodeMirror's dark base theme ships borderless tooltips, so set the
+     width explicitly: 1px var(--border) on the popover surface. */
+  @apply bg-popover shadow-md border border-border;
 }
 
 /*
@@ -84,7 +111,7 @@
 /* -- Linting -- */
 
 .cm-tooltip-lint {
-  @apply text-sm;
+  @apply text-xs;
 
   code {
     @apply bg-muted border border-border rounded-md px-1;
@@ -93,6 +120,58 @@
   .cm-diagnosticText > div {
     display: inline-flex;
   }
+}
+
+/* Diagnostic severity accents use the semantic tokens instead of
+   CodeMirror's default #d11/orange. */
+.cm .cm-diagnostic-error,
+.cm-tooltip .cm-diagnostic-error {
+  border-left-color: var(--error);
+}
+
+.cm .cm-diagnostic-warning,
+.cm-tooltip .cm-diagnostic-warning {
+  border-left-color: var(--action-foreground);
+}
+
+.cm .cm-diagnostic-info,
+.cm-tooltip .cm-diagnostic-info {
+  border-left-color: var(--muted-foreground);
+}
+
+/* Squiggles: replace CodeMirror's baked-in SVG underlines (hardcoded
+   #d11/orange) with wavy text decorations in the semantic colors. */
+.cm .cm-lintRange-error,
+.cm .cm-lintRange-warning,
+.cm .cm-lintRange-info {
+  background-image: none;
+  text-decoration-line: underline;
+  text-decoration-style: wavy;
+  text-decoration-skip-ink: none;
+  text-underline-offset: 0.1875rem;
+}
+
+.cm .cm-lintRange-error {
+  text-decoration-color: var(--error);
+}
+
+.cm .cm-lintRange-warning {
+  text-decoration-color: var(--action-foreground);
+}
+
+.cm .cm-lintRange-info {
+  text-decoration-color: var(--muted-foreground);
+}
+
+/* Lint gutter markers: same shapes as CodeMirror's defaults, recolored to
+   the semantic tokens (data URIs cannot reference CSS variables; these hex
+   values are --error / --action-foreground). */
+.cm .cm-lint-marker-error {
+  content: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="%23ed6f73"/></svg>');
+}
+
+.cm .cm-lint-marker-warning {
+  content: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><path fill="%23ffc940" d="M4 36L20 4l16 32z"/></svg>');
 }
 
 /* -- Ghost Text -- */
@@ -111,7 +190,7 @@
 /* -- Codeium -- */
 
 .cm-codeium-cycle {
-  font-size: 9px;
+  font-size: 0.5625rem;
   background-color: var(--accent);
   padding: 2px;
   border-radius: 2px;
@@ -119,7 +198,7 @@
 }
 
 .cm-codeium-cycle-key {
-  font-size: 9px;
+  font-size: 0.5625rem;
   font-family: monospace;
   display: inline-block;
   padding: 2px;

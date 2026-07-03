@@ -102,8 +102,8 @@ const MemoryUsageBar: React.FC<{
       }
     >
       <div className="flex items-center gap-1" data-testid="memory-usage-bar">
-        <MemoryStickIcon className="w-4 h-4" />
-        <Bar percent={roundedPercent} colorClassName="bg-primary" />
+        <MemoryStickIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
+        <Bar percent={roundedPercent} />
       </div>
     </Tooltip>
   );
@@ -122,8 +122,8 @@ const CPUBar: React.FC<{ cpu: UsageResponse["cpu"] }> = ({ cpu }) => {
       }
     >
       <div className="flex items-center gap-1" data-testid="cpu-bar">
-        <CpuIcon className="w-4 h-4" />
-        <Bar percent={roundedPercent} colorClassName="bg-primary" />
+        <CpuIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
+        <Bar percent={roundedPercent} />
       </div>
     </Tooltip>
   );
@@ -177,21 +177,25 @@ const GPUBar: React.FC<{ gpus: GPU[] }> = ({ gpus }) => {
       }
     >
       <div className="flex items-center gap-1" data-testid="gpu-bar">
-        <MicrochipIcon className="w-4 h-4" />
-        <Bar percent={avgPercent} colorClassName="bg-success" />
+        <MicrochipIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
+        <Bar percent={avgPercent} />
       </div>
     </Tooltip>
   );
 };
 
-const Bar: React.FC<{ percent: number; colorClassName?: string }> = ({
-  percent,
-  colorClassName,
-}) => {
+const Bar: React.FC<{ percent: number }> = ({ percent }) => {
   return (
-    <div className="h-3 w-20 bg-muted rounded-lg overflow-hidden border">
+    <div className="h-1.5 w-16 bg-muted rounded-sm overflow-hidden border border-border">
       <div
-        className={cn("h-full bg-primary", colorClassName)}
+        className={cn(
+          "h-full rounded-sm",
+          percent >= 90
+            ? "bg-error"
+            : percent >= 75
+              ? "bg-action-foreground"
+              : "bg-muted-foreground/60",
+        )}
         style={{ width: `${percent}%` }}
       />
     </div>

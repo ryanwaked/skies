@@ -6,6 +6,7 @@ import {
   BarChart2Icon,
   BookMarkedIcon,
   BookOpenIcon,
+  CloudIcon,
   DatabaseIcon,
   FileIcon,
   FileTextIcon,
@@ -33,7 +34,6 @@ import { useRequestClient } from "@/core/network/requests";
 import type { TutorialId } from "@/core/network/types";
 import { openNotebook } from "@/utils/links";
 import { Objects } from "@/utils/objects";
-import { MarimoPlusIcon } from "../icons/marimo-icons";
 
 const TUTORIALS: Record<
   TutorialId,
@@ -142,7 +142,7 @@ const RESOURCES = [
   {
     title: "molab",
     description: "Run marimo notebooks in the cloud",
-    icon: MarimoPlusIcon,
+    icon: CloudIcon,
     url: Constants.molab,
   },
   {

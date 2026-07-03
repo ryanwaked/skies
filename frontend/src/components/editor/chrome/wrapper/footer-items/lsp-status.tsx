@@ -1,7 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { atom, useAtomValue, useSetAtom } from "jotai";
-import { AlertCircleIcon, CheckCircle2Icon } from "lucide-react";
 import type React from "react";
 import { Spinner } from "@/components/icons/spinner";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -92,16 +91,16 @@ export const LspStatus: React.FC = () => {
     }
 
     if (!data) {
-      return <AlertCircleIcon className="w-4 h-4" />;
+      return <span className="size-1.5 rounded-full bg-muted-foreground" />;
     }
 
     switch (data.status) {
       case "healthy":
-        return <CheckCircle2Icon className="w-4 h-4 text-success" />;
+        return <span className="size-1.5 rounded-full bg-success" />;
       case "degraded":
-        return <AlertCircleIcon className="w-4 h-4 text-action-foreground" />;
+        return <span className="size-1.5 rounded-full bg-action-foreground" />;
       case "unhealthy":
-        return <AlertCircleIcon className="w-4 h-4 text-action-foreground" />;
+        return <span className="size-1.5 rounded-full bg-action-foreground" />;
     }
   };
 
@@ -168,7 +167,7 @@ export const LspStatus: React.FC = () => {
       <button
         type="button"
         onClick={handleClick}
-        className="p-1 hover:bg-accent rounded-sm flex items-center gap-1.5 text-xs text-muted-foreground"
+        className="h-6 px-1.5 hover:bg-[rgba(63,66,87,0.2)] rounded-sm flex items-center gap-1.5 text-[11px] text-muted-foreground"
         data-testid="lsp-status"
       >
         {getStatusIcon()}

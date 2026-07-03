@@ -11,6 +11,7 @@
   padding: 1rem;
   padding-left: 3rem;
   border-left: 4px solid;
+  border-radius: var(--radius);
   margin-bottom: 1rem;
   background-color: var(--admonition-bg);
   border-color: var(--admonition-border);

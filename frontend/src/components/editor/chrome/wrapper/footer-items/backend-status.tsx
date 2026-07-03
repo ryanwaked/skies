@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { atom, useAtomValue, useSetAtom } from "jotai";
-import { AlertCircleIcon, CheckCircle2Icon, PowerOffIcon } from "lucide-react";
+import { PowerOffIcon } from "lucide-react";
 import type React from "react";
 import { Spinner } from "@/components/icons/spinner";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -102,23 +102,25 @@ export const BackendConnectionStatus: React.FC = () => {
     }
 
     if (isAppClosing(connection)) {
-      return <Spinner className="text-destructive" size="small" />;
+      return <Spinner className="text-error" size="small" />;
     }
 
     if (isAppConnected(connection)) {
       if (data?.isHealthy) {
-        return <CheckCircle2Icon className="w-4 h-4 text-success" />;
+        return <span className="size-1.5 rounded-full bg-success" />;
       }
       if (data?.lastChecked) {
-        return <AlertCircleIcon className="w-4 h-4 text-action-foreground" />;
+        return <span className="size-1.5 rounded-full bg-action-foreground" />;
       }
-      return <CheckCircle2Icon className="w-4 h-4" />;
+      return <span className="size-1.5 rounded-full bg-muted-foreground" />;
     }
     if (isAppNotStarted(connection)) {
-      return <PowerOffIcon className="w-4 h-4" />;
+      return <PowerOffIcon className="w-3.5 h-3.5" strokeWidth={1.5} />;
     }
 
-    return <PowerOffIcon className="w-4 h-4 text-destructive" />;
+    return (
+      <PowerOffIcon className="w-3.5 h-3.5 text-error" strokeWidth={1.5} />
+    );
   };
 
   const handleClick = () => {
@@ -146,7 +148,7 @@ export const BackendConnectionStatus: React.FC = () => {
       <button
         type="button"
         onClick={handleClick}
-        className="p-1 hover:bg-accent rounded-sm flex items-center gap-1.5 text-xs text-muted-foreground"
+        className="h-6 px-1.5 hover:bg-[rgba(63,66,87,0.2)] rounded-sm flex items-center gap-1.5 text-[11px] text-muted-foreground"
         data-testid="backend-status"
       >
         {getStatusIcon()}

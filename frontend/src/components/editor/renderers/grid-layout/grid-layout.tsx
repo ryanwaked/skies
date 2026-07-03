@@ -322,7 +322,7 @@ export const GridLayoutRenderer: React.FC<Props> = ({
           {grid}
         </div>
         <div className="flex-none flex flex-col w-[300px] p-2 pb-20 gap-2 overflow-auto bg-muted border-t border-x rounded-t-sm transparent-when-disconnected mx-2 mt-4">
-          <div className="text font-bold text-muted-foreground shrink-0">
+          <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground shrink-0">
             Outputs
           </div>
           {notInGrid.map((cell) => (
@@ -503,7 +503,7 @@ const GridControls: React.FC<{
       </div>
       <div className="flex flex-row items-center gap-2">
         <Label className="flex flex-row items-center gap-1" htmlFor="lock">
-          <LockIcon className="h-3 w-3" />
+          <LockIcon className="h-3 w-3" strokeWidth={1.5} />
           Lock Grid
         </Label>
         <Switch
@@ -557,7 +557,7 @@ const EditableGridCell = React.forwardRef(
         className={cn(
           className,
           "relative z-10 hover:z-20",
-          "bg-background border-transparent hover:border-primary/60 border",
+          "bg-background border-transparent hover:border-input border",
           popoverOpened && "border-primary z-20",
           !popoverOpened && "hover-actions-parent",
           isDragging && "bg-muted border-border z-20",
@@ -628,9 +628,12 @@ const GridHoverActions: React.FC<GridHoverActionsProps> = ({
       >
         <DropdownMenuTrigger asChild={true}>
           {SideIcon ? (
-            <SideIcon className={buttonClassName} />
+            <SideIcon className={buttonClassName} strokeWidth={1.5} />
           ) : (
-            <AlignHorizontalSpaceAroundIcon className={buttonClassName} />
+            <AlignHorizontalSpaceAroundIcon
+              className={buttonClassName}
+              strokeWidth={1.5}
+            />
           )}
         </DropdownMenuTrigger>
         <DropdownMenuContent side="bottom">
@@ -649,7 +652,7 @@ const GridHoverActions: React.FC<GridHoverActionsProps> = ({
         onOpenChange={(open) => setPopoverOpened(open ? "scroll" : undefined)}
       >
         <DropdownMenuTrigger asChild={true}>
-          <ScrollIcon className={buttonClassName} />
+          <ScrollIcon className={buttonClassName} strokeWidth={1.5} />
         </DropdownMenuTrigger>
         <DropdownMenuContent side="bottom">
           <DropdownMenuItem onSelect={() => setIsScrollable(!isScrollable)}>
@@ -666,8 +669,13 @@ const GridHoverActions: React.FC<GridHoverActionsProps> = ({
 
       <GripHorizontalIcon
         className={cn(DRAG_HANDLE, "cursor-move", buttonClassName)}
+        strokeWidth={1.5}
       />
-      <XIcon className={buttonClassName} onClick={() => onDelete()} />
+      <XIcon
+        className={buttonClassName}
+        strokeWidth={1.5}
+        onClick={() => onDelete()}
+      />
     </div>
   );
 };

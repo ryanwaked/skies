@@ -1,6 +1,12 @@
+/* Drop placeholder: subtle neutral dash, not the library's red (or a brand
+   fill). Hex drop targets are quiet — border-border dashes on a faint
+   neutral wash. The vendor rule ships `background: red; opacity: 0.2`, so
+   reset opacity and let the colors themselves carry the subtlety. */
 .react-grid-item.react-grid-placeholder {
-  background-color: color-mix(in srgb, var(--primary) 15%, transparent);
-  border: 1px solid var(--primary);
+  background-color: rgb(63 66 87 / 20%);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  opacity: 1;
 }
 
 .react-resizable-handle {

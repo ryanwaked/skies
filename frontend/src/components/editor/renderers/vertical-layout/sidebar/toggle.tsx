@@ -14,8 +14,9 @@ export const SidebarToggle = ({ isOpen, toggle }: SidebarToggleProps) => {
     <div className="invisible lg:visible absolute top-[12px] right-[16px] z-20">
       <Button onClick={toggle} className="w-10 h-8" variant="ghost" size="icon">
         <ChevronLeft
+          strokeWidth={1.5}
           className={cn(
-            "h-5 w-5 transition-transform ease-in-out duration-700",
+            "h-4 w-4 text-muted-foreground transition-transform ease-in-out duration-700",
             isOpen ? "rotate-0" : "rotate-180",
           )}
         />

@@ -107,11 +107,11 @@ export const MarimoTracebackOutput = ({
         className="self-start flex items-center gap-1 pt-2 text-muted-foreground/70 hover:text-muted-foreground transition-colors"
       >
         {isOpen ? (
-          <ChevronDown className="h-3 w-3" />
+          <ChevronDown className="h-3 w-3" strokeWidth={1.5} />
         ) : (
-          <ChevronRight className="h-3 w-3" />
+          <ChevronRight className="h-3 w-3" strokeWidth={1.5} />
         )}
-        <span className="text-[0.6875rem] uppercase tracking-wider">
+        <span className="font-code text-[0.6875rem] uppercase tracking-wider">
           Traceback
         </span>
       </button>
@@ -147,7 +147,7 @@ export const MarimoTracebackOutput = ({
             <DropdownMenuTrigger asChild={true}>
               <Button size="xs" variant="text">
                 Get help
-                <ChevronDown className="h-3 w-3 ml-1" />
+                <ChevronDown className="h-3 w-3 ml-1" strokeWidth={1.5} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -215,7 +215,7 @@ export const replaceTracebackFilenames = (domNode: DOMNode) => {
             <Tooltip content={tooltipContent}>
               <button
                 type="button"
-                className="ml-1 p-1 rounded-sm hover:bg-muted transition-all inline"
+                className="ml-1 p-1 rounded-sm hover:bg-[rgba(63,66,87,0.2)] transition-all inline"
               >
                 <BugPlayIcon
                   onClick={() => {

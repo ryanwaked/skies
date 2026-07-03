@@ -39,7 +39,7 @@ export const RTCStatus: React.FC = () => {
           selected={false}
           data-testid="footer-rtc-status"
         >
-          <UsersIcon className="w-4 h-4" />
+          <UsersIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
         </FooterItem>
       </PopoverTrigger>
       <PopoverContent className="w-80">

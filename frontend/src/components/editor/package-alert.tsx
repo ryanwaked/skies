@@ -206,7 +206,7 @@ export const PackageAlert: React.FC = () => {
                   <ExternalLink href="https://docs.python.org/3/tutorial/venv.html#creating-virtual-environments">
                     virtual environment
                   </ExternalLink>
-                  , marimo can install these packages for you.
+                  , the editor can install these packages for you.
                 </p>
               )}
             </div>

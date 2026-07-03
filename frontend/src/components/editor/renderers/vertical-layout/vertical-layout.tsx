@@ -286,7 +286,7 @@ const ActionButtons: React.FC<{
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild={true}>
           <Button variant="secondary" size="xs">
-            <MoreHorizontalIcon className="w-4 h-4" />
+            <MoreHorizontalIcon className="w-4 h-4" strokeWidth={1.5} />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="print:hidden w-[220px]">

@@ -58,7 +58,7 @@ export const Footer: React.FC = () => {
   return (
     <footer
       data-testid="chrome-footer"
-      className="h-10 py-1 gap-1 bg-background flex items-center text-muted-foreground text-md pl-2 pr-1 border-t border-border select-none print:hidden text-sm z-50 hide-on-fullscreen overflow-x-auto overflow-y-hidden scrollbar-thin"
+      className="h-6.5 gap-0.5 bg-background flex items-center text-muted-foreground text-[11px] pl-1.5 pr-1 border-t border-border select-none print:hidden z-50 hide-on-fullscreen overflow-x-auto overflow-y-hidden scrollbar-thin"
     >
       <FooterItem
         className="h-full"
@@ -73,11 +73,13 @@ export const Footer: React.FC = () => {
       >
         <div className="flex items-center gap-1 h-full">
           <XCircleIcon
-            className={`w-4 h-4 ${issueCount > 0 ? "text-destructive" : ""}`}
+            strokeWidth={1.5}
+            className={`w-3.5 h-3.5 ${issueCount > 0 ? "text-error" : ""}`}
           />
           <span>{issueCount}</span>
           <AlertTriangleIcon
-            className={`w-4 h-4 ml-1 ${warningCount > 0 ? "text-action-foreground" : ""}`}
+            strokeWidth={1.5}
+            className={`w-3.5 h-3.5 ml-1 ${warningCount > 0 ? "text-action-foreground" : ""}`}
           />
           <span>{warningCount}</span>
         </div>
@@ -99,7 +101,9 @@ export const Footer: React.FC = () => {
             </div>
           }
         >
-          <span className="text-muted-foreground text-sm mr-4">kiosk mode</span>
+          <span className="text-muted-foreground text-[11px] mr-4">
+            kiosk mode
+          </span>
         </Tooltip>
       </ShowInKioskMode>
 

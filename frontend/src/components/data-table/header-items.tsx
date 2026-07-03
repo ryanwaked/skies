@@ -4,9 +4,9 @@ import { PinLeftIcon, PinRightIcon } from "@radix-ui/react-icons";
 import type { Column, SortDirection, Table } from "@tanstack/react-table";
 import {
   AlignJustifyIcon,
-  ArrowDownWideNarrowIcon,
-  ArrowUpNarrowWideIcon,
+  ChevronDownIcon,
   ChevronsUpDown,
+  ChevronUpIcon,
   CopyIcon,
   EyeOffIcon,
   FilterX,
@@ -47,7 +47,7 @@ export function FormatOptions<TData, TValue>({
   return (
     <DropdownMenuSub>
       <DropdownMenuSubTrigger>
-        <FormatIcon className="mo-dropdown-icon" />
+        <FormatIcon strokeWidth={1.5} className="mo-dropdown-icon" />
         Format
       </DropdownMenuSubTrigger>
       <DropdownMenuPortal>
@@ -60,6 +60,7 @@ export function FormatOptions<TData, TValue>({
               <DropdownMenuItem
                 key={"clear"}
                 variant={"danger"}
+                className="text-xs"
                 onClick={() => column.setColumnFormatting(undefined)}
               >
                 Clear
@@ -70,12 +71,14 @@ export function FormatOptions<TData, TValue>({
           {columnFormatOptions.map((option) => (
             <DropdownMenuItem
               key={option}
+              className={cn(
+                "text-xs",
+                currentFormat === option && "bg-primary/[0.07] text-primary",
+              )}
               onClick={() => column.setColumnFormatting(option)}
             >
-              <span className={cn(currentFormat === option && "font-semibold")}>
-                {option}
-              </span>
-              <span className="ml-auto pl-5 text-xs text-muted-foreground">
+              {option}
+              <span className="ml-auto pl-5 text-muted-foreground">
                 {formattingExample(option, locale)}
               </span>
             </DropdownMenuItem>
@@ -99,7 +102,7 @@ export function ColumnWrapping<TData, TValue>({
   if (wrap === "wrap") {
     return (
       <DropdownMenuItem onClick={() => column.toggleColumnWrapping("nowrap")}>
-        <AlignJustifyIcon className="mo-dropdown-icon" />
+        <AlignJustifyIcon strokeWidth={1.5} className="mo-dropdown-icon" />
         No wrap text
       </DropdownMenuItem>
     );
@@ -107,7 +110,7 @@ export function ColumnWrapping<TData, TValue>({
 
   return (
     <DropdownMenuItem onClick={() => column.toggleColumnWrapping("wrap")}>
-      <WrapTextIcon className="mo-dropdown-icon" />
+      <WrapTextIcon strokeWidth={1.5} className="mo-dropdown-icon" />
       Wrap text
     </DropdownMenuItem>
   );
@@ -127,7 +130,7 @@ export function ColumnPinning<TData, TValue>({
   if (pinnedPosition !== false) {
     return (
       <DropdownMenuItem onClick={() => column.pin(false)}>
-        <PinOffIcon className="mo-dropdown-icon" />
+        <PinOffIcon strokeWidth={1.5} className="mo-dropdown-icon" />
         Unfreeze
       </DropdownMenuItem>
     );
@@ -158,7 +161,7 @@ export function HideColumn<TData, TValue>({
 
   return (
     <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
-      <EyeOffIcon className="mo-dropdown-icon" />
+      <EyeOffIcon strokeWidth={1.5} className="mo-dropdown-icon" />
       Hide column
     </DropdownMenuItem>
   );
@@ -179,14 +182,16 @@ export function CopyColumn<TData, TValue>({
 
   return (
     <DropdownMenuItem onClick={async () => await copyToClipboard(column.id)}>
-      <CopyIcon className="mo-dropdown-icon" />
+      <CopyIcon strokeWidth={1.5} className="mo-dropdown-icon" />
       Copy column name
     </DropdownMenuItem>
   );
 }
 
-const AscIcon = ArrowUpNarrowWideIcon;
-const DescIcon = ArrowDownWideNarrowIcon;
+// Hex column menus use thin directional chevrons, not the chunky
+// sort-lines arrows.
+const AscIcon = ChevronUpIcon;
+const DescIcon = ChevronDownIcon;
 
 /**
  * `table` is optional: it is only needed to detect multi-column sorting and
@@ -226,7 +231,7 @@ export function Sorts<TData, TValue>({
       // render clear sort for this column
       return (
         <DropdownMenuItem onClick={() => column.clearSorting()}>
-          <ChevronsUpDown className="mo-dropdown-icon" />
+          <ChevronsUpDown strokeWidth={1.5} className="mo-dropdown-icon" />
           Clear sort
         </DropdownMenuItem>
       );
@@ -235,7 +240,7 @@ export function Sorts<TData, TValue>({
     // render clear sort for all columns
     return (
       <DropdownMenuItem onClick={() => table?.resetSorting()}>
-        <ChevronsUpDown className="mo-dropdown-icon" />
+        <ChevronsUpDown strokeWidth={1.5} className="mo-dropdown-icon" />
         Clear all sorts
       </DropdownMenuItem>
     );
@@ -256,17 +261,37 @@ export function Sorts<TData, TValue>({
     <>
       <DropdownMenuItem
         onClick={() => toggleSort("asc")}
-        className={sortDirection === "asc" ? "bg-accent" : ""}
+        className={cn(
+          sortDirection === "asc" && "bg-primary/[0.07] text-primary",
+        )}
       >
-        <AscIcon className="mo-dropdown-icon" />
+        <AscIcon
+          strokeWidth={1.5}
+          className={
+            // mo-dropdown-icon is unlayered CSS, so swap it out entirely to
+            // tint the active direction.
+            sortDirection === "asc"
+              ? "mr-2 h-3.5 w-3.5 text-primary"
+              : "mo-dropdown-icon"
+          }
+        />
         Asc
         {sortDirection === "asc" && renderSortIndex()}
       </DropdownMenuItem>
       <DropdownMenuItem
         onClick={() => toggleSort("desc")}
-        className={sortDirection === "desc" ? "bg-accent" : ""}
+        className={cn(
+          sortDirection === "desc" && "bg-primary/[0.07] text-primary",
+        )}
       >
-        <DescIcon className="mo-dropdown-icon" />
+        <DescIcon
+          strokeWidth={1.5}
+          className={
+            sortDirection === "desc"
+              ? "mr-2 h-3.5 w-3.5 text-primary"
+              : "mo-dropdown-icon"
+          }
+        />
         Desc
         {sortDirection === "desc" && renderSortIndex()}
       </DropdownMenuItem>
@@ -288,7 +313,12 @@ export function renderSortIcon<TData, TValue>(column: Column<TData, TValue>) {
       : AscIcon
     : ChevronsUpDown;
 
-  return <Icon className="h-3 w-3" />;
+  return (
+    <Icon
+      strokeWidth={1.5}
+      className={cn("h-3 w-3", isSorted && "text-primary")}
+    />
+  );
 }
 
 export function DataType<TData, TValue>({
@@ -303,7 +333,8 @@ export function DataType<TData, TValue>({
 
   return (
     <>
-      <div className="flex-1 px-2 text-xs text-muted-foreground font-bold">
+      {/* Hex section-header treatment: 10px/600 uppercase muted. */}
+      <div className="flex-1 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
         {dtype}
       </div>
       <DropdownMenuSeparator />
@@ -317,7 +348,7 @@ export const ClearFilterMenuItem = <TData, TValue>({
   column: Column<TData, TValue>;
 }) => (
   <DropdownMenuItem onClick={() => column.setFilterValue(undefined)}>
-    <FilterX className="mo-dropdown-icon" />
+    <FilterX strokeWidth={1.5} className="mo-dropdown-icon" />
     Clear filter
   </DropdownMenuItem>
 );

@@ -127,7 +127,7 @@ export const ShareStaticNotebookModal: React.FC<{
             Anyone will be able to access your notebook at this URL:
             <div className="flex items-center gap-2">
               <CopyButton text={url} />
-              <span className="text-primary">{url}</span>
+              <span className="text-link">{url}</span>
             </div>
           </div>
         </div>

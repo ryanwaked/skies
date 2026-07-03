@@ -30,12 +30,12 @@ See https://github.com/plotly/plotly.js/issues/1433
   text-decoration: underline;
 }
 .js-plotly-plot .plotly .mapboxgl-ctrl-attrib a {
-  color: rgba(0, 0, 0, 0.75);
+  color: var(--muted-foreground);
   text-decoration: none;
   font-size: 12px;
 }
 .js-plotly-plot .plotly .mapboxgl-ctrl-attrib {
-  color: rgba(0, 0, 0, 0.75);
+  color: var(--muted-foreground);
   text-decoration: none;
   font-size: 12px;
 }
@@ -61,24 +61,28 @@ See https://github.com/plotly/plotly.js/issues/1433
   bottom: 0px;
   right: 0px;
 }
+/* Themed: token surface, 3px radius (was a white pill). */
 .js-plotly-plot .plotly .mapboxgl-ctrl-attrib.mapboxgl-compact {
   min-height: 20px;
   padding: 0px;
   margin: 10px;
   position: relative;
-  background-color: rgb(255, 255, 255);
-  border-radius: 3px 12px 12px 3px;
+  background-color: var(--popover);
+  border-radius: 3px;
 }
+/* Themed: token surface + border, 3px radius, muted glyph
+   (was a translucent white circle with a near-black icon). */
 .js-plotly-plot .plotly .mapboxgl-ctrl-attrib.mapboxgl-compact::after {
   content: "";
   cursor: pointer;
   position: absolute;
-  background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"%3E %3Cpath fill="%23333333" fill-rule="evenodd" d="M4,10a6,6 0 1,0 12,0a6,6 0 1,0 -12,0 M9,7a1,1 0 1,0 2,0a1,1 0 1,0 -2,0 M9,10a1,1 0 1,1 2,0l0,3a1,1 0 1,1 -2,0"/%3E %3C/svg%3E');
-  background-color: rgba(255, 255, 255, 0.5);
+  background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"%3E %3Cpath fill="%238b91a3" fill-rule="evenodd" d="M4,10a6,6 0 1,0 12,0a6,6 0 1,0 -12,0 M9,7a1,1 0 1,0 2,0a1,1 0 1,0 -2,0 M9,10a1,1 0 1,1 2,0l0,3a1,1 0 1,1 -2,0"/%3E %3C/svg%3E');
+  background-color: var(--popover);
+  border: 1px solid var(--border);
   width: 24px;
   height: 24px;
   box-sizing: border-box;
-  border-radius: 12px;
+  border-radius: 3px;
 }
 .js-plotly-plot .plotly .mapboxgl-ctrl-attrib.mapboxgl-compact:hover {
   padding: 2px 24px 2px 4px;
@@ -117,6 +121,9 @@ See https://github.com/plotly/plotly.js/issues/1433
   bottom: 0px;
   left: 0px;
 }
+/* NOT a themable surface: mapbox-gl reads this invisible element's computed
+   background-color (salmon) to detect that its CSS loaded. Changing it
+   triggers a "missing CSS" console warning. */
 .js-plotly-plot .plotly .mapboxgl-canary {
   background-color: salmon;
 }
@@ -145,12 +152,12 @@ See https://github.com/plotly/plotly.js/issues/1433
   text-decoration: underline;
 }
 .js-plotly-plot .plotly .mapboxgl-ctrl-attrib a {
-  color: rgba(0, 0, 0, 0.75);
+  color: var(--muted-foreground);
   text-decoration: none;
   font-size: 12px;
 }
 .js-plotly-plot .plotly .mapboxgl-ctrl-attrib {
-  color: rgba(0, 0, 0, 0.75);
+  color: var(--muted-foreground);
   text-decoration: none;
   font-size: 12px;
 }
@@ -176,24 +183,28 @@ See https://github.com/plotly/plotly.js/issues/1433
   bottom: 0px;
   right: 0px;
 }
+/* Themed: token surface, 3px radius (was a white pill). */
 .js-plotly-plot .plotly .mapboxgl-ctrl-attrib.mapboxgl-compact {
   min-height: 20px;
   padding: 0px;
   margin: 10px;
   position: relative;
-  background-color: rgb(255, 255, 255);
-  border-radius: 3px 12px 12px 3px;
+  background-color: var(--popover);
+  border-radius: 3px;
 }
+/* Themed: token surface + border, 3px radius, muted glyph
+   (was a translucent white circle with a near-black icon). */
 .js-plotly-plot .plotly .mapboxgl-ctrl-attrib.mapboxgl-compact::after {
   content: "";
   cursor: pointer;
   position: absolute;
-  background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"%3E %3Cpath fill="%23333333" fill-rule="evenodd" d="M4,10a6,6 0 1,0 12,0a6,6 0 1,0 -12,0 M9,7a1,1 0 1,0 2,0a1,1 0 1,0 -2,0 M9,10a1,1 0 1,1 2,0l0,3a1,1 0 1,1 -2,0"/%3E %3C/svg%3E');
-  background-color: rgba(255, 255, 255, 0.5);
+  background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"%3E %3Cpath fill="%238b91a3" fill-rule="evenodd" d="M4,10a6,6 0 1,0 12,0a6,6 0 1,0 -12,0 M9,7a1,1 0 1,0 2,0a1,1 0 1,0 -2,0 M9,10a1,1 0 1,1 2,0l0,3a1,1 0 1,1 -2,0"/%3E %3C/svg%3E');
+  background-color: var(--popover);
+  border: 1px solid var(--border);
   width: 24px;
   height: 24px;
   box-sizing: border-box;
-  border-radius: 12px;
+  border-radius: 3px;
 }
 .js-plotly-plot .plotly .mapboxgl-ctrl-attrib.mapboxgl-compact:hover {
   padding: 2px 24px 2px 4px;
@@ -232,6 +243,9 @@ See https://github.com/plotly/plotly.js/issues/1433
   bottom: 0px;
   left: 0px;
 }
+/* NOT a themable surface: mapbox-gl reads this invisible element's computed
+   background-color (salmon) to detect that its CSS loaded. Changing it
+   triggers a "missing CSS" console warning. */
 .js-plotly-plot .plotly .mapboxgl-canary {
   background-color: salmon;
 }
@@ -260,12 +274,12 @@ See https://github.com/plotly/plotly.js/issues/1433
   text-decoration: underline;
 }
 .js-plotly-plot .plotly .mapboxgl-ctrl-attrib a {
-  color: rgba(0, 0, 0, 0.75);
+  color: var(--muted-foreground);
   text-decoration: none;
   font-size: 12px;
 }
 .js-plotly-plot .plotly .mapboxgl-ctrl-attrib {
-  color: rgba(0, 0, 0, 0.75);
+  color: var(--muted-foreground);
   text-decoration: none;
   font-size: 12px;
 }
@@ -291,24 +305,28 @@ See https://github.com/plotly/plotly.js/issues/1433
   bottom: 0px;
   right: 0px;
 }
+/* Themed: token surface, 3px radius (was a white pill). */
 .js-plotly-plot .plotly .mapboxgl-ctrl-attrib.mapboxgl-compact {
   min-height: 20px;
   padding: 0px;
   margin: 10px;
   position: relative;
-  background-color: rgb(255, 255, 255);
-  border-radius: 3px 12px 12px 3px;
+  background-color: var(--popover);
+  border-radius: 3px;
 }
+/* Themed: token surface + border, 3px radius, muted glyph
+   (was a translucent white circle with a near-black icon). */
 .js-plotly-plot .plotly .mapboxgl-ctrl-attrib.mapboxgl-compact::after {
   content: "";
   cursor: pointer;
   position: absolute;
-  background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"%3E %3Cpath fill="%23333333" fill-rule="evenodd" d="M4,10a6,6 0 1,0 12,0a6,6 0 1,0 -12,0 M9,7a1,1 0 1,0 2,0a1,1 0 1,0 -2,0 M9,10a1,1 0 1,1 2,0l0,3a1,1 0 1,1 -2,0"/%3E %3C/svg%3E');
-  background-color: rgba(255, 255, 255, 0.5);
+  background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"%3E %3Cpath fill="%238b91a3" fill-rule="evenodd" d="M4,10a6,6 0 1,0 12,0a6,6 0 1,0 -12,0 M9,7a1,1 0 1,0 2,0a1,1 0 1,0 -2,0 M9,10a1,1 0 1,1 2,0l0,3a1,1 0 1,1 -2,0"/%3E %3C/svg%3E');
+  background-color: var(--popover);
+  border: 1px solid var(--border);
   width: 24px;
   height: 24px;
   box-sizing: border-box;
-  border-radius: 12px;
+  border-radius: 3px;
 }
 .js-plotly-plot .plotly .mapboxgl-ctrl-attrib.mapboxgl-compact:hover {
   padding: 2px 24px 2px 4px;
@@ -347,6 +365,9 @@ See https://github.com/plotly/plotly.js/issues/1433
   bottom: 0px;
   left: 0px;
 }
+/* NOT a themable surface: mapbox-gl reads this invisible element's computed
+   background-color (salmon) to detect that its CSS loaded. Changing it
+   triggers a "missing CSS" console warning. */
 .js-plotly-plot .plotly .mapboxgl-canary {
   background-color: salmon;
 }

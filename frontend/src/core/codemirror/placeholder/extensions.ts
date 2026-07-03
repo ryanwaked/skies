@@ -82,17 +82,17 @@ export function clickablePlaceholderExtension(opts: {
     placeholder(createPlaceholder),
     EditorView.theme({
       ".cm-placeholder": {
-        color: "var(--slate-8)",
+        color: "color-mix(in srgb, var(--muted-foreground) 60%, transparent)",
       },
       ".cm-clickable-placeholder": {
         cursor: "pointer !important",
         pointerEvents: "auto",
-        color: "var(--slate-9)",
+        color: "var(--muted-foreground)",
         textDecoration: "underline",
         textUnderlineOffset: "0.2em",
       },
       ".cm-clickable-placeholder:hover": {
-        color: "var(--sky-11)",
+        color: "var(--link)",
       },
     }),
   ];

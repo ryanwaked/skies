@@ -40,7 +40,9 @@ export const LayoutSelect: React.FC = () => {
       onValueChange={(v) => setLayoutView(v as LayoutType)}
     >
       <SelectTrigger
-        className="min-w-[110px] border-border bg-background"
+        // Compact flat select sized to the h-7 header chrome, with the same
+        // neutral hover wash as the other top-bar controls.
+        className="h-7 min-w-[110px] bg-background transition-colors hover:bg-[rgba(63,66,87,0.2)]"
         data-testid="layout-select"
       >
         <SelectValue placeholder="Select a view" />
@@ -64,7 +66,7 @@ export const LayoutSelect: React.FC = () => {
 
 function renderIcon(layoutType: LayoutType) {
   const Icon = getLayoutIcon(layoutType);
-  return <Icon className="h-4 w-4" />;
+  return <Icon className="h-4 w-4" strokeWidth={1.5} />;
 }
 
 export function getLayoutIcon(layoutType: LayoutType) {

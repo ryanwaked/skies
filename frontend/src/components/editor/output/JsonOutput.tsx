@@ -9,6 +9,7 @@ import {
   intType,
   JsonViewer,
   type JsonViewerKeyRenderer,
+  type NamedColorspace,
   nullType,
   objectType,
   stringType,
@@ -77,12 +78,44 @@ const CopyButton: React.FC<DataItemProps<any>> = ({ value }) => {
       type="button"
     >
       {copied ? (
-        <CheckIcon className="w-5 h-5 absolute -top-0.5 p-1 hover:bg-muted rounded" />
+        <CheckIcon
+          className="w-5 h-5 absolute -top-0.5 p-1 hover:bg-[rgba(63,66,87,0.2)] rounded"
+          strokeWidth={1.5}
+        />
       ) : (
-        <CopyIcon className="w-5 h-5 absolute -top-0.5 p-1 hover:bg-muted rounded" />
+        <CopyIcon
+          className="w-5 h-5 absolute -top-0.5 p-1 hover:bg-[rgba(63,66,87,0.2)] rounded"
+          strokeWidth={1.5}
+        />
       )}
     </button>
   );
+};
+
+/**
+ * Hex dark colorspace for the JSON tree. Value colors mirror the CodeMirror
+ * dark theme (src/core/codemirror/theme/dark.ts) so tree leaves read like
+ * code; keys, indices, and punctuation stay muted.
+ */
+const HEX_DARK_COLORSPACE: NamedColorspace = {
+  scheme: "Hex Dark",
+  author: "marimo",
+  base00: "transparent", // background (cell surface shows through)
+  base01: "#1f1f29", // raised surface
+  base02: "#353548", // indent guides + collapsed-string background
+  base03: "#6b7280", // comments
+  base04: "rgb(177 182 196 / 60%)", // metadata (item counts, ellipsis)
+  base05: "#e4e6ec", // default foreground
+  base06: "#e4e6ec",
+  base07: "#b1b6c4", // keys + punctuation (muted)
+  base08: "#5987e0", // None / NaN (editor literal blue)
+  base09: "#2ee6d6", // floats (editor number color)
+  base0A: "rgb(63 66 87 / 40%)", // update highlight
+  base0B: "#ed6f73", // strings (editor string color)
+  base0C: "#b1b6c4", // array indices (muted, like keys)
+  base0D: "#84a6e8", // dates
+  base0E: "#5987e0", // booleans (editor literal blue)
+  base0F: "#2ee6d6", // ints / bigints (editor number color)
 };
 
 // oxlint-disable-next-line typescript/no-explicit-any
@@ -123,11 +156,12 @@ export const JsonOutput: React.FC<Props> = memo(
           <JsonViewer
             className={cn("marimo-json-output", className)}
             rootName={name}
-            theme={theme}
+            theme={theme === "dark" ? HEX_DARK_COLORSPACE : theme}
             displayDataTypes={false}
             value={data}
             style={{
               backgroundColor: "transparent",
+              fontFamily: "var(--monospace-font)",
             }}
             collapseStringsAfterLength={COLLAPSED_TEXT_LENGTH}
             // leave the default valueTypes as it was - 'python', only 'json' is changed

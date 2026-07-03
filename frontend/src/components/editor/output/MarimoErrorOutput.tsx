@@ -51,16 +51,16 @@ const CollapsibleTraceback = ({
         className="flex items-center gap-1 text-muted-foreground/70 hover:text-muted-foreground transition-colors"
       >
         {isOpen ? (
-          <ChevronDown className="h-3 w-3" />
+          <ChevronDown className="h-3 w-3" strokeWidth={1.5} />
         ) : (
-          <ChevronRight className="h-3 w-3" />
+          <ChevronRight className="h-3 w-3" strokeWidth={1.5} />
         )}
-        <span className="text-[0.6875rem] uppercase tracking-wider">
+        <span className="font-code text-[0.6875rem] uppercase tracking-wider">
           Traceback
         </span>
       </button>
       {isOpen && (
-        <div className="font-code text-xs mt-1 p-3 bg-muted rounded-sm border overflow-auto max-h-[50vh] cursor-text select-text">
+        <div className="font-code text-xs mt-1 p-3 bg-popover rounded-sm border overflow-auto max-h-[50vh] cursor-text select-text">
           {renderHTML({ html: traceback })}
         </div>
       )}
@@ -130,11 +130,13 @@ export const MarimoErrorOutput = ({
   } else if (errors.some((e) => e.type === "ancestor-prevented")) {
     titleContents = "Ancestor prevented from running";
     alertVariant = "default";
-    titleColor = "text-secondary-foreground";
+    // Not an error in this cell — use the plain foreground, not the error
+    // accent. (`text-secondary-foreground` is dark-on-dark in dark mode.)
+    titleColor = "text-foreground";
   } else if (errors.some((e) => e.type === "ancestor-stopped")) {
     titleContents = "Ancestor stopped";
     alertVariant = "default";
-    titleColor = "text-secondary-foreground";
+    titleColor = "text-foreground";
   } else if (errors.some((e) => e.type === "sql-error")) {
     titleContents = "SQL error";
   } else if (
@@ -397,10 +399,9 @@ export const MarimoErrorOutput = ({
 
           <Tip title="Why can't I redefine variables?">
             <p className="pb-2">
-              Each variable must be defined in just one cell.
-              This constraint enables reactive and reproducible execution,
-              arbitrary cell reordering, seamless UI elements, execution as a
-              script, and more.
+              Each variable must be defined in just one cell. This constraint
+              enables reactive and reproducible execution, arbitrary cell
+              reordering, seamless UI elements, execution as a script, and more.
             </p>
 
             <p className="py-2">

@@ -1,7 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { useAtomValue } from "jotai";
-import { AlertCircleIcon } from "lucide-react";
 import type React from "react";
 import { Spinner } from "@/components/icons/spinner";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -23,7 +22,7 @@ export const PyodideStatus: React.FC = () => {
 
   const icon =
     status === "error" ? (
-      <AlertCircleIcon className="w-4 h-4 text-destructive" />
+      <span className="size-1.5 rounded-full bg-error" />
     ) : (
       <Spinner size="small" />
     );
@@ -36,7 +35,7 @@ export const PyodideStatus: React.FC = () => {
       data-testid="footer-pyodide-status"
     >
       <div
-        className="p-1 hover:bg-accent rounded flex items-center gap-1.5 text-xs text-muted-foreground"
+        className="h-6 px-1.5 hover:bg-[rgba(63,66,87,0.2)] rounded-sm flex items-center gap-1.5 text-[11px] text-muted-foreground"
         data-testid="pyodide-status"
       >
         {icon}

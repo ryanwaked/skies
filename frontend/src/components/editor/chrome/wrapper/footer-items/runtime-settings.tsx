@@ -94,11 +94,19 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
         >
           <div className="flex items-center gap-1">
             {allReactivityDisabled ? (
-              <ZapOffIcon size={16} className="text-muted-foreground" />
+              <ZapOffIcon
+                size={14}
+                strokeWidth={1.5}
+                className="text-muted-foreground"
+              />
             ) : (
-              <ZapIcon size={16} className="text-action-foreground" />
+              <ZapIcon
+                size={14}
+                strokeWidth={1.5}
+                className="text-action-foreground"
+              />
             )}
-            <ChevronDownIcon size={14} />
+            <ChevronDownIcon size={12} strokeWidth={1.5} />
           </div>
         </FooterItem>
       </DropdownMenuTrigger>
@@ -119,15 +127,23 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
         <TooltipProvider>
           {/* On startup toggle */}
           <DisableIfOverridden name="runtime.auto_instantiate">
-            <div className="flex items-center justify-between px-2 py-2">
+            <div className="flex items-center justify-between px-2 py-1.5">
               <div className="flex items-center space-x-2">
                 {config.runtime.auto_instantiate ? (
-                  <ZapIcon size={14} className="text-action-foreground" />
+                  <ZapIcon
+                    size={14}
+                    strokeWidth={1.5}
+                    className="text-action-foreground"
+                  />
                 ) : (
-                  <ZapOffIcon size={14} className="text-muted-foreground" />
+                  <ZapOffIcon
+                    size={14}
+                    strokeWidth={1.5}
+                    className="text-muted-foreground"
+                  />
                 )}
                 <div>
-                  <div className="text-sm font-medium flex items-center gap-1">
+                  <div className="text-[13px] font-medium flex items-center gap-1">
                     On startup
                     <Tooltip
                       content={
@@ -156,15 +172,23 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
 
           {/* On cell change toggle */}
           <DisableIfOverridden name="runtime.on_cell_change">
-            <div className="flex items-center justify-between px-2 py-2">
+            <div className="flex items-center justify-between px-2 py-1.5">
               <div className="flex items-center space-x-2">
                 {config.runtime.on_cell_change === "autorun" ? (
-                  <ZapIcon size={14} className="text-action-foreground" />
+                  <ZapIcon
+                    size={14}
+                    strokeWidth={1.5}
+                    className="text-action-foreground"
+                  />
                 ) : (
-                  <ZapOffIcon size={14} className="text-muted-foreground" />
+                  <ZapOffIcon
+                    size={14}
+                    strokeWidth={1.5}
+                    className="text-muted-foreground"
+                  />
                 )}
                 <div>
-                  <div className="text-sm font-medium flex items-center gap-1">
+                  <div className="text-[13px] font-medium flex items-center gap-1">
                     On cell change
                     <Tooltip
                       content={
@@ -201,17 +225,26 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
                     {config.runtime.auto_reload === "off" && (
                       <PowerOffIcon
                         size={14}
+                        strokeWidth={1.5}
                         className="text-muted-foreground"
                       />
                     )}
                     {config.runtime.auto_reload === "lazy" && (
-                      <ZapOffIcon size={14} className="text-muted-foreground" />
+                      <ZapOffIcon
+                        size={14}
+                        strokeWidth={1.5}
+                        className="text-muted-foreground"
+                      />
                     )}
                     {config.runtime.auto_reload === "autorun" && (
-                      <ZapIcon size={14} className="text-action-foreground" />
+                      <ZapIcon
+                        size={14}
+                        strokeWidth={1.5}
+                        className="text-action-foreground"
+                      />
                     )}
                     <div>
-                      <div className="text-sm font-medium flex items-center gap-1">
+                      <div className="text-[13px] font-medium flex items-center gap-1">
                         On module change
                         <Tooltip
                           content={
@@ -239,18 +272,31 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
                           )
                         }
                         className={cn(
-                          "w-full flex items-center px-2 py-1 text-sm rounded hover:bg-accent",
-                          option === config.runtime.auto_reload && "bg-accent",
+                          "w-full flex items-center px-2 py-1 text-[13px] rounded-sm hover:bg-[rgba(63,66,87,0.2)]",
+                          option === config.runtime.auto_reload &&
+                            "bg-primary/[0.07] text-primary hover:bg-primary/[0.07]",
                         )}
                       >
                         {option === "off" && (
-                          <PowerOffIcon size={12} className="mr-2" />
+                          <PowerOffIcon
+                            size={12}
+                            strokeWidth={1.5}
+                            className="mr-2"
+                          />
                         )}
                         {option === "lazy" && (
-                          <ZapOffIcon size={12} className="mr-2" />
+                          <ZapOffIcon
+                            size={12}
+                            strokeWidth={1.5}
+                            className="mr-2"
+                          />
                         )}
                         {option === "autorun" && (
-                          <ZapIcon size={12} className="mr-2" />
+                          <ZapIcon
+                            size={12}
+                            strokeWidth={1.5}
+                            className="mr-2"
+                          />
                         )}
                         <span className="capitalize">{option}</span>
                         {option === config.runtime.auto_reload && (

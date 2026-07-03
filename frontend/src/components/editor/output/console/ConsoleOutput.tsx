@@ -205,7 +205,7 @@ const ConsoleOutputInternal = (props: Props): React.ReactNode => {
                 isSelected={wrapText}
                 onChange={setWrapText}
               >
-                <WrapTextIcon className="h-4 w-4" />
+                <WrapTextIcon className="h-4 w-4" strokeWidth={1.5} />
               </ToggleButton>
             </span>
           </Tooltip>
@@ -219,11 +219,11 @@ const ConsoleOutputInternal = (props: Props): React.ReactNode => {
             >
               {isExpanded ? (
                 <Tooltip content="Collapse output">
-                  <ChevronsDownUpIcon className="h-4 w-4" />
+                  <ChevronsDownUpIcon className="h-4 w-4" strokeWidth={1.5} />
                 </Tooltip>
               ) : (
                 <Tooltip content="Expand output">
-                  <ChevronsUpDownIcon className="h-4 w-4 " />
+                  <ChevronsUpDownIcon className="h-4 w-4" strokeWidth={1.5} />
                 </Tooltip>
               )}
             </Button>
@@ -336,7 +336,7 @@ const StdInput = (props: {
         autoFocus={true}
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        icon={<ChevronRightIcon className="w-5 h-5" />}
+        icon={<ChevronRightIcon className="w-5 h-5" strokeWidth={1.5} />}
         className="m-0 h-8"
         placeholder="stdin"
         // Capture the keydown event for history navigation and submission
@@ -393,7 +393,10 @@ const StdInputWithResponse = (props: {
           className="inline-flex items-center gap-1 text-link"
           aria-label="stdin response"
         >
-          <ChevronRightIcon className="w-4 h-4 shrink-0 opacity-70" />
+          <ChevronRightIcon
+            className="w-4 h-4 shrink-0 opacity-70"
+            strokeWidth={1.5}
+          />
           {hasResponse ? (
             response
           ) : (

@@ -33,17 +33,7 @@ table.dataframe {
 table.dataframe thead {
   vertical-align: bottom;
 
-  @apply border-input;
-}
-
-.markdown table tbody tr:nth-child(odd),
-table.dataframe tbody tr:nth-child(odd) {
-  background: var(--muted);
-}
-
-.markdown table tbody tr:nth-child(even),
-table.dataframe tbody tr:nth-child(even) {
-  @apply bg-card;
+  @apply border-border;
 }
 
 .markdown table tbody tr:hover,
@@ -63,4 +53,20 @@ table.dataframe td {
   padding-right: 0.5rem;
   line-height: normal;
   border: none;
+}
+
+/* Hex tables: quiet 1px horizontal rules between rows (no zebra striping),
+   with a subdued header row. Borders live on the cells so they render even
+   though the table is display: block. */
+.markdown table th,
+.markdown table td,
+table.dataframe th,
+table.dataframe td {
+  border-bottom: 1px solid var(--border);
+}
+
+.markdown table th,
+table.dataframe th {
+  color: var(--muted-foreground);
+  font-weight: 500;
 }

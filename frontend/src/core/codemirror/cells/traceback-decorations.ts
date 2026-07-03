@@ -144,10 +144,10 @@ export function errorLineHighlighter(
     createErrorHighlighter(errorsObservable),
     EditorView.theme({
       ".cm-error-line": {
-        backgroundColor: "color-mix(in srgb, var(--red-4) 40%, transparent)",
+        backgroundColor: "color-mix(in srgb, var(--error) 12%, transparent)",
       },
       "&.cm-focused .cm-error-line.cm-activeLine": {
-        backgroundColor: "color-mix(in srgb, var(--red-5) 40%, transparent)",
+        backgroundColor: "color-mix(in srgb, var(--error) 18%, transparent)",
       },
     }),
   ];

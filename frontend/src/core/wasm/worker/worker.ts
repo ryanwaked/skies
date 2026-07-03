@@ -55,7 +55,7 @@ async function loadPyodideAndPackages() {
     const controller = await t.wrapAsync(getController)(marimoVersion);
     self.controller = controller;
     rpc.send.initializingMessage({
-      message: "Loading marimo...",
+      message: "Loading runtime...",
     });
     self.pyodide = await t.wrapAsync(controller.bootstrap.bind(controller))({
       version: marimoVersion,

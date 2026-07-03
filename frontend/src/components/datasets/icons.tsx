@@ -30,26 +30,30 @@ export const DATA_TYPE_ICON: Record<DataType | SelectableDataType, LucideIcon> =
     unknown: CurlyBracesIcon,
   };
 
+/**
+ * Hex-style quiet swatches: subtle token-based washes that hold on the
+ * dark canvas — never saturated palette fills.
+ */
 export function getDataTypeColor(
   dataType: DataType | SelectableDataType,
 ): string {
   switch (dataType) {
     case "boolean":
-      return "bg-(--orange-4)";
+      return "bg-action";
     case "date":
     case "time":
     case "datetime":
     case "temporal":
-      return "bg-(--grass-4) dark:bg-(--grass-5)";
+      return "bg-success/15";
     case "number":
     case "integer":
-      return "bg-(--purple-4)";
+      return "bg-primary/15";
     case "string":
-      return "bg-(--blue-4)";
+      return "bg-link/15";
     case "unknown":
-      return "bg-(--slate-4) dark:bg-(--slate-6)";
+      return "bg-muted-foreground/20";
     default:
       logNever(dataType);
-      return "bg-(--slate-4) dark:bg-(--slate-6)";
+      return "bg-muted-foreground/20";
   }
 }

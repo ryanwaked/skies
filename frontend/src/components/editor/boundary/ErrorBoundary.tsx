@@ -23,7 +23,7 @@ const FallbackComponent: React.FC<FallbackProps> = (props) => {
         {props.error?.message}
       </pre>
       <div>
-        If this is an issue with marimo, please report it on{" "}
+        If this looks like a bug, please report it on{" "}
         <a href={Constants.issuesPage} target="_blank" className="underline">
           GitHub
         </a>

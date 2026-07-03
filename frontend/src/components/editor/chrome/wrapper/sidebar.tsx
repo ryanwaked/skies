@@ -187,6 +187,8 @@ const ErrorPanelIcon: React.FC<{ Icon: PanelDescriptor["Icon"] }> = ({
 
 const QueuedOrRunningStack = () => {
   const count = useAtomValue(notebookQueuedOrRunningCountAtom);
+  // Hex-style rail status: a tiny dot (faint when idle, warn token while
+  // cells are queued/running) with a quiet count beneath it.
   return (
     <Tooltip
       content={
@@ -201,13 +203,18 @@ const QueuedOrRunningStack = () => {
       side="right"
       delayDuration={200}
     >
-      <div className="flex flex-col-reverse gap-px overflow-hidden">
-        {Array.from({ length: count }).map((_, index) => (
-          <div
-            key={index.toString()}
-            className="shrink-0 h-1 w-2 bg-success/40 border border-success/60"
-          />
-        ))}
+      <div className="flex h-8 w-8 flex-col items-center justify-center gap-1">
+        <span
+          className={cn(
+            "h-1.5 w-1.5 shrink-0 rounded-full",
+            count > 0 ? "bg-action-foreground" : "bg-muted-foreground/40",
+          )}
+        />
+        {count > 0 && (
+          <span className="text-[10px] font-medium leading-none tabular-nums text-action-foreground">
+            {count}
+          </span>
+        )}
       </div>
     </Tooltip>
   );

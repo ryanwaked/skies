@@ -211,7 +211,7 @@ export const FileViewer: React.FC<Props> = ({ file, onOpenNotebook }) => {
     <Alert variant="warning" className="rounded-none">
       <AlertTriangleIcon className="h-4 w-4" strokeWidth={1.5} />
       <AlertDescription className="text-xs">
-        Editing the notebook file directly while running in marimo's editor may
+        Editing the notebook file directly while it is open in the editor may
         cause unintended changes. Please use with caution.
       </AlertDescription>
     </Alert>

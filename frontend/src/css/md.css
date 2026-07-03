@@ -97,16 +97,33 @@ the slides theme — which carries its own larger scale — must be excluded.
   font-size: 1rem;
 }
 
-/* Inline code: mono chip on a subtle raised background */
+/* Inline code: mono chip on a subtle recessed background (matches the
+   .codehilite block background so inline and block code share a surface) */
 .markdown code:not(pre code, .mo-slides-theme *) {
   font-family: var(--monospace-font);
-  background-color: light-dark(var(--slate-3), hsl(231deg 16% 30%));
+  background-color: var(--muted);
   border-radius: 3px;
   padding: 0.125rem 0.25rem;
 }
 
+/* Blockquote: muted prose behind a slim 2px border bar (Hex style) — no
+   italics or injected smart quotes from Tailwind Typography. */
+.markdown blockquote {
+  border-inline-start: 2px solid var(--border);
+  color: var(--muted-foreground);
+  font-style: normal;
+  font-weight: inherit;
+  quotes: none;
+}
+
+.markdown blockquote p:first-of-type::before,
+.markdown blockquote p:last-of-type::after {
+  content: none;
+}
+
 .markdown hr {
   margin-block: 0.5rem;
+  border-color: var(--border);
 }
 
 .markdown a {
@@ -282,18 +299,19 @@ button .prose.prose {
 }
 
 .prose mark.critic {
-  border-color: var(--orange-9);
-  background: var(--orange-3);
+  border-color: var(--action-foreground);
+  background: var(--action);
+  color: inherit;
 }
 
 .prose ins.critic {
-  border-color: var(--grass-9);
-  background: var(--grass-3);
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success), transparent 90%);
 }
 
 .prose del.critic {
-  border-color: var(--red-9);
-  background: var(--red-3);
+  border-color: var(--error);
+  background: color-mix(in srgb, var(--error), transparent 90%);
 }
 
 .prose ins.break,
@@ -314,29 +332,29 @@ button .prose.prose {
 }
 
 .prose ins.break::before {
-  color: var(--green-9);
-  border: 1px solid var(--green-9);
-  background: var(--green-3);
+  color: var(--success);
+  border: 1px solid var(--success);
+  background: color-mix(in srgb, var(--success), transparent 90%);
 }
 
 .prose del.break::before {
-  color: var(--red-9);
-  border: 1px solid var(--red-9);
-  background: var(--red-3);
+  color: var(--error);
+  border: 1px solid var(--error);
+  background: color-mix(in srgb, var(--error), transparent 90%);
 }
 
 .prose span.critic {
-  background: var(--blue-3);
+  background: color-mix(in srgb, var(--link), transparent 90%);
   border: 0;
-  border-top: 1px solid var(--blue-9);
-  border-bottom: 1px solid var(--blue-9);
+  border-top: 1px solid var(--link);
+  border-bottom: 1px solid var(--link);
 }
 
 .prose span.critic::before,
 .prose span.critic::after {
   font-size: inherit;
-  background: var(--blue-3);
-  border: 1px solid var(--blue-9);
+  background: color-mix(in srgb, var(--link), transparent 90%);
+  border: 1px solid var(--link);
 }
 
 .prose span.critic::before {
