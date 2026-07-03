@@ -117,7 +117,7 @@ export const PackageAlert: React.FC = () => {
           className="flex flex-col rounded py-3 px-5 animate-in slide-in-from-left overflow-auto max-h-[80vh] scrollbar-thin pointer-events-auto"
         >
           <div className="flex justify-between">
-            <span className="font-bold text-lg flex items-center mb-2">
+            <span className="text-sm font-medium flex items-center mb-2">
               <PackageXIcon className="w-5 h-5 inline-block mr-2" />
               Missing packages
               <SourceBadge source={packageAlert.source} />
@@ -131,7 +131,7 @@ export const PackageAlert: React.FC = () => {
               <XIcon className="w-5 h-5" />
             </Button>
           </div>
-          <div className="flex flex-col gap-4 justify-between items-start text-muted-foreground text-base">
+          <div className="flex flex-col gap-4 justify-between items-start text-muted-foreground text-xs leading-4">
             <div>
               <p>The following packages were not found:</p>
               <table className="list-disc ml-2 mt-1">
@@ -230,7 +230,7 @@ export const PackageAlert: React.FC = () => {
           className="flex flex-col rounded pt-3 pb-4 px-5 overflow-auto max-h-[80vh] scrollbar-thin pointer-events-auto"
         >
           <div className="flex justify-between">
-            <span className="font-bold text-lg flex items-center mb-2">
+            <span className="text-sm font-medium flex items-center mb-2">
               {titleIcon}
               {title}
               <SourceBadge source={packageAlert.source} />
@@ -246,7 +246,7 @@ export const PackageAlert: React.FC = () => {
           </div>
           <div
             className={cn(
-              "flex flex-col gap-4 justify-between items-start text-muted-foreground text-base",
+              "flex flex-col gap-4 justify-between items-start text-muted-foreground text-xs leading-4",
               status === "installed" && "text-accent-foreground",
             )}
           >

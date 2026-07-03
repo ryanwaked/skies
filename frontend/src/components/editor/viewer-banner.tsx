@@ -55,7 +55,7 @@ export const ViewerBanner = () => {
     <div className="absolute top-2 left-2 z-50 w-fit print:hidden">
       <Banner
         kind="info"
-        className="flex items-center gap-2 rounded px-2 py-1 text-xs shadow-sm"
+        className="flex items-center gap-2 rounded-sm px-2 py-1 text-xs"
       >
         <span className="flex items-center gap-1 text-muted-foreground">
           <EyeIcon className="w-3.5 h-3.5 shrink-0" />

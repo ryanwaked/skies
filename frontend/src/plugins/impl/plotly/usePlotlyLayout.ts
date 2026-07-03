@@ -4,6 +4,8 @@ import { usePrevious } from "@uidotdev/usehooks";
 import { dequal as isEqual } from "dequal";
 import type * as Plotly from "plotly.js";
 import { useEffect, useRef, useState } from "react";
+import { store } from "@/core/state/jotai";
+import { resolvedThemeAtom } from "@/theme/useTheme";
 import { Objects } from "@/utils/objects";
 import type { Figure } from "./Plot";
 
@@ -25,6 +27,33 @@ export const LAYOUT_OMIT_KEYS: (keyof Plotly.Layout)[] = [
 ];
 
 /**
+ * Dark-mode layout defaults matching the Hex design language: transparent
+ * paper/plot on the #1a1a23 canvas, IBM Plex Sans labels, #353548 grid.
+ * Plotly figures arrive with the light template baked in, so these are
+ * spread under the user's layout (user values still win).
+ */
+function darkLayoutDefaults(): Partial<Plotly.Layout> {
+  if (store.get(resolvedThemeAtom) !== "dark") {
+    return {};
+  }
+  return {
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(0,0,0,0)",
+    font: { color: "#e4e6ec", family: "IBM Plex Sans, sans-serif" },
+    xaxis: {
+      gridcolor: "#353548",
+      zerolinecolor: "#353548",
+      linecolor: "#353548",
+    },
+    yaxis: {
+      gridcolor: "#353548",
+      zerolinecolor: "#353548",
+      linecolor: "#353548",
+    },
+  };
+}
+
+/**
  * Creates the initial layout for a Plotly figure with sensible defaults.
  */
 export function createInitialLayout(figure: Figure): Partial<Plotly.Layout> {
@@ -34,6 +63,7 @@ export function createInitialLayout(figure: Figure): Partial<Plotly.Layout> {
     autosize: shouldAutoSize,
     dragmode: "select",
     height: 540,
+    ...darkLayoutDefaults(),
     // Prioritize user's config
     ...figure.layout,
   };

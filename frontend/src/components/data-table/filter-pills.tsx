@@ -114,7 +114,7 @@ export const FilterPills = <TData,>({
         <button
           type="button"
           onClick={() => setOverflowOpen(true)}
-          className="shrink-0 inline-flex items-center gap-0.5 rounded-full border border-border bg-background px-2 py-0.5 text-xs text-foreground hover:bg-accent hover:text-accent-foreground"
+          className="shrink-0 inline-flex items-center gap-0.5 rounded-sm border border-border bg-background px-2 py-0.5 text-xs text-foreground hover:bg-accent hover:text-accent-foreground"
           aria-label="See all filters"
         >
           <MoreHorizontalIcon className="h-3.5 w-3.5" aria-hidden={true} />

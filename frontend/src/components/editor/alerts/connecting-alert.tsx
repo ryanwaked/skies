@@ -24,9 +24,9 @@ export const ConnectingAlert: React.FC = () => {
 
   if (isConnecting) {
     const subtleNotification = (
-      <Tooltip content="Connecting to a marimo runtime">
+      <Tooltip content="Connecting to kernel…">
         <div className="flex items-center">
-          <LoadingEllipsis size={5} className="text-yellow-500" />
+          <LoadingEllipsis size={5} className="text-action-foreground" />
         </div>
       </Tooltip>
     );
@@ -39,7 +39,7 @@ export const ConnectingAlert: React.FC = () => {
         <div className="flex flex-col gap-4 justify-between items-start text-muted-foreground text-base">
           <div className="flex items-center gap-2">
             <Spinner className="h-4 w-4" />
-            <p>Connecting to a marimo runtime ...</p>
+            <p>Connecting to kernel…</p>
           </div>
         </div>
       </Banner>

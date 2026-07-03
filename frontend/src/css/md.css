@@ -49,6 +49,8 @@
 .markdown h6 {
   /* Hex-style display headings: measured live at 600 weight, -0.04em */
   font-weight: 600;
+
+  /* stylelint-disable-next-line unit-allowed-list */
   letter-spacing: -0.04em;
   font-family: var(--heading-font);
 
@@ -377,31 +379,31 @@ button .prose.prose {
 
 .markdown details.warn,
 .markdown details.warning {
-  border-left-color: var(--yellow-8);
+  border-left-color: var(--action-foreground);
 }
 
 .markdown details.info,
 .markdown details.note {
-  border-left-color: var(--blue-8);
+  border-left-color: var(--link);
 }
 
 .markdown details.error,
 .markdown details.danger,
 .markdown details.caution {
-  border-left-color: var(--red-8);
+  border-left-color: var(--error);
 }
 
 .markdown details.success,
 .markdown details.tip {
-  border-left-color: var(--grass-8);
+  border-left-color: var(--success);
 }
 
 .markdown details.important {
-  border-left-color: var(--cyan-8);
+  border-left-color: var(--link);
 }
 
 .markdown details.hint {
-  border-left-color: var(--gray-8);
+  border-left-color: var(--muted-foreground);
 }
 
 .markdown details summary {
@@ -418,7 +420,7 @@ button .prose.prose {
 .markdown details summary::before {
   content: "";
   border-style: solid;
-  border-color: var(--slate-8);
+  border-color: var(--muted-foreground);
   border-width: 0.15rem 0.15rem 0 0;
   display: inline-block;
   padding: 0.2rem;
@@ -444,6 +446,6 @@ button .prose.prose {
 }
 
 .markdown .codehilite {
-  background-color: var(--slate-2);
-  border-radius: 4px;
+  background-color: var(--muted);
+  border-radius: var(--radius);
 }

@@ -77,7 +77,7 @@ export const DataTablePagination = <TData,>({
           <DropdownMenuTrigger asChild={true}>
             <button
               type="button"
-              className="border rounded justify-between pl-1.5 pr-0.5 h-6 text-xs items-center hover:bg-accent inline-flex gap-0.5"
+              className="border rounded-sm justify-between pl-1.5 pr-0.5 h-6 text-xs items-center hover:bg-accent inline-flex gap-0.5"
             >
               {pageSize} / page
               <ChevronDown className="h-3 w-3 opacity-50 mb-px" />
@@ -300,7 +300,7 @@ export const PageSelector = ({
         <button
           type="button"
           className={cn(
-            "border rounded justify-between pl-1.5 pr-0.5 h-6 min-w-9 text-xs items-center inline-flex gap-0.5",
+            "border rounded-sm justify-between pl-1.5 pr-0.5 h-6 min-w-9 text-xs items-center inline-flex gap-0.5",
             totalPages > 1
               ? "hover:bg-accent cursor-pointer"
               : "opacity-50 cursor-default",

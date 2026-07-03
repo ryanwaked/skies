@@ -60,7 +60,7 @@ const CollapsibleTraceback = ({
         </span>
       </button>
       {isOpen && (
-        <div className="font-code text-sm mt-1 p-3 bg-muted rounded border overflow-auto max-h-[50vh] cursor-text select-text">
+        <div className="font-code text-xs mt-1 p-3 bg-muted rounded-sm border overflow-auto max-h-[50vh] cursor-text select-text">
           {renderHTML({ html: traceback })}
         </div>
       )}
@@ -80,7 +80,7 @@ const Tip = (props: {
           {props.title ?? "Tip"}
         </AccordionTrigger>
         <AccordionContent
-          className="mr-24 text-[0.84375rem]"
+          className="mr-24 text-xs"
           wrapperClassName="pt-0 pb-2"
         >
           {props.children}
@@ -350,8 +350,8 @@ export const MarimoErrorOutput = ({
             <p className="pb-2">
               An example of a cycle is if one cell declares a variable 'a' and
               reads 'b', and another cell declares 'b' and and reads 'a'. Cycles
-              like this make it impossible for marimo to know how to run your
-              cells, and generally suggest that your code has a bug.
+              like this make it impossible to know how to run your cells, and
+              generally suggest that your code has a bug.
             </p>
 
             <p className="py-2">
@@ -397,7 +397,7 @@ export const MarimoErrorOutput = ({
 
           <Tip title="Why can't I redefine variables?">
             <p className="pb-2">
-              marimo requires that each variable is defined in just one cell.
+              Each variable must be defined in just one cell.
               This constraint enables reactive and reproducible execution,
               arbitrary cell reordering, seamless UI elements, execution as a
               script, and more.
@@ -450,15 +450,15 @@ export const MarimoErrorOutput = ({
           )}
           <Tip title="Why can't I use `import *`?">
             <p className="pb-2">
-              Star imports are incompatible with marimo's git-friendly file
-              format and reproducible reactive execution.
+              Star imports are incompatible with the notebook's git-friendly
+              file format and reproducible reactive execution.
             </p>
 
             <p className="py-2">
-              marimo's Python file format stores code in functions, so notebooks
-              can be imported as regular Python modules without executing all
-              their code. But Python disallows `import *` everywhere except at
-              the top-level of a module.
+              The notebook's Python file format stores code in functions, so
+              notebooks can be imported as regular Python modules without
+              executing all their code. But Python disallows `import *`
+              everywhere except at the top-level of a module.
             </p>
 
             <p className="py-2">
@@ -722,7 +722,7 @@ export const MarimoErrorOutput = ({
     <Alert
       variant={alertVariant}
       className={cn(
-        "border-none font-code text-sm text-[0.84375rem] p-0 text-muted-foreground normal has-[svg]:pl-0 space-y-2",
+        "border-none font-code text-xs leading-[1.5] p-0 text-muted-foreground normal has-[svg]:pl-0 space-y-2",
         className,
       )}
     >

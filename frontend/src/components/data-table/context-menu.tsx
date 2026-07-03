@@ -51,9 +51,9 @@ export const DataTableContextMenu = <TData,>({
     }
 
     if (open) {
-      cellElement.classList.add("bg-(--green-4)");
+      cellElement.classList.add("bg-primary/[0.15]");
     } else {
-      cellElement.classList.remove("bg-(--green-4)");
+      cellElement.classList.remove("bg-primary/[0.15]");
     }
   });
 

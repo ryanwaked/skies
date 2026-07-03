@@ -286,7 +286,7 @@ function getBaseSpec(
 
   return {
     $schema: "https://vega.github.io/schema/vega-lite/v6.json",
-    background: theme === "dark" ? "dark" : "white",
+    background: theme === "dark" ? "transparent" : "white",
     title: title,
     data: { values: [] },
     height: formValues.yAxis?.height ?? height,

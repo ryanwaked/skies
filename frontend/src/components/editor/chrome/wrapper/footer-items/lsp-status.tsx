@@ -97,11 +97,11 @@ export const LspStatus: React.FC = () => {
 
     switch (data.status) {
       case "healthy":
-        return <CheckCircle2Icon className="w-4 h-4 text-(--green-9)" />;
+        return <CheckCircle2Icon className="w-4 h-4 text-success" />;
       case "degraded":
-        return <AlertCircleIcon className="w-4 h-4 text-(--yellow-11)" />;
+        return <AlertCircleIcon className="w-4 h-4 text-action-foreground" />;
       case "unhealthy":
-        return <AlertCircleIcon className="w-4 h-4 text-(--yellow-11)" />;
+        return <AlertCircleIcon className="w-4 h-4 text-action-foreground" />;
     }
   };
 
@@ -128,11 +128,11 @@ export const LspStatus: React.FC = () => {
   ) => {
     switch (status) {
       case "running":
-        return "text-(--green-9)";
+        return "text-success";
       case "starting":
-        return "text-(--yellow-11)";
+        return "text-action-foreground";
       default:
-        return "text-(--red-9)";
+        return "text-error";
     }
   };
 
@@ -168,7 +168,7 @@ export const LspStatus: React.FC = () => {
       <button
         type="button"
         onClick={handleClick}
-        className="p-1 hover:bg-accent rounded flex items-center gap-1.5 text-xs text-muted-foreground"
+        className="p-1 hover:bg-accent rounded-sm flex items-center gap-1.5 text-xs text-muted-foreground"
         data-testid="lsp-status"
       >
         {getStatusIcon()}

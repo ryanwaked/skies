@@ -1,5 +1,5 @@
 {
-  "background_color": "#ffffff",
+  "background_color": "#1a1a23",
   "display": "standalone",
   "icons": [
     {
@@ -13,7 +13,7 @@
       "type": "image/png"
     }
   ],
-  "name": "marimo",
-  "short_name": "marimo",
-  "theme_color": "#ffffff"
+  "name": "Notebook",
+  "short_name": "Notebook",
+  "theme_color": "#1a1a23"
 }

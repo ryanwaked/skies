@@ -2,6 +2,7 @@
 
 import React from "react";
 import type { TopLevelSpec } from "vega-lite";
+import { HEX_DARK_VEGA_CONFIG } from "@/components/charts/hex-vega-theme";
 import { LazyVegaEmbed } from "@/components/charts/lazy";
 import { tooltipHandler } from "@/components/charts/tooltip";
 import { getContainerWidth } from "@/plugins/impl/vega/utils";
@@ -33,7 +34,7 @@ export const LazyChart: React.FC<{
           spec={spec}
           data-container-width={getContainerWidth(spec)}
           options={{
-            theme: theme === "dark" ? "dark" : undefined,
+            config: theme === "dark" ? HEX_DARK_VEGA_CONFIG : undefined,
             height: height,
             actions: {
               export: true,

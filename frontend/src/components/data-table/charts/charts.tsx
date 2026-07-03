@@ -224,7 +224,7 @@ export const TablePanel: React.FC<TablePanelProps> = ({
           >
             {tab.tabName}
             <XIcon
-              className="w-3 h-3 ml-1 mt-[0.5px] hover:text-red-500 hover:font-semibold"
+              className="w-3 h-3 ml-1 mt-[0.5px] hover:text-destructive"
               onClick={(e) => {
                 e.stopPropagation();
                 handleDeleteTab(tab.tabName);

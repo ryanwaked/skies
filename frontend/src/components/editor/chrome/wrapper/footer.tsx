@@ -79,7 +79,7 @@ export const Footer: React.FC = () => {
           />
           <span>{issueCount}</span>
           <AlertTriangleIcon
-            className={`w-4 h-4 ml-1 ${warningCount > 0 ? "text-yellow-500" : ""}`}
+            className={`w-4 h-4 ml-1 ${warningCount > 0 ? "text-action-foreground" : ""}`}
           />
           <span>{warningCount}</span>
         </div>

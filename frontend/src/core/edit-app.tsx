@@ -10,7 +10,6 @@ import { useEffect } from "react";
 import { NotStartedConnectionAlert } from "@/components/editor/alerts/connecting-alert";
 import { Controls } from "@/components/editor/controls/Controls";
 import { AppHeader } from "@/components/editor/header/app-header";
-import { NotebookHeader } from "@/components/editor/header/notebook-header";
 import { MultiCellActionToolbar } from "@/components/editor/navigation/multi-cell-action-toolbar";
 import { ViewerBanner } from "@/components/editor/viewer-banner";
 import { cn } from "@/utils/cn";
@@ -174,16 +173,12 @@ export const EditApp: React.FC<AppProps> = ({
             "print:hidden z-50",
             // Keep the header sticky when scrolling horizontally, for column mode
             "sticky left-0",
-            showHeaderBar
-              ? // Pin the notebook top bar while scrolling vertically
-                "top-0 mb-4"
-              : "pt-4 sm:pt-12 pb-2 mb-4",
+            // The Hex top bar lives in AppChrome (edge to edge, above the icon
+            // rail); this header only hosts the disconnected overlay and the
+            // spacing above the first cell.
+            showHeaderBar ? "top-0 mb-4" : "pt-4 sm:pt-12 pb-2 mb-4",
           )}
-        >
-          {showHeaderBar && (
-            <NotebookHeader filename={filename} connection={connection} />
-          )}
-        </AppHeader>
+        />
 
         <ViewerBanner />
 

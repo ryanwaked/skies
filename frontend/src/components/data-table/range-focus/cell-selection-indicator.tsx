@@ -25,8 +25,8 @@ export const CellRangeSelectionIndicator = memo<CellSelectionIndicatorProps>(
         data-cell-id={cellId}
         className={cn(
           "absolute inset-0 pointer-events-none",
-          isSelected && "bg-(--green-3)",
-          isCopied && "bg-(--green-4) transition-colors duration-150",
+          isSelected && "bg-primary/[0.07]",
+          isCopied && "bg-primary/[0.15] transition-colors duration-150",
           className,
         )}
       />

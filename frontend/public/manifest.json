@@ -1,6 +1,6 @@
 {
-  "short_name": "Marimo",
-  "name": "A Marimo App",
+  "short_name": "Notebook",
+  "name": "Notebook",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +20,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#1a1a23",
+  "background_color": "#1a1a23"
 }

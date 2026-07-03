@@ -30,7 +30,7 @@ export const RegexInput = React.forwardRef<HTMLInputElement, RegexInputProps>(
   ) => (
     <div
       className={cn(
-        "flex items-stretch h-6 mb-1 rounded-sm border border-input bg-background shadow-xs-solid focus-within:shadow-md-solid focus-within:ring-1 focus-within:ring-ring focus-within:border-primary",
+        "flex items-stretch h-6 mb-1 rounded-sm border border-input bg-background focus-within:ring-1 focus-within:ring-ring focus-within:border-primary",
         className,
       )}
     >

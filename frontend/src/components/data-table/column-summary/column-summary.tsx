@@ -1,6 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import React, { Suspense } from "react";
 import { useLocale } from "react-aria";
+import { HEX_DARK_VEGA_CONFIG } from "@/components/charts/hex-vega-theme";
 import { LazyVegaEmbed } from "@/components/charts/lazy";
 import { createBatchedLoader } from "@/plugins/impl/vega/batched";
 import { useTheme } from "@/theme/useTheme";
@@ -51,7 +52,9 @@ export const TableColumnSummary = <TData, TValue>({
               height: 30,
               renderer: "svg",
               actions: false,
-              theme: theme === "dark" ? "dark" : "vox",
+              ...(theme === "dark"
+                ? { config: HEX_DARK_VEGA_CONFIG }
+                : { theme: "vox" as const }),
               // @ts-expect-error - Our `loader.load` method is broader than VegaLite's typings but is functionally supported.
               loader: batchedLoader,
               mode: "vega-lite",

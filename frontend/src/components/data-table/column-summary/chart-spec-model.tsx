@@ -1,9 +1,11 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { mint, orange, slate } from "@radix-ui/colors";
+import { slate } from "@radix-ui/colors";
 import type { TopLevelSpec } from "vega-lite";
 import type { StringFieldDef } from "vega-lite/types_unstable/channeldef.js";
+import { store } from "@/core/state/jotai";
 import type { TopLevelFacetedUnitSpec } from "@/plugins/impl/data-explorer/queries/types";
+import { resolvedThemeAtom } from "@/theme/useTheme";
 import { logNever } from "@/utils/assertNever";
 import type {
   BinValues,
@@ -18,6 +20,8 @@ import {
   getLegacyNumericSpec,
   getLegacyTemporalSpec,
   getScale,
+  summaryBarColor,
+  summaryNullBarColor,
 } from "./legacy-chart-spec";
 import { calculateBinStep, getPartialTimeTooltip } from "./utils";
 
@@ -30,9 +34,17 @@ const CONCAT_CHART_HEIGHT = 30;
 const CONCAT_CHART_WIDTH = 70;
 const CONCAT_NULL_BAR_WIDTH = 5;
 
-const BAR_COLOR = mint.mint11;
 const UNHOVERED_BAR_OPACITY = 0.6;
-const NULL_BAR_COLOR = orange.orange11;
+
+// Dark-mode bars are blush pink, so on-bar text uses the dark canvas color
+// and axis labels use the muted foreground; light mode keeps white/slate9.
+function summaryTextColor(): string {
+  return store.get(resolvedThemeAtom) === "dark" ? "#1a1a23" : "white";
+}
+
+function summaryAxisLabelColor(): string {
+  return store.get(resolvedThemeAtom) === "dark" ? "#b1b6c4" : slate.slate9;
+}
 
 export class ColumnChartSpecModel<T> {
   private columnStats = new Map<ColumnName, Partial<ColumnHeaderStats>>();
@@ -171,7 +183,7 @@ export class ColumnChartSpecModel<T> {
         if (singleValue) {
           return {
             ...base,
-            mark: { type: "bar", color: BAR_COLOR },
+            mark: { type: "bar", color: summaryBarColor() },
             encoding: {
               x: {
                 field: "bin_start",
@@ -209,7 +221,7 @@ export class ColumnChartSpecModel<T> {
             {
               mark: {
                 type: "bar",
-                color: BAR_COLOR,
+                color: summaryBarColor(),
               },
               params: [
                 {
@@ -235,9 +247,9 @@ export class ColumnChartSpecModel<T> {
                 color: {
                   condition: {
                     test: "datum['bin_start'] === null && datum['bin_end'] === null",
-                    value: NULL_BAR_COLOR,
+                    value: summaryNullBarColor(),
                   },
-                  value: BAR_COLOR,
+                  value: summaryBarColor(),
                 },
                 opacity: {
                   condition: [
@@ -320,7 +332,7 @@ export class ColumnChartSpecModel<T> {
             {
               mark: {
                 type: "bar",
-                color: BAR_COLOR,
+                color: summaryBarColor(),
               },
               encoding: {
                 x: {
@@ -432,7 +444,7 @@ export class ColumnChartSpecModel<T> {
             {
               mark: {
                 type: "bar",
-                color: NULL_BAR_COLOR,
+                color: summaryNullBarColor(),
               },
               encoding: {
                 x: {
@@ -560,7 +572,7 @@ export class ColumnChartSpecModel<T> {
           },
           mark: {
             type: "bar",
-            color: BAR_COLOR,
+            color: summaryBarColor(),
           },
           encoding: {
             y: {
@@ -573,7 +585,7 @@ export class ColumnChartSpecModel<T> {
                   "datum.label === 'true' || datum.label === 'True'  ? 'True' : datum.label === 'false' || datum.label === 'False' ? 'False' : 'Null'",
                 tickWidth: 0,
                 title: null,
-                labelColor: slate.slate9,
+                labelColor: summaryAxisLabelColor(),
               },
             },
             x: {
@@ -587,7 +599,7 @@ export class ColumnChartSpecModel<T> {
               type: "nominal",
               scale: {
                 domain: ["true", "false", "null"],
-                range: [BAR_COLOR, BAR_COLOR, NULL_BAR_COLOR],
+                range: [summaryBarColor(), summaryBarColor(), summaryNullBarColor()],
               },
               legend: null,
             },
@@ -601,7 +613,7 @@ export class ColumnChartSpecModel<T> {
             {
               mark: {
                 type: "bar",
-                color: BAR_COLOR,
+                color: summaryBarColor(),
                 height: BAR_HEIGHT,
               },
             },
@@ -611,7 +623,7 @@ export class ColumnChartSpecModel<T> {
                 align: "left",
                 baseline: "middle",
                 dx: 3,
-                color: slate.slate9,
+                color: summaryAxisLabelColor(),
               },
               encoding: {
                 text: {
@@ -703,9 +715,9 @@ export class ColumnChartSpecModel<T> {
             color: {
               condition: {
                 test: `datum.${yField} == "None" || datum.${yField} == "null"`,
-                value: NULL_BAR_COLOR,
+                value: summaryNullBarColor(),
               },
-              value: BAR_COLOR,
+              value: summaryBarColor(),
             },
             opacity: {
               condition: [
@@ -742,7 +754,7 @@ export class ColumnChartSpecModel<T> {
         const textChart: Omit<TopLevelFacetedUnitSpec, "data"> = {
           mark: {
             type: "text",
-            color: "white",
+            color: summaryTextColor(),
             fontSize: 8.5,
             ellipsis: " ", // Don't add ... after clipping
             clip: true,

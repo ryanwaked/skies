@@ -44,7 +44,9 @@ export const menuControlCheckVariants = cva(
   },
 );
 
-export const menuLabelVariants = cva("px-2 py-1.5 text-sm font-semibold", {
+export const menuLabelVariants = cva(
+  "px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground",
+  {
   variants: {
     inset: {
       true: "pl-8",
@@ -66,11 +68,11 @@ export const menuItemVariants = cva(
         default:
           "focus:bg-accent focus:text-accent-foreground aria-selected:bg-accent aria-selected:text-accent-foreground",
         danger:
-          "focus:bg-(--red-5) focus:text-(--red-12) aria-selected:bg-(--red-5) aria-selected:text-(--red-12)",
+          "focus:bg-[rgba(237,111,115,0.12)] focus:text-(--error) aria-selected:bg-[rgba(237,111,115,0.12)] aria-selected:text-(--error)",
         muted:
           "focus:bg-muted/70 focus:text-muted-foreground aria-selected:bg-muted/70 aria-selected:text-muted-foreground",
         success:
-          "focus:bg-(--grass-3) focus:text-(--grass-11) aria-selected:bg-(--grass-3) aria-selected:text-(--grass-11)",
+          "focus:bg-[rgba(67,213,157,0.12)] focus:text-(--success) aria-selected:bg-[rgba(67,213,157,0.12)] aria-selected:text-(--success)",
         disabled: "text-muted-foreground",
       },
     },

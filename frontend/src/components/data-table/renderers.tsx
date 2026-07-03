@@ -47,7 +47,7 @@ export function renderTableHeader<TData>(
           <TableHead
             key={header.id}
             className={cn(
-              "h-auto min-h-10 whitespace-pre align-top border-r border-r-border/75",
+              "h-auto min-h-10 whitespace-pre align-top border-r border-r-border",
               className,
             )}
             style={style}
@@ -154,7 +154,7 @@ export const DataTableBody = <TData,>({
           {...getCellDomProps(cell.id)}
           key={cell.id}
           className={cn(
-            "whitespace-pre truncate outline-hidden border-r border-r-border/75",
+            "whitespace-pre truncate outline-hidden border-r border-r-border",
             !fixedWidth && "max-w-[300px]",
             cell.column.getColumnWrapping &&
               cell.column.getColumnWrapping?.() === "wrap" &&
@@ -209,7 +209,7 @@ export const DataTableBody = <TData,>({
           "border-t h-6",
           rowViewerPanelOpen && "cursor-pointer",
           isRowViewedInPanel &&
-            "bg-(--blue-3) hover:bg-(--blue-3) data-[state=selected]:bg-(--blue-4)",
+            "bg-primary/[0.07] hover:bg-primary/[0.07] data-[state=selected]:bg-primary/[0.12]",
         )}
         onClick={() => handleRowClick(row)}
       >
@@ -306,9 +306,9 @@ function getPinningStyles<TData>(
     style: {
       boxShadow:
         isLastLeftPinnedColumn && column.id !== "__select__"
-          ? "-4px 0 4px -4px var(--slate-8) inset"
+          ? "-1px 0 0 0 var(--input) inset"
           : isFirstRightPinnedColumn
-            ? "4px 0 4px -4px var(--slate-8) inset"
+            ? "1px 0 0 0 var(--input) inset"
             : undefined,
       left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
       right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,

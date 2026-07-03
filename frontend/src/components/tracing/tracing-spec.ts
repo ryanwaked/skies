@@ -96,7 +96,7 @@ export function createGanttBaseSpec(
       },
       color: {
         field: statusField,
-        scale: { domain: ["success", "error"], range: ["#37BE5F", "red"] },
+        scale: { domain: ["success", "error"], range: ["#43d59d", "#ed6f73"] },
         legend: null,
       },
     },

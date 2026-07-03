@@ -115,7 +115,9 @@ const GalleryPage: React.FC = () => {
   return (
     <Suspense>
       <div className="flex flex-col gap-6 max-w-6xl container pt-5 pb-20 z-10">
-        <img src="logo.png" alt="marimo logo" className="w-48 mb-2" />
+        <h1 className="text-2xl font-semibold tracking-[-0.04em] mb-2">
+          Gallery
+        </h1>
         <ErrorBoundary>
           <div className="flex flex-col gap-2">
             {workspace.hasMore && (

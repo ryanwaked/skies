@@ -74,7 +74,7 @@
 }
 
 .reveal .marimo-cell .cm-editor {
-  border-radius: 8px;
+  border-radius: var(--radius);
   padding-right: 10px;
 }
 .reveal .marimo-cell .cm-panels {

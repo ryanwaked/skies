@@ -31,12 +31,12 @@ export const FloatingAlert: React.FC<FloatingAlertProps> = ({
       >
         {title && (
           <div className="flex justify-between">
-            <span className="font-bold text-lg flex items-center mb-1">
+            <span className="text-sm font-medium flex items-center mb-1">
               {title}
             </span>
           </div>
         )}
-        <div className="flex flex-col gap-4 justify-between items-start text-muted-foreground text-base">
+        <div className="flex flex-col gap-4 justify-between items-start text-muted-foreground text-xs leading-4">
           <div>{children}</div>
         </div>
       </Banner>

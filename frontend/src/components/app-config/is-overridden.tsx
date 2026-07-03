@@ -177,7 +177,7 @@ export const IsOverridden = ({
         </div>
       }
     >
-      <span className="text-(--amber-12) text-xs flex items-center gap-1 border rounded px-2 py-1 bg-(--amber-2) border-(--amber-6) ml-1">
+      <span className="text-action-foreground text-xs flex items-center gap-1 border rounded-lg px-2 py-1 bg-action border-action-hover ml-1">
         <FolderCog2 className="w-3 h-3" />
         Overridden by pyproject.toml
       </span>

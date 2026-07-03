@@ -8,6 +8,7 @@ import { Events } from "@/utils/events";
 import { parseContent } from "@/utils/url-parser";
 
 const ansiUp = new AnsiUp();
+ansiUp.use_classes = true;
 
 /**
  * Helper to clean ANSI escape codes from text

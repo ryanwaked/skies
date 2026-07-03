@@ -75,7 +75,7 @@ export const TracebackModal: React.FC<TracebackModalProps> = ({
               Copy
             </Button>
           </div>
-          <div className="font-code text-sm p-4 bg-muted rounded border overflow-auto max-h-[50vh] cursor-text select-text">
+          <div className="font-code text-xs p-4 bg-muted rounded-sm border overflow-auto max-h-[50vh] cursor-text select-text">
             {renderHTML({ html: traceback })}
           </div>
         </div>

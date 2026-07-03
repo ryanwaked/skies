@@ -51,10 +51,10 @@ const AccordionComponent = ({
       {React.Children.map(children, (child, index) => {
         return (
           <AccordionItem key={index} value={index.toString()}>
-            <AccordionTrigger className="py-2 text-md">
+            <AccordionTrigger className="py-2 text-sm">
               {renderHTML({ html: labels[index] })}
             </AccordionTrigger>
-            <AccordionContent className="text-md">{child}</AccordionContent>
+            <AccordionContent className="text-sm">{child}</AccordionContent>
           </AccordionItem>
         );
       })}

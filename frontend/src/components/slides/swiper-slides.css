@@ -12,13 +12,17 @@
   --swiper-pagination-bottom: 8px;
   --swiper-pagination-top: auto;
   --swiper-pagination-fraction-color: inherit;
-  --swiper-pagination-progressbar-bg-color: rgba(0, 0, 0, 0.25);
+  --swiper-pagination-progressbar-bg-color: color-mix(
+    in srgb,
+    var(--foreground) 25%,
+    transparent
+  );
   --swiper-pagination-progressbar-size: 4px;
   --swiper-pagination-bullet-size: 8px;
   --swiper-pagination-bullet-width: 8px;
   --swiper-pagination-bullet-height: 8px;
   --swiper-pagination-bullet-border-radius: 50%;
-  --swiper-pagination-bullet-inactive-color: #000;
+  --swiper-pagination-bullet-inactive-color: var(--muted-foreground);
   --swiper-pagination-bullet-inactive-opacity: 0.2;
   --swiper-pagination-bullet-opacity: 1;
   --swiper-pagination-bullet-horizontal-gap: 4px;
@@ -29,7 +33,7 @@
     height: 100%;
     top: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: color-mix(in srgb, var(--foreground) 10%, transparent);
     opacity: 0;
     padding: 0 15px;
     transition: opacity 0.3s;

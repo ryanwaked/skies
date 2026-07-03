@@ -38,7 +38,7 @@ table.dataframe thead {
 
 .markdown table tbody tr:nth-child(odd),
 table.dataframe tbody tr:nth-child(odd) {
-  background: var(--lime-2);
+  background: var(--muted);
 }
 
 .markdown table tbody tr:nth-child(even),
@@ -48,7 +48,7 @@ table.dataframe tbody tr:nth-child(even) {
 
 .markdown table tbody tr:hover,
 table.dataframe tbody tr:hover {
-  background: var(--yellow-4);
+  background: rgb(63 66 87 / 20%);
 }
 
 .markdown table tr,

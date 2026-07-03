@@ -381,7 +381,7 @@ const DataTableInternal = <TData,>({
               />
             )}
             {allUserColumnsHidden && (
-              <Banner className="mb-1 mx-2 rounded flex items-center justify-between">
+              <Banner className="mb-1 mx-2 rounded-sm flex items-center justify-between">
                 <span>All columns are hidden.</span>
                 <Button
                   variant="link"

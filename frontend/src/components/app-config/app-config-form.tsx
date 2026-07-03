@@ -314,7 +314,7 @@ const SettingSection = ({
 }) => {
   return (
     <div className="flex flex-col gap-y-2">
-      <h3 className="text-base font-semibold mb-1">{title}</h3>
+      <h3 className="text-sm font-medium tracking-[-0.04em] mb-1">{title}</h3>
       {children}
     </div>
   );

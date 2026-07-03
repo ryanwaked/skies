@@ -32,37 +32,6 @@ html {
   flex: 1;
 }
 
-.disconnected-gradient {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-
-  /* gradient sits behind noise. */
-  z-index: -2;
-
-  /* Use an image because hard to get consistent result across browsers with
-   * css gradients. */
-  background-image: url("../../assets/gradient.png");
-  background-repeat: no-repeat;
-
-  /* Scale gradient with zoom in/out. */
-  background-size: cover;
-}
-
-.noise {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1;
-  background-image: url("../../assets/noise.png");
-  background-repeat: repeat;
-  opacity: 0.5;
-}
-
 /* Remove background when disconnected, only in light mode. */
 .light #App.disconnected,
 .light #App.disconnected .transparent-when-disconnected {
@@ -72,6 +41,10 @@ html {
 .inactive-button,
 .inactive-button:hover,
 .inactive-button svg {
-  color: var(--gray-7);
+  color: var(--muted-foreground);
   cursor: default;
+}
+
+.inactive-button {
+  opacity: 0.5;
 }

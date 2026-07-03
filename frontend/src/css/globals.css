@@ -55,6 +55,7 @@
       BlinkMacSystemFont,
       sans-serif
     );
+
     /* Hex renders markdown/section headings in IBM Plex Sans 600 with tight
        (-0.04em) tracking — measured from the live app, not PP Formula. */
     --heading-font: var(

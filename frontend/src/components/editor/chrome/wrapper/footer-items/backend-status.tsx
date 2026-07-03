@@ -107,10 +107,10 @@ export const BackendConnectionStatus: React.FC = () => {
 
     if (isAppConnected(connection)) {
       if (data?.isHealthy) {
-        return <CheckCircle2Icon className="w-4 h-4 text-(--green-9)" />;
+        return <CheckCircle2Icon className="w-4 h-4 text-success" />;
       }
       if (data?.lastChecked) {
-        return <AlertCircleIcon className="w-4 h-4 text-(--yellow-9)" />;
+        return <AlertCircleIcon className="w-4 h-4 text-action-foreground" />;
       }
       return <CheckCircle2Icon className="w-4 h-4" />;
     }
@@ -118,7 +118,7 @@ export const BackendConnectionStatus: React.FC = () => {
       return <PowerOffIcon className="w-4 h-4" />;
     }
 
-    return <PowerOffIcon className="w-4 h-4 text-red-500" />;
+    return <PowerOffIcon className="w-4 h-4 text-destructive" />;
   };
 
   const handleClick = () => {
@@ -146,7 +146,7 @@ export const BackendConnectionStatus: React.FC = () => {
       <button
         type="button"
         onClick={handleClick}
-        className="p-1 hover:bg-accent rounded flex items-center gap-1.5 text-xs text-muted-foreground"
+        className="p-1 hover:bg-accent rounded-sm flex items-center gap-1.5 text-xs text-muted-foreground"
         data-testid="backend-status"
       >
         {getStatusIcon()}

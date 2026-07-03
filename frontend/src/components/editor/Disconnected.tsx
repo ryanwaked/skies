@@ -6,7 +6,7 @@ interface DisconnectedProps {
 
 export const Disconnected = ({ reason }: DisconnectedProps) => {
   return (
-    <div className="font-mono text-center text-base text-(--red-11)">
+    <div className="font-mono text-center text-base text-error">
       <p>{reason}</p>
     </div>
   );

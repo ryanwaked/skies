@@ -364,9 +364,8 @@ const AddCellButtons: React.FC<{
       <div
         className={cn(
           "border border-border rounded transition-all duration-200 overflow-hidden divide-x divide-border flex",
-          !isAiButtonOpen && "w-fit shadow-sm-solid-shade",
-          isAiButtonOpen &&
-            "w-full max-w-4xl shadow-md-solid-shade shadow-(color:--blue-3)",
+          !isAiButtonOpen && "w-fit",
+          isAiButtonOpen && "w-full max-w-4xl",
           className,
           // Always show the AI input when it's open
           isAiButtonOpen && "opacity-100",

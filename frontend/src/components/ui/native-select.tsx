@@ -10,8 +10,7 @@ export const selectStyles = cva(
   {
     variants: {
       variant: {
-        default:
-          "shadow-xs-solid border border-input hover:shadow-sm-solid focus:border-primary focus:shadow-md-solid disabled:hover:shadow-xs-solid",
+        default: "border border-input focus:border-primary",
         ghost: "opacity-70 hover:opacity-100 focus:opacity-100",
       },
     },

@@ -75,7 +75,7 @@ const DisconnectedIcon: React.FC<{ onReconnect?: () => void }> = ({
           onClick={onReconnect}
           disabled={disabled}
         >
-          <UnlinkIcon className="w-[25px] h-[25px] text-(--red-11)" />
+          <UnlinkIcon className="w-[25px] h-[25px] text-error" />
         </button>
       </span>
     </Tooltip>
@@ -101,9 +101,8 @@ const RunningIcon = () => {
   );
 };
 
+// Hex's flat dark language shows a plain veil on disconnect, not marimo's
+// rainbow gradient + noise backdrop.
 const NoiseBackground = () => (
-  <>
-    <div className="noise" />
-    <div className="disconnected-gradient" />
-  </>
+  <div className="fixed inset-0 -z-10 bg-background/60" />
 );

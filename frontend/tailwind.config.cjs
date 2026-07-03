@@ -53,6 +53,12 @@ module.exports = {
           foreground:
             "color-mix(in srgb, var(--error-foreground), transparent calc((1 - <alpha-value>) * 100%))",
         },
+        success: {
+          DEFAULT:
+            "color-mix(in srgb, var(--success), transparent calc((1 - <alpha-value>) * 100%))",
+          foreground:
+            "color-mix(in srgb, var(--success-foreground), transparent calc((1 - <alpha-value>) * 100%))",
+        },
         stale: "var(--stale)",
         muted: {
           DEFAULT:
@@ -94,9 +100,12 @@ module.exports = {
         heading: ["var(--heading-font)", ...fontFamily.sans],
       },
       borderRadius: {
+        /* Hex uses a single 3px radius everywhere; the shadcn calc chain
+           (md = radius - 2px, sm = radius - 4px) was tuned for an 8px scale
+           and degrades to 1px/0px under --radius: 3px. */
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        md: "var(--radius)",
+        sm: "var(--radius)",
       },
       keyframes: {
         "accordion-down": {

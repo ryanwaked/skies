@@ -1062,7 +1062,7 @@ const DatasetColumnItem: React.FC<{
   }) => {
     return (
       <Tooltip content={tooltipContent} delayDuration={100}>
-        <span className="text-xs text-black bg-gray-100 dark:invert rounded px-1">
+        <span className="text-xs text-muted-foreground bg-muted rounded-sm px-1">
           {content}
         </span>
       </Tooltip>
@@ -1113,7 +1113,7 @@ const DatasetColumnItem: React.FC<{
       </CommandItem>
       {isExpanded && (
         <div
-          className="pr-2 py-2 bg-(--slate-1) shadow-inner border-b"
+          className="pr-2 py-2 bg-card border-b"
           style={indentStyle(INDENT.columnPreview)}
         >
           <ErrorBoundary>

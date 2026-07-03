@@ -12,6 +12,7 @@ import {
   FilePlus2Icon,
   FolderPlusIcon,
   ListTreeIcon,
+  NotebookPenIcon,
   PlaySquareIcon,
   UploadIcon,
   ViewIcon,
@@ -43,7 +44,6 @@ import {
   TreeChevron,
   VisibilityToggleButton,
 } from "@/components/editor/file-tree/tree-actions";
-import { MarimoIcon, MarimoPlusIcon } from "@/components/icons/marimo-icons";
 import { Spinner } from "@/components/icons/spinner";
 import { useImperativeModal } from "@/components/modal/ImperativeModal";
 import { AlertDialogDestructiveAction } from "@/components/ui/alert-dialog";
@@ -297,7 +297,7 @@ const Toolbar = ({
           variant="text"
           size="xs"
         >
-          <MarimoPlusIcon size={16} />
+          <NotebookPenIcon size={16} />
         </Button>
       </Tooltip>
       <Tooltip content="Add file">
@@ -507,7 +507,10 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
         )}
       >
         {node.data.isMarimoFile ? (
-          <MarimoIcon className="w-4 h-4 shrink-0 mr-1.5" strokeWidth={1.5} />
+          <NotebookPenIcon
+            className="w-4 h-4 shrink-0 mr-1.5 text-primary"
+            strokeWidth={1.5}
+          />
         ) : (
           <Icon
             className={cn("w-4 h-4 shrink-0 mr-1.5", FILE_ICON_COLOR[fileType])}
@@ -549,7 +552,7 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
                 onSelect={() => handleCreateNotebook()}
                 data-testid="file-explorer-create-notebook-menu-item"
               >
-                <MarimoPlusIcon className={MENU_ITEM_ICON_CLASS} />
+                <NotebookPenIcon className={MENU_ITEM_ICON_CLASS} />
                 Create notebook
               </DropdownMenuItem>
               <DropdownMenuItem

@@ -8,7 +8,7 @@
 }
 
 .dark .cm-selectionBackground {
-  background-color: #1177cc80 !important;
+  background-color: rgb(63 66 87 / 55%) !important;
 }
 
 .cm-focused.cm-focused {
@@ -22,7 +22,7 @@
 
   /* Style line numbers. */
   font-size: 0.75rem;
-  color: var(--gray-10);
+  color: color-mix(in srgb, var(--muted-foreground), transparent 30%);
 }
 
 .dark .cm .cm-gutters {
@@ -37,10 +37,10 @@
 /* -- Tooltips: code completion and type hints -- */
 
 #root .cm-tooltip {
-  border-radius: 4px;
+  border-radius: var(--radius);
   z-index: 1000;
 
-  @apply bg-popover shadow-sm shadow-shade border-border;
+  @apply bg-popover shadow-md border-border;
 }
 
 /*
@@ -56,7 +56,7 @@
   scrollbar-width: thin;
 
   /* Respect newlines. */
-  border-radius: 4px;
+  border-radius: var(--radius);
 }
 
 /* Hover tooltips get highest priority in display. */
@@ -68,8 +68,8 @@
 
 .cm .cm-panels {
   background-color: var(--cm-background);
-  color: var(--sky-11);
-  font-weight: 700;
+  color: var(--muted-foreground);
+  font-weight: 500;
 
   /* room for buttons */
   margin-right: 30px;
@@ -105,14 +105,14 @@
 }
 
 .cm-ghostText:hover {
-  background: var(--gray-3);
+  background: var(--muted);
 }
 
 /* -- Codeium -- */
 
 .cm-codeium-cycle {
   font-size: 9px;
-  background-color: var(--sky-3);
+  background-color: var(--accent);
   padding: 2px;
   border-radius: 2px;
   display: inline-block;
@@ -125,12 +125,12 @@
   padding: 2px;
   border-radius: 2px;
   border: none;
-  background-color: var(--sky-7);
+  background-color: rgb(63 66 87 / 40%);
   margin-left: 5px;
 }
 
 .cm-codeium-cycle-key:hover {
-  background-color: var(--sky-9);
+  background-color: rgb(63 66 87 / 60%);
 }
 
 .cm-codeium-cycle-explanation {

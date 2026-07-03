@@ -42,7 +42,7 @@
 
 .mo-slides-notes-resize:hover,
 .mo-slides-notes-resize[data-resize-handle-active] {
-  background-color: var(--slate-11);
+  background-color: var(--input);
 }
 
 /* helpful for debugging */

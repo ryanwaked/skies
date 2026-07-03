@@ -30,6 +30,7 @@ import { capabilitiesAtom } from "@/core/config/capabilities";
 import { aiEnabledAtom } from "@/core/config/config";
 import { getFeatureFlag } from "@/core/config/feature-flag";
 import { cn } from "@/utils/cn";
+import { NotebookHeader } from "../../header/notebook-header";
 import { ErrorBoundary } from "../../boundary/ErrorBoundary";
 import { raf2 } from "../../navigation/focus-utils";
 import { ContextAwarePanel } from "../panels/context-aware-panel/context-aware-panel";
@@ -94,8 +95,8 @@ const TerminalSkeleton: React.FC = () => {
       role="status"
       className="w-full h-full flex items-start p-3 font-mono text-xs select-none"
       style={{
-        background: isDark ? "#0f172a" : "#ffffff",
-        color: isDark ? "#94a3b8" : "#64748b",
+        background: isDark ? "#17171F" : "#ffffff",
+        color: isDark ? "#b1b6c4" : "#64748b",
       }}
     >
       <span className="opacity-70">Starting terminal</span>
@@ -500,7 +501,7 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
       collapsedSize={0}
       collapsible={true}
       className={cn(
-        "dark:bg-(--slate-1) print:hidden hide-on-fullscreen",
+        "bg-background print:hidden hide-on-fullscreen",
         isDeveloperPanelOpen && "border-t",
       )}
       minSize={10}
@@ -599,6 +600,13 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
 
   return (
     <PanelsWrapper>
+      {/* Hex layout: the top bar runs edge to edge across the full viewport;
+          the icon rail and everything else start below it. */}
+      <ErrorBoundary>
+        <TooltipProvider>
+          <NotebookHeader />
+        </TooltipProvider>
+      </ErrorBoundary>
       <PanelGroup autoSaveId="marimo:chrome:v1:l2" direction={"horizontal"}>
         <TooltipProvider>
           <Sidebar />

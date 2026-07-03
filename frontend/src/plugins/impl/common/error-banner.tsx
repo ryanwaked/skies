@@ -71,10 +71,11 @@ const bannerStyle = cva(
   {
     variants: {
       kind: {
-        danger:
-          "text-error border-(--red-6) shadow-md-solid shadow-error bg-(--red-1)",
-        info: "text-primary border-(--blue-6) shadow-md-solid shadow-accent bg-(--blue-1)",
-        warn: "border-(--yellow-6) bg-(--yellow-2) dark:bg-(--yellow-4) text-(--yellow-11) dark:text-(--yellow-12)",
+        // Hex banners are dark surfaces with subtle borders and semantic
+        // accents — never bright palette tints.
+        danger: "text-error border-error/40 bg-popover",
+        info: "text-muted-foreground border-border bg-popover",
+        warn: "bg-action text-action-foreground border-action-hover",
       },
       clickable: {
         true: "cursor-pointer",
@@ -84,17 +85,17 @@ const bannerStyle = cva(
       {
         clickable: true,
         kind: "danger",
-        className: "hover:bg-(--red-3)",
+        className: "hover:bg-error/10",
       },
       {
         clickable: true,
         kind: "info",
-        className: "hover:bg-(--blue-3)",
+        className: "hover:bg-accent",
       },
       {
         clickable: true,
         kind: "warn",
-        className: "hover:bg-(--yellow-3)",
+        className: "hover:bg-action-hover",
       },
     ],
     defaultVariants: {

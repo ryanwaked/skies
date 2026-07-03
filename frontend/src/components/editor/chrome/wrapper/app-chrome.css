@@ -18,7 +18,7 @@
 .resize-handle[data-resize-handle-active],
 .resize-handle-collapsed:hover,
 .resize-handle-collapsed[data-resize-handle-active] {
-  background-color: var(--slate-11);
+  background-color: var(--input);
 }
 
 /*

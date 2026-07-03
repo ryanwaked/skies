@@ -18,6 +18,7 @@ import {
   EyeOffIcon,
   FastForwardIcon,
   FileIcon,
+  FilePlusIcon,
   Files,
   FileTextIcon,
   FolderDownIcon,
@@ -46,7 +47,6 @@ import {
 } from "@/components/app-config/state";
 import { MarkdownIcon } from "@/components/editor/cell/code/icons";
 import { GitHubIcon } from "@/components/icons/github";
-import { MarimoPlusIcon } from "@/components/icons/marimo-icons";
 import { YouTubeIcon } from "@/components/icons/youtube";
 import { useImperativeModal } from "@/components/modal/ImperativeModal";
 import { renderShortcut } from "@/components/shortcuts/renderShortcut";
@@ -150,10 +150,10 @@ export function useNotebookActions() {
   const { selectedLayout } = useLayoutState();
   const { setLayoutView } = useLayoutActions();
   const togglePresenting = useTogglePresenting();
-  // Fallback: if sharing is undefined, all options are enabled by default
+  // Fallback: if sharing is undefined, html/wasm are enabled by default
   const sharingHtmlEnabled = resolvedConfig.sharing?.html ?? true;
   const sharingWasmEnabled = resolvedConfig.sharing?.wasm ?? true;
-  const sharingMolabEnabled = resolvedConfig.sharing?.molab ?? true;
+  const sharingMolabEnabled = resolvedConfig.sharing?.molab ?? false;
 
   // Server-side PDF export is always available outside WASM.
   // Browser print fallback is used in WASM.
@@ -395,7 +395,7 @@ export function useNotebookActions() {
           },
         },
         {
-          icon: <MarimoPlusIcon size={14} strokeWidth={1.5} />,
+          icon: <FilePlusIcon size={14} strokeWidth={1.5} />,
           label: "Create molab notebook",
           hidden: !sharingMolabEnabled,
           handle: async () => {
@@ -699,7 +699,7 @@ export function useNotebookActions() {
     },
 
     {
-      icon: <MarimoPlusIcon size={14} strokeWidth={1.5} />,
+      icon: <FilePlusIcon size={14} strokeWidth={1.5} />,
       label: "New notebook",
       // If file is in the url, then we ran `marimo edit`
       // without a specific file

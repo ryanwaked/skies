@@ -201,7 +201,7 @@ const ConsoleOutputInternal = (props: Props): React.ReactNode => {
             <span>
               <ToggleButton
                 aria-label="Toggle text wrapping"
-                className="p-1 rounded bg-transparent text-muted-foreground data-hovered:text-foreground data-selected:text-foreground"
+                className="p-1 rounded-sm bg-transparent text-muted-foreground data-hovered:text-foreground data-selected:text-foreground"
                 isSelected={wrapText}
                 onChange={setWrapText}
               >
@@ -337,7 +337,7 @@ const StdInput = (props: {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         icon={<ChevronRightIcon className="w-5 h-5" />}
-        className="m-0 h-8 focus-visible:shadow-xs-solid"
+        className="m-0 h-8"
         placeholder="stdin"
         // Capture the keydown event for history navigation and submission
         onKeyDownCapture={(e) => {
@@ -390,7 +390,7 @@ const StdInputWithResponse = (props: {
       {renderText(output)}
       {!isPassword && !wasInterruptedWithoutResponse && (
         <span
-          className="inline-flex items-center gap-1 text-(--sky-11)"
+          className="inline-flex items-center gap-1 text-link"
           aria-label="stdin response"
         >
           <ChevronRightIcon className="w-4 h-4 shrink-0 opacity-70" />

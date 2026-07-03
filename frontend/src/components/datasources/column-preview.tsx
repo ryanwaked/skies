@@ -4,6 +4,7 @@ import { useAtomValue } from "jotai";
 import { PlusSquareIcon } from "lucide-react";
 import React, { Suspense } from "react";
 import { useLocale } from "react-aria";
+import { HEX_DARK_VEGA_CONFIG } from "@/components/charts/hex-vega-theme";
 import { maybeAddAltairImport } from "@/core/cells/add-missing-import";
 import { useCellActions } from "@/core/cells/cells";
 import { useLastFocusedCellId } from "@/core/cells/focus";
@@ -225,7 +226,9 @@ export function renderChart(chartSpec: string, theme: Theme) {
         data-container-width="container"
         spec={updateSpec(JSON.parse(chartSpec) as TopLevelFacetedUnitSpec)}
         options={{
-          theme: theme === "dark" ? "dark" : "vox",
+          ...(theme === "dark"
+            ? { config: HEX_DARK_VEGA_CONFIG }
+            : { theme: "vox" as const }),
           height: 100,
           width: "container" as unknown as number,
           actions: false,

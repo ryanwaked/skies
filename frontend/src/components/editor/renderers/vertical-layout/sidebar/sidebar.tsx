@@ -22,7 +22,7 @@ export const Sidebar = ({ isOpen, toggle, width }: SidebarProps) => {
       )}
     >
       <SidebarToggle isOpen={isOpen} toggle={toggle} />
-      <div className="relative h-full flex flex-col px-3 pb-16 pt-14 overflow-y-auto shadow-sm border-l">
+      <div className="relative h-full flex flex-col px-3 pb-16 pt-14 overflow-y-auto border-l">
         <SidebarSlot />
       </div>
     </aside>

@@ -11,25 +11,25 @@ export function createTerminalTheme(theme: ResolvedTheme) {
   return theme === "dark"
     ? {
         ...baseTheme,
-        background: "#0f172a", // slate-900
-        foreground: "#f8fafc", // slate-50
-        black: "#0f172a",
-        red: "#ef4444",
-        green: "#22c55e",
-        yellow: "#eab308",
-        blue: "#3b82f6",
-        magenta: "#a855f7",
-        cyan: "#06b6d4",
-        white: "#f1f5f9",
-        brightBlack: "#475569",
-        brightRed: "#f87171",
-        brightGreen: "#4ade80",
-        brightYellow: "#facc15",
-        brightBlue: "#60a5fa",
-        brightMagenta: "#c084fc",
-        brightCyan: "#22d3ee",
+        background: "#17171F",
+        foreground: "#e4e6ec",
+        black: "#17171F",
+        red: "#ed6f73",
+        green: "#43d59d",
+        yellow: "#ffc940",
+        blue: "#84a6e8",
+        magenta: "#c084fc",
+        cyan: "#2ee6d6",
+        white: "#e4e6ec",
+        brightBlack: "#b1b6c4",
+        brightRed: "#f28d90",
+        brightGreen: "#6ee0b3",
+        brightYellow: "#ffd66b",
+        brightBlue: "#a3bdee",
+        brightMagenta: "#d3a8fd",
+        brightCyan: "#5cecdf",
         brightWhite: "#ffffff",
-        selection: "rgba(148, 163, 184, 0.3)", // slate-400 with opacity
+        selection: "rgba(245, 192, 192, 0.25)",
       }
     : {
         ...baseTheme,

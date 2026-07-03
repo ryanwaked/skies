@@ -243,8 +243,8 @@ export const KeyboardShortcuts: React.FC = () => {
           <span>{hotkey.name.toLowerCase()}</span>
           {isDuplicate && (
             <div className="group relative inline-flex">
-              <AlertTriangleIcon className="w-3 h-3 text-(--yellow-11)" />
-              <div className="invisible group-hover:visible absolute left-0 top-5 z-10 w-max max-w-xs rounded-md bg-(--yellow-2) border border-(--yellow-7) p-2 text-xs text-(--yellow-11) shadow-md">
+              <AlertTriangleIcon className="w-3 h-3 text-action-foreground" />
+              <div className="invisible group-hover:visible absolute left-0 top-5 z-10 w-max max-w-xs rounded-lg bg-action border border-border p-2 text-xs text-action-foreground shadow-md">
                 Also used by:{" "}
                 {duplicateActions
                   .map((a) => hotkeys.getHotkey(a).name.toLowerCase())
@@ -263,7 +263,9 @@ export const KeyboardShortcuts: React.FC = () => {
     return (
       <div className="mb-[40px] gap-2 flex flex-col">
         <div>
-          <h3 className="text-lg font-medium">{group}</h3>
+          <h3 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {group}
+          </h3>
           {subHeader}
         </div>
         {items.map(renderItem)}

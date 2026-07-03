@@ -7,7 +7,7 @@
 .elapsed-time {
   font-family: var(--monospace-font);
   font-size: 0.75rem;
-  color: var(--gray-11);
+  color: var(--muted-foreground);
 }
 
 #App.disconnected .elapsed-time {
@@ -17,5 +17,5 @@
 .cell-status-disabled,
 .cell-status-queued,
 .cell-status-stale {
-  color: var(--gray-10);
+  color: color-mix(in srgb, var(--muted-foreground), transparent 20%);
 }

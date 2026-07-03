@@ -2,17 +2,17 @@
 import { cva } from "class-variance-authority";
 
 export const calloutStyles = cva(
-  "border rounded-lg p-12 mt-12 mb-12 text-foreground shadow-[4px_4px_0px_0px]",
+  "border rounded-lg p-12 mt-12 mb-12 text-foreground",
   {
     variants: {
       kind: {
-        neutral: "border-(--slate-9) shadow-(color:--slate-8)",
+        neutral: "border-border bg-card",
         // @deprecated, use danger instead
-        alert: "bg-(--red-2) border-(--red-9) shadow-(color:--red-8)",
-        info: "bg-(--sky-1) border-(--sky-8) shadow-(color:--sky-7)",
-        danger: "bg-(--red-2) border-(--red-9) shadow-(color:--red-8)",
-        warn: "bg-(--amber-2) border-(--amber-9) shadow-(color:--amber-8)",
-        success: "bg-(--grass-2) border-(--grass-9) shadow-(color:--grass-8)",
+        alert: "bg-error/8 border-error/40",
+        info: "bg-link/8 border-link/40",
+        danger: "bg-error/8 border-error/40",
+        warn: "bg-action border-action-foreground/40",
+        success: "bg-success/8 border-success/40",
       },
     },
     defaultVariants: {

@@ -197,7 +197,7 @@ const QueuedOrRunningStack = () => {
         {Array.from({ length: count }).map((_, index) => (
           <div
             key={index.toString()}
-            className="shrink-0 h-1 w-2 bg-(--grass-6) border border-(--grass-7)"
+            className="shrink-0 h-1 w-2 bg-success/40 border border-success/60"
           />
         ))}
       </div>

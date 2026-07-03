@@ -14,7 +14,7 @@
 }
 
 .vega-embed canvas {
-  @apply rounded-md;
+  @apply rounded-lg;
 }
 
 .vega-embed .vega-actions.vega-actions {
@@ -49,11 +49,14 @@
   right: 0;
   padding: 6px;
   z-index: 1000;
-  background: white;
-  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
-  color: #1b1e23;
-  border: 1px solid #aaa;
-  border-radius: 999px;
+
+  /* !important: vega-embed injects its default (light) styles at runtime,
+     after this stylesheet, so plain rules lose by insertion order. */
+  background: var(--popover) !important;
+  box-shadow: none !important;
+  color: var(--muted-foreground) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
   opacity: 0.2;
   transition: opacity 0.4s ease-in;
   cursor: pointer;
@@ -63,7 +66,7 @@
   display: none;
 }
 .vega-embed summary:active {
-  box-shadow: #aaa 0px 0px 0px 1px inset;
+  box-shadow: var(--border) 0px 0px 0px 1px inset;
 }
 .vega-embed summary svg {
   width: 14px;
@@ -86,10 +89,13 @@
   flex-direction: column;
   padding-bottom: 8px;
   padding-top: 8px;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
-  border: 1px solid #d9d9d9;
-  background: white;
+  border-radius: var(--radius) !important;
+
+  /* Overlays keep soft elevation in the flat Hex language.
+     !important: see the summary rule above. */
+  box-shadow: var(--shadow-md) !important;
+  border: 1px solid var(--border) !important;
+  background: var(--popover) !important;
   animation-duration: 0.15s;
   animation-name: scale-in;
   animation-timing-function: cubic-bezier(0.2, 0, 0.13, 1.5);
@@ -97,17 +103,17 @@
 }
 .vega-embed .vega-actions a {
   padding: 8px 16px;
-  font-family: sans-serif;
-  font-size: 14px;
-  font-weight: 600;
+  font-family: var(--text-font) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
   white-space: nowrap;
-  color: #434a56;
+  color: var(--popover-foreground) !important;
   text-decoration: none;
 }
 .vega-embed .vega-actions a:hover,
 .vega-embed .vega-actions a:focus {
-  background-color: #f7f7f9;
-  color: black;
+  background-color: var(--accent) !important;
+  color: var(--foreground) !important;
 }
 .vega-embed .vega-actions::before,
 .vega-embed .vega-actions::after {
@@ -120,14 +126,14 @@
   /* right: 14px; */
   top: -16px;
   border: 8px solid #000 0;
-  border-bottom-color: #d9d9d9;
+  border-bottom-color: var(--border) !important;
 }
 .vega-embed .vega-actions::after {
   left: auto;
   /* right: 15px; */
   top: -14px;
   border: 7px solid #000 0;
-  border-bottom-color: #fff;
+  border-bottom-color: var(--popover) !important;
 }
 .vega-embed .chart-wrapper.fit-x {
   width: 100%;
@@ -149,4 +155,19 @@
     opacity: 1;
     transform: scale(1);
   }
+}
+
+/* vega-tooltip renders outside the embed root with its own light theme;
+   restyle it to the Hex overlay surface. */
+#vg-tooltip-element.vg-tooltip {
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--text-font);
+  font-size: 12px;
+}
+
+#vg-tooltip-element.vg-tooltip td.key {
+  color: var(--muted-foreground);
 }

@@ -315,42 +315,42 @@ span.linenos.special {
   }
 
   .nb {
-    color: var(--sky-8);
+    color: var(--link);
   }
 
   .m {
-    color: var(--sky-11);
+    color: var(--link);
   }
 
   .n {
-    color: var(--slate-10);
+    color: var(--muted-foreground);
   }
 
   .w {
-    color: var(--slate-10);
+    color: var(--muted-foreground);
   }
 
   .o {
-    color: var(--slate-10);
+    color: var(--muted-foreground);
   }
 
   .p {
-    color: var(--slate-10);
+    color: var(--muted-foreground);
   }
 
   .bp {
-    color: var(--slate-10);
+    color: var(--muted-foreground);
   }
 
   .pm {
-    color: var(--slate-10);
+    color: var(--muted-foreground);
   }
 
   .k {
-    color: var(--slate-10);
+    color: var(--muted-foreground);
   }
 
   .x {
-    color: var(--red-9);
+    color: var(--error);
   }
 }

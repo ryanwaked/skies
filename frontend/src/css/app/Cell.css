@@ -38,7 +38,7 @@
     border-radius: 3px;
     pointer-events: none;
     opacity: 0.5;
-    box-shadow: 0px 0px 10px 0px var(--cyan-9);
+    box-shadow: 0 0 0 1px var(--ring);
     z-index: 1;
   }
 
@@ -54,7 +54,7 @@
     .output-area,
     .cm-gutters,
     .cm {
-      background-color: var(--red-2);
+      background-color: color-mix(in srgb, var(--error), transparent 92%);
     }
 
     /* Add a red glow to indicate deletion */
@@ -65,14 +65,14 @@
       border-radius: 3px;
       pointer-events: none;
       opacity: 0.6;
-      box-shadow: 0px 0px 10px 0px var(--red-9);
+      box-shadow: 0px 0px 10px 0px var(--error);
       z-index: 1;
     }
 
     /* Add strikethrough effect to the code */
     .cm-content {
       text-decoration: line-through;
-      text-decoration-color: var(--red-9);
+      text-decoration-color: var(--error);
       text-decoration-thickness: 1px;
     }
   }
@@ -82,7 +82,7 @@
     .output-area,
     .cm-gutters,
     .cm {
-      background-color: var(--gray-2);
+      background-color: var(--muted);
       opacity: 0.55;
     }
   }
@@ -186,7 +186,7 @@
     .output-area,
     .cm-gutters,
     .cm {
-      background-color: var(--gray-2);
+      background-color: var(--muted);
       opacity: 0.5;
     }
   }
@@ -200,7 +200,7 @@
     .output-area,
     .cm-gutters,
     .cm {
-      background-color: var(--gray-1);
+      background-color: var(--muted);
       opacity: 0.5;
     }
   }
@@ -220,12 +220,14 @@
   }
 
   &.has-error:not(.needs-run):focus-within {
-    @apply border-1 outline-0 shadow-md-solid divide-error/20 shadow-error/20;
+    @apply border-1 outline-0 divide-error/20;
   }
 
   &.error-outline,
   &.error-outline:focus-within {
-    box-shadow: 8px 8px 0 0 color-mix(in srgb, var(--error), transparent 80%);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--error), transparent 50%),
+      0 0 0 2px color-mix(in srgb, var(--error), transparent 90%);
   }
 
   /* Needs Run */
@@ -239,7 +241,7 @@
     }
 
     &:focus-within {
-      @apply border-1 outline-0 divide-stale shadow-md-solid shadow-stale;
+      @apply border-1 outline-0 divide-stale;
     }
 
     &:focus-within .cm-editor {
@@ -256,9 +258,7 @@
   &.focus-outline {
     transition: all 0.6s;
     border-color: var(--cell-focus-border) !important;
-
-    /* custom shadow until our theme overrides can support colored shadow */
-    @apply shadow-lg shadow-[rgba(245,192,192,0.25)];
+    box-shadow: var(--cell-focus-shadow);
   }
 
   /* Published - when its just the output */
@@ -430,7 +430,7 @@
 #cell-setup,
 #cell-setup .cm-editor,
 #cell-setup .cm-gutter {
-  background-color: var(--gray-2);
+  background-color: var(--muted);
 }
 
 #App.disconnected {

@@ -8,7 +8,7 @@ export const formItemClasses = "flex flex-row items-center space-x-1 space-y-0";
 
 export const SettingTitle: React.FC<PropsWithChildren> = ({ children }) => {
   return (
-    <div className="text-md font-semibold text-muted-foreground uppercase tracking-wide  mb-1">
+    <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
       {children}
     </div>
   );
@@ -23,7 +23,7 @@ export const SettingSubtitle: React.FC<HTMLProps<HTMLDivElement>> = ({
     <div
       {...props}
       className={cn(
-        "text-base font-semibold underline-offset-2 text-accent-foreground uppercase tracking-wide",
+        "text-[10px] font-semibold uppercase tracking-wider text-muted-foreground",
         className,
       )}
     >

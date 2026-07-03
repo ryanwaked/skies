@@ -12,10 +12,10 @@ const alertVariants = cva(
       variant: {
         default: "bg-background text-foreground",
         destructive:
-          "text-destructive border-destructive/50 dark:border-destructive [&>svg]:text-destructive text-destructive",
-        info: "bg-(--sky-2) border-(--sky-7) text-(--sky-11)",
+          "text-destructive border-error/40 [&>svg]:text-destructive",
+        info: "bg-popover border-border text-muted-foreground",
         warning:
-          "bg-(--yellow-2) border-(--yellow-7) text-(--yellow-11) [&>svg]:text-(--yellow-11)",
+          "bg-action border-action-hover text-action-foreground [&>svg]:text-action-foreground",
       },
     },
     defaultVariants: {

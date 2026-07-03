@@ -130,7 +130,7 @@ export const GridLayoutRenderer: React.FC<Props> = ({
   // Editing background styles
   if (enableInteractions) {
     styles.backgroundImage =
-      "repeating-linear-gradient(var(--gray-4) 0 1px, transparent 1px 100%), repeating-linear-gradient(90deg, var(--gray-4) 0 1px, transparent 1px 100%)";
+      "repeating-linear-gradient(color-mix(in srgb, var(--border) 60%, transparent) 0 1px, transparent 1px 100%), repeating-linear-gradient(90deg, color-mix(in srgb, var(--border) 60%, transparent) 0 1px, transparent 1px 100%)";
     styles.backgroundSize = `calc((100% / ${layout.columns})) ${layout.rowHeight}px`;
   }
 
@@ -146,7 +146,7 @@ export const GridLayoutRenderer: React.FC<Props> = ({
       className={cn(
         "w-full mx-auto bg-background flex-1 min-h-full",
         // Show grid border and background when editing
-        enableInteractions && "bg-(--slate-2) border-r",
+        enableInteractions && "bg-muted border-r",
         // Disable animations and add padding when reading
         isReading && "disable-animation",
         !layout.maxWidth && "min-w-[800px]",
@@ -264,7 +264,7 @@ export const GridLayoutRenderer: React.FC<Props> = ({
         <div className="flex flex-1 flex-col items-center">
           <div
             style={styles}
-            className="bg-background flex-1 border-t border-x rounded-t shadow-sm w-full overflow-hidden"
+            className="bg-background flex-1 border-t border-x rounded-t-sm w-full overflow-hidden"
           >
             {grid}
           </div>
@@ -302,7 +302,7 @@ export const GridLayoutRenderer: React.FC<Props> = ({
     grid = (
       <div
         style={styles}
-        className="bg-background border-t border-x rounded-t shadow-sm w-full mx-auto mt-4 h-[calc(100%-1rem)] overflow-hidden"
+        className="bg-background border-t border-x rounded-t-sm w-full mx-auto mt-4 h-[calc(100%-1rem)] overflow-hidden"
       >
         <div className="h-full overflow-auto">{grid}</div>
       </div>
@@ -321,8 +321,8 @@ export const GridLayoutRenderer: React.FC<Props> = ({
         <div className={cn("grow overflow-auto transparent-when-disconnected")}>
           {grid}
         </div>
-        <div className="flex-none flex flex-col w-[300px] p-2 pb-20 gap-2 overflow-auto bg-(--slate-2) border-t border-x rounded-t shadow-sm transparent-when-disconnected mx-2 mt-4">
-          <div className="text font-bold text-(--slate-20) shrink-0">
+        <div className="flex-none flex flex-col w-[300px] p-2 pb-20 gap-2 overflow-auto bg-muted border-t border-x rounded-t-sm transparent-when-disconnected mx-2 mt-4">
+          <div className="text font-bold text-muted-foreground shrink-0">
             Outputs
           </div>
           {notInGrid.map((cell) => (
@@ -347,7 +347,7 @@ export const GridLayoutRenderer: React.FC<Props> = ({
               }}
               className={cn(
                 DRAG_HANDLE,
-                "droppable-element bg-background border-border border overflow-hidden p-2 rounded shrink-0",
+                "droppable-element bg-background border-border border overflow-hidden p-2 rounded-sm shrink-0",
               )}
             >
               <GridCell
@@ -557,10 +557,10 @@ const EditableGridCell = React.forwardRef(
         className={cn(
           className,
           "relative z-10 hover:z-20",
-          "bg-background border-transparent hover:border-(--sky-8) border",
-          popoverOpened && "border-(--sky-8) z-20",
+          "bg-background border-transparent hover:border-primary/60 border",
+          popoverOpened && "border-primary z-20",
           !popoverOpened && "hover-actions-parent",
-          isDragging && "bg-(--slate-2) border-border z-20",
+          isDragging && "bg-muted border-border z-20",
         )}
       >
         {children}
@@ -616,7 +616,7 @@ const GridHoverActions: React.FC<GridHoverActionsProps> = ({
   return (
     <div
       className={cn(
-        "absolute right-0 p-1 bg-(--sky-8) text-white h-6 z-10 flex gap-2",
+        "absolute right-0 p-1 bg-popover border border-border text-muted-foreground h-6 z-10 flex gap-2",
         !popoverOpened && "hover-action",
         display === "top" && "-top-6 rounded-t",
         display === "bottom" && "-bottom-6 rounded-b",

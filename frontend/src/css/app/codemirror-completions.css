@@ -43,13 +43,13 @@
 
   /* Hover state for list items */
   .cm-tooltip-autocomplete > ul > li:hover {
-    background-color: var(--blue-3);
+    background-color: rgb(63 66 87 / 20%);
   }
 
   /* Selected item in autocomplete */
   .cm-tooltip-autocomplete > ul > li[aria-selected] {
-    background-color: var(--blue-4);
-    color: var(--blue-12);
+    background-color: rgb(63 66 87 / 40%);
+    color: inherit;
   }
 
   /* Completion icons container */
@@ -233,7 +233,7 @@
 
   /* Copilot and AI completion styling */
   .cm-tooltip-autocomplete > ul > li.cm-ai-completion {
-    @apply border-l-2 border-green-500;
+    @apply border-l-2 border-(--success);
   }
 
   .cm-tooltip.cm-completionInfo {
@@ -321,7 +321,7 @@
 
   /* Inline code */
   & code {
-    @apply border px-1 rounded font-mono bg-[var(--slate-2)] text-xs;
+    @apply border px-1 rounded font-mono bg-muted text-xs;
   }
 
   & code:empty {
@@ -346,11 +346,11 @@
   }
 
   & table th {
-    @apply bg-[var(--slate-2)];
+    @apply bg-muted;
   }
 
   & table tr:nth-child(2n) {
-    @apply bg-[var(--slate-1)];
+    @apply bg-background;
   }
 
   /* Blockquotes */
@@ -397,21 +397,21 @@
   }
 
   .docutils.literal {
-    @apply bg-[var(--slate-2)] px-1 border rounded-md text-xs font-mono;
+    @apply bg-muted px-1 border rounded-md text-xs font-mono;
   }
 
   /* Doctest and literal blocks */
   .doctest-block,
   .literal-block {
     white-space: pre-wrap;
-    @apply bg-[var(--slate-2)] p-2 rounded text-xs;
+    @apply bg-muted p-2 rounded text-xs;
   }
 
   .codehilite code {
     width: 100%;
     display: inline-block;
     white-space: pre-wrap;
-    @apply bg-[var(--slate-2)] border p-2 rounded-md font-mono text-xs;
+    @apply bg-muted border p-2 rounded-md font-mono text-xs;
   }
 
   blockquote dl.docutils,
@@ -424,9 +424,5 @@
 }
 
 .cm-signature-docs {
-  color: black !important;
-}
-
-.dark .cm-signature-docs {
-  color: white !important;
+  color: var(--foreground) !important;
 }

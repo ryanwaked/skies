@@ -1,5 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import React, { memo, Suspense, useMemo, useRef } from "react";
+import { HEX_DARK_VEGA_CONFIG } from "@/components/charts/hex-vega-theme";
 import { type CellId, CellOutputId } from "@/core/cells/ids";
 import type { CellOutput, OutputMessage } from "@/core/kernel/messages";
 import { cn } from "@/utils/cn";
@@ -208,7 +209,7 @@ export const OutputRenderer: React.FC<{
             spec={parsedJsonData as TopLevelFacetedUnitSpec}
             data-container-width={getContainerWidth(parsedJsonData)}
             options={{
-              theme: theme === "dark" ? "dark" : undefined,
+              config: theme === "dark" ? HEX_DARK_VEGA_CONFIG : undefined,
               mode: "vega-lite",
               tooltip: tooltipHandler.call,
               renderer: "canvas",
@@ -226,13 +227,13 @@ export const OutputRenderer: React.FC<{
     case "application/vnd.jupyter.widget-view+json":
       return (
         <Banner kind="warn">
-          <b>Jupyter widgets are not supported in marimo.</b> <br />
+          <b>Jupyter widgets are not supported in this notebook.</b> <br />
           Please migrate this widget to{" "}
           <a
             href="https://github.com/manzt/anywidget"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline hover:text-(--amber-12)"
+            className="underline hover:text-action-foreground"
           >
             anywidget
           </a>

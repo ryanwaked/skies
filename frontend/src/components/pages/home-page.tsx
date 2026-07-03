@@ -130,7 +130,9 @@ const HomePage: React.FC = () => {
           />
         </div>
         <div className="flex flex-col gap-6 max-w-6xl container pt-5 pb-20 z-10">
-          <img src="logo.png" alt="marimo logo" className="w-48 mb-2" />
+          <h1 className="text-2xl font-semibold tracking-[-0.04em] mb-2">
+            Home
+          </h1>
           <CreateNewNotebook />
           <ResourceLinks />
           <NotebookList
@@ -238,7 +240,7 @@ const WorkspaceNotebooks: React.FC<{ onRefreshRecents: () => void }> = ({
           </Button>
           {isFetching && <Spinner size="small" />}
         </Header>
-        <div className="flex flex-col divide-y divide-(--slate-3) border rounded overflow-hidden max-h-192 overflow-y-auto shadow-sm bg-background">
+        <div className="flex flex-col divide-y divide-border border rounded-lg overflow-hidden max-h-192 overflow-y-auto bg-background">
           <NotebookFileTree searchText={searchText} files={workspace.files} />
         </div>
       </div>
@@ -324,7 +326,7 @@ const NotebookFileTree: React.FC<{
         await handleRename(id, name);
       }}
       padding={5}
-      rowHeight={35}
+      rowHeight={26}
       indent={15}
       overscanCount={1000}
       // Hide the drop cursor
@@ -491,7 +493,7 @@ const NotebookList: React.FC<{
   return (
     <div className="flex flex-col gap-2">
       {header}
-      <div className="flex flex-col divide-y divide-(--slate-3) border rounded overflow-hidden max-h-192 overflow-y-auto shadow-sm bg-background">
+      <div className="flex flex-col divide-y divide-border border rounded-lg overflow-hidden max-h-192 overflow-y-auto bg-background">
         {files.map((file) => {
           return <MarimoFileComponent key={file.path} file={file} />;
         })}
@@ -516,7 +518,7 @@ const MarimoFileComponent = ({ file }: { file: MarimoFile }) => {
 
   return (
     <a
-      className="py-1.5 px-4 hover:bg-(--blue-2) hover:text-primary transition-all duration-300 cursor-pointer group relative flex gap-4 items-center"
+      className="py-1.5 px-4 hover:bg-accent/40 transition-all duration-300 cursor-pointer group relative flex gap-4 items-center"
       key={file.path}
       href={href.toString()}
       target={tabTarget(file.initializationId || file.path)}
@@ -573,7 +575,7 @@ const SessionShutdownButton: React.FC<{ filePath: string }> = ({
       <Button
         size={"icon"}
         variant="outline"
-        className="opacity-80 hover:opacity-100 hover:bg-accent text-destructive border-destructive hover:border-destructive hover:text-destructive bg-background hover:bg-(--red-1)"
+        className="opacity-80 hover:opacity-100 text-destructive border-destructive hover:border-destructive hover:text-destructive bg-background hover:bg-destructive/10"
         onClick={(e) => {
           e.stopPropagation();
           e.preventDefault();
@@ -618,8 +620,8 @@ const CreateNewNotebook: React.FC = () => {
   return (
     <a
       className="relative rounded-lg p-6 group
-      text-primary hover:bg-(--blue-2) shadow-md-solid shadow-accent border bg-(--blue-1)
-      transition-all duration-300 cursor-pointer
+      text-primary border bg-primary/[0.07] hover:bg-primary/10
+      transition-colors duration-300 cursor-pointer
       "
       href={url}
       target="_blank"

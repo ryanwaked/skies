@@ -36,7 +36,7 @@ export const NotebookBanner: React.FC<Props> = ({ width }) => {
           className="flex flex-col rounded p-3"
         >
           <div className="flex justify-between">
-            <span className="font-bold text-lg flex items-center mb-2">
+            <span className="text-sm font-medium flex items-center mb-2">
               <AlertCircleIcon className="w-5 h-5 inline-block mr-2" />
               {banner.title}
             </span>

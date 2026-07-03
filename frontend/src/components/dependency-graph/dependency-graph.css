@@ -15,3 +15,16 @@
 .react-flow__controls.react-flow__controls {
   bottom: 8px;
 }
+
+.react-flow__controls button {
+  background: var(--popover);
+  border-bottom: 1px solid var(--border);
+}
+
+.react-flow__controls button:hover {
+  background: var(--accent);
+}
+
+.react-flow__controls button svg {
+  fill: var(--muted-foreground);
+}

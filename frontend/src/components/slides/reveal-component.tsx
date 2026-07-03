@@ -684,7 +684,7 @@ const RevealSlidesComponent = ({
       <div className="group relative" style={{ width, height }}>
         <Deck
           deckRef={deckRef}
-          className="aspect-video w-full overflow-hidden border rounded bg-background mo-slides-theme prose-slides focus:outline-hidden focus-visible:outline-hidden"
+          className="aspect-video w-full overflow-hidden border rounded-sm bg-background mo-slides-theme prose-slides focus:outline-hidden focus-visible:outline-hidden"
           config={revealConfig}
           onReady={handleDeckReady}
           onSlideChange={handleSlideChange}
@@ -724,7 +724,7 @@ const RevealSlidesComponent = ({
         {parkedPreviewCell && (
           <div
             key={parkedPreviewCell.id}
-            className="absolute inset-0 z-10 border rounded bg-background flex flex-col overflow-hidden"
+            className="absolute inset-0 z-10 border rounded-sm bg-background flex flex-col overflow-hidden"
             aria-label={parkedPreviewLabel ?? undefined}
           >
             {parkedPreviewLabel && (

@@ -46,7 +46,7 @@ export const StartupLogsAlert: React.FC = () => {
         className="flex flex-col rounded py-3 px-5 animate-in slide-in-from-left"
       >
         <div className="flex justify-between">
-          <span className="font-bold text-lg flex items-center mb-2">
+          <span className="text-sm font-medium flex items-center mb-2">
             <BoxIcon className="w-5 h-5 inline-block mr-2" />
             {isRunning ? "Initializing..." : "Initialized"}
           </span>
@@ -59,7 +59,7 @@ export const StartupLogsAlert: React.FC = () => {
             <XIcon className="w-5 h-5" />
           </Button>
         </div>
-        <div className="flex flex-col gap-4 justify-between items-start text-muted-foreground text-base">
+        <div className="flex flex-col gap-4 justify-between items-start text-muted-foreground text-xs leading-4">
           <div className="w-full">
             <pre className="bg-muted p-3 rounded text-sm font-mono overflow-auto max-h-64 whitespace-pre-wrap">
               {startupLogsAlert.content || "Starting startup script..."}

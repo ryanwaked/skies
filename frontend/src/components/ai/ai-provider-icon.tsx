@@ -16,10 +16,9 @@ import { BotIcon } from "lucide-react";
 import * as React from "react";
 import type { ProviderId } from "@/core/ai/ids/ids";
 import { cn } from "@/utils/cn";
-import marimoIcon from "../../assets/icon-32x32.png?inline";
 import type { ExternalAgentId } from "../chat/acp/state";
 
-const icons: Record<ProviderId | ExternalAgentId, string> = {
+const icons: Partial<Record<ProviderId | ExternalAgentId, string>> = {
   openai: OpenAIIcon,
   anthropic: AnthropicIcon,
   claude: AnthropicIcon,
@@ -34,7 +33,6 @@ const icons: Record<ProviderId | ExternalAgentId, string> = {
   openrouter: OpenRouterIcon,
   wandb: WandbIcon,
   "opencode-go": OpencodeIcon,
-  marimo: marimoIcon,
   opencode: OpencodeIcon,
   cursor: CursorIcon,
 };

@@ -39,7 +39,7 @@ export const FilenameForm = ({
   return (
     <FilenameInput
       placeholderText={
-        filename ? Paths.basename(filename) : "untitled marimo notebook"
+        filename ? Paths.basename(filename) : "Untitled notebook"
       }
       initialValue={filename}
       displayValue={

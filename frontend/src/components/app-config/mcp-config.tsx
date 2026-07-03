@@ -76,7 +76,7 @@ export const MCPConfig: React.FC<MCPConfigProps> = ({ form, onSubmit }) => {
         </div>
       </div>
       {status?.error && (
-        <div className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 p-2 rounded">
+        <div className="text-xs text-error bg-error/10 p-2 rounded-lg">
           {status.error}
         </div>
       )}
@@ -131,8 +131,8 @@ export const MCPConfig: React.FC<MCPConfigProps> = ({ form, onSubmit }) => {
                       key={config.id}
                       className={`cursor-pointer transition-all ${
                         isChecked
-                          ? "border-(--blue-9) bg-(--blue-2)"
-                          : "hover:border-(--blue-7)"
+                          ? "border-primary bg-primary/[0.07]"
+                          : "hover:border-input"
                       }`}
                       onClick={() => togglePreset(config.id)}
                     >
@@ -142,9 +142,9 @@ export const MCPConfig: React.FC<MCPConfigProps> = ({ form, onSubmit }) => {
                             {config.title}
                           </CardTitle>
                           <span
-                            className={`h-5 w-5 flex items-center justify-center rounded border ${
+                            className={`h-5 w-5 flex items-center justify-center rounded-lg border ${
                               isChecked
-                                ? "border-(--blue-7) bg-(--blue-7) text-foreground"
+                                ? "border-primary bg-primary text-primary-foreground"
                                 : "border-muted bg-background text-muted-foreground"
                             }`}
                           >

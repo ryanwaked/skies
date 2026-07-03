@@ -152,7 +152,7 @@ export const DebuggerControls: React.FC<{
   onClear?: () => void;
 }> = ({ onSubmit, onClear }) => {
   const buttonClasses = cn(
-    "m-0 w-9 h-8 bg-(--slate-2) text-(--slate-11) hover:text-(--blue-11) rounded-none hover:bg-(--sky-3) hover:border-(--blue-8)",
+    "m-0 w-9 h-8 bg-muted text-muted-foreground hover:text-foreground rounded-none hover:bg-accent hover:border-input",
     "first:rounded-l-lg first:border-l border-t border-b hover:border",
     "last:rounded-r-lg last:border-r",
   );
@@ -179,7 +179,7 @@ export const DebuggerControls: React.FC<{
           onClick={() => onSubmit("c")}
           className={cn(
             buttonClasses,
-            "text-(--grass-11) hover:text-(--grass-11) hover:bg-(--grass-3) hover:border-(--grass-8)",
+            "text-success hover:text-success hover:bg-success/10 hover:border-success/40",
           )}
         >
           <PlayIcon fontSize={36} className={iconClasses} />
@@ -215,7 +215,7 @@ export const DebuggerControls: React.FC<{
             data-testid="debugger-clear-button"
             className={cn(
               buttonClasses,
-              "text-(--red-11) hover:text-(--red-11) hover:bg-(--red-2) hover:border-(--red-8)",
+              "text-error hover:text-error hover:bg-error/10 hover:border-error/40",
             )}
             onClick={onClear}
           >

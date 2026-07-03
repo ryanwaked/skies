@@ -164,12 +164,12 @@ export const OptionalFeatures: React.FC = () => {
                 <TableCell>
                   {isInstalled ? (
                     <div className="flex items-center">
-                      <CheckCircleIcon className="h-4 w-4 text-(--grass-10) mr-2" />
+                      <CheckCircleIcon className="h-4 w-4 text-success mr-2" />
                       <span>Installed</span>
                     </div>
                   ) : (
                     <div className="flex items-center">
-                      <XCircleIcon className="h-4 w-4 text-(--red-10) mr-2" />
+                      <XCircleIcon className="h-4 w-4 text-error mr-2" />
                       <InstallButton
                         packageSpecs={[
                           ...dep.packagesRequired,

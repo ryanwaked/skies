@@ -2,12 +2,14 @@
 
 .missing-filename {
   text-align: center;
-  @apply shadow-md-solid shadow-stale;
+  color: var(--muted-foreground);
+  border: 1px dashed var(--border);
+  border-radius: 3px;
 }
 
 .missing-filename:hover,
 .missing-filename:focus {
-  @apply shadow-lg-solid shadow-stale;
+  background-color: rgb(63 66 87 / 20%);
 }
 
 .filename {

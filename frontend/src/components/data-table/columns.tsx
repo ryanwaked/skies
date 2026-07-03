@@ -221,7 +221,7 @@ export function generateColumns<T>({
         const headerName = (
           <span
             className={cn(
-              "font-bold",
+              "font-semibold",
               headerTitle && "underline decoration-dotted",
             )}
           >
@@ -496,11 +496,11 @@ function getCellStyleClass({
   return cn(
     canSelectCell && "cursor-pointer",
     isSelected &&
-      "relative before:absolute before:inset-0 before:bg-(--blue-3) before:rounded before:-z-10 before:mx-[-4px] before:my-[-2px]",
+      "relative before:absolute before:inset-0 before:bg-primary/[0.07] before:rounded-sm before:-z-10 before:mx-[-4px] before:my-[-2px]",
     "w-full",
     "text-left",
     "truncate",
-    isNumeric && "tabular-nums",
+    isNumeric && "font-mono tabular-nums",
     justify === "center" && "text-center",
     justify === "right" && "text-right",
     wrapped && `${COLUMN_WRAPPING_STYLES} wrap-break-word`,

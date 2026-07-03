@@ -96,7 +96,7 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
             {allReactivityDisabled ? (
               <ZapOffIcon size={16} className="text-muted-foreground" />
             ) : (
-              <ZapIcon size={16} className="text-amber-500" />
+              <ZapIcon size={16} className="text-action-foreground" />
             )}
             <ChevronDownIcon size={14} />
           </div>
@@ -122,7 +122,7 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
             <div className="flex items-center justify-between px-2 py-2">
               <div className="flex items-center space-x-2">
                 {config.runtime.auto_instantiate ? (
-                  <ZapIcon size={14} className="text-amber-500" />
+                  <ZapIcon size={14} className="text-action-foreground" />
                 ) : (
                   <ZapOffIcon size={14} className="text-muted-foreground" />
                 )}
@@ -159,7 +159,7 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
             <div className="flex items-center justify-between px-2 py-2">
               <div className="flex items-center space-x-2">
                 {config.runtime.on_cell_change === "autorun" ? (
-                  <ZapIcon size={14} className="text-amber-500" />
+                  <ZapIcon size={14} className="text-action-foreground" />
                 ) : (
                   <ZapOffIcon size={14} className="text-muted-foreground" />
                 )}
@@ -208,7 +208,7 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
                       <ZapOffIcon size={14} className="text-muted-foreground" />
                     )}
                     {config.runtime.auto_reload === "autorun" && (
-                      <ZapIcon size={14} className="text-amber-500" />
+                      <ZapIcon size={14} className="text-action-foreground" />
                     )}
                     <div>
                       <div className="text-sm font-medium flex items-center gap-1">

@@ -41,10 +41,9 @@ export const NumberField = React.forwardRef<HTMLInputElement, NumberFieldProps>(
       >
         <div
           className={cn(
-            "shadow-xs-solid hover:shadow-sm-solid hover:focus-within:shadow-md-solid",
-            "flex overflow-hidden rounded-sm border border-input bg-background text-sm font-code ring-offset-background",
-            "disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-xs-solid",
-            "focus-within:shadow-md-solid focus-within:outline-hidden focus-within:ring-1 focus-within:ring-ring focus-within:border-primary",
+            "flex overflow-hidden rounded-sm border border-input bg-background text-sm font-prose ring-offset-background",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+            "focus-within:outline-hidden focus-within:ring-1 focus-within:ring-ring focus-within:border-primary",
             variant === "default" ? "h-6 w-full mb-1" : "h-4 w-full mb-0.5",
             variant === "xs" && "text-xs",
             props.className,

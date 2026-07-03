@@ -67,11 +67,11 @@ const MinimapCell: React.FC<MinimapCellProps> = (props) => {
       data-node-id={cell.id}
       className={cn(
         "group bg-transparent text-left w-full flex relative justify-between items-center",
-        "border-none rounded cursor-pointer",
+        "border-none rounded-sm cursor-pointer",
         "h-[21px] pl-[65px] font-inherit",
         isSelected
-          ? "text-primary-foreground"
-          : "text-(--gray-8) hover:text-(--gray-9)",
+          ? "text-primary"
+          : "text-muted-foreground/70 hover:text-muted-foreground",
       )}
       onClick={handleClick}
       // Prevent the default mousedown behavior to avoid blur events on the currently
@@ -80,19 +80,19 @@ const MinimapCell: React.FC<MinimapCellProps> = (props) => {
       onMouseDown={(e) => e.preventDefault()}
     >
       <span
-        className="absolute left-0 top-0 h-full w-5 flex items-center justify-end pr-1.5 text-[10px] tabular-nums pointer-events-none select-none text-(--gray-9)"
+        className="absolute left-0 top-0 h-full w-5 flex items-center justify-end pr-1.5 text-[10px] tabular-nums pointer-events-none select-none text-muted-foreground/70"
         aria-hidden="true"
       >
         {props.index}
       </span>
       <div
         className={cn(
-          "group-hover:bg-(--gray-2) flex h-full w-full px-0.5 items-center rounded",
-          isSelected && "bg-primary group-hover:bg-primary",
+          "group-hover:bg-[rgba(63,66,87,0.2)] flex h-full w-full px-0.5 items-center rounded-sm",
+          isSelected && "bg-primary/7 group-hover:bg-primary/7",
         )}
       >
         <div
-          className="truncate px-1 font-mono text-sm flex gap-1"
+          className="truncate px-1 font-mono text-xs flex gap-1"
           title={cell.code}
         >
           {cell.graph.variables.length > 0 ? (
@@ -365,7 +365,7 @@ function getTextColor({
     return "text-primary";
   }
 
-  return "text-(--gray-8)";
+  return "text-muted-foreground/70";
 }
 
 /**
@@ -407,7 +407,7 @@ export const MinimapContent: React.FC = () => {
               {/* Subtle visual divider between nodes */}
               {isColumnBoundary && (
                 <div
-                  className="absolute left-5 w-[36px] h-px bg-(--gray-4) pointer-events-none"
+                  className="absolute left-5 w-[36px] h-px bg-border pointer-events-none"
                   aria-hidden="true"
                 />
               )}

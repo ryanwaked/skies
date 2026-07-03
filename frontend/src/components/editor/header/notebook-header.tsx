@@ -18,6 +18,8 @@ import { notebookScrollToRunning } from "@/core/cells/actions";
 import { notebookIsRunningAtom } from "@/core/cells/cells";
 import { useTogglePresenting } from "@/core/layout/useTogglePresenting";
 import { viewStateAtom } from "@/core/mode";
+import { connectionAtom } from "@/core/network/connection";
+import { useFilename } from "@/core/saving/filename";
 import {
   getConnectionTooltip,
   isAppInteractionDisabled,
@@ -28,21 +30,18 @@ import { NotebookMenuDropdown } from "../controls/notebook-menu-dropdown";
 import { ShutdownButton } from "../controls/shutdown-button";
 import { LayoutSelect } from "../renderers/layout-select";
 
-interface Props {
-  filename: string | null;
-  connection: ConnectionStatus;
-}
-
 const hoverGhost = "hover:bg-[rgba(63,66,87,0.2)]";
 
 /**
  * Slim top bar for the notebook editor: notebook menu, editable title,
  * connection status, notebook/app-builder switch, and share/publish actions.
+ *
+ * Spans the full viewport width (edge to edge, above the icon rail), so it
+ * reads its own state from atoms rather than taking props from EditApp.
  */
-export const NotebookHeader = ({
-  filename,
-  connection,
-}: Props): JSX.Element => {
+export const NotebookHeader = (): JSX.Element => {
+  const filename = useFilename();
+  const connection = useAtomValue(connectionAtom);
   const { mode } = useAtomValue(viewStateAtom);
   const closed = connection.state === WebSocketState.CLOSED;
   const disabled = isAppInteractionDisabled(connection.state);
@@ -97,7 +96,7 @@ export const NotebookHeader = ({
             type="button"
             data-testid="header-publish-button"
             className={cn(
-              "flex h-7 items-center rounded-[3px] border border-[#42425a] px-2.5 text-sm text-foreground transition-colors",
+              "flex h-7 items-center rounded-[3px] border border-input px-2.5 text-sm text-foreground transition-colors",
               hoverGhost,
             )}
           >
@@ -157,8 +156,8 @@ const HeaderStatusIndicator = ({
         <span
           className={cn(
             "size-1.5 rounded-full",
-            isClosed && "bg-(--red-9)",
-            running && "bg-(--yellow-9) animate-pulse",
+            isClosed && "bg-(--error)",
+            running && "bg-(--action-foreground) animate-pulse",
             isOpen && !running && "bg-(--success) opacity-60",
             !isOpen && !isClosed && "bg-(--muted-foreground)",
           )}
@@ -228,7 +227,7 @@ const ModeTab = ({
     className={cn(
       "flex h-7 items-center gap-1.5 rounded-[3px] px-2 text-sm font-normal transition-colors",
       active
-        ? "bg-[rgba(245,192,192,0.07)] text-[#f5c0c0]"
+        ? "bg-primary/[0.07] text-primary"
         : "text-foreground hover:bg-[rgba(63,66,87,0.2)]",
     )}
   >

@@ -8,6 +8,8 @@ import type { Scale } from "vega-lite/types_unstable/scale.js";
 // @ts-expect-error vega-typings does not include formats
 import { formats } from "vega-loader";
 import { asRemoteURL } from "@/core/runtime/config";
+import { store } from "@/core/state/jotai";
+import { resolvedThemeAtom } from "@/theme/useTheme";
 import type { TopLevelFacetedUnitSpec } from "@/plugins/impl/data-explorer/queries/types";
 import { arrow } from "@/plugins/impl/vega/formats";
 import { parseCsvData } from "@/plugins/impl/vega/loader";
@@ -16,6 +18,22 @@ import {
   extractBase64FromDataURL,
   isDataURLString,
 } from "@/utils/json/base64";
+
+/**
+ * Column-summary chart colors. Hex's dark theme draws histogram bars in the
+ * blush-pink brand with warn-yellow null bars; light mode keeps marimo's
+ * mint/orange. Read at spec-build time since the spec model lives outside
+ * React.
+ */
+export function summaryBarColor(): string {
+  return store.get(resolvedThemeAtom) === "dark" ? "#f5c0c0" : mint.mint11;
+}
+
+export function summaryNullBarColor(): string {
+  return store.get(resolvedThemeAtom) === "dark"
+    ? "#ffc940"
+    : orange.orange11;
+}
 
 export function getLegacyNumericSpec(
   column: string,
@@ -31,7 +49,7 @@ export function getLegacyNumericSpec(
       {
         mark: {
           type: "bar",
-          color: mint.mint11,
+          color: summaryBarColor(),
         },
         encoding: {
           x: {
@@ -114,7 +132,7 @@ export function getLegacyTemporalSpec(
       {
         mark: {
           type: "bar",
-          color: mint.mint11,
+          color: summaryBarColor(),
         },
         encoding: {
           x: {
@@ -129,9 +147,9 @@ export function getLegacyTemporalSpec(
           color: {
             condition: {
               test: `datum["bin_maxbins_10_${column}_range"] === "null"`,
-              value: orange.orange11,
+              value: summaryNullBarColor(),
             },
-            value: mint.mint11,
+            value: summaryBarColor(),
           },
         },
       },
@@ -179,9 +197,9 @@ export function getLegacyTemporalSpec(
           color: {
             condition: {
               test: `datum["bin_maxbins_10_${column}_range"] === "null"`,
-              value: orange.orange11,
+              value: summaryNullBarColor(),
             },
-            value: mint.mint11,
+            value: summaryBarColor(),
           },
         },
       },
@@ -196,7 +214,7 @@ export function getLegacyBooleanSpec(
 ): TopLevelFacetedUnitSpec {
   return {
     ...base,
-    mark: { type: "bar", color: mint.mint11 },
+    mark: { type: "bar", color: summaryBarColor() },
     encoding: {
       y: {
         field: column,
@@ -229,7 +247,7 @@ export function getLegacyBooleanSpec(
       {
         mark: {
           type: "bar",
-          color: mint.mint11,
+          color: summaryBarColor(),
           height: barHeight,
         },
       },

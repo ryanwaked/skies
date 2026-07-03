@@ -1,5 +1,6 @@
 .react-grid-item.react-grid-placeholder {
-  background-color: var(--grass-9);
+  background-color: color-mix(in srgb, var(--primary) 15%, transparent);
+  border: 1px solid var(--primary);
 }
 
 .react-resizable-handle {
@@ -11,8 +12,8 @@
 }
 
 .dark .react-grid-item > .react-resizable-handle::after {
-  border-right: 2px solid rgba(255, 255, 255, 0.5);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+  border-right: 2px solid var(--muted-foreground);
+  border-bottom: 2px solid var(--muted-foreground);
 }
 
 .disable-animation .react-grid-item {
@@ -27,5 +28,5 @@
 }
 
 #App.grid-bordered {
-  background-color: var(--slate-1);
+  background-color: var(--background);
 }

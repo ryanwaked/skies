@@ -169,7 +169,7 @@ export const ResourceLinks: React.FC = () => {
             key={resource.title}
             href={resource.url}
             target="_blank"
-            className="flex items-start gap-3 py-3 px-3 rounded-lg border hover:bg-accent/20 transition-colors shadow-xs"
+            className="flex items-start gap-3 py-3 px-3 rounded-lg border hover:bg-accent/20 transition-colors"
           >
             <resource.icon className="w-5 h-5 mt-1.5 text-primary" />
             <div>
@@ -192,8 +192,8 @@ export const Header: React.FC<{
 }> = ({ Icon, control, children }) => {
   return (
     <div className="flex items-center justify-between gap-2">
-      <h2 className="flex items-center gap-2 text-xl font-semibold text-muted-foreground select-none">
-        <Icon className="h-5 w-5" />
+      <h2 className="flex items-center gap-2 text-sm font-medium text-muted-foreground select-none">
+        <Icon className="h-4 w-4" />
         {children}
       </h2>
       {control}

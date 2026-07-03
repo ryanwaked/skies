@@ -145,7 +145,7 @@ export const DependencyGraphTree: React.FC<PropsWithChildren<Props>> = ({
         zoomOnDoubleClick={false}
         nodesConnectable={false}
       >
-        <Background color="#ccc" variant={BackgroundVariant.Dots} />
+        <Background color="var(--border)" variant={BackgroundVariant.Dots} />
         <Controls position="bottom-right" showInteractive={false}>
           <Tooltip
             content="Jump to focused cell"

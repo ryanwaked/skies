@@ -90,7 +90,7 @@ const MemoryUsageBar: React.FC<{
           </span>
           {server?.memory && (
             <span>
-              <b>marimo server:</b> {formatBytes(server.memory)}
+              <b>Server:</b> {formatBytes(server.memory)}
             </span>
           )}
           {kernel?.memory && (
@@ -178,7 +178,7 @@ const GPUBar: React.FC<{ gpus: GPU[] }> = ({ gpus }) => {
     >
       <div className="flex items-center gap-1" data-testid="gpu-bar">
         <MicrochipIcon className="w-4 h-4" />
-        <Bar percent={avgPercent} colorClassName="bg-(--grass-9)" />
+        <Bar percent={avgPercent} colorClassName="bg-success" />
       </div>
     </Tooltip>
   );
@@ -189,7 +189,7 @@ const Bar: React.FC<{ percent: number; colorClassName?: string }> = ({
   colorClassName,
 }) => {
   return (
-    <div className="h-3 w-20 bg-(--slate-4) rounded-lg overflow-hidden border">
+    <div className="h-3 w-20 bg-muted rounded-lg overflow-hidden border">
       <div
         className={cn("h-full bg-primary", colorClassName)}
         style={{ width: `${percent}%` }}

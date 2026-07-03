@@ -1229,7 +1229,7 @@ export const AiProvidersConfig: React.FC<AiConfigProps> = ({
             hasValue("ai.open_ai_compatible.base_url")
           }
         >
-          <p className="text-sm text-amber-600 dark:text-amber-400 mb-2">
+          <p className="text-sm text-action-foreground mb-2">
             Consider using Custom Providers instead, which allows you to add
             multiple providers with distinct names.
           </p>
@@ -1821,7 +1821,7 @@ export const AddModelForm: React.FC<{
           className="pl-2"
         />
         {modelAdded && (
-          <div className="flex items-center gap-1 text-green-700 bg-green-500/10 px-2 py-1 rounded-md ml-auto">
+          <div className="flex items-center gap-1 text-success bg-success/10 px-2 py-1 rounded-lg ml-auto">
             ✓ Model added
           </div>
         )}

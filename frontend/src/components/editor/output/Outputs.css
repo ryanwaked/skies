@@ -44,22 +44,98 @@
 
 .stdout,
 .stderr {
-  font-size: 0.813rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
 }
 
 .stderr {
-  color: var(--amber-12);
+  color: var(--error);
 }
 
 .marimo-error {
-  background: #ffc0cb30;
-  padding: 3%;
-  font-size: 0.8125rem;
-  font-weight: bold;
-  border-radius: 20px;
+  background: color-mix(in srgb, var(--error) 8%, transparent);
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  border-radius: var(--radius);
   white-space: pre-wrap; /* respect newlines */
 
   @apply text-error;
+}
+
+/* ANSI colors (ansi_up use_classes) mapped to theme tokens. */
+.ansi-black-fg,
+.ansi-bright-black-fg {
+  color: var(--muted-foreground);
+}
+
+.ansi-red-fg,
+.ansi-bright-red-fg {
+  color: var(--error);
+}
+
+.ansi-green-fg,
+.ansi-bright-green-fg {
+  color: var(--success);
+}
+
+.ansi-yellow-fg,
+.ansi-bright-yellow-fg {
+  color: var(--action-foreground);
+}
+
+.ansi-blue-fg,
+.ansi-bright-blue-fg,
+.ansi-cyan-fg,
+.ansi-bright-cyan-fg {
+  color: var(--link);
+}
+
+.ansi-magenta-fg,
+.ansi-bright-magenta-fg {
+  color: var(--primary);
+}
+
+.ansi-white-fg,
+.ansi-bright-white-fg {
+  color: var(--foreground);
+}
+
+.ansi-black-bg,
+.ansi-bright-black-bg {
+  background-color: var(--muted);
+}
+
+.ansi-red-bg,
+.ansi-bright-red-bg {
+  background-color: var(--error);
+}
+
+.ansi-green-bg,
+.ansi-bright-green-bg {
+  background-color: var(--success);
+}
+
+.ansi-yellow-bg,
+.ansi-bright-yellow-bg {
+  background-color: var(--action-foreground);
+}
+
+.ansi-blue-bg,
+.ansi-bright-blue-bg,
+.ansi-cyan-bg,
+.ansi-bright-cyan-bg {
+  background-color: var(--link);
+}
+
+.ansi-magenta-bg,
+.ansi-bright-magenta-bg {
+  background-color: var(--primary);
+}
+
+.ansi-white-bg,
+.ansi-bright-white-bg {
+  background-color: var(--foreground);
 }
 
 .marimo-json-output {

@@ -236,7 +236,6 @@ export const FileUpload = (props: FileUploadProps): JSX.Element => {
             "border rounded-sm",
             "text-sm text-muted-foreground",
             "hover:cursor-pointer",
-            "active:shadow-xs-solid",
             "focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-accent",
             !isFocused && "border-input/60 border-dashed",
             isFocused && "border-solid",

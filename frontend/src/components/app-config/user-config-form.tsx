@@ -72,43 +72,43 @@ const categories = [
     id: "editor",
     label: "Editor",
     Icon: EditIcon,
-    className: "bg-(--blue-4)",
+    className: "",
   },
   {
     id: "display",
     label: "Display",
     Icon: MonitorIcon,
-    className: "bg-(--grass-4)",
+    className: "",
   },
   {
     id: "packageManagementAndData",
     label: "Packages & Data",
     Icon: LayersIcon,
-    className: "bg-(--red-4)",
+    className: "",
   },
   {
     id: "runtime",
     label: "Runtime",
     Icon: CpuIcon,
-    className: "bg-(--amber-4)",
+    className: "",
   },
   {
     id: "ai",
     label: "AI",
     Icon: BrainIcon,
-    className: "bg-[linear-gradient(45deg,var(--purple-5),var(--cyan-5))]",
+    className: "",
   },
   {
     id: "optionalDeps",
     label: "Optional Dependencies",
     Icon: FolderCog2,
-    className: "bg-(--orange-4)",
+    className: "",
   },
   {
     id: "labs",
     label: "Labs",
     Icon: FlaskConicalIcon,
-    className: "bg-(--slate-4)",
+    className: "",
   },
 ] as const;
 
@@ -795,7 +795,7 @@ export const UserConfigForm: React.FC = () => {
                           </div>
                         }
                       >
-                        <AlertTriangleIcon className="w-3 h-3 text-(--amber-11)" />
+                        <AlertTriangleIcon className="w-3 h-3 text-action-foreground" />
                       </Tooltip>
                     </FormDescription>
 
@@ -1322,13 +1322,13 @@ export const UserConfigForm: React.FC = () => {
               <TabsTrigger
                 key={category.id}
                 value={category.id}
-                className="w-full text-left p-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground justify-start"
+                className="w-full text-left p-2 data-[state=active]:bg-primary/[0.07] data-[state=active]:text-primary justify-start"
               >
-                <div className="flex gap-4 items-center text-lg overflow-hidden">
+                <div className="flex gap-3 items-center text-sm font-medium overflow-hidden">
                   <span
                     className={cn(
                       category.className,
-                      "w-8 h-8 rounded flex items-center justify-center text-muted-foreground shrink-0",
+                      "w-8 h-8 rounded-lg border bg-muted flex items-center justify-center text-muted-foreground shrink-0",
                     )}
                   >
                     <category.Icon className="w-4 h-4" />

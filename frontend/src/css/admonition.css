@@ -1,9 +1,9 @@
 @reference "../css/globals.css";
 
 .admonition {
-  --admonition-bg: var(--blue-2);
-  --admonition-border: var(--blue-8);
-  --admonition-heading-color: var(--blue-11);
+  --admonition-bg: color-mix(in srgb, var(--link), transparent 92%);
+  --admonition-border: var(--link);
+  --admonition-heading-color: var(--link);
 
   display: flex;
   position: relative;
@@ -42,9 +42,9 @@
 
 .admonition.info,
 .admonition.note {
-  --admonition-bg: var(--blue-2);
-  --admonition-border: var(--blue-8);
-  --admonition-heading-color: var(--blue-11);
+  --admonition-bg: color-mix(in srgb, var(--link), transparent 92%);
+  --admonition-border: var(--link);
+  --admonition-heading-color: var(--link);
 
   &::before {
     content: light-dark(
@@ -57,9 +57,9 @@
 .admonition.danger,
 .admonition.caution,
 .admonition.error {
-  --admonition-bg: var(--red-2);
-  --admonition-border: var(--red-8);
-  --admonition-heading-color: var(--red-11);
+  --admonition-bg: color-mix(in srgb, var(--error), transparent 92%);
+  --admonition-border: var(--error);
+  --admonition-heading-color: var(--error);
 
   &::before {
     content: light-dark(
@@ -71,9 +71,9 @@
 
 .admonition.attention,
 .admonition.warning {
-  --admonition-bg: var(--yellow-2);
-  --admonition-border: var(--yellow-8);
-  --admonition-heading-color: var(--yellow-11);
+  --admonition-bg: color-mix(in srgb, var(--action-foreground), transparent 92%);
+  --admonition-border: var(--action-foreground);
+  --admonition-heading-color: var(--action-foreground);
 
   &::before {
     content: light-dark(
@@ -84,13 +84,9 @@
 }
 
 .admonition.hint {
-  --admonition-bg: var(--gray-2);
-  --admonition-border: var(--gray-8);
-  --admonition-heading-color: var(--gray-11);
-
-  .dark & {
-    --admonition-bg: var(--gray-3);
-  }
+  --admonition-bg: var(--muted);
+  --admonition-border: var(--input);
+  --admonition-heading-color: var(--muted-foreground);
 
   &::before {
     content: light-dark(
@@ -101,9 +97,9 @@
 }
 
 .admonition.important {
-  --admonition-bg: var(--cyan-2);
-  --admonition-border: var(--cyan-8);
-  --admonition-heading-color: var(--cyan-11);
+  --admonition-bg: color-mix(in srgb, var(--link), transparent 92%);
+  --admonition-border: var(--link);
+  --admonition-heading-color: var(--link);
 
   &::before {
     content: light-dark(
@@ -114,9 +110,9 @@
 }
 
 .admonition.tip {
-  --admonition-bg: var(--grass-2);
-  --admonition-border: var(--grass-8);
-  --admonition-heading-color: var(--grass-11);
+  --admonition-bg: color-mix(in srgb, var(--success), transparent 92%);
+  --admonition-border: var(--success);
+  --admonition-heading-color: var(--success);
 
   &::before {
     content: light-dark(

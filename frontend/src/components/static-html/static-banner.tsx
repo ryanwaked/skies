@@ -5,12 +5,9 @@
 import { useAtomValue } from "jotai";
 import { CopyIcon, DownloadIcon } from "lucide-react";
 import type React from "react";
-import { Constants } from "@/core/constants";
-import { useResolvedMarimoConfig } from "@/core/config/config";
 import { codeAtom } from "@/core/saving/file-state";
 import { useFilename } from "@/core/saving/filename";
 import { isStaticNotebook } from "@/core/static/static-state";
-import { createShareableLink } from "@/core/wasm/share";
 import { copyToClipboard } from "@/utils/copy";
 import { downloadBlob } from "@/utils/download";
 import { Button } from "../ui/button";
@@ -23,7 +20,6 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { toast } from "../ui/use-toast";
-import { MarimoPlusIcon } from "../icons/marimo-icons";
 
 export const StaticBanner: React.FC = () => {
   const code = useAtomValue(codeAtom);
@@ -38,20 +34,10 @@ export const StaticBanner: React.FC = () => {
 
   return (
     <div
-      className="px-4 py-2 bg-(--sky-2) border-b border-(--sky-7) text-(--sky-11) flex justify-between items-center gap-4 print:hidden text-sm"
+      className="px-4 py-2 bg-popover border-b border-border text-muted-foreground flex justify-between items-center gap-4 print:hidden text-sm"
       data-testid="static-notebook-banner"
     >
-      <span>
-        Static{" "}
-        <a
-          href={Constants.githubPage}
-          target="_blank"
-          className="text-(--sky-11) font-medium underline"
-        >
-          marimo
-        </a>{" "}
-        notebook - Run or edit for full interactivity
-      </span>
+      <span>Static notebook — run or edit for full interactivity</span>
       <span className="shrink-0">
         <StaticBannerDialog code={code} />
       </span>
@@ -67,14 +53,7 @@ const StaticBannerDialog = ({ code }: { code: string }) => {
     filename = filename.slice(lastSlash + 1);
   }
 
-  const [resolvedConfig] = useResolvedMarimoConfig();
-  const molabEnabled = resolvedConfig.sharing?.molab !== false;
-
   const href = window.location.href;
-  const molabLink = createShareableLink({
-    code,
-    baseUrl: `${Constants.molab}/new`,
-  });
 
   return (
     <Dialog>
@@ -91,20 +70,10 @@ const StaticBannerDialog = ({ code }: { code: string }) => {
         <DialogHeader>
           <DialogTitle>{filename}</DialogTitle>
           <DialogDescription className="pt-3 text-left space-y-3">
-            <p>
-              This is a static{" "}
-              <a
-                href={Constants.githubPage}
-                target="_blank"
-                className="text-(--sky-11) hover:underline font-medium"
-              >
-                marimo
-              </a>{" "}
-              notebook. To run interactively:
-            </p>
+            <p>This is a static notebook export. To run interactively:</p>
 
-            <div className="rounded-lg p-3 border bg-(--sky-2) border-(--sky-7)">
-              <div className="font-mono text-(--sky-11) leading-relaxed">
+            <div className="rounded-lg p-3 border bg-muted border-border">
+              <div className="font-mono text-foreground leading-relaxed">
                 pip install marimo
                 <br />
                 marimo edit {filename}
@@ -112,40 +81,16 @@ const StaticBannerDialog = ({ code }: { code: string }) => {
             </div>
 
             {!href.endsWith(".html") && (
-              <div className="rounded-lg p-3 border bg-(--sky-2) border-(--sky-7)">
-                <div className="text-sm text-(--sky-12) mb-1">
+              <div className="rounded-lg p-3 border bg-muted border-border">
+                <div className="text-sm text-muted-foreground mb-1">
                   Or run directly from URL:
                 </div>
-                <div className="font-mono text-(--sky-11) break-all">
+                <div className="font-mono text-foreground break-all">
                   marimo edit {window.location.href}
                 </div>
               </div>
             )}
 
-            {molabEnabled && (
-              <div className="pt-3 border-t flex gap-2 items-center">
-                <Button
-                  asChild={true}
-                  variant="outline"
-                  size="xs"
-                  className="shrink-0"
-                >
-                  <a href={molabLink} target="_blank" rel="noopener noreferrer">
-                    <MarimoPlusIcon
-                      size={12}
-                      strokeWidth={1.5}
-                      className="mr-1.5 mt-px text-(--grass-11)"
-                    />
-                    Open in molab
-                  </a>
-                </Button>
-                <p className="text-sm text-(--sky-12)">
-                  Run this notebook in{" "}
-                  <span className="font-semibold">molab</span>, marimo's
-                  cloud-hosted notebook platform.
-                </p>
-              </div>
-            )}
           </DialogDescription>
         </DialogHeader>
         <div className="flex gap-3 pt-2">

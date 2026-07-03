@@ -54,7 +54,7 @@ export const ErrorState: React.FC<{
   return (
     <div
       className={cn(
-        "text-sm bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-50 flex items-center gap-2 p-2 h-8",
+        "text-sm bg-error/10 text-error flex items-center gap-2 p-2 h-8",
         className,
       )}
       style={style}
@@ -73,7 +73,7 @@ export const LoadingState: React.FC<{
   return (
     <div
       className={cn(
-        "text-sm bg-blue-50 dark:bg-(--accent) text-blue-500 dark:text-blue-50 flex items-center gap-2 p-2 h-8",
+        "text-sm bg-blue-50 dark:bg-(--accent) text-blue-500 dark:text-muted-foreground flex items-center gap-2 p-2 h-8",
         className,
       )}
       style={style}

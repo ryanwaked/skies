@@ -310,7 +310,7 @@ export const SlidesMinimap = ({
   if (!canReorder) {
     return (
       <SlideThumbnailsContainer ref={containerRef}>
-        <div className="text-xs text-gray-500 flex items-center gap-0.5">
+        <div className="text-xs text-muted-foreground flex items-center gap-0.5">
           <InfoIcon className="h-3 w-3" />
           Reordering is not supported in multi-column mode
         </div>
@@ -525,7 +525,7 @@ const SlideThumbnailRow = ({
       {dropIndicator && (
         <div
           className={cn(
-            "absolute left-2 right-2 h-0.5 rounded-full bg-blue-500 z-20 pointer-events-none",
+            "absolute left-2 right-2 h-0.5 rounded-full bg-primary z-20 pointer-events-none",
             dropIndicator === "after"
               ? "bottom-0 translate-y-1/2"
               : "top-0 -translate-y-1/2",
@@ -600,8 +600,8 @@ const InsertCellLine = ({
         onPointerDown={Events.stopPropagation()}
         onClick={Events.stopPropagation(onInsert)}
       >
-        <span className="absolute left-2 right-2 h-px rounded-full bg-blue-500" />
-        <span className="relative flex h-3 w-3 items-center justify-center rounded-full bg-blue-500 text-background shadow-xs">
+        <span className="absolute left-2 right-2 h-px rounded-full bg-primary" />
+        <span className="relative flex h-3 w-3 items-center justify-center rounded-full bg-primary text-primary-foreground">
           <PlusIcon className="h-2 w-2" strokeWidth={3} />
         </span>
       </button>
@@ -648,8 +648,8 @@ const SlideThumbnailCard = ({
       className={cn(
         "border-2 shrink-0 rounded-md relative select-none bg-background cursor-pointer active:cursor-grabbing overflow-hidden transition-colors",
         isActiveSlide || isActiveDragSource || isOverlay
-          ? "border-blue-500"
-          : "border-border hover:border-blue-500/50",
+          ? "border-primary"
+          : "border-border hover:border-primary/50",
         isActiveDragSource && !isOverlay && "opacity-35",
         isOverlay && "opacity-95 shadow-lg",
         className,
@@ -688,7 +688,7 @@ const SlideThumbnailCard = ({
         >
           <span
             className={cn(
-              "absolute top-1 right-1 flex items-center gap-1 rounded-full border p-0.5 font-medium leading-none shadow-xs cursor-help",
+              "absolute top-1 right-1 flex items-center gap-1 rounded-full border p-0.5 font-medium leading-none cursor-help",
               isSkipped
                 ? "bg-background/90 border-border text-muted-foreground"
                 : "bg-background/95 border-border text-foreground/80",
