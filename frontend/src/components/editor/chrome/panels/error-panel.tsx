@@ -15,7 +15,7 @@ const ErrorsPanel: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col h-full overflow-auto">
+    <div className="flex flex-col h-full overflow-y-auto overflow-x-hidden">
       {errors.map((error) => (
         <div key={error.cellId}>
           <div className="text-xs font-code font-medium text-muted-foreground border-b px-3 py-1">

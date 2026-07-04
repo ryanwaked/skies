@@ -122,7 +122,9 @@ export const Sidebar: React.FC = () => {
   return (
     <div
       data-testid="chrome-sidebar"
-      className="h-full w-[48px] shrink-0 pt-1.5 pb-1.5 flex flex-col items-center gap-0 text-foreground text-sm select-none z-50 bg-background border-r border-border print:hidden hide-on-fullscreen"
+      // Hex's collapsed rail has no right border — the vertical divider only
+      // appears at the open panel's right edge (app-chrome's helperPanel).
+      className="h-full w-[48px] shrink-0 pt-1.5 pb-1.5 flex flex-col items-center gap-0 text-foreground text-sm select-none z-50 bg-background print:hidden hide-on-fullscreen"
     >
       <ReorderableList<PanelDescriptor>
         value={sidebarItems}

@@ -83,7 +83,7 @@ const SecretsPanel: React.FC = () => {
               <PlusIcon strokeWidth={1.5} className="h-4 w-4" />
             </button>
           </div>
-          <Table className="overflow-auto flex-1 mb-16">
+          <Table className="overflow-y-auto overflow-x-hidden flex-1 mb-16">
             <TableHeader>
               <TableRow>
                 <TableHead>Environment Variable</TableHead>

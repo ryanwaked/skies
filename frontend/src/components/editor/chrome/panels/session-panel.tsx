@@ -67,7 +67,7 @@ const SessionPanel: React.FC = () => {
       type="multiple"
       value={openSections}
       onValueChange={handleValueChange}
-      className="flex flex-col h-full overflow-auto"
+      className="flex flex-col h-full overflow-y-auto overflow-x-hidden"
     >
       <PanelAccordionItem value="datasources">
         <PanelAccordionTrigger>

@@ -6,6 +6,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import {
   HelpCircleIcon,
   MoreHorizontalIcon,
+  PlusIcon,
   SquareFunctionIcon,
 } from "lucide-react";
 import {
@@ -265,6 +266,22 @@ export interface CellProps {
    * The number of cells in the column.
    */
   collapseCount: number;
+  /**
+   * Hex-style sections: true when this cell's output starts a section
+   * (H1–H3 markdown heading — the same cells that can be collapsed).
+   */
+  isSectionHead?: boolean;
+  /**
+   * Hex-style sections: true when this cell sits inside a section
+   * (below a heading cell), which draws a left guide in the gutter.
+   */
+  inSection?: boolean;
+  /**
+   * Hex-style sections: the last cell of this section, used as the anchor
+   * when inserting a cell at the end of the section. Only set for section
+   * heads.
+   */
+  sectionLastCellId?: CellId | null;
 }
 
 const CellComponent = (props: CellProps) => {
@@ -374,6 +391,9 @@ const EditableCellComponent = ({
   isCollapsed,
   collapseCount,
   canMoveX,
+  isSectionHead = false,
+  inSection = false,
+  sectionLastCellId = null,
   editorView,
   setEditorView,
 }: CellProps & {
@@ -609,6 +629,41 @@ const EditableCellComponent = ({
                 <CellDragHandle />
               </div>
             </CellLeftSideActions>
+            {inSection && (
+              // Hex-style section guide: a subtle vertical line in the
+              // gutter, under the section head's chevron. Extends up across
+              // the inter-cell gap so the section reads as one container.
+              <div
+                aria-hidden="true"
+                data-testid="section-guide"
+                className="absolute left-[-14px] top-[-17px] bottom-0 border-l border-border/60 pointer-events-none print:hidden"
+              />
+            )}
+            {isSectionHead && sectionLastCellId != null && (
+              // Hex-style "Add cell": shown while hovering the heading row,
+              // inserts an empty cell at the end of this section.
+              <button
+                type="button"
+                data-testid="section-add-cell-button"
+                disabled={isAppInteractionDisabled(connection.state)}
+                onClick={() =>
+                  actions.createNewCell({
+                    cellId: sectionLastCellId,
+                    before: false,
+                  })
+                }
+                className={cn(
+                  "absolute right-2 top-1.5 z-20 hover-action print:hidden",
+                  "flex items-center gap-1 h-6 px-1.5 rounded-[3px] text-xs",
+                  "text-muted-foreground transition-colors",
+                  "hover:bg-primary/[0.07] hover:text-primary",
+                  "disabled:pointer-events-none disabled:opacity-50",
+                )}
+              >
+                <PlusIcon size={14} strokeWidth={1.5} />
+                Add cell
+              </button>
+            )}
             {!isCellCodeShown && !isMarkdown && (
               <span className="cell-code-collapsed-note">Code collapsed</span>
             )}

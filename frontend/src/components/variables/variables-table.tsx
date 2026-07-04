@@ -145,7 +145,7 @@ const COLUMNS = [
 
       return (
         <div className="flex flex-col gap-1 py-1">
-          <div className="flex flex-row overflow-auto gap-2 items-center">
+          <div className="flex flex-row overflow-x-hidden gap-2 items-center">
             <span title="Declared by">
               <SquareEqualIcon
                 className="w-3.5 h-3.5 text-muted-foreground"
@@ -178,7 +178,7 @@ const COLUMNS = [
               </div>
             )}
           </div>
-          <div className="flex flex-row overflow-auto gap-2 items-baseline">
+          <div className="flex flex-row overflow-x-hidden gap-2 items-baseline">
             <span title="Used by">
               <WorkflowIcon
                 className="w-3.5 h-3.5 text-muted-foreground"

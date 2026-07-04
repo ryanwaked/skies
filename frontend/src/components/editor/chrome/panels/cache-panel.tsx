@@ -99,7 +99,7 @@ const CachePanel = () => {
   }
 
   return (
-    <div className="flex flex-col h-full overflow-auto">
+    <div className="flex flex-col h-full overflow-y-auto overflow-x-hidden">
       <div className="flex flex-col gap-4 p-4 h-full">
         {/* Header with Refresh Button */}
         <div className="flex items-center justify-end">

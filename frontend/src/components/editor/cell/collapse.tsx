@@ -3,14 +3,11 @@
 import {
   AlertOctagonIcon,
   ChevronDownIcon,
-  ChevronRightIcon,
-  ChevronsUpDownIcon,
   Loader2Icon,
   RefreshCcw,
 } from "lucide-react";
 import type React from "react";
 import { memo } from "react";
-import { Toolbar } from "@/components/layout/toolbar";
 import { Button } from "@/components/ui/button";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useNotebook } from "@/core/cells/cells";
@@ -43,17 +40,16 @@ export const CollapseToggle: React.FC<Props> = (props) => {
 };
 
 const Arrow = ({ isCollapsed }: { isCollapsed: boolean }) => {
-  return isCollapsed ? (
-    <ChevronRightIcon
-      className="shrink-0 opacity-60"
-      strokeWidth={1.8}
-      size={14}
-    />
-  ) : (
+  // Hex-style section chevron: single glyph that rotates when the
+  // section is collapsed.
+  return (
     <ChevronDownIcon
-      className="shrink-0 opacity-60"
-      strokeWidth={1.8}
-      size={14}
+      className={cn(
+        "shrink-0 text-muted-foreground transition-transform",
+        isCollapsed && "-rotate-90",
+      )}
+      strokeWidth={1.5}
+      size={16}
     />
   );
 };
@@ -66,42 +62,39 @@ export const CollapsedCellBanner: React.FC<{
   const notebook = useNotebook();
   const states = getDescendantsStatus(notebook, cellId);
 
+  // Hex-style collapsed-section indicator: the heading row stays as-is,
+  // followed by a subtle "N cells" chip.
   return (
-    <div
-      onClick={onClick}
-      className={cn(
-        "flex items-center justify-between w-[calc(100%-2rem)] h-9 bg-muted rounded-b mx-4 opacity-80 hover:opacity-100 cursor-pointer",
+    <div className="flex items-center gap-2 mx-1 mt-1">
+      <Tooltip content="Expand section" delayDuration={100}>
+        <button
+          type="button"
+          onClick={onClick}
+          data-testid="collapsed-cells-chip"
+          className={cn(
+            "text-[10px] uppercase tracking-wider leading-none",
+            "text-muted-foreground bg-muted rounded-[3px] px-1.5 py-1",
+            "cursor-pointer hover:bg-[rgba(63,66,87,0.2)] transition-colors",
+          )}
+        >
+          {count} {count === 1 ? "cell" : "cells"}
+        </button>
+      </Tooltip>
+      {states.errored && (
+        <Tooltip content="Has errors" delayDuration={100}>
+          <AlertOctagonIcon className="w-3.5 h-3.5 shrink-0 text-destructive" />
+        </Tooltip>
       )}
-    >
-      <Toolbar
-        center={
-          <>
-            <ChevronsUpDownIcon className="w-4 h-4 shrink-0" />
-            <span className="text-sm text-gray-500">
-              {count} {count === 1 ? "cell" : "cells"} collapsed
-            </span>
-          </>
-        }
-        right={
-          <>
-            {states.errored && (
-              <Tooltip content="Has errors" delayDuration={100}>
-                <AlertOctagonIcon className="w-4 h-4 shrink-0 text-destructive" />
-              </Tooltip>
-            )}
-            {states.stale && (
-              <Tooltip content="Has stale cells" delayDuration={100}>
-                <RefreshCcw className="w-4 h-4 shrink-0 text-(--yellow-11)" />
-              </Tooltip>
-            )}
-            {states.runningOrQueued && (
-              <Tooltip content="Running" delayDuration={100}>
-                <Loader2Icon className="w-4 h-4 shrink-0 animate-spin" />
-              </Tooltip>
-            )}
-          </>
-        }
-      />
+      {states.stale && (
+        <Tooltip content="Has stale cells" delayDuration={100}>
+          <RefreshCcw className="w-3.5 h-3.5 shrink-0 text-(--yellow-11)" />
+        </Tooltip>
+      )}
+      {states.runningOrQueued && (
+        <Tooltip content="Running" delayDuration={100}>
+          <Loader2Icon className="w-3.5 h-3.5 shrink-0 animate-spin" />
+        </Tooltip>
+      )}
     </div>
   );
 });

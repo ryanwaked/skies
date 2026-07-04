@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   BookTextIcon,
   ChevronDownIcon,
@@ -9,7 +9,6 @@ import {
   ClockIcon,
   ExternalLinkIcon,
   PlayCircleIcon,
-  PowerOffIcon,
   RefreshCcwIcon,
   SearchIcon,
 } from "lucide-react";
@@ -38,36 +37,45 @@ import {
   useFileOperations,
   useNotebookFileActions,
 } from "@/components/editor/file-tree/file-operations";
-import { useImperativeModal } from "@/components/modal/ImperativeModal";
-import { AlertDialogDestructiveAction } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
-import { Tooltip } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/use-toast";
-import { getSessionId, isSessionId } from "@/core/kernel/session";
+import { assignedPaths, collectionsAtom } from "@/core/home/collections";
+import { isSessionId } from "@/core/kernel/session";
 import { useRequestClient } from "@/core/network/requests";
 import type { FileInfo, MarimoFile } from "@/core/network/types";
 import { combineAsyncData, useAsyncData } from "@/hooks/useAsyncData";
 import { useInterval } from "@/hooks/useInterval";
 import { Banner } from "@/plugins/impl/common/error-banner";
-import { assertExists } from "@/utils/assertExists";
 import { cn } from "@/utils/cn";
 import { timeAgo } from "@/utils/dates";
 import { prettyError } from "@/utils/errors";
 import { Maps } from "@/utils/maps";
-import { Paths } from "@/utils/paths";
 import { asURL } from "@/utils/url";
 import { newNotebookURL } from "@/utils/urls";
 import { ConfigButton } from "../app-config/app-config-button";
 import { ErrorBoundary } from "../editor/boundary/ErrorBoundary";
 import { ShutdownButton } from "../editor/controls/shutdown-button";
 import {
+  CollectionMenuItems,
+  excludeAssignedFiles,
+  HomeCollections,
+  SectionLabel,
+} from "../home/collections";
+import {
   Header,
   OpenTutorialDropDown,
   ResourceLinks,
 } from "../home/components";
+import {
+  NOTEBOOK_ROW_ITEM_CLASS,
+  NotebookRowLink,
+  relativeToRoot,
+  SessionShutdownButton,
+  tabTarget,
+} from "../home/notebook-row";
 import {
   expandedFoldersAtom,
   includeMarkdownAtom,
@@ -76,11 +84,6 @@ import {
 } from "../home/state";
 import { Spinner } from "../icons/spinner";
 import { Input } from "../ui/input";
-
-function tabTarget(path: string) {
-  // Consistent tab target so we open in the same tab when clicking on the same notebook
-  return `${getSessionId()}-${encodeURIComponent(path)}`;
-}
 
 const HomePage: React.FC = () => {
   const [nonce, setNonce] = useState(0);
@@ -240,12 +243,33 @@ const WorkspaceNotebooks: React.FC<{ onRefreshRecents: () => void }> = ({
           </Button>
           {isFetching && <Spinner size="small" />}
         </Header>
+        <HomeCollections files={workspace.files} searchText={searchText} />
+        <SectionLabel>All notebooks</SectionLabel>
         <div className="flex flex-col divide-y divide-border border rounded-lg overflow-hidden max-h-192 overflow-y-auto bg-background">
-          <NotebookFileTree searchText={searchText} files={workspace.files} />
+          <UngroupedNotebookFileTree
+            searchText={searchText}
+            files={workspace.files}
+          />
         </div>
       </div>
     </WorkspaceContext>
   );
+};
+
+/**
+ * The workspace file tree, minus any notebooks assigned to a collection
+ * (those render inside their collection's section above).
+ */
+const UngroupedNotebookFileTree: React.FC<{
+  files: FileInfo[];
+  searchText?: string;
+}> = ({ files, searchText }) => {
+  const collections = useAtomValue(collectionsAtom);
+  const ungroupedFiles = useMemo(
+    () => excludeAssignedFiles(files, assignedPaths(collections)),
+    [files, collections],
+  );
+  return <NotebookFileTree searchText={searchText} files={ungroupedFiles} />;
 };
 
 const CollapseAllButton: React.FC = () => {
@@ -352,14 +376,11 @@ const Node = ({ node, style }: NodeRendererProps<FileInfo>) => {
   const { runningNotebooks } = use(RunningNotebooksContext);
 
   const renderItem = () => {
-    const itemClassName =
-      "flex items-center pl-1 cursor-pointer hover:bg-accent/50 hover:text-accent-foreground rounded-l flex-1 overflow-hidden h-full pr-3 gap-2";
-
     // Inline rename input; react-arborist flips `node.isEditing` when
     // `node.edit()` is called from the FileActions menu.
     if (node.isEditing) {
       return (
-        <div className={itemClassName}>
+        <div className={NOTEBOOK_ROW_ITEM_CLASS}>
           {iconEl}
           <FileNameInput node={node} />
         </div>
@@ -368,48 +389,23 @@ const Node = ({ node, style }: NodeRendererProps<FileInfo>) => {
 
     if (node.data.isDirectory) {
       return (
-        <span className={itemClassName}>
+        <span className={NOTEBOOK_ROW_ITEM_CLASS}>
           {iconEl}
           {node.data.name}
         </span>
       );
     }
 
-    const relativePath =
-      node.data.path.startsWith(root) && Paths.isAbsolute(node.data.path)
-        ? Paths.rest(node.data.path, root)
-        : node.data.path;
-
-    const isMarkdown =
-      relativePath.endsWith(".md") || relativePath.endsWith(".qmd");
+    const relativePath = relativeToRoot(node.data.path, root);
     const isRunning = runningNotebooks.has(relativePath);
 
     return (
-      <a
-        className={itemClassName}
-        href={asURL(`?file=${encodeURIComponent(relativePath)}`).toString()}
-        target={tabTarget(relativePath)}
-      >
-        {iconEl}
-        <span className="flex-1 overflow-hidden text-ellipsis">
-          {node.data.name}
-          {isMarkdown && <MarkdownIcon className="ml-2 inline opacity-80" />}
-        </span>
-
-        <FileActions node={node} isRunning={isRunning} />
-        {/*
-          Trailing action slots. Using a fixed-width row here (rather than
-          conditionally rendered inline elements) keeps every row's right
-          edge aligned even though any individual slot may be empty.
-        */}
-        <div className="w-8 h-8 flex items-center justify-center shrink-0">
-          <SessionShutdownButton filePath={relativePath} />
-        </div>
-        <ExternalLinkIcon
-          size={20}
-          className="group-hover:opacity-100 opacity-0 text-primary shrink-0"
-        />
-      </a>
+      <NotebookRowLink
+        relativePath={relativePath}
+        name={node.data.name}
+        icon={iconEl}
+        actions={<FileActions node={node} isRunning={isRunning} />}
+      />
     );
   };
 
@@ -460,6 +456,7 @@ const FileActions = ({
         title={lockedReason}
       />
       <DuplicateMenuItem onSelect={handleDuplicate} />
+      <CollectionMenuItems path={node.data.path} leadingSeparator={true} />
       <DropdownMenuSeparator />
       <DeleteMenuItem
         onSelect={handleDelete}
@@ -556,62 +553,6 @@ const MarimoFileComponent = ({ file }: { file: MarimoFile }) => {
         )}
       </div>
     </a>
-  );
-};
-
-const SessionShutdownButton: React.FC<{ filePath: string }> = ({
-  filePath,
-}) => {
-  const { openConfirm, closeModal } = useImperativeModal();
-  const { shutdownSession } = useRequestClient();
-  const { runningNotebooks, setRunningNotebooks } = use(
-    RunningNotebooksContext,
-  );
-  if (!runningNotebooks.has(filePath)) {
-    return null;
-  }
-  return (
-    <Tooltip content="Shutdown">
-      <Button
-        size={"icon"}
-        variant="outline"
-        className="opacity-80 hover:opacity-100 text-destructive border-destructive hover:border-destructive hover:text-destructive bg-background hover:bg-destructive/10"
-        onClick={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          openConfirm({
-            title: "Shutdown",
-            description:
-              "This will terminate the Python kernel. You'll lose all data that's in memory.",
-            variant: "destructive",
-            confirmAction: (
-              <AlertDialogDestructiveAction
-                onClick={() => {
-                  const ids = runningNotebooks.get(filePath);
-                  assertExists(ids?.sessionId);
-                  shutdownSession({
-                    sessionId: ids.sessionId,
-                  }).then((response) => {
-                    setRunningNotebooks(
-                      Maps.keyBy(response.files, (file) => file.path),
-                    );
-                  });
-                  closeModal();
-                  toast({
-                    description: "Notebook has been shutdown.",
-                  });
-                }}
-                aria-label="Confirm Shutdown"
-              >
-                Shutdown
-              </AlertDialogDestructiveAction>
-            ),
-          });
-        }}
-      >
-        <PowerOffIcon size={14} />
-      </Button>
-    </Tooltip>
   );
 };
 

@@ -90,7 +90,7 @@ const OutlinePanel: React.FC = () => {
   return (
     <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
       {modeToggle}
-      <div className="outline-panel-tree flex flex-col overflow-auto py-2 pl-2 pr-1 text-[13px]">
+      <div className="outline-panel-tree flex flex-col overflow-y-auto overflow-x-hidden py-2 pl-2 pr-1 text-[13px]">
         {visibleEntries.map((entry, idx) => {
           if (entry.kind === "cell") {
             return (

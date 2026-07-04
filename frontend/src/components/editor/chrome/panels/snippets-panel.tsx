@@ -1,7 +1,14 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { CommandList } from "cmdk";
-import { BetweenHorizontalStartIcon, PlusIcon, XIcon } from "lucide-react";
+import { useAtomValue } from "jotai";
+import {
+  BetweenHorizontalStartIcon,
+  PackageIcon,
+  PlusIcon,
+  Trash2Icon,
+  XIcon,
+} from "lucide-react";
 import React from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import {
@@ -20,10 +27,17 @@ import "./snippets-panel.css";
 import { EditorView } from "@codemirror/view";
 import { Suspense } from "react";
 import { Spinner } from "@/components/icons/spinner";
+import { useImperativeModal } from "@/components/modal/ImperativeModal";
+import { AlertDialogDestructiveAction } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useCellActions } from "@/core/cells/cells";
 import { useLastFocusedCellId } from "@/core/cells/focus";
+import {
+  deleteLocalComponent,
+  type LocalComponent,
+  localComponentsAtom,
+} from "@/core/components/local-components";
 import { useRequestClient } from "@/core/network/requests";
 import { LazyAnyLanguageCodeMirror } from "@/plugins/impl/code/LazyAnyLanguageCodeMirror";
 import { useTheme } from "@/theme/useTheme";
@@ -62,26 +76,29 @@ const SnippetsPanel: React.FC = () => {
       <PanelGroup key={section} direction={orientation} className="h-full">
         {/* Snippet list panel */}
         <Panel defaultSize={40} minSize={20} maxSize={70}>
-          <Command className="h-full rounded-none">
-            <div className="flex items-center w-full border-b">
-              <CommandInput
-                placeholder="Search snippets..."
-                className="h-6 m-1"
-                rootClassName="flex-1 border-r"
-              />
-              <ContributeSnippetButton>
-                <button className="float-right px-2 m-0 h-full text-muted-foreground hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground">
-                  <PlusIcon strokeWidth={1.5} className="h-4 w-4" />
-                </button>
-              </ContributeSnippetButton>
-            </div>
+          <div className="flex h-full flex-col">
+            <ComponentsSection />
+            <Command className="flex-1 min-h-0 rounded-none">
+              <div className="flex items-center w-full border-b">
+                <CommandInput
+                  placeholder="Search snippets..."
+                  className="h-6 m-1"
+                  rootClassName="flex-1 border-r"
+                />
+                <ContributeSnippetButton>
+                  <button className="float-right px-2 m-0 h-full text-muted-foreground hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground">
+                    <PlusIcon strokeWidth={1.5} className="h-4 w-4" />
+                  </button>
+                </ContributeSnippetButton>
+              </div>
 
-            <CommandEmpty>No results</CommandEmpty>
-            <SnippetList
-              onSelect={(snippet) => setSelectedSnippet(snippet)}
-              snippets={snippets.snippets}
-            />
-          </Command>
+              <CommandEmpty>No results</CommandEmpty>
+              <SnippetList
+                onSelect={(snippet) => setSelectedSnippet(snippet)}
+                snippets={snippets.snippets}
+              />
+            </Command>
+          </div>
         </Panel>
         <PanelResizeHandle
           className={cn(
@@ -114,6 +131,100 @@ const SnippetsPanel: React.FC = () => {
 };
 
 export default SnippetsPanel;
+
+/**
+ * Local components saved from cells ("Save as component" in the cell menu).
+ * Rendered above the snippets list; insert appends the component's code as a
+ * new cell, the same way snippets are inserted.
+ */
+const ComponentsSection: React.FC = () => {
+  const components = useAtomValue(localComponentsAtom);
+  const { createNewCell } = useCellActions();
+  const lastFocusedCellId = useLastFocusedCellId();
+  const { openConfirm } = useImperativeModal();
+
+  const handleInsert = (component: LocalComponent) => {
+    createNewCell({
+      code: component.code,
+      before: false,
+      cellId: lastFocusedCellId ?? "__end__",
+    });
+  };
+
+  const handleDelete = (component: LocalComponent) => {
+    openConfirm({
+      title: "Delete component",
+      description: `Are you sure you want to delete "${component.name}"?`,
+      variant: "destructive",
+      confirmAction: (
+        <AlertDialogDestructiveAction
+          onClick={() => deleteLocalComponent(component.id)}
+          aria-label="Confirm"
+        >
+          Delete
+        </AlertDialogDestructiveAction>
+      ),
+    });
+  };
+
+  return (
+    <div className="shrink-0 border-b max-h-[40%] overflow-auto">
+      <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+        Components
+      </div>
+      {components.length === 0 ? (
+        <PanelEmptyState
+          title=""
+          icon={<PackageIcon />}
+          description="No components yet — save any cell as a component from its ··· menu."
+        />
+      ) : (
+        <div className="px-1 pb-1">
+          {components.map((component) => (
+            <div
+              key={component.id}
+              className="group flex h-[26px] items-center gap-2 rounded-[3px] px-2 text-[13px] hover:bg-[rgba(63,66,87,0.2)]"
+              title={component.description}
+            >
+              <PackageIcon
+                strokeWidth={1.5}
+                className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
+              />
+              <span className="flex-1 truncate">{component.name}</span>
+              <HideInKioskMode>
+                <div className="hidden shrink-0 items-center gap-0.5 group-hover:flex">
+                  <Tooltip content="Insert component">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-5 w-5 p-0 text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]"
+                      onClick={() => handleInsert(component)}
+                    >
+                      <BetweenHorizontalStartIcon
+                        strokeWidth={1.5}
+                        className="h-3.5 w-3.5"
+                      />
+                    </Button>
+                  </Tooltip>
+                  <Tooltip content="Delete component">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-5 w-5 p-0 text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]"
+                      onClick={() => handleDelete(component)}
+                    >
+                      <Trash2Icon strokeWidth={1.5} className="h-3.5 w-3.5" />
+                    </Button>
+                  </Tooltip>
+                </div>
+              </HideInKioskMode>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const SnippetViewer: React.FC<{ snippet: Snippet; onClose: () => void }> = ({
   snippet,
@@ -159,7 +270,7 @@ const SnippetViewer: React.FC<{ snippet: Snippet; onClose: () => void }> = ({
           <XIcon strokeWidth={1.5} className="h-3.5 w-3.5" />
         </Button>
       </div>
-      <div className="px-2 py-2 space-y-4 overflow-auto flex-1">
+      <div className="px-2 py-2 space-y-4 overflow-y-auto overflow-x-hidden flex-1">
         <div className="flex justify-end">
           <HideInKioskMode>
             <Button
@@ -236,7 +347,7 @@ const SnippetList: React.FC<{
   snippets: Snippet[];
 }> = ({ snippets, onSelect }) => {
   return (
-    <CommandList className="flex flex-col overflow-auto p-1">
+    <CommandList className="flex flex-col overflow-y-auto overflow-x-hidden p-1">
       {snippets.map((snippet) => (
         <CommandItem
           className="rounded-[3px] min-h-[26px] py-0.5 text-[13px] aria-selected:bg-primary/[0.07] aria-selected:text-primary"

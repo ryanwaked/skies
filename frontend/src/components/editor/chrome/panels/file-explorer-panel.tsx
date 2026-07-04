@@ -103,7 +103,7 @@ const FileExplorerPanel: React.FC = () => {
   );
 
   return (
-    <div ref={panelRef} className="h-full overflow-auto">
+    <div ref={panelRef} className="h-full overflow-y-auto overflow-x-hidden">
       <Accordion
         type="multiple"
         value={openSections}
@@ -117,7 +117,7 @@ const FileExplorerPanel: React.FC = () => {
             )}
           </PanelAccordionTrigger>
           <PanelAccordionContent
-            className="overflow-auto"
+            className="overflow-y-auto overflow-x-hidden"
             style={{ maxHeight: storageMaxHeight }}
           >
             <StorageInspector />

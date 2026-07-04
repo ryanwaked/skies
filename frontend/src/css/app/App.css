@@ -8,15 +8,11 @@
 
 /* stylelint-disable unit-allowed-list */
 
-/* On smaller screens, scale everything down so more fits on the page. */
+/* Hex renders at the browser's native 16px root on every viewport; marimo's
+   old 90% small-screen downscale made the entire UI read ~10-20% smaller
+   than Hex and is intentionally removed. */
 html {
-  font-size: 90%;
-}
-
-@media screen and (height >= 1000px) {
-  html {
-    font-size: 100%;
-  }
+  font-size: 100%;
 }
 /* stylelint-enable unit-allowed-list */
 

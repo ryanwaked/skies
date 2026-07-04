@@ -16,6 +16,7 @@ import {
   EyeOffIcon,
   ImageIcon,
   LinkIcon,
+  PackageIcon,
   PlayIcon,
   PlusCircleIcon,
   ScissorsIcon,
@@ -37,8 +38,13 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import { aiCompletionCellAtom } from "@/core/ai/state";
 import { maybeAddMarimoImport } from "@/core/cells/add-missing-import";
-import { hasOnlyOneCellAtom, useCellActions } from "@/core/cells/cells";
+import {
+  getNotebook,
+  hasOnlyOneCellAtom,
+  useCellActions,
+} from "@/core/cells/cells";
 import { type CellId, SETUP_CELL_ID } from "@/core/cells/ids";
+import { isInternalCellName } from "@/core/cells/names";
 import type { CellData } from "@/core/cells/types";
 import { formatEditorViews } from "@/core/codemirror/format";
 import {
@@ -63,6 +69,7 @@ import { useDeleteCellCallback } from "../cell/useDeleteCell";
 import { useRunCell } from "../cell/useRunCells";
 import { useSplitCellCallback } from "../cell/useSplitCell";
 import { NameCellInput } from "./name-cell-input";
+import { SaveComponentModal } from "./save-component-modal";
 import type { ActionButton } from "./types";
 
 export interface CellActionButtonProps extends Pick<
@@ -98,7 +105,7 @@ export function useCellActionButtons({ cell, closePopover }: Props) {
   const hasOnlyOneCell = useAtomValue(hasOnlyOneCellAtom);
   const canDelete = !hasOnlyOneCell;
   const deleteCell = useDeleteCellCallback();
-  const { openModal } = useImperativeModal();
+  const { openModal, closeModal } = useImperativeModal();
   const setAiCompletionCell = useSetAtom(aiCompletionCellAtom);
   const aiFeaturesEnabled = useAtomValue(aiFeaturesEnabledAtom);
   const autoInstantiate = useAtomValue(autoInstantiateAtom);
@@ -422,6 +429,23 @@ export function useCellActionButtons({ cell, closePopover }: Props) {
           />
         ),
         hidden: isSetupCell,
+      },
+      {
+        icon: <PackageIcon size={13} strokeWidth={1.5} />,
+        label: "Save as component",
+        handle: () => {
+          const code =
+            getEditorView()?.state.doc.toString() ??
+            getNotebook().cellData[cellId]?.code ??
+            "";
+          openModal(
+            <SaveComponentModal
+              initialName={isInternalCellName(name) ? "" : name}
+              code={code}
+              onClose={closeModal}
+            />,
+          );
+        },
       },
       {
         icon: <LinkIcon size={13} strokeWidth={1.5} />,

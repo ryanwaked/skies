@@ -318,7 +318,7 @@ const PackagesList: React.FC<{
   }
 
   return (
-    <Table className="overflow-auto flex-1">
+    <Table className="overflow-y-auto overflow-x-hidden flex-1">
       <TableHeader>
         <TableRow>
           <TableHead>Name</TableHead>
@@ -472,7 +472,7 @@ const DependencyTree: React.FC<{
   };
 
   return (
-    <div className="flex-1 overflow-auto">
+    <div className="flex-1 overflow-y-auto overflow-x-hidden">
       <div>
         {tree.dependencies.map((dep, index) => (
           <div key={`${dep.name}-${index}`} className="border-b">

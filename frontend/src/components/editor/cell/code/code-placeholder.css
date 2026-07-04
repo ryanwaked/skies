@@ -1,18 +1,37 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 .mo-code-placeholder {
   --mo-skeleton-bar: color-mix(in srgb, var(--muted), var(--foreground) 18%);
+
   cursor: default;
-  padding: 4px 10px;
-  font-size: var(--cm-font-size, 0.875rem);
+
+  /* Mirror the mounted editor's box exactly: .cm-content has 4px vertical
+     padding, lines carry 6px left / 2px right padding, and the gutter is
+     ~34px wide — so text wraps at the same width it will in CodeMirror. */
+  padding: 4px 2px 4px 40px;
+  font-size: var(--marimo-code-editor-font-size, 0.75rem);
+  line-height: 1.5;
 }
 
 .mo-code-placeholder-line {
-  display: flex;
-  align-items: center;
-  height: 1.5em;
+  position: relative;
+  min-height: 1.5em;
+}
+
+/* The real line text, invisible: it sets each row's exact wrapped height
+   using the same mono metrics and wrapping rules as CodeMirror. */
+.mo-code-placeholder-text {
+  visibility: hidden;
+  display: block;
+  margin: 0;
+  font-family: var(--monospace-font);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .mo-code-placeholder-bar {
+  position: absolute;
+  top: 0.4em;
+  left: 0;
   height: 0.7em;
   background-color: var(--mo-skeleton-bar);
 }

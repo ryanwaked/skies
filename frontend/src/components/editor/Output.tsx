@@ -202,9 +202,22 @@ export const OutputRenderer: React.FC<{
     case "application/vnd.vegalite.v5+json":
     case "application/vnd.vega.v5+json":
     case "application/vnd.vegalite.v6+json":
-    case "application/vnd.vega.v6+json":
+    case "application/vnd.vega.v6+json": {
+      // Reserve the chart's eventual height while the embed chunk loads, so
+      // scrolling past unrendered charts doesn't shift the notebook. Use the
+      // spec's declared height when it's a number; otherwise a typical
+      // rendered height (~340px with axes and padding).
+      const specHeight = (parsedJsonData as { height?: unknown })?.height;
+      const reservedHeight =
+        typeof specHeight === "number" ? specHeight + 60 : 340;
       return (
-        <Suspense fallback={<ChartLoadingState />}>
+        <Suspense
+          fallback={
+            <div style={{ minHeight: reservedHeight }}>
+              <ChartLoadingState />
+            </div>
+          }
+        >
           <LazyVegaEmbed
             spec={parsedJsonData as TopLevelFacetedUnitSpec}
             data-container-width={getContainerWidth(parsedJsonData)}
@@ -217,6 +230,7 @@ export const OutputRenderer: React.FC<{
           />
         </Suspense>
       );
+    }
     case "application/vnd.marimo+mimebundle":
       return (
         <MimeBundleOutputRenderer

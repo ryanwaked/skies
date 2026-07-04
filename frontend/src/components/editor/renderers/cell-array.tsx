@@ -12,6 +12,7 @@ import { Cell } from "@/components/editor/notebook-cell";
 import { PackageAlert } from "@/components/editor/package-alert";
 import { SortableCellsProvider } from "@/components/sort/SortableCellsProvider";
 import { SETUP_CELL_ID } from "@/core/cells/ids";
+import { cellSectionsAtom, getSectionInfo } from "@/core/cells/sections";
 import { cn } from "@/utils/cn";
 import { Functions } from "@/utils/functions";
 import type { CellColumnId } from "@/utils/id-tree";
@@ -169,6 +170,10 @@ const CellColumn: React.FC<{
   const column = cellIds.get(columnId);
   invariant(column, `Expected column for: ${columnId}`);
 
+  // Hex-style sections: heading cells act as section containers for the
+  // cells beneath them.
+  const sections = useAtomValue(cellSectionsAtom);
+
   const hasOnlyOneCell = cellIds.hasOnlyOneId();
   const hasSetupCell = cellIds.inOrderIds.includes(SETUP_CELL_ID);
 
@@ -219,6 +224,8 @@ const CellColumn: React.FC<{
             return null;
           }
 
+          const section = getSectionInfo(sections, cellId);
+
           return (
             <Cell
               key={cellId}
@@ -231,6 +238,9 @@ const CellColumn: React.FC<{
               isCollapsed={column.isCollapsed(cellId)}
               collapseCount={column.getCount(cellId)}
               canMoveX={appConfig.width === "columns"}
+              isSectionHead={section.isSectionHead}
+              inSection={section.inSection}
+              sectionLastCellId={section.lastCellId}
             />
           );
         })}

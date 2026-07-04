@@ -36,8 +36,9 @@ const htmlDevPlugin = (): Plugin => {
         return html;
       }
 
-      // Add react-scan in dev mode
-      if (isDev) {
+      // Add react-scan in dev mode (opt out with NO_REACT_SCAN=1, e.g. for
+      // automated visual verification where its overlay pollutes screenshots)
+      if (isDev && !process.env.NO_REACT_SCAN) {
         html = html.replace(
           "<head>",
           '<head>\n<script src="https://unpkg.com/react-scan/dist/auto.global.js"></script>',
