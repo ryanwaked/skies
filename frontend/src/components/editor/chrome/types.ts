@@ -15,6 +15,7 @@ import {
   type LucideIcon,
   NetworkIcon,
   PenLineIcon,
+  SearchIcon,
   SquareTerminalIcon,
 } from "lucide-react";
 import { getFeatureFlag } from "@/core/config/feature-flag";
@@ -26,6 +27,7 @@ import { isWasm } from "@/core/wasm/utils";
  */
 export type PanelType =
   // Sidebar defaults
+  | "search"
   | "files"
   | "variables"
   | "outline"
@@ -68,6 +70,15 @@ export interface PanelDescriptor {
  */
 export const PANELS: PanelDescriptor[] = [
   // Sidebar defaults
+  // Hex puts search at the top of the rail.
+  {
+    type: "search",
+    Icon: SearchIcon,
+    label: "Search",
+    tooltip: "Search cells",
+    defaultSection: "sidebar",
+    additionalKeywords: ["find", "grep", "text"],
+  },
   {
     type: "files",
     Icon: FolderIcon,

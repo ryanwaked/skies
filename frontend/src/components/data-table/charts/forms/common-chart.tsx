@@ -11,6 +11,7 @@ import {
   BooleanField,
   ColorArrayField,
   InputField,
+  NumberField,
   SelectField,
   SliderField,
   TooltipSelect,
@@ -19,13 +20,26 @@ import {
   AccordionFormContent,
   AccordionFormItem,
   AccordionFormTrigger,
+  FieldSection,
   FormSectionHorizontalRule,
   Title,
 } from "../components/layouts";
-import { COLOR_SCHEMES, DEFAULT_COLOR_SCHEME } from "../constants";
+import {
+  COLOR_SCHEMES,
+  DEFAULT_AXIS_SCALE,
+  DEFAULT_COLOR_SCHEME,
+  DEFAULT_LEGEND_POSITION,
+  MULTI_SERIES_CHART_TYPES,
+} from "../constants";
 import { useChartFormContext } from "../context";
 import type { ChartSchemaType } from "../schemas";
-import { ChartType, COLOR_BY_FIELDS, NONE_VALUE } from "../types";
+import {
+  AXIS_SCALE_TYPES,
+  ChartType,
+  COLOR_BY_FIELDS,
+  LEGEND_POSITIONS,
+  NONE_VALUE,
+} from "../types";
 
 export const CommonChartForm: React.FC = () => {
   const form = useFormContext<ChartSchemaType>();
@@ -38,8 +52,16 @@ export const CommonChartForm: React.FC = () => {
 
   const { chartType } = useChartFormContext();
 
+  // When 2+ Y series are set, the chart is colored by series and the
+  // explicit color-by column is ignored.
+  const seriesCount = [yColumn, ...(formValues.general?.yColumns ?? [])].filter(
+    (column) => isFieldSet(column?.field),
+  ).length;
+  const hasMultipleSeries =
+    MULTI_SERIES_CHART_TYPES.includes(chartType) && seriesCount > 1;
+
   const showStacking =
-    isFieldSet(groupByColumn?.field) &&
+    (isFieldSet(groupByColumn?.field) || hasMultipleSeries) &&
     (chartType === ChartType.BAR || chartType === ChartType.LINE);
 
   return (
@@ -62,7 +84,16 @@ export const CommonChartForm: React.FC = () => {
 
       {yColumnExists && (
         <>
-          <ColorByAxis />
+          {hasMultipleSeries ? (
+            <FieldSection>
+              <Title text="Color by" />
+              <p className="text-xs text-muted-foreground">
+                Color by is controlled by series.
+              </p>
+            </FieldSection>
+          ) : (
+            <ColorByAxis />
+          )}
           {showStacking && (
             <div className="flex flex-row gap-2">
               <BooleanField fieldName="general.stacking" label="Stacked" />
@@ -109,6 +140,7 @@ export const StyleForm: React.FC = () => {
             start={200}
             stop={800}
           />
+          <AxisStyleOptions axis="xAxis" />
         </AccordionFormContent>
       </AccordionFormItem>
 
@@ -125,6 +157,7 @@ export const StyleForm: React.FC = () => {
             start={150}
             stop={600}
           />
+          <AxisStyleOptions axis="yAxis" />
         </AccordionFormContent>
       </AccordionFormItem>
 
@@ -151,6 +184,15 @@ export const StyleForm: React.FC = () => {
               value: scheme,
             }))}
           />
+          <SelectField
+            fieldName="color.legend"
+            label="Legend"
+            defaultValue={DEFAULT_LEGEND_POSITION}
+            options={LEGEND_POSITIONS.map((position) => ({
+              display: capitalize(position),
+              value: position,
+            }))}
+          />
           <ColorArrayField fieldName="color.range" label="Color range" />
           <p className="text-xs text-muted-foreground">
             <InfoIcon
@@ -162,6 +204,57 @@ export const StyleForm: React.FC = () => {
         </AccordionFormContent>
       </AccordionFormItem>
     </Accordion>
+  );
+};
+
+const FORMAT_TOOLTIP = (
+  <div className="flex flex-col gap-0.5 text-xs">
+    <span>d3-format string, e.g.</span>
+    <span className="font-mono">",.2f" &rarr; 1,234.57</span>
+    <span className="font-mono">"$,.0f" &rarr; $1,235</span>
+    <span className="font-mono">".0%" &rarr; 12%</span>
+  </div>
+);
+
+/**
+ * Scale type, domain and number format controls, shared between the
+ * X-Axis and Y-Axis style sections.
+ */
+const AxisStyleOptions: React.FC<{ axis: "xAxis" | "yAxis" }> = ({ axis }) => {
+  return (
+    <>
+      <SelectField
+        fieldName={`${axis}.scale`}
+        label="Scale"
+        defaultValue={DEFAULT_AXIS_SCALE}
+        options={AXIS_SCALE_TYPES.map((scale) => ({
+          display: capitalize(scale),
+          value: scale,
+        }))}
+      />
+      <div className="flex flex-row justify-between">
+        <NumberField
+          fieldName={`${axis}.domainMin`}
+          label="Min"
+          inputClassName="w-14"
+          minValue={Number.MIN_SAFE_INTEGER}
+          placeholder="auto"
+        />
+        <NumberField
+          fieldName={`${axis}.domainMax`}
+          label="Max"
+          inputClassName="w-14"
+          minValue={Number.MIN_SAFE_INTEGER}
+          placeholder="auto"
+        />
+      </div>
+      <InputField
+        fieldName={`${axis}.format`}
+        label="Format"
+        placeholder=",.2f"
+        tooltip={FORMAT_TOOLTIP}
+      />
+    </>
   );
 };
 

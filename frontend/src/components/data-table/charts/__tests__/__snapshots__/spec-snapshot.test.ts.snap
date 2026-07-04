@@ -17,8 +17,10 @@ exports[`create vega spec > should create and augment a spec 1`] = `
     "tooltip": undefined,
     "x": {
       "aggregate": undefined,
+      "axis": undefined,
       "bin": undefined,
       "field": "category",
+      "scale": undefined,
       "sort": undefined,
       "stack": undefined,
       "timeUnit": undefined,
@@ -28,8 +30,10 @@ exports[`create vega spec > should create and augment a spec 1`] = `
     "xOffset": undefined,
     "y": {
       "aggregate": undefined,
+      "axis": undefined,
       "bin": undefined,
       "field": "value",
+      "scale": undefined,
       "sort": undefined,
       "stack": undefined,
       "timeUnit": undefined,
@@ -42,6 +46,70 @@ exports[`create vega spec > should create and augment a spec 1`] = `
     "type": "bar",
   },
   "title": "Test Chart",
+  "width": 400,
+}
+`;
+
+exports[`multi-series charts > should fold two y series for line charts 1`] = `
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "background": "white",
+  "config": {
+    "axis": {
+      "grid": false,
+    },
+  },
+  "data": {
+    "values": [],
+  },
+  "encoding": {
+    "color": {
+      "field": "series",
+      "legend": undefined,
+      "scale": undefined,
+      "type": "nominal",
+    },
+    "tooltip": undefined,
+    "x": {
+      "aggregate": undefined,
+      "axis": undefined,
+      "bin": undefined,
+      "field": "date",
+      "scale": undefined,
+      "sort": undefined,
+      "stack": undefined,
+      "timeUnit": undefined,
+      "title": undefined,
+      "type": "nominal",
+    },
+    "xOffset": undefined,
+    "y": {
+      "aggregate": "sum",
+      "axis": undefined,
+      "field": "value",
+      "scale": undefined,
+      "stack": undefined,
+      "title": undefined,
+      "type": "quantitative",
+    },
+  },
+  "height": 300,
+  "mark": {
+    "type": "line",
+  },
+  "title": undefined,
+  "transform": [
+    {
+      "as": [
+        "series",
+        "value",
+      ],
+      "fold": [
+        "sales",
+        "profit",
+      ],
+    },
+  ],
   "width": 400,
 }
 `;

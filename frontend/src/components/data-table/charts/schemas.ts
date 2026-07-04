@@ -7,13 +7,17 @@
 import { z } from "zod";
 import { DATA_TYPES } from "@/core/kernel/messages";
 import {
+  DEFAULT_AXIS_SCALE,
   DEFAULT_COLOR_SCHEME,
+  DEFAULT_LEGEND_POSITION,
   DEFAULT_MAX_BINS_FACET,
   EMPTY_VALUE,
 } from "./constants";
 import {
   AGGREGATION_FNS,
+  AXIS_SCALE_TYPES,
   COLOR_BY_FIELDS,
+  LEGEND_POSITIONS,
   NONE_VALUE,
   SELECTABLE_DATA_TYPES,
   SORT_TYPES,
@@ -38,6 +42,20 @@ export const AxisSchema = BaseColumnSchema.extend({
   aggregate: z.enum(AGGREGATION_FNS).default(NONE_VALUE).optional(),
 });
 
+/**
+ * Shared axis styling options (scale, domain and number format).
+ * `domainMin`/`domainMax` are nullable so that cleared number inputs
+ * (serialized as `null` in JSON) do not invalidate saved configs.
+ */
+export const AxisStyleSchema = z.object({
+  scale: z.enum(AXIS_SCALE_TYPES).default(DEFAULT_AXIS_SCALE).optional(),
+  domainMin: z.number().nullable().optional(),
+  domainMax: z.number().nullable().optional(),
+  // d3-format string, e.g. ",.2f", "$,.0f", ".0%"
+  format: z.string().optional(),
+});
+export type AxisStyleSchemaType = z.infer<typeof AxisStyleSchema>;
+
 export const RowFacet = BaseColumnSchema.extend({
   linkYAxis: z.boolean().default(true),
   binned: z.boolean().default(true),
@@ -55,7 +73,13 @@ export const ChartSchema = z.object({
     .object({
       title: z.string().optional(),
       xColumn: AxisSchema.optional(),
+      // The first Y series. Kept as a standalone field (rather than folding it
+      // into `yColumns`) so charts saved before multi-series support continue
+      // to load unchanged.
       yColumn: AxisSchema.optional(),
+      // Additional Y series beyond `yColumn`. When absent, `yColumn` is the
+      // only series.
+      yColumns: z.array(AxisSchema).optional(),
       colorByColumn: AxisSchema.optional(),
       facet: z
         .object({
@@ -67,20 +91,16 @@ export const ChartSchema = z.object({
       stacking: z.boolean().optional(),
     })
     .optional(),
-  xAxis: z
-    .object({
-      label: z.string().optional(),
-      width: z.number().optional(),
-      bin: BinSchema.optional(),
-    })
-    .optional(),
-  yAxis: z
-    .object({
-      label: z.string().optional(),
-      height: z.number().optional(),
-      bin: BinSchema.optional(),
-    })
-    .optional(),
+  xAxis: AxisStyleSchema.extend({
+    label: z.string().optional(),
+    width: z.number().optional(),
+    bin: BinSchema.optional(),
+  }).optional(),
+  yAxis: AxisStyleSchema.extend({
+    label: z.string().optional(),
+    height: z.number().optional(),
+    bin: BinSchema.optional(),
+  }).optional(),
   color: z
     .object({
       field: z.enum([...COLOR_BY_FIELDS, NONE_VALUE]).default(NONE_VALUE),
@@ -88,6 +108,10 @@ export const ChartSchema = z.object({
       range: z.array(z.string()).optional(),
       domain: z.array(z.string()).optional(),
       bin: BinSchema.optional(),
+      legend: z
+        .enum(LEGEND_POSITIONS)
+        .default(DEFAULT_LEGEND_POSITION)
+        .optional(),
     })
     .optional(),
   style: z

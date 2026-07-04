@@ -50,6 +50,9 @@ export const LazyOutlinePanel = reactLazyWithPreload(
 export const LazyPackagesPanel = reactLazyWithPreload(
   () => import("../panels/packages-panel"),
 );
+export const LazySearchPanel = reactLazyWithPreload(
+  () => import("../panels/search-panel"),
+);
 export const LazyScratchpadPanel = reactLazyWithPreload(
   () => import("../panels/scratchpad-panel"),
 );
@@ -70,6 +73,7 @@ export const LazyCachePanel = reactLazyWithPreload(
 // corresponding chunk. Two panel types (chat and agents) share the "ai" slot,
 // so we preload both.
 export const PANEL_PRELOADERS: Record<PanelType, () => void> = {
+  search: safePreload(LazySearchPanel),
   files: safePreload(LazyFileExplorerPanel),
   variables: safePreload(LazySessionPanel),
   dependencies: safePreload(LazyDependencyGraphPanel),

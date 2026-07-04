@@ -21,7 +21,9 @@ import {
 import type { ColorScheme } from "vega-typings";
 import type {
   AggregationFn,
+  AxisScaleType,
   ChartType,
+  LegendPosition,
   SelectableDataType,
   TimeUnit,
   ValidAggregationFn,
@@ -31,6 +33,20 @@ export const COUNT_FIELD = "__count__";
 export const DEFAULT_COLOR_SCHEME = "default";
 export const DEFAULT_TIME_UNIT = "yearmonthdate";
 export const DEFAULT_MAX_BINS_FACET = 6;
+export const DEFAULT_AXIS_SCALE: AxisScaleType = "linear";
+export const DEFAULT_LEGEND_POSITION: LegendPosition = "right";
+
+// Output field names of the fold transform used for multi-series charts
+export const SERIES_FIELD = "series";
+export const SERIES_VALUE_FIELD = "value";
+
+// Chart types that support multiple Y series (via a fold transform)
+export const MULTI_SERIES_CHART_TYPES: readonly ChartType[] = [
+  "line",
+  "bar",
+  "area",
+  "scatter",
+];
 
 // Set a field to this to reflect that it is not set
 export const EMPTY_VALUE = "";

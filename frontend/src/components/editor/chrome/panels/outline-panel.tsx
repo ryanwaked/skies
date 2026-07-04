@@ -3,39 +3,124 @@
 import { useAtomValue } from "jotai";
 import { ScrollTextIcon } from "lucide-react";
 import React, { useMemo } from "react";
+import { scrollAndHighlightCell } from "@/components/editor/links/cell-link";
+import { useCellActions } from "@/core/cells/cells";
+import type { CellId } from "@/core/cells/ids";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { cn } from "@/utils/cn";
 import { notebookOutline } from "../../../../core/cells/cells";
 import { PanelEmptyState } from "./empty-state";
 
 import "./outline-panel.css";
-import { OutlineList } from "./outline/floating-outline";
+import { outlineEntriesAtom } from "./outline/outline-entries";
+import { OutlineCellRow, OutlineHeadingRow } from "./outline/outline-row";
 import {
   findOutlineElements,
   useActiveOutline,
 } from "./outline/useActiveOutline";
 
+type OutlineMode = "headings" | "all";
+
+const MODE_LABELS: Record<OutlineMode, string> = {
+  headings: "Headings",
+  all: "All cells",
+};
+
 const OutlinePanel: React.FC = () => {
   const { items } = useAtomValue(notebookOutline);
+  const entries = useAtomValue(outlineEntriesAtom);
+  const [mode, setMode] = useLocalStorage<OutlineMode>(
+    "marimo:outline-panel-mode",
+    "all",
+  );
   const headerElements = useMemo(() => findOutlineElements(items), [items]);
   const { activeHeaderId, activeOccurrences } =
     useActiveOutline(headerElements);
+  const { showCellIfHidden } = useCellActions();
 
-  if (items.length === 0) {
+  const handleCellClick = (cellId: CellId) => {
+    showCellIfHidden({ cellId });
+    requestAnimationFrame(() => {
+      scrollAndHighlightCell(cellId, "focus");
+    });
+  };
+
+  const visibleEntries =
+    mode === "headings"
+      ? entries.filter((entry) => entry.kind === "heading")
+      : entries;
+
+  const modeToggle = (
+    <div className="flex items-center justify-end gap-0.5 px-2 pt-2 shrink-0">
+      {(["headings", "all"] as const).map((value) => (
+        <button
+          key={value}
+          type="button"
+          className={cn(
+            "px-1.5 h-[18px] text-[12px] leading-none rounded-[3px] cursor-pointer",
+            mode === value
+              ? "bg-primary/[0.07] text-primary"
+              : "text-muted-foreground hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground",
+          )}
+          onClick={() => setMode(value)}
+        >
+          {MODE_LABELS[value]}
+        </button>
+      ))}
+    </div>
+  );
+
+  if (visibleEntries.length === 0) {
     return (
-      <PanelEmptyState
-        title="No outline found"
-        description="Add markdown headings to your notebook to create an outline."
-        icon={<ScrollTextIcon />}
-      />
+      <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+        {modeToggle}
+        <PanelEmptyState
+          title="No outline found"
+          description="Add markdown headings to your notebook to create an outline."
+          icon={<ScrollTextIcon />}
+        />
+      </div>
     );
   }
 
+  // Map of heading identifier to its occurrences, to disambiguate
+  // repeated headings. Must match the iteration order of `notebookOutline`.
+  const seen = new Map<string, number>();
+
   return (
-    <OutlineList
-      className="outline-panel-tree py-2 pl-2 pr-1 text-[13px]"
-      items={items}
-      activeHeaderId={activeHeaderId}
-      activeOccurrences={activeOccurrences}
-    />
+    <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+      {modeToggle}
+      <div className="outline-panel-tree flex flex-col overflow-auto py-2 pl-2 pr-1 text-[13px]">
+        {visibleEntries.map((entry, idx) => {
+          if (entry.kind === "cell") {
+            return (
+              <OutlineCellRow
+                key={entry.cellId}
+                entry={entry}
+                onClick={() => handleCellClick(entry.cellId)}
+              />
+            );
+          }
+
+          const { item } = entry;
+          const identifier = "id" in item.by ? item.by.id : item.by.path;
+          const occurrence = seen.get(identifier) ?? 0;
+          seen.set(identifier, occurrence + 1);
+
+          return (
+            <OutlineHeadingRow
+              key={`${identifier}-${idx}`}
+              item={item}
+              occurrence={occurrence}
+              isActive={
+                occurrence === activeOccurrences &&
+                activeHeaderId === identifier
+              }
+            />
+          );
+        })}
+      </div>
+    </div>
   );
 };
 

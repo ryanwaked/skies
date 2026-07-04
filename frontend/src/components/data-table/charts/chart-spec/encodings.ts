@@ -9,8 +9,18 @@ import type {
 import type { Scale } from "vega-lite/types_unstable/scale.js";
 import type { ColorScheme } from "vega-typings";
 import type { z } from "zod";
-import { COUNT_FIELD, DEFAULT_COLOR_SCHEME } from "../constants";
-import type { AxisSchema, BinSchema, ChartSchemaType } from "../schemas";
+import {
+  COUNT_FIELD,
+  DEFAULT_AXIS_SCALE,
+  DEFAULT_COLOR_SCHEME,
+  DEFAULT_LEGEND_POSITION,
+} from "../constants";
+import type {
+  AxisSchema,
+  AxisStyleSchemaType,
+  BinSchema,
+  ChartSchemaType,
+} from "../schemas";
 import {
   type AggregationFn,
   BIN_AGGREGATION,
@@ -59,6 +69,83 @@ export function getBinEncoding(
   }
 
   return binParams;
+}
+
+function isSetNumber(value: number | null | undefined): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+/**
+ * Builds the vega-lite scale (type and domain) for an axis.
+ * Returns undefined when everything is at its default.
+ */
+export function getAxisScale(
+  axisStyles: AxisStyleSchemaType | undefined,
+): Scale | undefined {
+  if (!axisStyles) {
+    return undefined;
+  }
+
+  const type =
+    axisStyles.scale && axisStyles.scale !== DEFAULT_AXIS_SCALE
+      ? axisStyles.scale
+      : undefined;
+
+  let domainMin = isSetNumber(axisStyles.domainMin)
+    ? axisStyles.domainMin
+    : undefined;
+  let domainMax = isSetNumber(axisStyles.domainMax)
+    ? axisStyles.domainMax
+    : undefined;
+
+  // A log scale cannot contain zero or negative values;
+  // omit the domain instead of erroring.
+  if (type === "log" && domainMin !== undefined && domainMin <= 0) {
+    domainMin = undefined;
+    domainMax = undefined;
+  }
+
+  const scale: Scale = {};
+  if (type) {
+    scale.type = type;
+  }
+  if (domainMin !== undefined && domainMax !== undefined) {
+    scale.domain = [domainMin, domainMax];
+  } else if (domainMin !== undefined) {
+    scale.domainMin = domainMin;
+  } else if (domainMax !== undefined) {
+    scale.domainMax = domainMax;
+  }
+
+  return Object.keys(scale).length > 0 ? scale : undefined;
+}
+
+/**
+ * Builds the vega-lite axis definition (currently just the d3 number format).
+ */
+export function getAxisFormat(
+  axisStyles: AxisStyleSchemaType | undefined,
+): { format: string } | undefined {
+  const format = axisStyles?.format?.trim();
+  return format ? { format } : undefined;
+}
+
+/**
+ * Builds the legend definition for the color encoding.
+ * `null` hides the legend; undefined keeps the vega-lite default (right).
+ */
+export function getLegendEncoding(
+  formValues: ChartSchemaType,
+): { orient: "bottom" } | null | undefined {
+  const legend = formValues.color?.legend ?? DEFAULT_LEGEND_POSITION;
+  if (legend === "none") {
+    return null;
+  }
+  if (legend === "bottom") {
+    return { orient: "bottom" };
+  }
+  // "right" is the vega-lite default
+  return undefined;
 }
 
 export function getColorInScale(
@@ -119,6 +206,7 @@ export function getColorEncoding(
     return {
       aggregate: "count",
       type: "quantitative",
+      legend: getLegendEncoding(formValues),
     };
   }
 
@@ -132,6 +220,7 @@ export function getColorEncoding(
     scale: getColorInScale(formValues),
     aggregate: getAggregate(aggregate, selectedDataType),
     bin: getBinEncoding(chartType, selectedDataType, colorBin),
+    legend: getLegendEncoding(formValues),
   };
 }
 

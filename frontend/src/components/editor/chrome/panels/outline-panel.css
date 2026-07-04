@@ -6,14 +6,11 @@
 }
 
 /* Hex-style dense rows for the outline sidebar panel (leaves the floating
-   outline untouched): 26px rows at 13px, 3px radius, quiet neutral hover. */
+   outline untouched): 26px rows at 13px, 3px radius. Hover and active tints
+   are handled by the row components so the active pink survives hover. */
 .outline-panel-tree > div {
   min-height: 26px;
   padding-top: 2px;
   padding-bottom: 2px;
   border-radius: 3px;
-}
-
-.outline-panel-tree > div:hover {
-  background-color: rgb(63 66 87 / 0.2);
 }

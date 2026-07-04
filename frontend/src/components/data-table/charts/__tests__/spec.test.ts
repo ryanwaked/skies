@@ -5,10 +5,13 @@ import { describe, expect, it } from "vitest";
 import { invariant } from "@/utils/invariant";
 import {
   getAggregate,
+  getAxisFormat,
+  getAxisScale,
   getBinEncoding,
   getColorEncoding,
+  getLegendEncoding,
 } from "../chart-spec/encodings";
-import { getAxisEncoding } from "../chart-spec/spec";
+import { getAxisEncoding, getYSeriesColumns } from "../chart-spec/spec";
 import { getTooltips } from "../chart-spec/tooltips";
 import { COUNT_FIELD, EMPTY_VALUE } from "../constants";
 import type { ChartSchemaType } from "../schemas";
@@ -999,6 +1002,124 @@ describe("getBinEncoding", () => {
       });
       expect(result).toEqual({ step: 10 });
     }
+  });
+});
+
+describe("getAxisScale", () => {
+  it("should return undefined for undefined axis styles", () => {
+    expect(getAxisScale(undefined)).toBeUndefined();
+  });
+
+  it("should return undefined for the default linear scale with no domain", () => {
+    expect(getAxisScale({ scale: "linear" })).toBeUndefined();
+    expect(getAxisScale({})).toBeUndefined();
+  });
+
+  it("should return the scale type for log and sqrt", () => {
+    expect(getAxisScale({ scale: "log" })).toEqual({ type: "log" });
+    expect(getAxisScale({ scale: "sqrt" })).toEqual({ type: "sqrt" });
+  });
+
+  it("should return a domain when both min and max are set", () => {
+    expect(getAxisScale({ domainMin: 0, domainMax: 10 })).toEqual({
+      domain: [0, 10],
+    });
+    expect(
+      getAxisScale({ scale: "log", domainMin: 1, domainMax: 100 }),
+    ).toEqual({ type: "log", domain: [1, 100] });
+  });
+
+  it("should return partial domains when only one bound is set", () => {
+    expect(getAxisScale({ domainMin: 5 })).toEqual({ domainMin: 5 });
+    expect(getAxisScale({ domainMax: 10 })).toEqual({ domainMax: 10 });
+  });
+
+  it("should omit the domain for log scales with a non-positive min", () => {
+    expect(
+      getAxisScale({ scale: "log", domainMin: 0, domainMax: 100 }),
+    ).toEqual({ type: "log" });
+    expect(getAxisScale({ scale: "log", domainMin: -5 })).toEqual({
+      type: "log",
+    });
+  });
+
+  it("should ignore null and non-finite domain values", () => {
+    expect(getAxisScale({ domainMin: null, domainMax: null })).toBeUndefined();
+    expect(getAxisScale({ domainMin: Number.NaN })).toBeUndefined();
+  });
+});
+
+describe("getAxisFormat", () => {
+  it("should return undefined when no format is set", () => {
+    expect(getAxisFormat(undefined)).toBeUndefined();
+    expect(getAxisFormat({})).toBeUndefined();
+    expect(getAxisFormat({ format: "  " })).toBeUndefined();
+  });
+
+  it("should return the trimmed format", () => {
+    expect(getAxisFormat({ format: ",.2f" })).toEqual({ format: ",.2f" });
+    expect(getAxisFormat({ format: " $,.0f " })).toEqual({ format: "$,.0f" });
+  });
+});
+
+describe("getLegendEncoding", () => {
+  it("should return undefined for the default (right) position", () => {
+    expect(getLegendEncoding({})).toBeUndefined();
+    expect(
+      getLegendEncoding({ color: { field: NONE_VALUE, legend: "right" } }),
+    ).toBeUndefined();
+  });
+
+  it("should return null to hide the legend", () => {
+    expect(
+      getLegendEncoding({ color: { field: NONE_VALUE, legend: "none" } }),
+    ).toBeNull();
+  });
+
+  it("should return the orientation for bottom legends", () => {
+    expect(
+      getLegendEncoding({ color: { field: NONE_VALUE, legend: "bottom" } }),
+    ).toEqual({ orient: "bottom" });
+  });
+});
+
+describe("getYSeriesColumns", () => {
+  it("should return the single yColumn when yColumns is absent", () => {
+    const result = getYSeriesColumns({
+      general: {
+        yColumn: { field: "sales", selectedDataType: "number" },
+      },
+    });
+    expect(result).toEqual([{ field: "sales", selectedDataType: "number" }]);
+  });
+
+  it("should return yColumn first, followed by additional series", () => {
+    const result = getYSeriesColumns({
+      general: {
+        yColumn: { field: "sales" },
+        yColumns: [{ field: "profit" }, { field: "cost" }],
+      },
+    });
+    expect(result.map((column) => column.field)).toEqual([
+      "sales",
+      "profit",
+      "cost",
+    ]);
+  });
+
+  it("should skip unset series", () => {
+    const result = getYSeriesColumns({
+      general: {
+        yColumn: { field: "sales" },
+        yColumns: [{ field: "" }, {}, { field: "profit" }],
+      },
+    });
+    expect(result.map((column) => column.field)).toEqual(["sales", "profit"]);
+  });
+
+  it("should return an empty list when nothing is set", () => {
+    expect(getYSeriesColumns({})).toEqual([]);
+    expect(getYSeriesColumns({ general: { yColumns: [{}] } })).toEqual([]);
   });
 });
 

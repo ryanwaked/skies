@@ -307,6 +307,78 @@ describe("generateAltairChart", () => {
     `);
   });
 
+  it("should generate a chart with a fold transform", () => {
+    const spec = {
+      mark: "line",
+      encoding: {
+        x: Mocks.xAxis,
+        y: { field: "value" },
+        color: { field: "series" },
+      },
+      transform: [{ fold: ["sales", "profit"], as: ["series", "value"] }],
+      data: { name: "_unused_" },
+    } as unknown as VegaLiteSpec;
+    const datasource = "df";
+
+    const result = generateAltairChart(spec, datasource).toCode();
+
+    expect(result).toMatchInlineSnapshot(`
+      "alt.Chart(df)
+      .mark_line()
+      .encode(
+          x=alt.X(field='category'),
+          y=alt.Y(field='value'),
+          color=alt.Color(field='series')
+      )
+      .transform_fold(
+          fold=[
+              'sales',
+              'profit'
+          ],
+          as_=[
+              'series',
+              'value'
+          ]
+      )"
+    `);
+  });
+
+  it("should generate a chart with legend and scale options", () => {
+    const spec = {
+      mark: "bar",
+      encoding: {
+        x: Mocks.xAxis,
+        y: {
+          field: "value",
+          scale: { type: "log" },
+          axis: { format: ",.2f" },
+        },
+        color: {
+          field: "color",
+          legend: null,
+        },
+      },
+      data: { name: "_unused_" },
+    } as unknown as VegaLiteSpec;
+    const datasource = "df";
+
+    const result = generateAltairChart(spec, datasource).toCode();
+
+    expect(result).toMatchInlineSnapshot(`
+      "alt.Chart(df)
+      .mark_bar()
+      .encode(
+          x=alt.X(field='category'),
+          y=alt.Y(field='value', scale={
+              'type': 'log'
+          }, axis={
+              'format': ',.2f'
+          }),
+          color=alt.Color(field='color', legend=None)
+      )"
+    `);
+  });
+
   it("should generate a chart with resolve_scale", () => {
     const spec = createSpec({
       mark: "bar",

@@ -3,6 +3,7 @@
 import {
   ArrowDownWideNarrowIcon,
   ArrowUpWideNarrowIcon,
+  InfoIcon,
   PlusIcon,
   SquareFunctionIcon,
   XIcon,
@@ -32,6 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { Tooltip } from "@/components/ui/tooltip";
 import type { DataType } from "@/core/kernel/messages";
 import { Multiselect } from "@/plugins/impl/MultiselectPlugin";
 import { cn } from "@/utils/cn";
@@ -245,9 +247,13 @@ export const SelectField = ({
 export const InputField = ({
   fieldName,
   label,
+  placeholder,
+  tooltip,
 }: {
   fieldName: FieldName;
   label: string;
+  placeholder?: string;
+  tooltip?: React.ReactNode;
 }) => {
   const form = useFormContext();
   return (
@@ -256,12 +262,22 @@ export const InputField = ({
       name={fieldName}
       render={({ field }) => (
         <FormItem className="flex flex-row gap-2 items-center">
-          <FormLabel className={FIELD_LABEL_CLASS}>{label}</FormLabel>
+          <FormLabel
+            className={cn(FIELD_LABEL_CLASS, "flex items-center gap-1")}
+          >
+            {label}
+            {tooltip && (
+              <Tooltip content={tooltip} delayDuration={200}>
+                <InfoIcon className="h-3 w-3" strokeWidth={1.5} />
+              </Tooltip>
+            )}
+          </FormLabel>
           <FormControl>
             <DebouncedInput
               {...field}
               value={field.value ?? EMPTY_VALUE}
               onValueChange={field.onChange}
+              placeholder={placeholder}
               className={FIELD_CONTROL_CLASS}
             />
           </FormControl>

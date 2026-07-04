@@ -93,6 +93,22 @@ export function generateAltairChart(
     code = code.chain("encode", encodeArgs);
   }
 
+  // Fold transforms (used for multi-series charts)
+  const transforms = "transform" in spec ? spec.transform : undefined;
+  if (transforms) {
+    for (const transform of transforms) {
+      if ("fold" in transform) {
+        const kwargs: Record<string, PythonCode> = {
+          fold: new Literal(transform.fold),
+        };
+        if (transform.as) {
+          kwargs.as_ = new Literal(transform.as);
+        }
+        code = code.chain("transform_fold", kwargs);
+      }
+    }
+  }
+
   if (spec.resolve) {
     const resolve = spec.resolve;
     const axisArgs: Record<string, PythonCode> = {};

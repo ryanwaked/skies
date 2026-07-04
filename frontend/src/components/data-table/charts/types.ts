@@ -114,3 +114,17 @@ export type ChartType = (typeof ChartType)[keyof typeof ChartType];
 export const CHART_TYPES = Object.values(ChartType);
 
 export const COLOR_BY_FIELDS = ["X", "Y", "Color", NONE_VALUE] as const;
+
+/**
+ * Scale types for continuous axes, subset of VegaLite's ScaleType,
+ * https://vega.github.io/vega-lite/docs/scale.html#type
+ */
+export const AXIS_SCALE_TYPES = ["linear", "log", "sqrt"] as const;
+export type AxisScaleType = (typeof AXIS_SCALE_TYPES)[number];
+
+/**
+ * Placement of the color legend,
+ * https://vega.github.io/vega-lite/docs/legend.html#orient
+ */
+export const LEGEND_POSITIONS = ["right", "bottom", "none"] as const;
+export type LegendPosition = (typeof LEGEND_POSITIONS)[number];

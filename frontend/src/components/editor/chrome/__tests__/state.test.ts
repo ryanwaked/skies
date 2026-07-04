@@ -39,6 +39,7 @@ describe("mergePanelLayout", () => {
         "outline",
         "documentation",
         "dependencies",
+        "search",
       ],
       developerPanel: [
         "errors",
@@ -69,6 +70,7 @@ describe("mergePanelLayout", () => {
       sidebar: [
         "files",
         "variables",
+        "search",
         "packages",
         "outline",
         "documentation",
@@ -108,6 +110,7 @@ describe("mergePanelLayout", () => {
         "outline",
         "documentation",
         "dependencies",
+        "search",
       ],
       developerPanel: [
         "errors",
@@ -124,6 +127,7 @@ describe("mergePanelLayout", () => {
   it("does not duplicate panels already present", () => {
     const saved: PanelLayout = {
       sidebar: [
+        "search",
         "files",
         "variables",
         "packages",
@@ -144,6 +148,7 @@ describe("mergePanelLayout", () => {
     };
     expect(mergePanelLayout(saved)).toEqual({
       sidebar: [
+        "search",
         "files",
         "variables",
         "packages",
@@ -172,6 +177,7 @@ describe("mergePanelLayout", () => {
     expect(mergePanelLayout(saved)).toEqual({
       sidebar: [
         "files",
+        "search",
         "packages",
         "outline",
         "documentation",
@@ -197,6 +203,7 @@ describe("mergePanelLayout", () => {
     };
     expect(mergePanelLayout(saved)).toEqual({
       sidebar: [
+        "search",
         "files",
         "variables",
         "packages",
@@ -277,6 +284,7 @@ describe("panelLayoutStorage integration", () => {
         "outline",
         "documentation",
         "dependencies",
+        "search",
       ],
       developerPanel: [
         "errors",

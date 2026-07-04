@@ -1,8 +1,10 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
+import { PlusIcon, XIcon } from "lucide-react";
 import React from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import type { z } from "zod";
+import { Button } from "@/components/ui/button";
 import { Tooltip } from "@/components/ui/tooltip";
 import type { DataType } from "@/core/kernel/messages";
 import { cn } from "@/utils/cn";
@@ -15,6 +17,7 @@ import {
   DEFAULT_AGGREGATION,
   DEFAULT_MAX_BINS_FACET,
   type EMPTY_VALUE,
+  MULTI_SERIES_CHART_TYPES,
 } from "../constants";
 import { useChartFormContext } from "../context";
 import type { ChartSchema } from "../schemas";
@@ -237,6 +240,25 @@ export const YAxis: React.FC = () => {
     defaultAggregation = "count";
   }
 
+  // Additional Y series (multi-series). Pie and heatmap are single-series.
+  const supportsMultiSeries = MULTI_SERIES_CHART_TYPES.includes(
+    context.chartType,
+  );
+  const extraSeries = formValues.general?.yColumns ?? [];
+
+  const addSeries = () => {
+    form.setValue("general.yColumns", [...extraSeries, {}]);
+    context.saveForm();
+  };
+
+  const removeSeries = (index: number) => {
+    form.setValue(
+      "general.yColumns",
+      extraSeries.filter((_, i) => i !== index),
+    );
+    context.saveForm();
+  };
+
   return (
     <FieldSection>
       <Title text="Y-Axis" />
@@ -247,6 +269,40 @@ export const YAxis: React.FC = () => {
         binFieldName="yAxis.bin.binned"
         defaultAggregation={defaultAggregation}
       />
+
+      {supportsMultiSeries && (
+        <>
+          {extraSeries.map((_, index) => (
+            <div key={index} className="flex flex-row items-center gap-1">
+              <ColumnSelector
+                fieldName={`general.yColumns.${index}.field`}
+                columns={context.fields}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Remove series"
+                title="Remove series"
+                onClick={() => removeSeries(index)}
+                className="h-7 w-7 shrink-0 text-muted-foreground hover:text-foreground"
+              >
+                <XIcon className="h-3 w-3" strokeWidth={1.5} />
+              </Button>
+            </div>
+          ))}
+          {yColumnExists && (
+            <button
+              type="button"
+              onClick={addSeries}
+              className="flex w-fit items-center gap-1 rounded-[3px] px-1 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-primary/[0.07] hover:text-primary"
+            >
+              <PlusIcon className="h-3 w-3" strokeWidth={1.5} />
+              Add series
+            </button>
+          )}
+        </>
+      )}
 
       {isNonCountField(yColumn) && (
         <DataTypeSelect
