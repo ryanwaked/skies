@@ -1,0 +1,71 @@
+{
+  "_meta": {
+    "source": "Live DOM extraction from app.hex.tech logic view (dark theme), viewport 1362x771, 2026-07-04",
+    "note": "Every value is a computed style from Hex's production app. Treat as ground truth for chrome sizing."
+  },
+  "topBar": {
+    "height": "40px exactly (not rem-scaled)",
+    "background": "transparent over #17171F base",
+    "hamburger": { "box": "28x28", "padding": "5px 9px", "radius": "3px", "color": "#e4e6ec" },
+    "breadcrumb": { "fontSize": "14px", "fontWeight": 400, "color": "#b1b6c4", "family": "IBM Plex Sans" },
+    "modeTabActive": {
+      "height": "28px", "padding": "5px 9px", "fontSize": "14px", "fontWeight": 400,
+      "color": "#f5c0c0", "background": "rgba(245,192,192,0.07)", "radius": "3px", "icon": "16x16"
+    },
+    "share": {
+      "height": "28px", "padding": "5px 9px", "fontSize": "14px", "fontWeight": 400,
+      "color": "#e4e6ec", "background": "transparent", "border": "none",
+      "note": "PLAIN ghost text button - no green tint, no icon"
+    }
+  },
+  "notebookToolbar": {
+    "note": "Sits inside the notebook column, pinned top-right at y~49 (just below the 40px top bar)",
+    "runAllGroup": { "totalSize": "138x24" },
+    "runAllMain": {
+      "height": "24px", "padding": "4px 8px", "radius": "3px 0 0 3px",
+      "background": "rgba(245,192,192,0.07)", "color": "#f5c0c0",
+      "fontSize": "12px", "fontWeight": 400, "text": "Run all"
+    },
+    "runAllChevron": {
+      "size": "24x24", "radius": "0 3px 3px 0", "background": "rgba(245,192,192,0.07)",
+      "borderLeft": "none (1px gap between halves via group gap or margin)"
+    }
+  },
+  "rail": {
+    "region": "48px total; items inset at x=6 with 36px width",
+    "item": {
+      "box": "36x36", "padding": "5px 9px", "radius": "3px", "pitch": "36px (flush stack, no gap)",
+      "icon": "16x16",
+      "restingColor": "#e4e6ec",
+      "restingIconFill": "#b1b6c4 on some glyphs, button color #e4e6ec",
+      "activeColor": "#f5c0c0", "activeBackground": "rgba(245,192,192,0.07)"
+    }
+  },
+  "addCellBar": {
+    "container": {
+      "background": "#1f1f29", "radius": "3px", "padding": "8px",
+      "border": "0.91px solid rgba(0,0,0,0.28)",
+      "boxShadow": "rgba(66,66,90,0.24) 0 0 0 1px inset, rgba(255,255,255,0.05) 0 1px 1px -0.5px inset, rgba(0,0,0,0.1) 0 1px 1px -0.5px, rgba(0,0,0,0.1) 0 2.5px 2.59px -1.25px, rgba(0,0,0,0.05) 0 7px 7.38px -3.5px"
+    },
+    "item": {
+      "box": "74x58 (fixed width)", "padding": "5px 2px", "radius": "3px", "gap": "5px between icon and label",
+      "icon": "16x16 above label",
+      "label": { "fontSize": "10px", "fontWeight": 400, "color": "#b1b6c4" },
+      "restingItemColor": "#e4e6ec"
+    },
+    "dividers": "NONE in the live app (the marketing screenshot's dividers do not exist in production DOM)"
+  },
+  "cellChrome": {
+    "onBorderLabel": { "fontSize": "12px", "fontWeight": 400, "color": "#b1b6c4" },
+    "sectionHeading": { "fontSize": "36px", "fontWeight": 600, "letterSpacing": "-1.44px (-0.04em)", "color": "#e4e6ec" },
+    "editor": { "fontSize": "12px", "lineHeight": "18px", "family": "IBM Plex Mono" }
+  },
+  "sidePanel": {
+    "width": "293px",
+    "title": { "fontSize": "14px", "fontWeight": 500, "color": "#e4e6ec" },
+    "row": { "fontSize": "12px", "fontWeight": 400, "color": "#b1b6c4" }
+  },
+  "icons": {
+    "note": "All Hex chrome glyphs are custom 16x16 viewBox hairline-filled artwork (proprietary; not copied). Rule for the fork: every chrome icon slot renders at exactly 16x16; use the closest open-set glyph (lucide) at strokeWidth 1.5."
+  }
+}

@@ -40,9 +40,12 @@ import { AddConnectionDialogContent } from "../connections/add-connection-dialog
 
 /**
  * Hex-style add-cell bar: one horizontal toolbar of cell types with
- * icon-over-label items and grouped dividers, in place of marimo's
- * Python/Markdown/SQL text buttons. Items insert cells prefilled with the
- * closest marimo equivalent (mo.ui.table, mo.stat, mo.ui.dataframe, ...).
+ * icon-over-label items, in place of marimo's Python/Markdown/SQL text
+ * buttons. Items insert cells prefilled with the closest marimo
+ * equivalent (mo.ui.table, mo.stat, mo.ui.dataframe, ...).
+ *
+ * Metrics are exact values measured from Hex's production DOM
+ * (see hex-measurements.json, addCellBar).
  */
 
 const CHART_TEMPLATE = `_chart = (
@@ -109,8 +112,7 @@ const INPUT_TEMPLATES: Array<{ label: string; code: string }> = [
   },
 ];
 
-interface ToolbarItemProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ToolbarItemProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon: LucideIcon;
   label: string;
   withChevron?: boolean;
@@ -129,16 +131,16 @@ const ToolbarItem: React.FC<ToolbarItemProps> = ({
     type="button"
     {...props}
     className={cn(
-      "flex min-w-18 flex-col items-center gap-1.5 rounded-[3px] px-3 py-2",
-      "text-muted-foreground transition-colors",
-      "hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground",
-      "data-[state=open]:bg-[rgba(63,66,87,0.2)] data-[state=open]:text-foreground",
+      "flex h-[58px] w-[74px] flex-col items-center justify-center gap-[5px] rounded-[3px] px-[2px] py-[5px]",
+      "text-foreground transition-colors",
+      "hover:bg-[rgba(63,66,87,0.2)] hover:text-primary",
+      "data-[state=open]:bg-[rgba(63,66,87,0.2)] data-[state=open]:text-primary",
       "disabled:pointer-events-none disabled:opacity-50",
       className,
     )}
   >
-    <Icon className="size-5 text-primary/80" strokeWidth={1.5} />
-    <span className="flex items-center gap-0.5 text-xs whitespace-nowrap">
+    <Icon className="h-[16px] w-[16px] shrink-0" strokeWidth={1.5} />
+    <span className="flex items-center gap-0.5 text-[10px] font-normal whitespace-nowrap text-muted-foreground">
       {label}
       {withChevron && (
         <ChevronDownIcon
@@ -148,10 +150,6 @@ const ToolbarItem: React.FC<ToolbarItemProps> = ({
       )}
     </span>
   </button>
-);
-
-const GroupDivider: React.FC = () => (
-  <div className="mx-1 my-2 w-px shrink-0 bg-border" />
 );
 
 export const AddCellToolbar: React.FC<{
@@ -185,17 +183,20 @@ export const AddCellToolbar: React.FC<{
     <div className="flex justify-center mt-4 pt-6 pb-32 w-full print:hidden">
       <div
         className={cn(
-          "flex items-stretch rounded-[3px] border border-border bg-card px-1.5 py-1",
+          "flex items-stretch rounded-[3px] bg-card p-[8px]",
           className,
         )}
+        style={{
+          border: "0.91px solid rgba(0,0,0,0.28)",
+          boxShadow:
+            "rgba(66,66,90,0.24) 0 0 0 1px inset, rgba(255,255,255,0.05) 0 1px 1px -0.5px inset, rgba(0,0,0,0.1) 0 1px 1px -0.5px, rgba(0,0,0,0.1) 0 2.5px 2.59px -1.25px, rgba(0,0,0,0.05) 0 7px 7.38px -3.5px",
+        }}
       >
         <ToolbarItem
           icon={DatabaseIcon}
           label="SQL Query"
           disabled={!canInteractWithApp}
-          onClick={() =>
-            insertCell(LanguageAdapters.sql.defaultCode)
-          }
+          onClick={() => insertCell(LanguageAdapters.sql.defaultCode)}
         />
         <ToolbarItem
           icon={SquareCodeIcon}
@@ -213,9 +214,6 @@ export const AddCellToolbar: React.FC<{
             })
           }
         />
-
-        <GroupDivider />
-
         <ToolbarItem
           icon={ChartColumnIcon}
           label="Chart"
@@ -260,9 +258,6 @@ export const AddCellToolbar: React.FC<{
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-
-        <GroupDivider />
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild={true} disabled={!canInteractWithApp}>
             <ToolbarItem

@@ -6,7 +6,6 @@ import {
   LayoutGridIcon,
   LayoutTemplateIcon,
   MessageSquareTextIcon,
-  UserPlusIcon,
 } from "lucide-react";
 import type { JSX, ReactNode } from "react";
 import { ConfigButton } from "@/components/app-config/app-config-button";
@@ -52,7 +51,7 @@ export const NotebookHeader = (): JSX.Element => {
   return (
     <div
       data-testid="notebook-header"
-      className="hex-topbar flex h-10 w-full shrink-0 items-center gap-1 border-b border-border bg-background pl-2 pr-3 print:hidden"
+      className="hex-topbar relative flex h-[40px] w-full shrink-0 items-center gap-1 border-b border-border bg-background pl-2 pr-3 print:hidden"
     >
       {!closed && (
         <NotebookMenuDropdown disabled={disabled} tooltip={connectionTooltip} />
@@ -61,7 +60,8 @@ export const NotebookHeader = (): JSX.Element => {
       <div className="flex min-w-0 shrink items-center">
         <FilenameForm filename={filename} />
         <ChevronDownIcon
-          className="size-3.5 shrink-0 text-muted-foreground"
+          className="h-[16px] w-[16px] shrink-0 text-muted-foreground"
+          strokeWidth={1.5}
           aria-hidden="true"
         />
       </div>
@@ -81,11 +81,14 @@ export const NotebookHeader = (): JSX.Element => {
             aria-label="Comments"
             data-testid="header-comments-button"
             className={cn(
-              "flex size-7 items-center justify-center rounded-[3px] text-muted-foreground transition-colors hover:text-foreground",
+              "flex h-[28px] w-[28px] items-center justify-center rounded-[3px] text-muted-foreground transition-colors hover:text-foreground",
               hoverGhost,
             )}
           >
-            <MessageSquareTextIcon className="size-4" strokeWidth={1.8} />
+            <MessageSquareTextIcon
+              className="h-[16px] w-[16px]"
+              strokeWidth={1.5}
+            />
           </button>
         </Tooltip>
 
@@ -96,7 +99,7 @@ export const NotebookHeader = (): JSX.Element => {
             type="button"
             data-testid="header-publish-button"
             className={cn(
-              "flex h-7 items-center rounded-[3px] border border-input px-2.5 text-sm text-foreground transition-colors",
+              "flex h-[28px] items-center rounded-[3px] border border-input px-[9px] py-[5px] text-[14px] font-normal text-foreground transition-colors",
               hoverGhost,
             )}
           >
@@ -181,12 +184,16 @@ const ModeSwitch = () => {
       role="tablist"
       aria-label="Notebook view"
       data-testid="notebook-mode-switch"
-      className="ml-3 flex shrink-0 items-center gap-0.5 rounded-[3px] bg-card p-0.5"
+      // Hex centers the mode tabs in the 40px bar (measured tab-group block
+      // is centered at viewport midline, independent of the title width).
+      className="absolute left-1/2 top-1/2 flex shrink-0 -translate-x-1/2 -translate-y-1/2 items-center gap-0.5 rounded-[3px]"
     >
       <ModeTab
         active={!isPresenting}
         label="Notebook"
-        icon={<LayoutGridIcon className="size-3.5" strokeWidth={1.8} />}
+        icon={
+          <LayoutGridIcon className="h-[16px] w-[16px]" strokeWidth={1.5} />
+        }
         onSelect={() => {
           if (isPresenting) {
             togglePresenting();
@@ -196,7 +203,9 @@ const ModeSwitch = () => {
       <ModeTab
         active={isPresenting}
         label="App builder"
-        icon={<LayoutTemplateIcon className="size-3.5" strokeWidth={1.8} />}
+        icon={
+          <LayoutTemplateIcon className="h-[16px] w-[16px]" strokeWidth={1.5} />
+        }
         onSelect={() => {
           if (!isPresenting) {
             togglePresenting();
@@ -225,7 +234,7 @@ const ModeTab = ({
     data-testid={`notebook-mode-tab-${label}`}
     onClick={onSelect}
     className={cn(
-      "flex h-7 items-center gap-1.5 rounded-[3px] px-2 text-sm font-normal transition-colors",
+      "flex h-[28px] items-center gap-1.5 rounded-[3px] px-[9px] py-[5px] text-[14px] font-normal transition-colors",
       active
         ? "bg-primary/[0.07] text-primary"
         : "text-foreground hover:bg-[rgba(63,66,87,0.2)]",
@@ -249,11 +258,10 @@ const ShareButton = () => {
           openModal(<ShareStaticNotebookModal onClose={closeModal} />)
         }
         className={cn(
-          "flex h-7 items-center gap-1.5 rounded-[3px] px-2.5 text-sm font-normal text-(--success) transition-colors",
-          "bg-[rgba(67,213,157,0.07)] hover:bg-[rgba(67,213,157,0.14)]",
+          "flex h-[28px] items-center rounded-[3px] bg-transparent px-[9px] py-[5px] text-[14px] font-normal text-foreground transition-colors",
+          hoverGhost,
         )}
       >
-        <UserPlusIcon className="size-4" strokeWidth={1.8} />
         Share
       </button>
     </Tooltip>

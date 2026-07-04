@@ -599,7 +599,11 @@ export class ColumnChartSpecModel<T> {
               type: "nominal",
               scale: {
                 domain: ["true", "false", "null"],
-                range: [summaryBarColor(), summaryBarColor(), summaryNullBarColor()],
+                range: [
+                  summaryBarColor(),
+                  summaryBarColor(),
+                  summaryNullBarColor(),
+                ],
               },
               legend: null,
             },

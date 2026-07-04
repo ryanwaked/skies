@@ -30,9 +30,7 @@ export function summaryBarColor(): string {
 }
 
 export function summaryNullBarColor(): string {
-  return store.get(resolvedThemeAtom) === "dark"
-    ? "#ffc940"
-    : orange.orange11;
+  return store.get(resolvedThemeAtom) === "dark" ? "#ffc940" : orange.orange11;
 }
 
 export function getLegacyNumericSpec(

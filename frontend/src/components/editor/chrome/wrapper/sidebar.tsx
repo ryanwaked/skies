@@ -36,7 +36,7 @@ export const Sidebar: React.FC = () => {
 
   const renderIcon = ({ Icon }: PanelDescriptor, className?: string) => {
     return (
-      <Icon strokeWidth={1.5} className={cn("h-[18px] w-[18px]", className)} />
+      <Icon strokeWidth={1.5} className={cn("h-[16px] w-[16px]", className)} />
     );
   };
 
@@ -122,7 +122,7 @@ export const Sidebar: React.FC = () => {
   return (
     <div
       data-testid="chrome-sidebar"
-      className="h-full w-12 shrink-0 pt-1.5 pb-1.5 flex flex-col items-center gap-0 text-foreground text-sm select-none z-50 bg-background border-r border-border print:hidden hide-on-fullscreen"
+      className="h-full w-[48px] shrink-0 pt-1.5 pb-1.5 flex flex-col items-center gap-0 text-foreground text-sm select-none z-50 bg-background border-r border-border print:hidden hide-on-fullscreen"
     >
       <ReorderableList<PanelDescriptor>
         value={sidebarItems}
@@ -136,7 +136,7 @@ export const Sidebar: React.FC = () => {
         }}
         getItemLabel={(panel) => (
           <span className="flex items-center gap-2">
-            {renderIcon(panel, "h-4 w-4 text-muted-foreground")}
+            {renderIcon(panel, "h-[16px] w-[16px] text-muted-foreground")}
             {panel.label}
           </span>
         )}
@@ -165,7 +165,7 @@ export const Sidebar: React.FC = () => {
         <SidebarItem tooltip="Send feedback!" selected={false}>
           <MessageCircleQuestionIcon
             strokeWidth={1.5}
-            className="h-[18px] w-[18px]"
+            className="h-[16px] w-[16px]"
           />
         </SidebarItem>
       </FeedbackButton>
@@ -180,7 +180,7 @@ const ErrorPanelIcon: React.FC<{ Icon: PanelDescriptor["Icon"] }> = ({
   return (
     <Icon
       strokeWidth={1.5}
-      className={cn("h-[18px] w-[18px]", errorCount > 0 && "text-destructive")}
+      className={cn("h-[16px] w-[16px]", errorCount > 0 && "text-destructive")}
     />
   );
 };
@@ -203,7 +203,7 @@ const QueuedOrRunningStack = () => {
       side="right"
       delayDuration={200}
     >
-      <div className="flex h-8 w-8 flex-col items-center justify-center gap-1">
+      <div className="flex h-[36px] w-[36px] flex-col items-center justify-center gap-1">
         <span
           className={cn(
             "h-1.5 w-1.5 shrink-0 rounded-full",
@@ -228,12 +228,13 @@ const SidebarItem: React.FC<
     onClick?: () => void;
   }>
 > = ({ children, tooltip, selected, className, onClick }) => {
-  // Hex rail geometry: 32x32 hit area, 18px icon, 3px radius, zero gap.
-  // Inactive icons are muted; hover lifts to foreground on a faint neutral bg.
+  // Hex rail geometry (live-measured): 36x36 item box, 16px icon, 3px radius,
+  // flush 36px pitch (zero gap). Resting icons are foreground (#e4e6ec) —
+  // not muted; hover adds a faint neutral wash; active is primary on a
+  // primary tint.
   const itemClassName = cn(
-    "flex items-center justify-center h-8 w-8 rounded-sm",
-    !selected &&
-      "text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]",
+    "flex items-center justify-center h-[36px] w-[36px] rounded-[3px]",
+    !selected && "text-foreground hover:bg-[rgba(63,66,87,0.2)]",
     selected && "bg-primary/[0.07] text-primary",
     className,
   );
