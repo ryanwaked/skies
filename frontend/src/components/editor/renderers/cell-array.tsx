@@ -6,27 +6,12 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { useAtomValue } from "jotai";
-import {
-  DatabaseIcon,
-  SparklesIcon,
-  SquareCodeIcon,
-  SquareMIcon,
-} from "lucide-react";
 import { useEffect } from "react";
-import { useOpenSettingsToTab } from "@/components/app-config/state";
 import { StartupLogsAlert } from "@/components/editor/alerts/startup-logs-alert";
 import { Cell } from "@/components/editor/notebook-cell";
 import { PackageAlert } from "@/components/editor/package-alert";
 import { SortableCellsProvider } from "@/components/sort/SortableCellsProvider";
-import { Button } from "@/components/ui/button";
-import { Tooltip } from "@/components/ui/tooltip";
-import { maybeAddMarimoImport } from "@/core/cells/add-missing-import";
 import { SETUP_CELL_ID } from "@/core/cells/ids";
-import { LanguageAdapters } from "@/core/codemirror/language/LanguageAdapters";
-import { MARKDOWN_INITIAL_HIDE_CODE } from "@/core/codemirror/language/languages/markdown";
-import { aiEnabledAtom, aiFeaturesEnabledAtom } from "@/core/config/config";
-import { canInteractWithAppAtom } from "@/core/network/connection";
-import { useBoolean } from "@/hooks/useBoolean";
 import { cn } from "@/utils/cn";
 import { Functions } from "@/utils/functions";
 import type { CellColumnId } from "@/utils/id-tree";
@@ -42,7 +27,6 @@ import type { AppConfig, UserConfig } from "../../../core/config/config-schema";
 import type { AppMode } from "../../../core/mode";
 import { useHotkey } from "../../../hooks/useHotkey";
 import { type Theme, useTheme } from "../../../theme/useTheme";
-import { AddCellWithAI } from "../ai/add-cell-with-ai";
 import {
   ConnectingAlert,
   NotStartedConnectionAlert,
@@ -52,6 +36,7 @@ import { useChromeActions } from "../chrome/state";
 import { Column } from "../columns/cell-column";
 import { NotebookBanner } from "../notebook-banner";
 import { StdinBlockingAlert } from "../stdin-blocking-alert";
+import { AddCellToolbar } from "./add-cell-toolbar";
 import { useFocusFirstEditor } from "./vertical-layout/useFocusFirstEditor";
 import { VerticalLayoutWrapper } from "./vertical-layout/vertical-layout-wrapper";
 
@@ -258,121 +243,5 @@ const AddCellButtons: React.FC<{
   columnId: CellColumnId;
   className?: string;
 }> = ({ columnId, className }) => {
-  const { createNewCell } = useCellActions();
-  const [isAiButtonOpen, isAiButtonOpenActions] = useBoolean(false);
-  const aiEnabled = useAtomValue(aiEnabledAtom);
-  const aiFeaturesEnabled = useAtomValue(aiFeaturesEnabledAtom);
-  const canInteractWithApp = useAtomValue(canInteractWithAppAtom);
-  const { handleClick } = useOpenSettingsToTab();
-
-  const buttonClass = cn(
-    "mb-0 rounded-none sm:px-4 md:px-5 lg:px-8 tracking-wide no-wrap whitespace-nowrap",
-    "font-semibold opacity-70 hover:opacity-90 uppercase text-xs",
-  );
-
-  const renderBody = () => {
-    if (aiEnabled && isAiButtonOpen) {
-      return <AddCellWithAI onClose={isAiButtonOpenActions.toggle} />;
-    }
-
-    return (
-      <>
-        <Button
-          className={buttonClass}
-          variant="text"
-          size="sm"
-          disabled={!canInteractWithApp}
-          onClick={() =>
-            createNewCell({
-              cellId: { type: "__end__", columnId },
-              before: false,
-            })
-          }
-        >
-          <SquareCodeIcon className="mr-2 size-4 shrink-0" />
-          Python
-        </Button>
-        <Button
-          className={buttonClass}
-          variant="text"
-          size="sm"
-          disabled={!canInteractWithApp}
-          onClick={() => {
-            maybeAddMarimoImport({ autoInstantiate: true, createNewCell });
-
-            createNewCell({
-              cellId: { type: "__end__", columnId },
-              before: false,
-              code: LanguageAdapters.markdown.defaultCode,
-              hideCode: MARKDOWN_INITIAL_HIDE_CODE,
-            });
-          }}
-        >
-          <SquareMIcon className="mr-2 size-4 shrink-0" />
-          Markdown
-        </Button>
-        <Button
-          className={buttonClass}
-          variant="text"
-          size="sm"
-          disabled={!canInteractWithApp}
-          onClick={() => {
-            maybeAddMarimoImport({ autoInstantiate: true, createNewCell });
-
-            createNewCell({
-              cellId: { type: "__end__", columnId },
-              before: false,
-              code: LanguageAdapters.sql.defaultCode,
-            });
-          }}
-        >
-          <DatabaseIcon className="mr-2 size-4 shrink-0" />
-          SQL
-        </Button>
-        {aiEnabled && (
-          <Tooltip
-            content={
-              aiFeaturesEnabled ? null : (
-                <span>AI provider not found or Edit model not selected</span>
-              )
-            }
-            delayDuration={100}
-            asChild={false}
-          >
-            <Button
-              className={buttonClass}
-              variant="text"
-              size="sm"
-              disabled={!canInteractWithApp}
-              onClick={
-                aiFeaturesEnabled
-                  ? isAiButtonOpenActions.toggle
-                  : () => handleClick("ai", "ai-providers")
-              }
-            >
-              <SparklesIcon className="mr-2 size-4 shrink-0" />
-              Generate with AI
-            </Button>
-          </Tooltip>
-        )}
-      </>
-    );
-  };
-
-  return (
-    <div className="flex justify-center mt-4 pt-6 pb-32 group gap-4 w-full print:hidden">
-      <div
-        className={cn(
-          "border border-border rounded transition-all duration-200 overflow-hidden divide-x divide-border flex",
-          !isAiButtonOpen && "w-fit",
-          isAiButtonOpen && "w-full max-w-4xl",
-          className,
-          // Always show the AI input when it's open
-          isAiButtonOpen && "opacity-100",
-        )}
-      >
-        {renderBody()}
-      </div>
-    </div>
-  );
+  return <AddCellToolbar columnId={columnId} className={className} />;
 };
