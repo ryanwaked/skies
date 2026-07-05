@@ -79,15 +79,16 @@ const ToolbarItem: React.FC<ToolbarItemProps> = ({
     type="button"
     {...props}
     className={cn(
-      "flex h-[58px] w-[74px] flex-col items-center justify-center gap-[5px] rounded-[3px] px-[2px] py-[5px]",
-      "text-foreground transition-colors",
-      "hover:bg-[rgba(63,66,87,0.2)] hover:text-primary",
-      "data-[state=open]:bg-[rgba(63,66,87,0.2)] data-[state=open]:text-primary",
+      "flex h-[52px] w-[64px] flex-col items-center justify-center gap-[4px] rounded-[3px] px-[2px] py-[4px]",
+      "text-foreground transition-all",
+      "hover:bg-[var(--hover-wash)] hover:text-primary hover:-translate-y-px",
+      "data-[state=open]:bg-[var(--hover-wash)] data-[state=open]:text-primary",
+      "focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring",
       "disabled:pointer-events-none disabled:opacity-50",
       className,
     )}
   >
-    <Icon className="h-[16px] w-[16px] shrink-0" strokeWidth={1.5} />
+    <Icon className="h-[15px] w-[15px] shrink-0" strokeWidth={1.5} />
     <span className="flex items-center gap-0.5 text-[10px] font-normal whitespace-nowrap text-muted-foreground">
       {label}
       {withChevron && (
@@ -129,12 +130,14 @@ export const AddCellToolbar: React.FC<{
   };
 
   return (
-    <div className="flex justify-center mt-4 pt-6 pb-32 w-full px-4 print:hidden">
+    <div className="flex flex-col items-center mt-4 pt-6 pb-32 w-full px-4 print:hidden">
+      <div className="skies-kicker mb-2">add cell</div>
       <div
         className={cn(
-          // flex-wrap so narrow panels never clip the outer items; hairline
-          // token border instead of the old hardcoded dark-tuned chrome
-          "flex flex-wrap justify-center items-stretch max-w-full rounded-[3px] bg-card p-[8px] border border-input",
+          // flex-wrap so narrow panels never clip the outer items. Soft
+          // elevation (shadow-md) lifts the toolbar off the desk; hairline
+          // border + rounded corners for the Skies paper-panel language.
+          "flex flex-wrap justify-center items-stretch max-w-full rounded-[4px] bg-card p-[6px] border border-input shadow-md",
           className,
         )}
       >

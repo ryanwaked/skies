@@ -153,18 +153,19 @@ body,
   top: 0;
   left: 0;
   right: 0;
-  height: min(468px, 60vh);
+  height: min(560px, 65vh);
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
   opacity: var(--sky-fade, 1);
   background: linear-gradient(
     180deg,
-    #1b7be4 0%,
-    #4f9cee 30%,
-    #9cc8f4 54%,
-    #dcd7c6 76%,
-    #f2e5d2 88%,
+    #155fb0 0%,
+    #1b7be4 22%,
+    #4f9cee 45%,
+    #9cc8f4 66%,
+    #dcd7c6 84%,
+    #f2e5d2 93%,
     rgb(242 229 210 / 0%) 100%
   );
   mask-image: linear-gradient(
@@ -267,11 +268,12 @@ body,
 .dark .skies-sky {
   background: linear-gradient(
     180deg,
-    #060e24 0%,
-    #0b1834 33%,
-    #121f3c 60%,
-    #1a1f33 78%,
-    #181626 87%,
+    #050a1c 0%,
+    #060e24 24%,
+    #0b1834 48%,
+    #121f3c 68%,
+    #1a1f33 84%,
+    #181626 93%,
     rgb(24 22 38 / 0%) 100%
   );
 }

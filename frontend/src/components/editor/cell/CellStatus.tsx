@@ -72,7 +72,7 @@ export const CellStatusComponent: React.FC<CellStatusComponentProps> = ({
           data-status="stale"
         >
           <MultiIcon>
-            <BanIcon className="h-5 w-5" strokeWidth={1.5} />
+            <BanIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
             <RefreshCwIcon className="h-3 w-3" strokeWidth={2.5} />
           </MultiIcon>
         </div>
@@ -123,7 +123,7 @@ export const CellStatusComponent: React.FC<CellStatusComponentProps> = ({
           data-status="disabled-transitively"
         >
           <MultiIcon layerTop={true}>
-            <WorkflowIcon className="h-5 w-5" strokeWidth={1.5} />
+            <WorkflowIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
             <BanIcon className="h-3 w-3" strokeWidth={2.5} />
           </MultiIcon>
         </div>
@@ -151,7 +151,7 @@ export const CellStatusComponent: React.FC<CellStatusComponentProps> = ({
           data-status="stale"
         >
           <MultiIcon>
-            <RefreshCwIcon className="h-5 w-5" strokeWidth={1} />
+            <RefreshCwIcon className="h-3.5 w-3.5" strokeWidth={1} />
             <BanIcon className="h-3 w-3" strokeWidth={2.5} />
           </MultiIcon>
         </div>
@@ -206,7 +206,7 @@ export const CellStatusComponent: React.FC<CellStatusComponentProps> = ({
           data-testid="cell-status"
           data-status="queued"
         >
-          <MoreHorizontalIcon className="h-5 w-5" strokeWidth={1.5} />
+          <MoreHorizontalIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
         </div>
       </Tooltip>
     );
@@ -249,7 +249,7 @@ export const CellStatusComponent: React.FC<CellStatusComponentProps> = ({
             data-testid="cell-status"
             data-status="outdated"
           >
-            <RefreshCwIcon className="h-5 w-5" strokeWidth={1.5} />
+            <RefreshCwIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
           </div>
         </Tooltip>
         {elapsedTime && (

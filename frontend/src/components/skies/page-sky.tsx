@@ -21,7 +21,7 @@ export const PageSky: React.FC = () => {
     let raf = 0;
     const update = () => {
       raf = 0;
-      const f = Math.max(0, 1 - window.scrollY / 320);
+      const f = Math.max(0, 1 - window.scrollY / 380);
       // Set on the parent so siblings (hero text, over-sky controls) can
       // blend their ink with the wash: white over the sky, back to the
       // theme's ink as the band dissolves. The band itself inherits it.

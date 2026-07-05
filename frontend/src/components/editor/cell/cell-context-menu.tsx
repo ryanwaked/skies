@@ -1,9 +1,11 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import {
+  ArrowUpDownIcon,
   ClipboardCopyIcon,
   ClipboardPasteIcon,
   CopyIcon,
+  FileCode2Icon,
   ImageIcon,
   ScissorsIcon,
   SearchIcon,
@@ -15,6 +17,9 @@ import {
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { menuItemVariants } from "@/components/ui/menu-items";
@@ -184,6 +189,91 @@ export const CellActionsContextMenu = ({
     )
     .filter((group) => group.length > 0);
 
+  // Detect groups that should render as submenus (movement, convert) to keep
+  // the top-level menu short. Matched by the labels of their items.
+  const isMoveGroup = (g: ActionButton[]) =>
+    g.some((a) => /move (cell )?(up|down|left|right)/i.test(a.label)) ||
+    g.some((a) => /send to (top|bottom)/i.test(a.label));
+  const isConvertGroup = (g: ActionButton[]) =>
+    g.some((a) => /convert to/i.test(a.label)) ||
+    g.some((a) => /view as/i.test(a.label));
+
+  const renderAction = (action: ActionButton, keyPrefix: string) => {
+    let body = (
+      <div className="flex items-center flex-1">
+        {action.icon && (
+          <div className="mr-2 w-5 text-muted-foreground">{action.icon}</div>
+        )}
+        <div className="flex-1">{action.label}</div>
+        <div className="shrink-0 text-sm">
+          {action.hotkey && renderMinimalShortcut(action.hotkey)}
+          {action.rightElement}
+        </div>
+      </div>
+    );
+
+    if (action.tooltip) {
+      body = (
+        <Tooltip delayDuration={100} content={action.tooltip}>
+          {body}
+        </Tooltip>
+      );
+    }
+
+    return (
+      <Fragment key={`${keyPrefix}-${action.label}`}>
+        {action.disableClick ? (
+          <div
+            className={menuItemVariants({
+              className: action.disabled ? "opacity-50!" : "",
+              variant: action.variant,
+            })}
+            onKeyDown={(evt) => {
+              evt.stopPropagation();
+            }}
+          >
+            {body}
+          </div>
+        ) : (
+          <ContextMenuItem
+            className={action.disabled ? "opacity-50!" : ""}
+            onSelect={(evt) => {
+              if (action.disableClick || action.disabled) {
+                return;
+              }
+              action.handle(evt);
+            }}
+            variant={action.variant}
+          >
+            {body}
+          </ContextMenuItem>
+        )}
+      </Fragment>
+    );
+  };
+
+  const renderGroup = (group: ActionButton[], key: number) => {
+    const asSubmenu = (isMoveGroup(group) || isConvertGroup(group)) && group.length >= 2;
+    if (!asSubmenu) {
+      return <Fragment key={key}>{group.map((a) => renderAction(a, `${key}`))}</Fragment>;
+    }
+    const label = isMoveGroup(group) ? "Move" : "Convert";
+    const Icon = isMoveGroup(group) ? ArrowUpDownIcon : FileCode2Icon;
+    return (
+      <ContextMenuSub key={`sub-${key}`}>
+        <ContextMenuSubTrigger className="flex items-center" inset={false}>
+          <div className="mr-2 w-5 text-muted-foreground">
+            <Icon className="h-4 w-4" strokeWidth={1.5} />
+          </div>
+          {label}
+        </ContextMenuSubTrigger>
+        <ContextMenuSubContent className="w-[240px]">
+          {group.map((a) => renderAction(a, `sub-${key}`))}
+        </ContextMenuSubContent>
+      </ContextMenuSub>
+    );
+  };
+
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -210,67 +300,7 @@ export const CellActionsContextMenu = ({
       >
         {visibleActions.map((group, i) => (
           <Fragment key={i}>
-            {group.map((action) => {
-              let body = (
-                <div className="flex items-center flex-1">
-                  {action.icon && (
-                    <div className="mr-2 w-5 text-muted-foreground">
-                      {action.icon}
-                    </div>
-                  )}
-                  <div className="flex-1">{action.label}</div>
-                  <div className="shrink-0 text-sm">
-                    {action.hotkey && renderMinimalShortcut(action.hotkey)}
-                    {action.rightElement}
-                  </div>
-                </div>
-              );
-
-              if (action.tooltip) {
-                body = (
-                  <Tooltip delayDuration={100} content={action.tooltip}>
-                    {body}
-                  </Tooltip>
-                );
-              }
-
-              return (
-                <Fragment key={action.label}>
-                  {
-                    // Set disableClick items such as cell name input
-                    // to div to prevent roving focus
-                    action.disableClick ? (
-                      <div
-                        className={menuItemVariants({
-                          className: action.disabled ? "opacity-50!" : "",
-                          variant: action.variant,
-                        })}
-                        onKeyDown={(evt) => {
-                          evt.stopPropagation();
-                        }}
-                        // Prevent keydown propagation, that focus does not jump to shortcut which start with same letter
-                        // e.g. input "C", then focus jump to "Copy"
-                      >
-                        {body}
-                      </div>
-                    ) : (
-                      <ContextMenuItem
-                        className={action.disabled ? "opacity-50!" : ""}
-                        onSelect={(evt) => {
-                          if (action.disableClick || action.disabled) {
-                            return;
-                          }
-                          action.handle(evt);
-                        }}
-                        variant={action.variant}
-                      >
-                        {body}
-                      </ContextMenuItem>
-                    )
-                  }
-                </Fragment>
-              );
-            })}
+            {renderGroup(group, i)}
             {i < visibleActions.length - 1 && <ContextMenuSeparator />}
           </Fragment>
         ))}

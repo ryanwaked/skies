@@ -269,20 +269,10 @@
       0 0 0 2px color-mix(in srgb, var(--error), transparent 90%);
   }
 
-  /* Needs Run */
+  /* Needs Run — subtle: a hairline border using the standard --border token,
+     no yellow fill/outline. The RunButton becoming visible is enough signal. */
 
   &.needs-run {
-    /* TODO(akshayka): Can give this an outline to make more visible. */
-    @apply border-stale border-1 divide-stale outline-1 outline-stale;
-
-    &:hover {
-      @apply border-action-foreground/30 outline-action-foreground/30;
-    }
-
-    &:focus-within {
-      @apply border-1 outline-0 divide-stale;
-    }
-
     &:focus-within .cm-editor {
       border: 1px solid transparent;
     }
