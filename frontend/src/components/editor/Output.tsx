@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import React, { memo, Suspense, useMemo, useRef } from "react";
-import { HEX_DARK_VEGA_CONFIG } from "@/components/charts/hex-vega-theme";
+import { getSkiesVegaConfig } from "@/components/charts/skies-vega-theme";
 import { type CellId, CellOutputId } from "@/core/cells/ids";
 import type { CellOutput, OutputMessage } from "@/core/kernel/messages";
 import { cn } from "@/utils/cn";
@@ -222,7 +222,7 @@ export const OutputRenderer: React.FC<{
             spec={parsedJsonData as TopLevelFacetedUnitSpec}
             data-container-width={getContainerWidth(parsedJsonData)}
             options={{
-              config: theme === "dark" ? HEX_DARK_VEGA_CONFIG : undefined,
+              config: getSkiesVegaConfig(theme),
               mode: "vega-lite",
               tooltip: tooltipHandler.call,
               renderer: "canvas",

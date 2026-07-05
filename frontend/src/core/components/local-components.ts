@@ -8,7 +8,7 @@ import { generateUUID } from "@/utils/uuid";
 
 /**
  * A "local component": a named, reusable snippet of cell code, persisted to
- * localStorage. This is a frontend-only v1 of Hex-style components — there is
+ * localStorage. This is a frontend-only v1 of Skies components — there is
  * no backend storage, so components are scoped to the browser.
  */
 export interface LocalComponent {
@@ -81,4 +81,41 @@ export function deleteLocalComponent(id: string): void {
   store.set(localComponentsAtom, (prev) =>
     prev.filter((component) => component.id !== id),
   );
+}
+
+/**
+ * Serialize all components to a JSON string (the export file format —
+ * localStorage is origin-scoped, so export/import is how components move
+ * across marimo servers on different ports/hosts or across browsers).
+ */
+export function exportLocalComponents(): string {
+  return JSON.stringify(store.get(localComponentsAtom), null, 2);
+}
+
+/**
+ * Import components from a parsed export payload. Validates the shape,
+ * skips entries whose id AND code already exist, and regenerates ids on
+ * id-only collisions. Returns the number of components added.
+ * Throws on invalid payloads.
+ */
+export function importLocalComponents(payload: unknown): number {
+  const incoming = z.array(LocalComponentSchema).parse(payload);
+  const existing = store.get(localComponentsAtom);
+  const byId = new Map(existing.map((c) => [c.id, c]));
+  const added: LocalComponent[] = [];
+  for (const component of incoming) {
+    const collision = byId.get(component.id);
+    if (collision) {
+      if (collision.code === component.code) {
+        continue; // already have it
+      }
+      added.push({ ...component, id: generateUUID() });
+    } else {
+      added.push(component);
+    }
+  }
+  if (added.length > 0) {
+    store.set(localComponentsAtom, (prev) => [...prev, ...added]);
+  }
+  return added.length;
 }

@@ -1,15 +1,18 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { usePrevious } from "@dnd-kit/utilities";
-import { useEffect } from "react";
-import { useCellErrors } from "@/core/cells/cells";
+import { useEffect, useRef } from "react";
+import { cellErrorCount } from "@/core/cells/cells";
 import { useEventListener } from "@/hooks/useEventListener";
+import { useAtomValue } from "jotai";
 import successFaviconUrl from "../../assets/circle-check.ico";
 import runningFaviconUrl from "../../assets/circle-play.ico";
 import errorFaviconUrl from "../../assets/circle-x.ico";
 
 const FAVICON_PATHS = {
-  idle: "./favicon.ico",
+  // The SVG mark adapts to prefers-color-scheme; .ico is only the
+  // pre-JS/no-SVG-support fallback declared in index.html.
+  idle: "./favicon.svg",
   success: successFaviconUrl,
   running: runningFaviconUrl,
   error: errorFaviconUrl,
@@ -62,18 +65,29 @@ function maybeSendNotification(numErrors: number) {
 
 export const DynamicFavicon = (props: Props) => {
   const { isRunning } = props;
-  const errors = useCellErrors();
+  // Select only the count — a stable primitive that only changes when the
+  // error count actually changes (the full array re-derives every notebook
+  // state change and would re-fire the effects below).
+  const errorCount = useAtomValue(cellErrorCount);
 
-  let favicon: HTMLLinkElement | null =
-    document.querySelector("link[rel~='icon']");
-
-  if (!favicon) {
-    favicon = document.createElement("link");
-    favicon.rel = "icon";
-    document.getElementsByTagName("head")[0].append(favicon);
-  }
+  // Keep the favicon <link> in a ref rather than querying/creating it during
+  // render (DOM mutation in the render body is a React anti-pattern).
+  const faviconRef = useRef<HTMLLinkElement | null>(null);
+  const getFavicon = () => {
+    if (!faviconRef.current) {
+      let link = document.querySelector<HTMLLinkElement>("link[rel~='icon']");
+      if (!link) {
+        link = document.createElement("link");
+        link.rel = "icon";
+        document.getElementsByTagName("head")[0].append(link);
+      }
+      faviconRef.current = link;
+    }
+    return faviconRef.current;
+  };
 
   useEffect(() => {
+    const favicon = getFavicon();
     // No change on startup (autorun enabled or not)
     // Treat the default marimo favicon as "idle"
     if (!isRunning && favicon.href.includes("favicon")) {
@@ -87,7 +101,7 @@ export const DynamicFavicon = (props: Props) => {
         key = "running";
       } else {
         // When run is complete, display success or error favicon
-        key = errors.length === 0 ? "success" : "error";
+        key = errorCount === 0 ? "success" : "error";
       }
       favicon.href = await getFaviconUrl(key);
 
@@ -105,20 +119,20 @@ export const DynamicFavicon = (props: Props) => {
     };
 
     updateFavicon();
-  }, [isRunning, errors, favicon]);
+  }, [isRunning, errorCount]);
 
   // Send user notification when run has completed
   const prevRunning = usePrevious(isRunning) ?? isRunning;
   useEffect(() => {
     if (prevRunning && !isRunning) {
-      maybeSendNotification(errors.length);
+      maybeSendNotification(errorCount);
     }
-  }, [errors, prevRunning, isRunning]);
+  }, [errorCount, prevRunning, isRunning]);
 
   // When notebook comes back in focus, reset favicon
   useEventListener(window, "focus", async (_) => {
     if (!isRunning) {
-      favicon.href = await getFaviconUrl("idle");
+      getFavicon().href = await getFaviconUrl("idle");
     }
   });
 

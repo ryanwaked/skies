@@ -43,9 +43,18 @@ const createNamespacedLogger = (
 
 /**
  * Wrapper around console.log that can be used to disable logging in production or add additional logging.
+ *
+ * `debug` is silenced in production builds — it's used heavily on hot
+ * render paths (e.g. per-cell logging), where the console formatting cost
+ * is non-trivial. `log`/`warn`/`error`/`trace` remain active in all builds.
  */
+const isProd = import.meta.env.PROD;
+
 const ConsoleLogger: ILogger = {
   debug: (...args) => {
+    if (isProd) {
+      return;
+    }
     console.debug(...args);
   },
   log: (...args) => {

@@ -62,6 +62,9 @@ export const LazySecretsPanel = reactLazyWithPreload(
 export const LazySnippetsPanel = reactLazyWithPreload(
   () => import("../panels/snippets-panel"),
 );
+export const LazyComponentsPanel = reactLazyWithPreload(
+  () => import("../panels/components-panel"),
+);
 export const LazyTracingPanel = reactLazyWithPreload(
   () => import("../panels/tracing-panel"),
 );
@@ -81,6 +84,7 @@ export const PANEL_PRELOADERS: Record<PanelType, () => void> = {
   outline: safePreload(LazyOutlinePanel),
   documentation: safePreload(LazyDocumentationPanel),
   snippets: safePreload(LazySnippetsPanel),
+  components: safePreload(LazyComponentsPanel),
   ai: () => {
     safePreload(LazyChatPanel)();
     safePreload(LazyAgentPanel)();

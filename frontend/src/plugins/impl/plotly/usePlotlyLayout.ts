@@ -27,29 +27,36 @@ export const LAYOUT_OMIT_KEYS: (keyof Plotly.Layout)[] = [
 ];
 
 /**
- * Dark-mode layout defaults matching the Hex design language: transparent
- * paper/plot on the #1a1a23 canvas, IBM Plex Sans labels, #353548 grid.
- * Plotly figures arrive with the light template baked in, so these are
- * spread under the user's layout (user values still win).
+ * Layout defaults matching the Skies design language: transparent
+ * paper/plot on the desk-grid canvas, JetBrains Mono guide labels, and
+ * hairline ink grid lines in both color modes. Plotly figures arrive with
+ * plotly's stock light template baked in, so these are spread under the
+ * user's layout (user values still win).
  */
-function darkLayoutDefaults(): Partial<Plotly.Layout> {
-  if (store.get(resolvedThemeAtom) !== "dark") {
-    return {};
-  }
+function skiesLayoutDefaults(): Partial<Plotly.Layout> {
+  const dark = store.get(resolvedThemeAtom) === "dark";
+  const grid = dark ? "rgba(220,214,232,0.14)" : "rgba(21,17,42,0.12)";
   return {
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)",
-    font: { color: "#e4e6ec", family: "IBM Plex Sans, sans-serif" },
+    font: {
+      color: dark ? "#bbb5c7" : "#5c5668",
+      family: "JetBrains Mono, ui-monospace, monospace",
+      size: 11,
+    },
     xaxis: {
-      gridcolor: "#353548",
-      zerolinecolor: "#353548",
-      linecolor: "#353548",
+      gridcolor: grid,
+      zerolinecolor: grid,
+      linecolor: grid,
     },
     yaxis: {
-      gridcolor: "#353548",
-      zerolinecolor: "#353548",
-      linecolor: "#353548",
+      gridcolor: grid,
+      zerolinecolor: grid,
+      linecolor: grid,
     },
+    colorway: dark
+      ? ["#5fa6ef", "#d98552", "#e8c44e", "#3fb950", "#b79ce8", "#58c1cc"]
+      : ["#1b7be4", "#a8542c", "#c2980f", "#1f883d", "#7c5cbf", "#0e7f8a"],
   };
 }
 
@@ -63,7 +70,7 @@ export function createInitialLayout(figure: Figure): Partial<Plotly.Layout> {
     autosize: shouldAutoSize,
     dragmode: "select",
     height: 540,
-    ...darkLayoutDefaults(),
+    ...skiesLayoutDefaults(),
     // Prioritize user's config
     ...figure.layout,
   };

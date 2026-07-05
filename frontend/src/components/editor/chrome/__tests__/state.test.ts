@@ -40,6 +40,7 @@ describe("mergePanelLayout", () => {
         "documentation",
         "dependencies",
         "search",
+        "components",
       ],
       developerPanel: [
         "errors",
@@ -75,6 +76,7 @@ describe("mergePanelLayout", () => {
         "outline",
         "documentation",
         "dependencies",
+        "components",
       ],
       developerPanel: [
         "errors",
@@ -111,6 +113,7 @@ describe("mergePanelLayout", () => {
         "documentation",
         "dependencies",
         "search",
+        "components",
       ],
       developerPanel: [
         "errors",
@@ -135,6 +138,7 @@ describe("mergePanelLayout", () => {
         "outline",
         "documentation",
         "dependencies",
+        "components",
       ],
       developerPanel: [
         "errors",
@@ -156,6 +160,7 @@ describe("mergePanelLayout", () => {
         "outline",
         "documentation",
         "dependencies",
+        "components",
       ],
       developerPanel: [
         "errors",
@@ -182,6 +187,7 @@ describe("mergePanelLayout", () => {
         "outline",
         "documentation",
         "dependencies",
+        "components",
       ],
       developerPanel: [
         "errors",
@@ -210,6 +216,7 @@ describe("mergePanelLayout", () => {
         "outline",
         "documentation",
         "dependencies",
+        "components",
       ],
       developerPanel: [
         "errors",
@@ -285,6 +292,7 @@ describe("panelLayoutStorage integration", () => {
         "documentation",
         "dependencies",
         "search",
+        "components",
       ],
       developerPanel: [
         "errors",

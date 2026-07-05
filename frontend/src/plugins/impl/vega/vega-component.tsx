@@ -9,7 +9,7 @@ import { useVegaEmbed } from "react-vega";
 import type { View } from "vega";
 // @ts-expect-error vega-typings does not include formats
 import { formats } from "vega-loader";
-import { HEX_DARK_VEGA_CONFIG } from "@/components/charts/hex-vega-theme";
+import { getSkiesVegaConfig } from "@/components/charts/skies-vega-theme";
 import { tooltipHandler } from "@/components/charts/tooltip";
 import type { SignalListener } from "@/components/charts/types";
 import { Alert, AlertTitle } from "@/components/ui/alert";
@@ -267,7 +267,7 @@ const LoadedVegaComponent = ({
     ref: vegaRef,
     spec: selectableSpec,
     options: {
-      config: theme === "dark" ? HEX_DARK_VEGA_CONFIG : undefined,
+      config: getSkiesVegaConfig(theme),
       actions: actions,
       mode: "vega-lite",
       tooltip: tooltipHandler.call,

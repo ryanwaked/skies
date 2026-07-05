@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { StyleNamespace } from "@/theme/namespace";
 import { cn } from "@/utils/cn";
 import { withFullScreenAsRoot } from "./fullscreen";
+import { overlayTitle } from "./styles";
 import { useRestoreFocus } from "./use-restore-focus";
 
 const AlertDialog = AlertDialogPrimitive.Root;
@@ -98,7 +99,7 @@ const AlertDialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Title
     ref={ref}
-    className={cn("text-base font-semibold tracking-[-0.04em]", className)}
+    className={cn(overlayTitle, className)}
     {...props}
   />
 ));

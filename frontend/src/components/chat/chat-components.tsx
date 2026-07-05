@@ -100,6 +100,7 @@ export const SendButton = ({
       <Button
         variant="text"
         size="sm"
+        aria-label={isLoading ? "Stop" : "Submit"}
         className="h-6 min-w-6 p-0 hover:bg-muted/30 cursor-pointer"
         onClick={isLoading ? onStop : onSendClick}
         disabled={isLoading ? false : isEmpty}
@@ -126,6 +127,7 @@ export const AddContextButton = ({
       <Button
         variant="text"
         size="icon"
+        aria-label="Add context"
         onClick={handleAddContext}
         disabled={isLoading}
       >
@@ -150,6 +152,7 @@ export const AttachFileButton = ({
         <Button
           variant="text"
           size="icon"
+          aria-label="Attach a file"
           onClick={() => fileInputRef.current?.click()}
           disabled={isLoading}
         >

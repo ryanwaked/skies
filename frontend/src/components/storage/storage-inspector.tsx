@@ -1036,7 +1036,7 @@ export const StorageInspector: React.FC = () => {
       )}
       <Command
         className={cn(
-          "border-b bg-background rounded-none h-full pb-10 overflow-auto outline-hidden scrollbar-thin",
+          "border-b bg-card rounded-none h-full pb-10 overflow-auto outline-hidden scrollbar-thin",
           // We want to keep the command open but hidden when a file is opened to preserve state (folders opened etc.)
           // TODO: Preserve scroll position
           openFile && "hidden",

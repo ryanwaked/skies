@@ -25,6 +25,7 @@
     display: block !important;
     flex: 1;
 
+    /* stylelint-disable-next-line unit-allowed-list */
     @media (min-width: 500px) {
       min-width: 350px;
     }

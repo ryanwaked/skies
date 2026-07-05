@@ -135,6 +135,7 @@
 }
 .js-plotly-plot .plotly .modebar-btn {
   position: relative;
+  /* stylelint-disable-next-line unit-allowed-list */
   font-size: 16px;
   padding: 3px 4px;
   height: 22px;
@@ -223,6 +224,7 @@
   border: 1px solid var(--border);
   font-family: var(--text-font);
   padding: 8px 10px;
+  /* stylelint-disable-next-line unit-allowed-list */
   font-size: 12px;
   line-height: 12px;
   white-space: nowrap;
@@ -246,7 +248,8 @@
   position: fixed;
   top: 50px;
   right: 20px;
-  z-index: 10000;
+  z-index: var(--z-overlay);
+  /* stylelint-disable-next-line unit-allowed-list */
   font-size: 10pt;
   max-width: 180px;
 }
@@ -257,7 +260,7 @@
   min-width: 180px;
   max-width: 250px;
   border: 1px solid var(--border);
-  z-index: 3000;
+  z-index: var(--z-overlay);
   margin: 0;
   background-color: var(--popover);
   color: var(--popover-foreground);
@@ -275,6 +278,7 @@
   padding: 0 5px;
   background: none;
   border: none;
+  /* stylelint-disable-next-line unit-allowed-list */
   font-size: 20px;
   font-weight: bold;
   line-height: 20px;

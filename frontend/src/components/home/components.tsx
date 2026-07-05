@@ -3,6 +3,7 @@
 import { CaretDownIcon } from "@radix-ui/react-icons";
 import {
   ActivityIcon,
+  ArrowUpRightIcon,
   BarChart2Icon,
   BookMarkedIcon,
   BookOpenIcon,
@@ -13,7 +14,6 @@ import {
   GraduationCapIcon,
   GridIcon,
   LayoutIcon,
-  LinkIcon,
   MessagesSquareIcon,
   OrbitIcon,
   PackageIcon,
@@ -159,25 +159,42 @@ const RESOURCES = [
   },
 ];
 
+/** Hostname shown as the card's mono sub-line (the site's linkcard voice). */
+function hostOf(url: string): string {
+  try {
+    return new URL(url).host.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+}
+
 export const ResourceLinks: React.FC = () => {
   return (
-    <div className="flex flex-col gap-2">
-      <Header Icon={LinkIcon}>Resources</Header>
+    <div className="flex flex-col gap-3">
+      <Header>resources</Header>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {RESOURCES.map((resource) => (
           <a
             key={resource.title}
             href={resource.url}
             target="_blank"
-            className="flex items-start gap-3 py-3 px-3 rounded-lg border hover:bg-accent/20 transition-colors"
+            className="skies-linkcard"
+            rel="noreferrer"
           >
-            <resource.icon className="w-5 h-5 mt-1.5 text-primary" />
-            <div>
-              <h3 className="font-medium">{resource.title}</h3>
-              <p className="text-sm text-muted-foreground">
-                {resource.description}
-              </p>
-            </div>
+            <span className="skies-linkcard__ic">
+              <resource.icon strokeWidth={1.5} />
+            </span>
+            <span className="skies-linkcard__meta">
+              <span className="skies-linkcard__label">{resource.title}</span>
+              <span className="skies-linkcard__sub" title={resource.description}>
+                {hostOf(resource.url)}
+              </span>
+            </span>
+            <ArrowUpRightIcon
+              className="skies-linkcard__arrow"
+              size={15}
+              strokeWidth={1.5}
+            />
           </a>
         ))}
       </div>
@@ -185,18 +202,20 @@ export const ResourceLinks: React.FC = () => {
   );
 };
 
+/**
+ * Section head in the site's doc-label voice: a mono kicker with the
+ * copper slashes, a trailing hairline rule, and an optional control
+ * cluster on the right.
+ */
 export const Header: React.FC<{
-  Icon: React.FC<React.SVGProps<SVGSVGElement>>;
   control?: React.ReactNode;
   children: React.ReactNode;
-}> = ({ Icon, control, children }) => {
+}> = ({ control, children }) => {
   return (
-    <div className="flex items-center justify-between gap-2">
-      <h2 className="flex items-center gap-2 text-sm font-medium text-muted-foreground select-none">
-        <Icon className="h-4 w-4" />
-        {children}
-      </h2>
-      {control}
+    <div className="skies-section-head select-none">
+      <h2 className="skies-kicker">{children}</h2>
+      <div className="skies-section-head__rule" />
+      {control && <div className="skies-section-head__control">{control}</div>}
     </div>
   );
 };

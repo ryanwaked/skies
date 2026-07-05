@@ -91,7 +91,7 @@
   padding-top: 8px;
   border-radius: var(--radius) !important;
 
-  /* Overlays keep soft elevation in the flat Hex language.
+  /* Overlays keep soft elevation in the flat Skies language.
      !important: see the summary rule above. */
   box-shadow: var(--shadow-md) !important;
   border: 1px solid var(--border) !important;
@@ -104,6 +104,7 @@
 .vega-embed .vega-actions a {
   padding: 8px 16px;
   font-family: var(--text-font) !important;
+  /* stylelint-disable-next-line unit-allowed-list */
   font-size: 12px !important;
   font-weight: 500 !important;
   white-space: nowrap;
@@ -125,14 +126,14 @@
   left: auto;
   /* right: 14px; */
   top: -16px;
-  border: 8px solid #000 0;
+  border: 8px solid transparent;
   border-bottom-color: var(--border) !important;
 }
 .vega-embed .vega-actions::after {
   left: auto;
   /* right: 15px; */
   top: -14px;
-  border: 7px solid #000 0;
+  border: 7px solid transparent;
   border-bottom-color: var(--popover) !important;
 }
 .vega-embed .chart-wrapper.fit-x {
@@ -158,13 +159,14 @@
 }
 
 /* vega-tooltip renders outside the embed root with its own light theme;
-   restyle it to the Hex overlay surface. */
+   restyle it to the Skies overlay surface. */
 #vg-tooltip-element.vg-tooltip {
   background-color: var(--popover);
   color: var(--popover-foreground);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   font-family: var(--text-font);
+  /* stylelint-disable-next-line unit-allowed-list */
   font-size: 12px;
 }
 

@@ -68,9 +68,9 @@ import { IconWithText } from "./layouts";
 
 const CLEAR_VALUE = "__clear__";
 
-// Hex field labels: 12px regular muted text next to flat bordered controls
+// Skies field labels: 12px regular muted text next to flat bordered controls
 const FIELD_LABEL_CLASS = "text-xs font-normal text-muted-foreground";
-// Hex compact control: 28px tall, 12px text
+// Skies compact control: 28px tall, 12px text
 const FIELD_CONTROL_CLASS = "h-7 text-xs";
 
 export type FieldName = Path<z.infer<typeof ChartSchema>>;

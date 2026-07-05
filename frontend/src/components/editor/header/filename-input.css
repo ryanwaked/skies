@@ -9,7 +9,7 @@
 
 .missing-filename:hover,
 .missing-filename:focus {
-  background-color: rgb(63 66 87 / 20%);
+  background-color: var(--hover-wash);
 }
 
 .filename {
@@ -20,6 +20,6 @@
 
 .filename:hover,
 .filename:focus {
-  background-color: rgb(63 66 87 / 20%);
+  background-color: var(--hover-wash);
   box-shadow: none;
 }

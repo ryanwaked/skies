@@ -47,11 +47,12 @@
 .markdown h4,
 .markdown h5,
 .markdown h6 {
-  /* Hex-style display headings: measured live at 600 weight, -0.04em */
-  font-weight: 600;
+  /* Skies display headings: the site's journal voice — Source Serif 4 at
+     700 with gently tight tracking (matches .hero-card__name/.fig-title). */
+  font-weight: 700;
 
   /* stylelint-disable-next-line unit-allowed-list */
-  letter-spacing: -0.04em;
+  letter-spacing: -0.012em;
   font-family: var(--heading-font);
 
   /*
@@ -68,7 +69,8 @@
 }
 
 /*
-Hex type scale measured from the live app: 14px/22px body prose,
+Skies type scale (geometry inherited from the fork's original
+live measurements — see frontend/hex-measurements.json): 14px/22px body prose,
 h1 36px (1.2 line-height), stepping down h2 27 / h3 20 / h4 16. Since this
 file is unlayered it wins over the (layered) Tailwind Typography styles, so
 the slides theme — which carries its own larger scale — must be excluded.
@@ -106,7 +108,7 @@ the slides theme — which carries its own larger scale — must be excluded.
   padding: 0.125rem 0.25rem;
 }
 
-/* Blockquote: muted prose behind a slim 2px border bar (Hex style) — no
+/* Blockquote: muted prose behind a slim 2px border bar (Skies style) — no
    italics or injected smart quotes from Tailwind Typography. */
 .markdown blockquote {
   border-inline-start: 2px solid var(--border);

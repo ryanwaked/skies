@@ -42,7 +42,8 @@ export const SaveComponentModal: React.FC<{
           <DialogTitle>Save as component</DialogTitle>
           <DialogDescription>
             Save this cell's code as a reusable component. Components are
-            stored in your browser and can be inserted from the Snippets panel.
+            stored in your browser and can be inserted into any notebook from
+            the Components panel or the add-cell toolbar.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">

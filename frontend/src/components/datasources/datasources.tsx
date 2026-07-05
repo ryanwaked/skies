@@ -304,7 +304,7 @@ export const DataSources: React.FC = () => {
 
   return (
     <Command
-      className="sidebar-tree bg-background rounded-none h-full pb-10 overflow-auto outline-hidden"
+      className="sidebar-tree bg-card rounded-none h-full pb-10 overflow-auto outline-hidden"
       shouldFilter={false}
     >
       <div className="flex items-center gap-1 w-full px-2 py-1.5 border-b shrink-0">
@@ -1007,6 +1007,7 @@ const DatasetTableItem: React.FC<{
             className="group-hover:inline-flex hidden"
             variant="text"
             size="icon"
+            aria-label="Add table to notebook"
             onClick={Events.stopPropagation(() => handleAddTable())}
           >
             <PlusSquareIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
@@ -1028,20 +1029,29 @@ const DatasetColumnItem: React.FC<{
   const closeAllColumns = useAtomValue(closeAllColumnsAtom);
   const setExpandedColumns = useSetAtom(expandedColumnsAtom);
 
-  if (closeAllColumns && isExpanded) {
-    setIsExpanded(false);
-  }
+  const columnKey = `${table.name}:${column.name}`;
 
-  if (isExpanded) {
-    setExpandedColumns(
-      (prev) => new Set([...prev, `${table.name}:${column.name}`]),
-    );
-  } else {
+  // Keep expansion state and the shared expanded-set in sync. These were
+  // previously called during render, which re-triggered renders every pass;
+  // an effect keyed on the actual dependencies avoids that.
+  React.useEffect(() => {
+    if (closeAllColumns && isExpanded) {
+      setIsExpanded(false);
+      return;
+    }
     setExpandedColumns((prev) => {
-      prev.delete(`${table.name}:${column.name}`);
-      return new Set(prev);
+      const has = prev.has(columnKey);
+      if (isExpanded && !has) {
+        return new Set([...prev, columnKey]);
+      }
+      if (!isExpanded && has) {
+        const next = new Set(prev);
+        next.delete(columnKey);
+        return next;
+      }
+      return prev;
     });
-  }
+  }, [closeAllColumns, isExpanded, columnKey, setExpandedColumns]);
 
   const addCodeToNewCell = useAddCodeToNewCell();
 
@@ -1062,7 +1072,7 @@ const DatasetColumnItem: React.FC<{
   }) => {
     return (
       <Tooltip content={tooltipContent} delayDuration={100}>
-        {/* Hex chip: 3px radius, muted fill, 1px border */}
+        {/* Skies chip: 3px radius, muted fill, 1px border */}
         <span className="text-[10px] font-medium text-muted-foreground bg-muted border rounded-sm px-1">
           {content}
         </span>
@@ -1070,7 +1080,7 @@ const DatasetColumnItem: React.FC<{
     );
   };
 
-  // Active/expanded rows get Hex's subtle pink tint, never bold text.
+  // Active/expanded rows get Skies' subtle sky-blue tint, never bold text.
   const columnText = (
     <span className={isExpanded ? "text-primary" : ""}>{column.name}</span>
   );
@@ -1100,6 +1110,7 @@ const DatasetColumnItem: React.FC<{
           <Button
             variant="text"
             size="icon"
+            aria-label="Copy column name"
             className="group-hover:opacity-100 opacity-0 hover:bg-muted text-muted-foreground hover:text-foreground"
           >
             <CopyClipboardIcon

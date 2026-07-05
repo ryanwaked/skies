@@ -4,7 +4,7 @@ import { useAtomValue } from "jotai";
 import { PlusSquareIcon } from "lucide-react";
 import React, { Suspense } from "react";
 import { useLocale } from "react-aria";
-import { HEX_DARK_VEGA_CONFIG } from "@/components/charts/hex-vega-theme";
+import { getSkiesVegaConfig } from "@/components/charts/skies-vega-theme";
 import { maybeAddAltairImport } from "@/core/cells/add-missing-import";
 import { useCellActions } from "@/core/cells/cells";
 import { useLastFocusedCellId } from "@/core/cells/focus";
@@ -19,7 +19,7 @@ import type {
 import { useRequestClient } from "@/core/network/requests";
 import { useOnMount } from "@/hooks/useLifecycle";
 import type { TopLevelFacetedUnitSpec } from "@/plugins/impl/data-explorer/queries/types";
-import { type Theme, useTheme } from "@/theme/useTheme";
+import { type ResolvedTheme, useTheme } from "@/theme/useTheme";
 import { Events } from "@/utils/events";
 import { prettyNumber } from "@/utils/numbers";
 import { LazyVegaEmbed } from "../charts/lazy";
@@ -122,7 +122,8 @@ export const DatasetColumnPreview: React.FC<{
       <Button
         variant="outline"
         size="icon"
-        className="z-10 bg-background absolute right-1 -top-1"
+        aria-label="Add SQL cell"
+        className="z-10 bg-card absolute right-1 -top-1"
         onClick={Events.stopPropagation(() => {
           onAddColumnChart(
             sqlCode({ table, columnName: column.name, sqlTableContext }),
@@ -213,7 +214,7 @@ const LoadingChart = (
   </div>
 );
 
-export function renderChart(chartSpec: string, theme: Theme) {
+export function renderChart(chartSpec: string, theme: ResolvedTheme) {
   const updateSpec = (spec: TopLevelFacetedUnitSpec) => {
     return {
       ...spec,
@@ -228,9 +229,7 @@ export function renderChart(chartSpec: string, theme: Theme) {
         data-container-width="container"
         spec={updateSpec(JSON.parse(chartSpec) as TopLevelFacetedUnitSpec)}
         options={{
-          ...(theme === "dark"
-            ? { config: HEX_DARK_VEGA_CONFIG }
-            : { theme: "vox" as const }),
+          config: getSkiesVegaConfig(theme),
           height: 100,
           width: "container" as unknown as number,
           actions: false,
@@ -268,7 +267,8 @@ export const AddDataframeChart: React.FC<{
       <Button
         variant="outline"
         size="icon"
-        className="z-10 bg-background absolute right-1 -top-0.5"
+        aria-label="Add chart to notebook"
+        className="z-10 bg-card absolute right-1 -top-0.5"
         onClick={Events.stopPropagation(() => handleAddColumn(chartCode))}
       >
         <PlusSquareIcon className="h-3 w-3" strokeWidth={1.5} />

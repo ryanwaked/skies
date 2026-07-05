@@ -13,6 +13,7 @@ import {
   CommandItem,
   CommandList,
 } from "./command";
+import { focusRing } from "./styles";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 
 interface ComboboxContextValue {
@@ -201,7 +202,8 @@ export const Combobox = <TValue,>({
             id={id}
             type="button"
             className={cn(
-              "flex h-6 w-fit mb-1 items-center justify-between rounded-sm border border-input bg-transparent px-2 text-sm font-prose ring-offset-background placeholder:text-muted-foreground focus:outline-hidden focus:ring-1 focus:ring-ring focus:border-primary",
+              "flex h-6 w-fit mb-1 items-center justify-between rounded-sm border border-input bg-transparent px-2 text-sm font-prose placeholder:text-muted-foreground",
+              focusRing,
               disabled && "cursor-not-allowed opacity-50",
               className,
             )}

@@ -5,16 +5,14 @@
 @import url("./Header.css");
 @import url("./print.css");
 @import url("./codemirror-completions.css");
+@import url("./skies.css");
 
-/* stylelint-disable unit-allowed-list */
-
-/* Hex renders at the browser's native 16px root on every viewport; marimo's
+/* Skies renders at the browser's native 16px root on every viewport; marimo's
    old 90% small-screen downscale made the entire UI read ~10-20% smaller
-   than Hex and is intentionally removed. */
+   than Skies and is intentionally removed. */
 html {
   font-size: 100%;
 }
-/* stylelint-enable unit-allowed-list */
 
 :root {
   --content-width: 740px;

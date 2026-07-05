@@ -34,15 +34,20 @@ export const NameCellInput: React.FC<Props> = ({
   const ref = useRef<HTMLInputElement>(null);
   const inputProps = useCellNameInput(value, onChange);
 
+  // Keep a ref to the latest onBlur so the native listener (bound once on
+  // mount) always commits against the current value, not a stale snapshot.
+  const onBlurRef = useRef(inputProps.onBlur);
+  onBlurRef.current = inputProps.onBlur;
+
   // Custom onBlur without React's synthetic events
   // See https://github.com/facebook/react/issues/12363
   useOnMount(() => {
-    const onBlur = inputProps.onBlur;
     const input = ref.current;
     if (!input) {
       return;
     }
 
+    const onBlur = (e: Event) => onBlurRef.current(e);
     input.addEventListener("blur", onBlur);
     return () => {
       input.removeEventListener("blur", onBlur);

@@ -45,7 +45,7 @@ export const menuControlCheckVariants = cva(
 );
 
 export const menuLabelVariants = cva(
-  "px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground",
+  "px-2 py-1.5 text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-muted-foreground",
   {
   variants: {
     inset: {

@@ -9,7 +9,7 @@ interface Props {
 }
 
 /**
- * Hex-style panel empty state: centered, muted 12px text with a thin icon.
+ * Skies panel empty state: centered, muted 12px text with a thin icon.
  */
 export const PanelEmptyState = ({
   title,
@@ -26,12 +26,12 @@ export const PanelEmptyState = ({
           strokeWidth: 1.5,
         })}
       {title && (
-        <span className="text-xs font-medium text-muted-foreground">
+        <span className="text-[13px] font-medium text-muted-foreground">
           {title}
         </span>
       )}
       {description && (
-        <span className="text-xs leading-4 text-muted-foreground max-w-[260px]">
+        <span className="text-[13px] leading-5 text-muted-foreground max-w-[260px]">
           {description}
         </span>
       )}

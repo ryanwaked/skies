@@ -2,13 +2,44 @@
 
 import { render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { useCellErrors } from "@/core/cells/cells";
 import { DynamicFavicon } from "../dynamic-favicon";
 
-// Mock useCellErrors hook
-vi.mock("@/core/cells/cells", () => ({
-  useCellErrors: vi.fn(),
-}));
+// The component reads the error count via useAtomValue(cellErrorCount).
+// Mock jotai's useAtomValue to return a controllable value for our atom and
+// delegate to the real hook for everything else.
+const { errorCountSpy, mockCellErrorCountAtom, setErrorCount } = vi.hoisted(
+  () => {
+    const { atom } = require("jotai") as typeof import("jotai");
+    const spy = { current: 0 };
+    const a = atom(0);
+    return {
+      errorCountSpy: spy,
+      mockCellErrorCountAtom: a,
+      setErrorCount: (count: number) => {
+        spy.current = count;
+      },
+    };
+  },
+);
+
+vi.mock("jotai", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("jotai")>();
+  return {
+    ...actual,
+    useAtomValue: (anAtom: Parameters<typeof actual.useAtomValue>[0]) =>
+      anAtom === mockCellErrorCountAtom
+        ? errorCountSpy.current
+        : actual.useAtomValue(anAtom),
+  };
+});
+
+vi.mock("@/core/cells/cells", async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  return {
+    ...actual,
+    cellErrorCount: mockCellErrorCountAtom,
+  };
+});
 
 describe("DynamicFavicon", () => {
   let favicon: HTMLLinkElement;
@@ -23,8 +54,8 @@ describe("DynamicFavicon", () => {
     // Mock document.hasFocus
     vi.spyOn(document, "hasFocus").mockReturnValue(true);
 
-    // Mock useCellErrors to return no errors by default
-    (useCellErrors as ReturnType<typeof vi.fn>).mockReturnValue([]);
+    // No errors by default
+    setErrorCount(0);
   });
 
   afterEach(() => {
@@ -61,9 +92,7 @@ describe("DynamicFavicon", () => {
   });
 
   it("should show error favicon when run completes with errors", async () => {
-    (useCellErrors as ReturnType<typeof vi.fn>).mockReturnValue([
-      { error: "mock error" },
-    ]);
+    setErrorCount(1);
 
     const { rerender } = render(<DynamicFavicon isRunning={true} />);
 
@@ -139,9 +168,7 @@ describe("DynamicFavicon", () => {
     });
 
     it("should send error notification when run completes with errors", () => {
-      (useCellErrors as ReturnType<typeof vi.fn>).mockReturnValue([
-        { error: "mock error" },
-      ]);
+      setErrorCount(1);
 
       // @ts-expect-error ok in tests
       global.Notification = vi.fn().mockImplementation((title, options) => {

@@ -6,6 +6,7 @@ import * as React from "react";
 import { StyleNamespace } from "@/theme/namespace";
 import { cn } from "@/utils/cn";
 import { withFullScreenAsRoot } from "./fullscreen";
+import { overlayTitle } from "./styles";
 import { useRestoreFocus } from "./use-restore-focus";
 
 const Dialog = DialogPrimitive.Root;
@@ -122,7 +123,8 @@ const DialogTitle = React.forwardRef<
   <DialogPrimitive.Title
     ref={ref}
     className={cn(
-      "text-base font-semibold leading-none tracking-[-0.04em]",
+      overlayTitle,
+      "leading-none",
       className,
     )}
     {...props}

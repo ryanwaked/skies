@@ -859,10 +859,12 @@ const AgentPanel: React.FC = () => {
       return;
     }
 
-    // Prevent race conditions
+    // Prevent race conditions — set the guard synchronously before the first
+    // await so a fast dep toggle can't start a second session.
     if (creatingOrResumingSession.current) {
       return;
     }
+    creatingOrResumingSession.current = true;
 
     // If there is an available session, resume it, otherwise create a new one
     const createOrResumeSession = async () => {
@@ -883,6 +885,9 @@ const AgentPanel: React.FC = () => {
         }
         setError(null);
       } catch (error) {
+        // Release the guard if an inner function threw before reaching its
+        // own finally (e.g. synchronous throw on entry).
+        creatingOrResumingSession.current = false;
         logger.error("Failed to create or resume session:", error);
         setError(error instanceof Error ? error : String(error));
       }

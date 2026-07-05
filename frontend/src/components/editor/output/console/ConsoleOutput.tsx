@@ -162,7 +162,7 @@ const ConsoleOutputInternal = (props: Props): React.ReactNode => {
     }
   });
 
-  // The cell name renders on the frame label (Hex-style); the console area
+  // The cell name renders on the frame label (Skies); the console area
   // only exists when there is actual output.
   if (!hasOutputs) {
     return null;

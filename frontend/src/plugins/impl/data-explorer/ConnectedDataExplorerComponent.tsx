@@ -5,7 +5,7 @@ import { createStore, Provider, useAtomValue } from "jotai";
 import { ListFilterIcon } from "lucide-react";
 import React, { type JSX, useMemo } from "react";
 import { VegaEmbed, type VegaEmbedProps } from "react-vega";
-import { HEX_DARK_VEGA_CONFIG } from "@/components/charts/hex-vega-theme";
+import { getSkiesVegaConfig } from "@/components/charts/skies-vega-theme";
 import { tooltipHandler } from "@/components/charts/tooltip";
 import { augmentSpecWithData } from "@/components/data-table/charts/chart-spec/spec";
 import { Badge } from "@/components/ui/badge";
@@ -82,7 +82,7 @@ function chartOptions(theme: ResolvedTheme): VegaEmbedProps["options"] {
       compiled: false,
       editor: false,
     },
-    config: theme === "dark" ? HEX_DARK_VEGA_CONFIG : undefined,
+    config: getSkiesVegaConfig(theme),
     tooltip: tooltipHandler.call,
     renderer: "canvas",
   };

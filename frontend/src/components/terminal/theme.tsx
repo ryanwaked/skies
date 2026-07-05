@@ -1,7 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import type { ResolvedTheme } from "@/theme/useTheme";
 
-// Terminal theme configuration
+// Terminal theme configuration — the Skies inks: night terminal on the
+// #15131d canvas, paper terminal on white; ANSI hues tuned to the trace
+// palette (sky blue, copper, gold) plus the semantic status tones.
 export function createTerminalTheme(theme: ResolvedTheme) {
   const baseTheme = {
     cursor: "#ffffff",
@@ -11,47 +13,47 @@ export function createTerminalTheme(theme: ResolvedTheme) {
   return theme === "dark"
     ? {
         ...baseTheme,
-        background: "#17171F",
-        foreground: "#e4e6ec",
-        black: "#17171F",
-        red: "#ed6f73",
-        green: "#43d59d",
-        yellow: "#ffc940",
-        blue: "#84a6e8",
-        magenta: "#c084fc",
-        cyan: "#2ee6d6",
-        white: "#e4e6ec",
-        brightBlack: "#b1b6c4",
-        brightRed: "#f28d90",
-        brightGreen: "#6ee0b3",
-        brightYellow: "#ffd66b",
-        brightBlue: "#a3bdee",
-        brightMagenta: "#d3a8fd",
-        brightCyan: "#5cecdf",
+        background: "#15131d",
+        foreground: "#e9e6f2",
+        black: "#15131d",
+        red: "#f0564b",
+        green: "#3fb950",
+        yellow: "#e8c44e",
+        blue: "#5fa6ef",
+        magenta: "#b79ce8",
+        cyan: "#58c1cc",
+        white: "#e9e6f2",
+        brightBlack: "#847e92",
+        brightRed: "#f57c73",
+        brightGreen: "#66cc74",
+        brightYellow: "#f0d478",
+        brightBlue: "#8fc0f4",
+        brightMagenta: "#ccb6f0",
+        brightCyan: "#7fd2db",
         brightWhite: "#ffffff",
-        selection: "rgba(245, 192, 192, 0.25)",
+        selection: "rgba(95, 166, 239, 0.25)",
       }
     : {
         ...baseTheme,
-        background: "#ffffff", // white
-        foreground: "#0f172a", // slate-900
-        cursor: "#0f172a",
-        black: "#0f172a",
-        red: "#dc2626",
-        green: "#16a34a",
-        yellow: "#ca8a04",
-        blue: "#2563eb",
-        magenta: "#9333ea",
-        cyan: "#0891b2",
-        white: "#e2e8f0",
-        brightBlack: "#64748b",
-        brightRed: "#ef4444",
-        brightGreen: "#22c55e",
-        brightYellow: "#eab308",
-        brightBlue: "#3b82f6",
-        brightMagenta: "#a855f7",
-        brightCyan: "#06b6d4",
+        background: "#ffffff",
+        foreground: "#15112a",
+        cursor: "#15112a",
+        black: "#15112a",
+        red: "#cf222e",
+        green: "#1f883d",
+        yellow: "#9a6700",
+        blue: "#1b7be4",
+        magenta: "#7c5cbf",
+        cyan: "#0e7f8a",
+        white: "#f2eded",
+        brightBlack: "#75707f",
+        brightRed: "#f0564b",
+        brightGreen: "#3fb950",
+        brightYellow: "#c2980f",
+        brightBlue: "#5fa6ef",
+        brightMagenta: "#9d7fd8",
+        brightCyan: "#2ba4b1",
         brightWhite: "#ffffff",
-        selection: "rgba(71, 85, 105, 0.2)", // slate-600 with opacity
+        selection: "rgba(27, 123, 228, 0.18)",
       };
 }

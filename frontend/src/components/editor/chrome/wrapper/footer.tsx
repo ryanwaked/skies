@@ -1,11 +1,22 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { useAtomValue } from "jotai";
-import { AlertTriangleIcon, XCircleIcon } from "lucide-react";
+import { useAtomValue, useSetAtom } from "jotai";
+import {
+  AlertTriangleIcon,
+  CommandIcon,
+  Undo2Icon,
+  XCircleIcon,
+} from "lucide-react";
 import type React from "react";
+import { commandPaletteAtom } from "@/components/editor/controls/state";
 import { renderShortcut } from "@/components/shortcuts/renderShortcut";
 import { Tooltip } from "@/components/ui/tooltip";
-import { cellErrorCount } from "@/core/cells/cells";
+import {
+  canUndoDeletesAtom,
+  cellErrorCount,
+  undoLabelAtom,
+  useCellActions,
+} from "@/core/cells/cells";
 import { isConnectingAtom } from "@/core/network/connection";
 import { useHotkey } from "@/hooks/useHotkey";
 import { ShowInKioskMode } from "../../kiosk-mode";
@@ -39,7 +50,6 @@ export const Footer: React.FC = () => {
     (errorsInSidebar ? 0 : errorCount) + (hasConnectionIssue ? 1 : 0);
 
   // TODO: Add warning count from diagnostics/linting
-  // This can signal warnings/errors with settings up AI / Copilot etc
   const warningCount = 0;
 
   useHotkey("global.toggleTerminal", () => {
@@ -108,10 +118,50 @@ export const Footer: React.FC = () => {
       </ShowInKioskMode>
 
       <div className="flex items-center shrink-0 min-w-0">
+        <UndoDeleteItem />
+        <CommandPaletteItem />
         <MachineStats />
         <RTCStatus />
       </div>
     </footer>
+  );
+};
+
+/** Command palette trigger — chrome lives in bars, not floating over cells. */
+const CommandPaletteItem: React.FC = () => {
+  const setCommandPaletteOpen = useSetAtom(commandPaletteAtom);
+  return (
+    <FooterItem
+      tooltip={renderShortcut("global.commandPalette")}
+      selected={false}
+      onClick={() => setCommandPaletteOpen((value) => !value)}
+      data-testid="footer-command-palette"
+    >
+      <CommandIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
+    </FooterItem>
+  );
+};
+
+/** Undo-delete affordance, shown only while an undo is available. */
+const UndoDeleteItem: React.FC = () => {
+  const undoAvailable = useAtomValue(canUndoDeletesAtom);
+  const undoLabel = useAtomValue(undoLabelAtom);
+  const { undoDeleteCell } = useCellActions();
+  if (!undoAvailable) {
+    return null;
+  }
+  return (
+    <FooterItem
+      tooltip={undoLabel}
+      selected={false}
+      onClick={undoDeleteCell}
+      data-testid="footer-undo-delete"
+    >
+      <span className="flex items-center gap-1">
+        <Undo2Icon className="h-3.5 w-3.5" strokeWidth={1.5} />
+        Undo
+      </span>
+    </FooterItem>
   );
 };
 

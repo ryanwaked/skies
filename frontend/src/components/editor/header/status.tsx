@@ -42,7 +42,10 @@ export const StatusOverlay: React.FC<{
         )}
       >
         {isOpen && isRunning && !hideRunningIndicator && <RunningIcon />}
-        {isClosed && (
+        {/* When the notebook header bar is shown it carries its own status
+            dot, so the floating icon (which collides with the mo.sidebar
+            menu at the same corner) only renders for bar-less modes. */}
+        {isClosed && !hideRunningIndicator && (
           <DisconnectedIcon
             onReconnect={canReconnect ? onReconnect : undefined}
           />
@@ -101,7 +104,7 @@ const RunningIcon = () => {
   );
 };
 
-// Hex's flat dark language shows a plain veil on disconnect, not marimo's
+// Skies' flat dark language shows a plain veil on disconnect, not marimo's
 // rainbow gradient + noise backdrop.
 const NoiseBackground = () => (
   <div className="fixed inset-0 -z-10 bg-background/60" />

@@ -188,7 +188,7 @@ export function CopyColumn<TData, TValue>({
   );
 }
 
-// Hex column menus use thin directional chevrons, not the chunky
+// Skies column menus use thin directional chevrons, not the chunky
 // sort-lines arrows.
 const AscIcon = ChevronUpIcon;
 const DescIcon = ChevronDownIcon;
@@ -333,8 +333,8 @@ export function DataType<TData, TValue>({
 
   return (
     <>
-      {/* Hex section-header treatment: 10px/600 uppercase muted. */}
-      <div className="flex-1 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+      {/* Skies section-header treatment: 10px mono uppercase muted. */}
+      <div className="flex-1 px-2 py-1 text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-muted-foreground">
         {dtype}
       </div>
       <DropdownMenuSeparator />

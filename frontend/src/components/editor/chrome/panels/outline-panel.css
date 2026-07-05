@@ -5,9 +5,9 @@
   @apply decoration-primary;
 }
 
-/* Hex-style dense rows for the outline sidebar panel (leaves the floating
+/* Skies dense rows for the outline sidebar panel (leaves the floating
    outline untouched): 26px rows at 13px, 3px radius. Hover and active tints
-   are handled by the row components so the active pink survives hover. */
+   are handled by the row components so the active tint survives hover. */
 .outline-panel-tree > div {
   min-height: 26px;
   padding-top: 2px;

@@ -44,7 +44,8 @@
   scrollbar-color: var(--input) transparent;
 }
 
-/* Dark text selection tint (Hex uses a neutral desaturated wash). */
-.dark ::selection {
-  background: rgb(63 66 87 / 55%);
+/* Text selection: the site's soft sky-blue wash, both themes. */
+::selection {
+  background: var(--accent);
+  color: var(--foreground);
 }

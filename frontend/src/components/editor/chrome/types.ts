@@ -3,6 +3,7 @@
 import {
   ActivityIcon,
   AlertCircleIcon,
+  BlocksIcon,
   BookOpenIcon,
   BoxIcon,
   CodeIcon,
@@ -10,13 +11,13 @@ import {
   DatabaseZapIcon,
   FileTextIcon,
   FolderIcon,
+  HeadingIcon,
   KeyRoundIcon,
-  ListIcon,
-  type LucideIcon,
   NetworkIcon,
   PenLineIcon,
   SearchIcon,
   SquareTerminalIcon,
+  type LucideIcon,
 } from "lucide-react";
 import { getFeatureFlag } from "@/core/config/feature-flag";
 import type { Capabilities } from "@/core/kernel/messages";
@@ -35,6 +36,7 @@ export type PanelType =
   | "packages"
   | "documentation"
   | "snippets"
+  | "components"
   | "ai"
   // Developer panel defaults
   | "errors"
@@ -70,7 +72,7 @@ export interface PanelDescriptor {
  */
 export const PANELS: PanelDescriptor[] = [
   // Sidebar defaults
-  // Hex puts search at the top of the rail.
+  // Skies puts search at the top of the rail.
   {
     type: "search",
     Icon: SearchIcon,
@@ -108,7 +110,7 @@ export const PANELS: PanelDescriptor[] = [
   // layouts referencing it still parse; PANEL_MAP lookups simply miss.
   {
     type: "outline",
-    Icon: ListIcon,
+    Icon: HeadingIcon,
     label: "Outline",
     tooltip: "View outline",
     defaultSection: "sidebar",
@@ -189,6 +191,14 @@ export const PANELS: PanelDescriptor[] = [
     tooltip: "Snippets",
     defaultSection: "developer-panel",
     additionalKeywords: ["templates", "examples"],
+  },
+  {
+    type: "components",
+    Icon: BlocksIcon,
+    label: "Components",
+    tooltip: "Components",
+    defaultSection: "sidebar",
+    additionalKeywords: ["reusable", "cells", "library", "component"],
   },
   {
     type: "cache",

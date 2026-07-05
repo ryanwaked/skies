@@ -2,13 +2,11 @@
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
-  BookTextIcon,
+  ArrowUpRightIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   ChevronsDownUpIcon,
-  ClockIcon,
-  ExternalLinkIcon,
-  PlayCircleIcon,
+  PlusIcon,
   RefreshCcwIcon,
   SearchIcon,
 } from "lucide-react";
@@ -37,6 +35,7 @@ import {
   useFileOperations,
   useNotebookFileActions,
 } from "@/components/editor/file-tree/file-operations";
+import { PageSky } from "@/components/skies/page-sky";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
@@ -125,30 +124,51 @@ const HomePage: React.FC = () => {
           setRunningNotebooks: runningResponse.setData,
         }}
       >
-        <div className="absolute top-3 right-5 flex gap-3 z-50">
+        <PageSky />
+        <div className="skies-over-sky absolute top-3 right-5 flex gap-3 z-50 max-sm:static max-sm:justify-end max-sm:mx-5 max-sm:mt-3">
           <OpenTutorialDropDown />
           <ConfigButton showAppConfig={false} />
           <ShutdownButton
             description={`This will shutdown the notebook server and terminate all running notebooks (${running.size}). You'll lose all data that's in memory.`}
           />
         </div>
-        <div className="flex flex-col gap-6 max-w-6xl container pt-5 pb-20 z-10">
-          <h1 className="text-2xl font-semibold tracking-[-0.04em] mb-2">
-            Home
-          </h1>
-          <CreateNewNotebook />
-          <ResourceLinks />
+        <div className="flex flex-col gap-9 max-w-5xl container pt-6 pb-24 z-10">
+          <header className="skies-hero mb-4">
+            <p className="skies-kicker">skies — reactive notebooks</p>
+            <h1 className="skies-hero-title">Notebooks</h1>
+            <div className="skies-hero-meta">
+              {running.size > 0 && (
+                <span className="skies-status">
+                  <i className="skies-status__dot skies-ping" />
+                  {running.size} running
+                </span>
+              )}
+              <span>{recents.files.length} recent</span>
+              <span className="dot">·</span>
+              <span>reactive python, on the desk</span>
+            </div>
+            <div className="mt-5">
+              <a
+                className="skies-cta"
+                href={newNotebookURL().toString()}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <PlusIcon size={14} strokeWidth={2} />
+                new notebook
+              </a>
+            </div>
+          </header>
           <NotebookList
-            header={<Header Icon={PlayCircleIcon}>Running notebooks</Header>}
+            label="running now"
+            live={true}
             files={[...running.values()]}
           />
-          <NotebookList
-            header={<Header Icon={ClockIcon}>Recent notebooks</Header>}
-            files={recents.files}
-          />
+          <NotebookList label="recent notebooks" files={recents.files} />
           <ErrorBoundary>
             <WorkspaceNotebooks onRefreshRecents={recentsResponse.refetch} />
           </ErrorBoundary>
+          <ResourceLinks />
         </div>
       </RunningNotebooksContext>
     </Suspense>
@@ -207,7 +227,6 @@ const WorkspaceNotebooks: React.FC<{ onRefreshRecents: () => void }> = ({
           </Banner>
         )}
         <Header
-          Icon={BookTextIcon}
           control={
             <div className="flex items-center gap-2">
               <Input
@@ -228,24 +247,24 @@ const WorkspaceNotebooks: React.FC<{ onRefreshRecents: () => void }> = ({
                 }
               />
               <Label htmlFor="include-markdown">Include markdown</Label>
+              <Button
+                variant="text"
+                size="icon"
+                className="w-4 h-4 p-0 opacity-70 hover:opacity-100"
+                onClick={() => refetch()}
+                aria-label="Refresh workspace"
+              >
+                <RefreshCcwIcon className="w-4 h-4" />
+              </Button>
+              {isFetching && <Spinner size="small" />}
             </div>
           }
         >
-          Workspace
-          <Button
-            variant="text"
-            size="icon"
-            className="w-4 h-4 ml-1 p-0 opacity-70 hover:opacity-100"
-            onClick={() => refetch()}
-            aria-label="Refresh workspace"
-          >
-            <RefreshCcwIcon className="w-4 h-4" />
-          </Button>
-          {isFetching && <Spinner size="small" />}
+          workspace
         </Header>
         <HomeCollections files={workspace.files} searchText={searchText} />
         <SectionLabel>All notebooks</SectionLabel>
-        <div className="flex flex-col divide-y divide-border border rounded-lg overflow-hidden max-h-192 overflow-y-auto bg-background">
+        <div className="skies-paper flex flex-col divide-y divide-border overflow-hidden max-h-192 overflow-y-auto text-[13px]">
           <UngroupedNotebookFileTree
             searchText={searchText}
             files={workspace.files}
@@ -335,7 +354,9 @@ const NotebookFileTree: React.FC<{
     <Tree<FileInfo>
       ref={ref}
       width="100%"
-      height={500}
+      // Size the paper to its contents for small workspaces (folders that
+      // expand past the cap scroll inside the panel).
+      height={Math.min(500, Math.max(140, files.length * 26 + 16))}
       searchTerm={searchText}
       className="h-full"
       idAccessor={(data) => data.path}
@@ -371,7 +392,7 @@ const Node = ({ node, style }: NodeRendererProps<FileInfo>) => {
     : guessFileType(node.data.name);
 
   const Icon = FILE_TYPE_ICONS[fileType];
-  const iconEl = <Icon className="w-5 h-5 shrink-0" strokeWidth={1.5} />;
+  const iconEl = <Icon className="w-4 h-4 shrink-0" strokeWidth={1.5} />;
   const { root } = use(WorkspaceContext);
   const { runningNotebooks } = use(RunningNotebooksContext);
 
@@ -469,38 +490,54 @@ const FileActions = ({
 
 const FolderArrow = ({ node }: { node: NodeApi<FileInfo> }) => {
   if (!node.data.isDirectory) {
-    return <span className="w-5 h-5 shrink-0" />;
+    return <span className="w-4 h-4 shrink-0" />;
   }
 
   return node.isOpen ? (
-    <ChevronDownIcon className="w-5 h-5 shrink-0" />
+    <ChevronDownIcon className="w-4 h-4 shrink-0" />
   ) : (
-    <ChevronRightIcon className="w-5 h-5 shrink-0" />
+    <ChevronRightIcon className="w-4 h-4 shrink-0" />
   );
 };
 
+/**
+ * A corner-ticked paper panel holding notebook rows, with the site's mono
+ * meta strip across the top (label left, count — and a live pill — right).
+ */
 const NotebookList: React.FC<{
-  header: React.ReactNode;
+  label: string;
+  live?: boolean;
   files: MarimoFile[];
-}> = ({ header, files }) => {
+}> = ({ label, live, files }) => {
   if (files.length === 0) {
     return null;
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      {header}
-      <div className="flex flex-col divide-y divide-border border rounded-lg overflow-hidden max-h-192 overflow-y-auto bg-background">
+    <section className="skies-paper skies-ticks">
+      <div className="skies-paper-meta">
+        <span>{label}</span>
+        {live ? (
+          <span className="skies-status">
+            <i className="skies-status__dot skies-ping" />
+            {files.length} live
+          </span>
+        ) : (
+          <span>{files.length}</span>
+        )}
+      </div>
+      <div className="flex flex-col divide-y divide-border max-h-192 overflow-y-auto">
         {files.map((file) => {
           return <MarimoFileComponent key={file.path} file={file} />;
         })}
       </div>
-    </div>
+    </section>
   );
 };
 
 const MarimoFileComponent = ({ file }: { file: MarimoFile }) => {
   const { locale } = useLocale();
+  const { runningNotebooks } = use(RunningNotebooksContext);
 
   // If path is a sessionId, then it has not been saved yet
   // We want to keep the sessionId in this case
@@ -512,65 +549,49 @@ const MarimoFileComponent = ({ file }: { file: MarimoFile }) => {
     : asURL(`?file=${encodeURIComponent(file.path)}`);
 
   const isMarkdown = file.path.endsWith(".md");
+  const isRunning = runningNotebooks.has(file.path);
 
   return (
     <a
-      className="py-1.5 px-4 hover:bg-accent/40 transition-all duration-300 cursor-pointer group relative flex gap-4 items-center"
+      className="py-3 px-4 hover:bg-muted transition-colors cursor-pointer group relative flex gap-4 items-center"
       key={file.path}
       href={href.toString()}
       target={tabTarget(file.initializationId || file.path)}
     >
-      <div className="flex flex-col justify-between flex-1">
-        <span className="flex items-center gap-2">
+      <div className="flex flex-col gap-1 flex-1 min-w-0">
+        <span className="flex items-center gap-2 text-[13px] font-medium text-foreground">
           {file.name}
           {isMarkdown && (
             <span className="opacity-80">
               <MarkdownIcon />
             </span>
           )}
+          {isRunning && (
+            <span className="skies-status">
+              <i className="skies-status__dot skies-ping" />
+              live
+            </span>
+          )}
         </span>
         <p
           title={file.path}
-          className="text-sm text-muted-foreground overflow-hidden whitespace-nowrap text-ellipsis"
+          className="font-mono text-[10.5px] tracking-[0.02em] text-[var(--foreground-dim)] overflow-hidden whitespace-nowrap text-ellipsis"
         >
           {file.path}
         </p>
       </div>
-      <div className="flex flex-col gap-1 items-end">
-        <div className="flex gap-3 items-center">
-          <div>
-            <SessionShutdownButton filePath={file.path} />
-          </div>
-          <ExternalLinkIcon
-            size={20}
-            className="group-hover:opacity-100 opacity-0 transition-all duration-300 text-primary"
-          />
-        </div>
+      <div className="flex items-center gap-3 shrink-0">
         {!!file.lastModified && (
-          <div className="text-xs text-muted-foreground opacity-80">
+          <span className="font-mono text-[10.5px] text-[var(--foreground-dim)]">
             {timeAgo(file.lastModified * 1000, locale)}
-          </div>
+          </span>
         )}
-      </div>
-    </a>
-  );
-};
-
-const CreateNewNotebook: React.FC = () => {
-  const url = newNotebookURL();
-  return (
-    <a
-      className="relative rounded-lg p-6 group
-      text-primary border bg-primary/[0.07] hover:bg-primary/10
-      transition-colors duration-300 cursor-pointer
-      "
-      href={url}
-      target="_blank"
-      rel="noreferrer"
-    >
-      <h2 className="text-lg font-semibold">Create a new notebook</h2>
-      <div className="group-hover:opacity-100 opacity-0 absolute right-5 top-0 bottom-0 rounded-lg flex items-center justify-center transition-all duration-300">
-        <ExternalLinkIcon size={24} />
+        <SessionShutdownButton filePath={file.path} />
+        <ArrowUpRightIcon
+          size={15}
+          strokeWidth={1.5}
+          className="text-[var(--foreground-dim)] transition-transform group-hover:translate-x-[2px] group-hover:-translate-y-[2px] group-hover:text-foreground"
+        />
       </div>
     </a>
   );

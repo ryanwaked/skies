@@ -4,7 +4,7 @@ import { useAtomValue } from "jotai";
 import type React from "react";
 import type { PropsWithChildren } from "react";
 import { useEffect, useRef } from "react";
-import { LargeSpinner } from "@/components/icons/large-spinner";
+import { Spinner } from "@/components/icons/spinner";
 import { toast } from "@/components/ui/use-toast";
 import { hasCellsAtom } from "@/core/cells/cells";
 import { showCodeInRunModeAtom } from "@/core/meta/state";
@@ -106,5 +106,5 @@ export function shouldShowSpinner(input: {
 export const WasmSpinner: React.FC<PropsWithChildren> = ({ children }) => {
   const wasmInitialization = useAtomValue(wasmInitializationAtom);
 
-  return <LargeSpinner title={wasmInitialization} />;
+  return <Spinner title={wasmInitialization} />;
 };

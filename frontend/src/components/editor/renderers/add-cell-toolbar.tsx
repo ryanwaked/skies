@@ -2,6 +2,7 @@
 
 import { useAtomValue } from "jotai";
 import {
+  BlocksIcon,
   ChartColumnIcon,
   ChevronDownIcon,
   DatabaseIcon,
@@ -10,12 +11,12 @@ import {
   HashIcon,
   LayoutTemplateIcon,
   ListFilterIcon,
-  type LucideIcon,
   SlidersHorizontalIcon,
   SquareCodeIcon,
   SquareMIcon,
   TableIcon,
   TablePropertiesIcon,
+  type LucideIcon,
 } from "lucide-react";
 import type React from "react";
 import { useImperativeModal } from "@/components/modal/ImperativeModal";
@@ -31,6 +32,16 @@ import {
   maybeAddMarimoImport,
 } from "@/core/cells/add-missing-import";
 import { useCellActions } from "@/core/cells/cells";
+import { localComponentsAtom } from "@/core/components/local-components";
+import {
+  CHART_TEMPLATE,
+  DATAFRAME_TEMPLATE,
+  FILTER_TEMPLATE,
+  INPUT_TEMPLATES,
+  SECTION_TEMPLATE,
+  SINGLE_VALUE_TEMPLATE,
+  TABLE_TEMPLATE,
+} from "../cell/cell-insert-templates";
 import { LanguageAdapters } from "@/core/codemirror/language/LanguageAdapters";
 import { MARKDOWN_INITIAL_HIDE_CODE } from "@/core/codemirror/language/languages/markdown";
 import { canInteractWithAppAtom } from "@/core/network/connection";
@@ -39,78 +50,15 @@ import { useChromeActions } from "../chrome/state";
 import { AddConnectionDialogContent } from "../connections/add-connection-dialog";
 
 /**
- * Hex-style add-cell bar: one horizontal toolbar of cell types with
+ * Skies add-cell bar: one horizontal toolbar of cell types with
  * icon-over-label items, in place of marimo's Python/Markdown/SQL text
  * buttons. Items insert cells prefilled with the closest marimo
  * equivalent (mo.ui.table, mo.stat, mo.ui.dataframe, ...).
  *
- * Metrics are exact values measured from Hex's production DOM
+ * Metrics are exact values inherited from the fork's original chrome
+ * measurements (frontend/hex-measurements.json)
  * (see hex-measurements.json, addCellBar).
  */
-
-const CHART_TEMPLATE = `_chart = (
-    alt.Chart(df)  # replace \`df\` with your dataframe
-    .mark_bar()
-    .encode(
-        x="x_column",
-        y="y_column",
-    )
-)
-mo.ui.altair_chart(_chart)`;
-
-const PIVOT_TEMPLATE = `# Group, aggregate, pivot, and filter interactively
-mo.ui.dataframe(df)  # replace \`df\` with your dataframe`;
-
-const SINGLE_VALUE_TEMPLATE = `mo.stat(
-    value=0,
-    label="Metric",
-    caption="vs. previous period",
-    direction="increase",
-    bordered=True,
-)`;
-
-const TABLE_TEMPLATE = `mo.ui.table(df, page_size=10)  # replace \`df\` with your dataframe`;
-
-const SECTION_TEMPLATE = `mo.md(r"""
-# New section
-""")`;
-
-const FILTER_TEMPLATE = `_options = sorted(df["column"].unique())  # replace \`df\` and "column"
-filter_values = mo.ui.multiselect(options=_options, label="Filter")
-filter_values`;
-
-const INPUT_TEMPLATES: Array<{ label: string; code: string }> = [
-  {
-    label: "Slider",
-    code: 'slider = mo.ui.slider(start=0, stop=100, step=1, label="Slider")\nslider',
-  },
-  {
-    label: "Number",
-    code: 'number = mo.ui.number(start=0, stop=100, label="Number")\nnumber',
-  },
-  {
-    label: "Text",
-    code: 'text_input = mo.ui.text(placeholder="Enter text", label="Text")\ntext_input',
-  },
-  {
-    label: "Dropdown",
-    code: 'dropdown = mo.ui.dropdown(options=["a", "b", "c"], label="Dropdown")\ndropdown',
-  },
-  {
-    label: "Multiselect",
-    code: 'multiselect = mo.ui.multiselect(options=["a", "b", "c"], label="Multiselect")\nmultiselect',
-  },
-  {
-    label: "Checkbox",
-    code: 'checkbox = mo.ui.checkbox(label="Checkbox")\ncheckbox',
-  },
-  { label: "Switch", code: 'switch = mo.ui.switch(label="Switch")\nswitch' },
-  { label: "Date", code: 'date_input = mo.ui.date(label="Date")\ndate_input' },
-  {
-    label: "Run button",
-    code: 'run_button = mo.ui.run_button(label="Run")\nrun_button',
-  },
-];
 
 interface ToolbarItemProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon: LucideIcon;
@@ -160,6 +108,7 @@ export const AddCellToolbar: React.FC<{
   const { openApplication } = useChromeActions();
   const { openModal, closeModal } = useImperativeModal();
   const canInteractWithApp = useAtomValue(canInteractWithAppAtom);
+  const components = useAtomValue(localComponentsAtom);
 
   const insertCell = (
     code?: string,
@@ -180,17 +129,14 @@ export const AddCellToolbar: React.FC<{
   };
 
   return (
-    <div className="flex justify-center mt-4 pt-6 pb-32 w-full print:hidden">
+    <div className="flex justify-center mt-4 pt-6 pb-32 w-full px-4 print:hidden">
       <div
         className={cn(
-          "flex items-stretch rounded-[3px] bg-card p-[8px]",
+          // flex-wrap so narrow panels never clip the outer items; hairline
+          // token border instead of the old hardcoded dark-tuned chrome
+          "flex flex-wrap justify-center items-stretch max-w-full rounded-[3px] bg-card p-[8px] border border-input",
           className,
         )}
-        style={{
-          border: "0.91px solid rgba(0,0,0,0.28)",
-          boxShadow:
-            "rgba(66,66,90,0.24) 0 0 0 1px inset, rgba(255,255,255,0.05) 0 1px 1px -0.5px inset, rgba(0,0,0,0.1) 0 1px 1px -0.5px, rgba(0,0,0,0.1) 0 2.5px 2.59px -1.25px, rgba(0,0,0,0.05) 0 7px 7.38px -3.5px",
-        }}
       >
         <ToolbarItem
           icon={DatabaseIcon}
@@ -222,9 +168,9 @@ export const AddCellToolbar: React.FC<{
         />
         <ToolbarItem
           icon={TablePropertiesIcon}
-          label="Pivot"
+          label="Dataframe"
           disabled={!canInteractWithApp}
-          onClick={() => insertCell(PIVOT_TEMPLATE)}
+          onClick={() => insertCell(DATAFRAME_TEMPLATE)}
         />
         <ToolbarItem
           icon={HashIcon}
@@ -256,6 +202,36 @@ export const AddCellToolbar: React.FC<{
                 {input.label}
               </DropdownMenuItem>
             ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild={true} disabled={!canInteractWithApp}>
+            <ToolbarItem
+              icon={BlocksIcon}
+              label="Components"
+              disabled={!canInteractWithApp}
+              withChevron={true}
+            />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="center">
+            {components.length === 0 ? (
+              <DropdownMenuItem disabled={true}>
+                No components yet — save a cell from its ··· menu
+              </DropdownMenuItem>
+            ) : (
+              components.map((component) => (
+                <DropdownMenuItem
+                  key={component.id}
+                  onSelect={() => insertCell(component.code)}
+                >
+                  <BlocksIcon className="mr-2 size-3.5" strokeWidth={1.5} />
+                  {component.name}
+                </DropdownMenuItem>
+              ))
+            )}
+            <DropdownMenuItem onSelect={() => openApplication("components")}>
+              Manage components…
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         <DropdownMenu>

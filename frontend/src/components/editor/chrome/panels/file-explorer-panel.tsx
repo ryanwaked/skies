@@ -43,12 +43,12 @@ const FileExplorerComponent: React.FC<{ height: number }> = ({ height }) => {
     <TreeDndProvider>
       <div
         {...getRootProps()}
-        className={cn("flex flex-col overflow-hidden relative")}
+        className={cn("flex flex-col overflow-hidden relative bg-card")}
         style={{ height }}
       >
         <input {...getInputProps()} />
         {isDragActive && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none rounded-[3px] border border-dashed border-primary/60 bg-background/90 text-xs font-semibold uppercase tracking-wide text-primary">
+          <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none rounded-[3px] border border-dashed border-primary/60 bg-card/90 text-xs font-semibold uppercase tracking-wide text-primary">
             Drop files here
           </div>
         )}

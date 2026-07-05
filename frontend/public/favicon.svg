@@ -1,0 +1,23 @@
+<svg width="180" height="180" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sky-light" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b7be4"/>
+      <stop offset=".52" stop-color="#4f9cee"/>
+      <stop offset="1" stop-color="#f2e5d2"/>
+    </linearGradient>
+    <linearGradient id="sky-dark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1834"/>
+      <stop offset=".55" stop-color="#121f3c"/>
+      <stop offset="1" stop-color="#1a1f33"/>
+    </linearGradient>
+  </defs>
+  <style>
+    .tile { fill: url(#sky-light); }
+    @media (prefers-color-scheme: dark) {
+      .tile { fill: url(#sky-dark); }
+    }
+  </style>
+  <rect class="tile" width="180" height="180" rx="40"/>
+  <circle cx="66" cy="114" r="40" fill="#ffffff"/>
+  <line x1="132" y1="152" x2="158" y2="26" stroke="#ffffff" stroke-width="24" stroke-linecap="round"/>
+</svg>

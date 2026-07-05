@@ -38,7 +38,7 @@ table.dataframe thead {
 
 .markdown table tbody tr:hover,
 table.dataframe tbody tr:hover {
-  background: rgb(63 66 87 / 20%);
+  background: var(--hover-wash);
 }
 
 .markdown table tr,
@@ -55,7 +55,7 @@ table.dataframe td {
   border: none;
 }
 
-/* Hex tables: quiet 1px horizontal rules between rows (no zebra striping),
+/* Skies tables: quiet 1px horizontal rules between rows (no zebra striping),
    with a subdued header row. Borders live on the cells so they render even
    though the table is display: block. */
 .markdown table th,

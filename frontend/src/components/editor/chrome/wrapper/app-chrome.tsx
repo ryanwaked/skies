@@ -40,6 +40,7 @@ import {
   LazyAgentPanel,
   LazyCachePanel,
   LazyChatPanel,
+  LazyComponentsPanel,
   LazyDependencyGraphPanel,
   LazyDocumentationPanel,
   LazyErrorsPanel,
@@ -69,10 +70,9 @@ import { LspStatus } from "./footer-items/lsp-status";
 import { PanelsWrapper } from "./panels";
 import { PendingAICells } from "./pending-ai-cells";
 import { useAiPanelTab } from "./useAiPanel";
-import { useDependencyPanelTab } from "./useDependencyPanelTab";
 import { handleDragging } from "./utils";
 
-// Hex-style display titles for the sidebar panel header. Falls back to the
+// Skies display titles for the sidebar panel header. Falls back to the
 // panel's registry label.
 const PANEL_TITLE_OVERRIDES: Partial<Record<PanelType, string>> = {
   variables: "Data browser",
@@ -96,8 +96,8 @@ const TerminalSkeleton: React.FC = () => {
       role="status"
       className="w-full h-full flex items-start p-3 font-mono text-xs select-none"
       style={{
-        background: isDark ? "#17171F" : "#ffffff",
-        color: isDark ? "#b1b6c4" : "#64748b",
+        background: isDark ? "#15131d" : "#ffffff",
+        color: isDark ? "#847e92" : "#75707f",
       }}
     >
       <span className="opacity-70">Starting terminal</span>
@@ -117,7 +117,6 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
   const sidebarRef = React.useRef<ImperativePanelHandle>(null);
   const developerPanelRef = React.useRef<ImperativePanelHandle>(null);
   const { aiPanelTab, setAiPanelTab } = useAiPanelTab();
-  const { dependencyPanelTab, setDependencyPanelTab } = useDependencyPanelTab();
   const errorCount = useAtomValue(cellErrorCount);
   const [panelLayout, setPanelLayout] = useAtom(panelLayoutAtom);
   // Subscribe to capabilities to re-render when they change (e.g., terminal capability)
@@ -325,6 +324,7 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
     outline: <LazyOutlinePanel.Component />,
     documentation: <LazyDocumentationPanel.Component />,
     snippets: <LazySnippetsPanel.Component />,
+    components: <LazyComponentsPanel.Component />,
     ai: renderAiPanel(),
     errors: <LazyErrorsPanel.Component />,
     scratchpad: <LazyScratchpadPanel.Component />,
@@ -345,39 +345,10 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
   const helpPaneBody = (
     <ErrorBoundary>
       <PanelSectionProvider value="sidebar">
-        <div className="flex flex-col h-full flex-1 overflow-hidden mr-[-4px] bg-background">
-          {/* Hex panel header: ~30px row, 14px/500 title, small muted icon buttons right */}
+        <div className="flex flex-col h-full flex-1 overflow-hidden mr-[-4px] bg-card">
+          {/* Skies panel header: ~30px row, 14px/500 title, small muted icon buttons right */}
           <div className="px-3 h-[30px] shrink-0 border-b border-border flex justify-between items-center gap-2">
-            {selectedPanel === "dependencies" ? (
-              <div className="flex items-center justify-between flex-1">
-                <span className="text-sm font-medium text-foreground">
-                  {panelTitle(selectedPanel)}
-                </span>
-                <Tabs
-                  value={dependencyPanelTab}
-                  onValueChange={(value) => {
-                    if (value === "minimap" || value === "graph") {
-                      setDependencyPanelTab(value);
-                    }
-                  }}
-                >
-                  <TabsList>
-                    <TabsTrigger
-                      value="minimap"
-                      className="py-0.5 text-xs font-medium rounded-[3px]"
-                    >
-                      Minimap
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="graph"
-                      className="py-0.5 text-xs font-medium rounded-[3px]"
-                    >
-                      Graph
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
-            ) : selectedPanel === "ai" && agentsEnabled ? (
+            {selectedPanel === "ai" && agentsEnabled ? (
               <Tabs
                 value={aiPanelTab}
                 onValueChange={(value) => {
@@ -448,7 +419,7 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
       collapsedSize={0}
       collapsible={true}
       className={cn(
-        "bg-background print:hidden hide-on-fullscreen",
+        "bg-card print:hidden hide-on-fullscreen",
         isSidebarOpen && "border-r border-border",
       )}
       minSize={10}
@@ -458,7 +429,7 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
       onResize={(size, prevSize) => {
         // This means it started closed and is opening for the first time
         if (prevSize === 0 && size === 10) {
-          // Hex opens its sidebar panel at 293px. react-resizable-panels only
+          // Skies opens its sidebar panel at 293px. react-resizable-panels only
           // takes percentages, so convert against the horizontal space next to
           // the 48px icon rail.
           const availableWidth = Math.max(window.innerWidth - 48, 1);
@@ -503,7 +474,7 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
       collapsedSize={0}
       collapsible={true}
       className={cn(
-        "bg-background print:hidden hide-on-fullscreen",
+        "bg-card print:hidden hide-on-fullscreen",
         isDeveloperPanelOpen && "border-t",
       )}
       minSize={10}
@@ -522,7 +493,7 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
       {panelResizeHandle}
       <div className="flex flex-col h-full">
         {/* Panel header with tabs */}
-        <div className="flex items-center justify-between border-b px-2 h-8 bg-background shrink-0">
+        <div className="flex items-center justify-between border-b px-2 h-8 bg-card shrink-0">
           <ReorderableList<PanelDescriptor>
             value={devPanelItems}
             setValue={handleSetDevPanelItems}
@@ -602,7 +573,7 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
 
   return (
     <PanelsWrapper>
-      {/* Hex layout: the top bar runs edge to edge across the full viewport;
+      {/* Skies layout: the top bar runs edge to edge across the full viewport;
           the icon rail and everything else start below it. */}
       <ErrorBoundary>
         <TooltipProvider>

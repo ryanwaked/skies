@@ -7,7 +7,7 @@ import type { CellId } from "./ids";
 import type { Outline } from "./outline";
 
 /**
- * Hex-style section info for a cell, derived from markdown headings.
+ * Skies section info for a cell, derived from markdown headings.
  *
  * A cell whose output contains an H1–H3 heading (the same cells marimo's
  * collapse feature treats as anchors, see `canCollapseOutline`) is a

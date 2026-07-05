@@ -194,7 +194,7 @@ const Bar: React.FC<{ percent: number }> = ({ percent }) => {
             ? "bg-error"
             : percent >= 75
               ? "bg-action-foreground"
-              : "bg-muted-foreground/60",
+              : "bg-primary",
         )}
         style={{ width: `${percent}%` }}
       />

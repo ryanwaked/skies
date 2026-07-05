@@ -24,8 +24,8 @@ export const DatasourceLabel: React.FC<{
   return (
     <div
       className={cn(
-        // Hex section header: 10px/600 uppercase, 0.05em tracking, muted color
-        "flex gap-1.5 items-center py-1.5 text-muted-foreground text-[10px] font-semibold uppercase tracking-[0.05em]",
+        // Skies section header: 10px mono uppercase, 0.12em tracking, muted color
+        "flex gap-1.5 items-center py-1.5 text-muted-foreground text-[10px] font-mono font-medium uppercase tracking-[0.12em]",
         className,
       )}
       style={style}
@@ -109,7 +109,7 @@ export const ColumnName = ({
 }) => {
   const Icon = DATA_TYPE_ICON[dataType];
 
-  // Hex data browser: type icons are quiet, thin-stroke, muted glyphs —
+  // Skies data browser: type icons are quiet, thin-stroke, muted glyphs —
   // no colored chips.
   return (
     <div className="flex flex-row items-center gap-1.5">

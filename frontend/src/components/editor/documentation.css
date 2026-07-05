@@ -154,10 +154,15 @@
   }
 }
 
-/* Syntax highlighting for LSP hover code blocks (lezer classHighlighter tok-* classes) */
+/* Syntax highlighting for LSP hover code blocks (lezer classHighlighter tok-* classes).
+   Same selectors as above; stylelint allows the intentional split. */
+/* stylelint-disable no-duplicate-selectors */
 .docs-documentation,
 .cm-tooltip .documentation {
-  .tok-keyword { color: light-dark(#708, #c678dd); font-weight: 500; }
+  .tok-keyword {
+    color: light-dark(#708, #c678dd);
+    font-weight: 500;
+  }
   .tok-string,
   .tok-string2 { color: light-dark(#a11, #98c379); }
   .tok-number { color: light-dark(#164, #d19a66); }
@@ -172,3 +177,4 @@
   .tok-variableName { color: light-dark(#000, #abb2bf); }
   .tok-punctuation { color: light-dark(#000, #abb2bf); }
 }
+/* stylelint-enable no-duplicate-selectors */

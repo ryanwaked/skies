@@ -1,6 +1,5 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { slate } from "@radix-ui/colors";
 import type { TopLevelSpec } from "vega-lite";
 import type { StringFieldDef } from "vega-lite/types_unstable/channeldef.js";
 import { store } from "@/core/state/jotai";
@@ -36,14 +35,14 @@ const CONCAT_NULL_BAR_WIDTH = 5;
 
 const UNHOVERED_BAR_OPACITY = 0.6;
 
-// Dark-mode bars are blush pink, so on-bar text uses the dark canvas color
-// and axis labels use the muted foreground; light mode keeps white/slate9.
+// Bars are the sky-blue tracer in both modes, so on-bar text flips to the
+// canvas ink; axis labels take the theme's muted foreground.
 function summaryTextColor(): string {
-  return store.get(resolvedThemeAtom) === "dark" ? "#1a1a23" : "white";
+  return store.get(resolvedThemeAtom) === "dark" ? "#15131d" : "white";
 }
 
 function summaryAxisLabelColor(): string {
-  return store.get(resolvedThemeAtom) === "dark" ? "#b1b6c4" : slate.slate9;
+  return store.get(resolvedThemeAtom) === "dark" ? "#bbb5c7" : "#75707f";
 }
 
 export class ColumnChartSpecModel<T> {

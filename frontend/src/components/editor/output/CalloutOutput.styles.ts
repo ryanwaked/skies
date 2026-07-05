@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { cva } from "class-variance-authority";
 
-// Hex callout surfaces: raised popover background, semantic 40% borders and
+// Skies callout surfaces: raised popover background, semantic 40% borders and
 // semantic text. Flat (no shadows), 3px radius via the global --radius.
 export const calloutStyles = cva("border rounded-lg p-12 mt-12 mb-12", {
   variants: {

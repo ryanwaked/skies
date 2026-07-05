@@ -13,6 +13,7 @@ import {
   TooltipRoot,
   TooltipTrigger,
 } from "./tooltip";
+import { sliderRange, sliderThumb, sliderTrack } from "./styles";
 
 const Slider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitive.Root>,
@@ -38,7 +39,7 @@ const Slider = React.forwardRef<
       <SliderPrimitive.Track
         data-testid="track"
         className={cn(
-          "relative grow overflow-hidden rounded-full bg-slate-200 dark:bg-accent/60",
+          sliderTrack,
           "data-[orientation=horizontal]:h-2 data-[orientation=horizontal]:w-full",
           "data-[orientation=vertical]:h-full data-[orientation=vertical]:w-2",
         )}
@@ -46,7 +47,7 @@ const Slider = React.forwardRef<
         <SliderPrimitive.Range
           data-testid="range"
           className={cn(
-            "absolute bg-blue-500 dark:bg-primary",
+            sliderRange,
             "data-[orientation=horizontal]:h-full",
             "data-[orientation=vertical]:w-full",
             "data-disabled:opacity-50",
@@ -58,7 +59,10 @@ const Slider = React.forwardRef<
           <TooltipTrigger asChild={true}>
             <SliderPrimitive.Thumb
               data-testid="thumb"
-              className="block h-4 w-4 rounded-full border border-blue-500 dark:border-primary dark:bg-accent bg-white hover:bg-blue-300 focus:bg-blue-300 dark:hover:bg-primary/20 dark:focus:bg-primary/20 transition-colors focus-visible:outline-hidden data-disabled:pointer-events-none data-disabled:opacity-50"
+              className={cn(
+                sliderThumb,
+                "onFocus:data-[state=open]:bg-accent",
+              )}
               onFocus={openActions.setTrue}
               onBlur={openActions.setFalse}
               onMouseEnter={openActions.setTrue}

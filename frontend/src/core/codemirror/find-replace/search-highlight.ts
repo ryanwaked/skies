@@ -140,13 +140,13 @@ export const searchHighlighter = ViewPlugin.fromClass(
 );
 
 export const highlightTheme = EditorView.baseTheme({
-  "&light .cm-searchMatch": { backgroundColor: "#99ff7780" },
-  // Brand blush-pink tint per the Hex dark palette; the selected match uses
-  // the same hue at higher alpha (mirrors var(--ring)).
-  "&dark .cm-searchMatch": { backgroundColor: "rgb(245 192 192 / 20%)" },
+  // Skies gold tint for matches (the site's third trace ink) so matches read
+  // apart from the blue selection wash; the selected match takes higher alpha.
+  "&light .cm-searchMatch": { backgroundColor: "rgb(194 152 15 / 22%)" },
+  "&dark .cm-searchMatch": { backgroundColor: "rgb(232 196 78 / 20%)" },
 
   "&light .cm-searchMatch-selected": { backgroundColor: "transparent" },
   "&dark .cm-searchMatch.cm-searchMatch-selected": {
-    backgroundColor: "rgb(245 192 192 / 45%) !important",
+    backgroundColor: "rgb(232 196 78 / 42%) !important",
   },
 });

@@ -103,7 +103,7 @@ export const FILE_ICON: Record<FileIconType, LucideIcon> = {
 };
 
 /**
- * Hex-style file trees keep icons quiet and monochrome; every file type
+ * Skies file trees keep icons quiet and monochrome; every file type
  * renders in the muted foreground token so the tree reads as one surface.
  */
 export const FILE_ICON_COLOR: Record<FileIconType, string> = {

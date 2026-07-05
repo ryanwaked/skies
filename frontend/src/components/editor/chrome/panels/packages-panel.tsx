@@ -114,7 +114,7 @@ const PackagesPanel: React.FC = () => {
                 "px-2 py-0.5 text-xs font-medium rounded-[3px]",
                 viewMode === "list"
                   ? "bg-primary/[0.07] text-primary"
-                  : "text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]",
+                  : "text-muted-foreground hover:text-foreground hover:bg-[var(--hover-wash)]",
               )}
               onClick={() => setUserViewMode("list")}
             >
@@ -126,7 +126,7 @@ const PackagesPanel: React.FC = () => {
                 "px-2 py-0.5 text-xs font-medium rounded-[3px]",
                 viewMode === "tree"
                   ? "bg-primary/[0.07] text-primary"
-                  : "text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]",
+                  : "text-muted-foreground hover:text-foreground hover:bg-[var(--hover-wash)]",
               )}
               onClick={() => setUserViewMode("tree")}
             >
@@ -135,13 +135,13 @@ const PackagesPanel: React.FC = () => {
           </div>
           <div className="flex items-center gap-2">
             <div
-              className="items-center border border-border px-1.5 py-0 text-[10px] font-semibold uppercase tracking-[0.05em] text-muted-foreground rounded-[3px] text-ellipsis block overflow-hidden max-w-fit"
+              className="items-center border border-border px-1.5 py-0 text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-muted-foreground rounded-[3px] text-ellipsis block overflow-hidden max-w-fit"
               title={isSandbox ? "sandbox" : "project"}
             >
               {isSandbox ? "sandbox" : "project"}
             </div>
             {name && !isSandbox && (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-muted-foreground truncate min-w-0">
                 {name}
                 {version && (
                   <span className="font-code text-xs"> v{version}</span>
@@ -236,7 +236,7 @@ const InstallPackageForm: React.FC<{
         side="left"
         align="start"
         content={
-          <div className="text-sm flex flex-col w-full max-w-[360px]">
+          <div className="text-[13px] flex flex-col w-full max-w-[360px]">
             Packages are installed using the package manager specified in your
             user configuration. Depending on your package manager, you can
             install packages with various formats:
@@ -318,12 +318,12 @@ const PackagesList: React.FC<{
   }
 
   return (
-    <Table className="overflow-y-auto overflow-x-hidden flex-1">
+    <Table className="table-fixed overflow-y-auto overflow-x-hidden flex-1">
       <TableHeader>
         <TableRow>
           <TableHead>Name</TableHead>
-          <TableHead>Version</TableHead>
-          <TableHead />
+          <TableHead className="w-16 text-right">Version</TableHead>
+          <TableHead className="w-14" />
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -338,8 +338,13 @@ const PackagesList: React.FC<{
               });
             }}
           >
-            <TableCell className="text-[13px]">{item.name}</TableCell>
-            <TableCell className="font-code text-xs text-muted-foreground">
+            <TableCell className="text-[13px] truncate" title={item.name}>
+              {item.name}
+            </TableCell>
+            <TableCell
+              className="font-code text-xs text-muted-foreground text-right truncate"
+              title={item.version}
+            >
               {item.version}
             </TableCell>
             <TableCell className="flex justify-end">

@@ -133,7 +133,7 @@ export const ScratchPad: React.FC = () => {
       return null;
     }
     return (
-      <div className="absolute inset-0 z-100 bg-background p-3 border-none overflow-auto">
+      <div className="absolute inset-0 z-100 bg-card p-3 border-none overflow-auto">
         <div className="overflow-auto flex flex-col gap-3">
           {history.map((item, index) => (
             <div

@@ -7,13 +7,17 @@ import { parseShortcut } from "@/core/hotkeys/shortcuts";
 import { useEventListener } from "@/hooks/useEventListener";
 import { cn } from "@/utils/cn";
 import { Events } from "@/utils/events";
+import { Logger } from "@/utils/Logger";
+import { Spinner } from "../icons/spinner";
+import { focusRing } from "./styles";
 
 const activeCommon = "active:shadow-none";
 
 const buttonVariants = cva(
   cn(
     "disabled:opacity-50 disabled:pointer-events-none",
-    "inline-flex items-center justify-center rounded-md text-sm font-medium focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
+    "inline-flex items-center justify-center rounded-md text-sm font-medium",
+    focusRing,
   ),
   {
     variants: {
@@ -49,7 +53,7 @@ const buttonVariants = cva(
           activeCommon,
         ),
         outline: cn(
-          "border border-slate-300 shadow-xs",
+          "border border-input shadow-xs",
           "hover:bg-accent hover:text-accent-foreground",
           "hover:border-primary",
           "aria-selected:text-accent-foreground aria-selected:border-primary",
@@ -78,7 +82,7 @@ const buttonVariants = cva(
         xs: "h-7 px-2 rounded-md text-xs",
         sm: "h-9 px-3 rounded-md",
         lg: "h-11 px-8 rounded-md",
-        icon: "h-6 w-6 mb-0",
+        icon: "h-6 w-6",
       },
       disabled: {
         true: "opacity-50 pointer-events-none",
@@ -97,13 +101,41 @@ export interface ButtonProps
     Omit<VariantProps<typeof buttonVariants>, "disabled"> {
   asChild?: boolean;
   keyboardShortcut?: string;
+  /** Shows a spinner and sets `aria-busy`; also disables the button. */
+  loading?: boolean;
+  /** Stretches the button to fill its container. */
+  fullWidth?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { className, variant, size, asChild = false, keyboardShortcut, ...props },
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      keyboardShortcut,
+      loading = false,
+      fullWidth = false,
+      disabled,
+      children,
+      ...props
+    },
     ref,
   ) => {
+    // Warn (dev only) when an icon-only button lacks an accessible name —
+    // the most common a11y slip in this codebase.
+    if (
+      process.env.NODE_ENV !== "production" &&
+      size === "icon" &&
+      !props["aria-label"] &&
+      !props["aria-labelledby"]
+    ) {
+      Logger.warn(
+        "Button: icon-only buttons must have an `aria-label` or `aria-labelledby`.",
+      );
+    }
+
     const buttonRef = React.useRef<HTMLButtonElement>(null);
 
     React.useImperativeHandle(
@@ -143,13 +175,18 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             variant,
             size,
             className,
-            disabled: props.disabled,
+            disabled: disabled || loading,
           }),
+          fullWidth && "w-full",
           className,
         )}
+        aria-busy={loading || undefined}
         ref={buttonRef}
+        disabled={disabled || loading}
         {...props}
-      />
+      >
+        {loading ? <Spinner size="small" className="text-current" /> : children}
+      </Comp>
     );
   },
 );

@@ -15,7 +15,7 @@ import {
   stringType,
 } from "@textea/json-viewer";
 import { CheckIcon, CopyIcon } from "lucide-react";
-import { memo, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import type { OutputMessage } from "@/core/kernel/messages";
 import { cn } from "@/utils/cn";
 import { copyToClipboard } from "@/utils/copy";
@@ -57,12 +57,25 @@ const CopyButton: React.FC<DataItemProps<any>> = ({ value }) => {
       value.startsWith("image/") ||
       value.startsWith("video/"));
   const [copied, setCopied] = useState(false);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
+
+  // Clear any pending "reset copied" timer on unmount.
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) {
+        clearTimeout(copyTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleCopy = async (evt: React.MouseEvent) => {
     evt.stopPropagation();
     await copyToClipboard(value);
     setCopied(true);
-    setTimeout(() => setCopied(false), 1000);
+    if (copyTimerRef.current) {
+      clearTimeout(copyTimerRef.current);
+    }
+    copyTimerRef.current = setTimeout(() => setCopied(false), 1000);
   };
 
   if (skipCopy) {
@@ -93,29 +106,29 @@ const CopyButton: React.FC<DataItemProps<any>> = ({ value }) => {
 };
 
 /**
- * Hex dark colorspace for the JSON tree. Value colors mirror the CodeMirror
- * dark theme (src/core/codemirror/theme/dark.ts) so tree leaves read like
- * code; keys, indices, and punctuation stay muted.
+ * Skies night colorspace for the JSON tree. Value colors mirror the
+ * CodeMirror dark theme (src/core/codemirror/theme/dark.ts) so tree leaves
+ * read like code; keys, indices, and punctuation stay muted.
  */
-const HEX_DARK_COLORSPACE: NamedColorspace = {
-  scheme: "Hex Dark",
+const SKIES_DARK_COLORSPACE: NamedColorspace = {
+  scheme: "Skies Night",
   author: "marimo",
   base00: "transparent", // background (cell surface shows through)
-  base01: "#1f1f29", // raised surface
-  base02: "#353548", // indent guides + collapsed-string background
-  base03: "#6b7280", // comments
-  base04: "rgb(177 182 196 / 60%)", // metadata (item counts, ellipsis)
-  base05: "#e4e6ec", // default foreground
-  base06: "#e4e6ec",
-  base07: "#b1b6c4", // keys + punctuation (muted)
-  base08: "#5987e0", // None / NaN (editor literal blue)
-  base09: "#2ee6d6", // floats (editor number color)
-  base0A: "rgb(63 66 87 / 40%)", // update highlight
-  base0B: "#ed6f73", // strings (editor string color)
-  base0C: "#b1b6c4", // array indices (muted, like keys)
-  base0D: "#84a6e8", // dates
-  base0E: "#5987e0", // booleans (editor literal blue)
-  base0F: "#2ee6d6", // ints / bigints (editor number color)
+  base01: "#211d2c", // raised surface
+  base02: "rgb(220 214 232 / 14%)", // indent guides + collapsed-string background
+  base03: "#847e92", // comments
+  base04: "rgb(187 181 199 / 60%)", // metadata (item counts, ellipsis)
+  base05: "#e9e6f2", // default foreground
+  base06: "#e9e6f2",
+  base07: "#bbb5c7", // keys + punctuation (muted)
+  base08: "#79aef0", // None / NaN (editor literal blue)
+  base09: "#e8c44e", // floats (editor number gold)
+  base0A: "rgb(220 214 232 / 12%)", // update highlight
+  base0B: "#d98552", // strings (editor string copper)
+  base0C: "#bbb5c7", // array indices (muted, like keys)
+  base0D: "#8fb8ec", // dates
+  base0E: "#79aef0", // booleans (editor literal blue)
+  base0F: "#e8c44e", // ints / bigints (editor number gold)
 };
 
 // oxlint-disable-next-line typescript/no-explicit-any
@@ -156,7 +169,7 @@ export const JsonOutput: React.FC<Props> = memo(
           <JsonViewer
             className={cn("marimo-json-output", className)}
             rootName={name}
-            theme={theme === "dark" ? HEX_DARK_COLORSPACE : theme}
+            theme={theme === "dark" ? SKIES_DARK_COLORSPACE : theme}
             displayDataTypes={false}
             value={data}
             style={{

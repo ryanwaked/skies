@@ -567,12 +567,29 @@ export function renderCellValue<TData, TValue>({
 
   const isWrapped = column.getColumnWrapping?.() === "wrap";
 
+  // Keyboard + screen-reader activation for selectable cells. When cell
+  // selection is enabled, the cell is exposed as a button and can be
+  // triggered via Enter/Space; otherwise it renders as plain display content.
+  const cellProps = selectCell
+    ? {
+        role: "button" as const,
+        tabIndex: 0,
+        onClick: selectCell,
+        onKeyDown: (e: React.KeyboardEvent) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            selectCell();
+          }
+        },
+      }
+    : {};
+
   // Sentinel values (null, whitespace, NaN, Infinity, NaT) rendered specially.
   // Empty strings are left as-is
   const sentinel = detectSentinel(value, dataType);
   if (sentinel && sentinel.type !== "empty-string") {
     return (
-      <div onClick={selectCell} className={cellStyles}>
+      <div {...cellProps} className={cellStyles}>
         <SentinelCell sentinel={sentinel} />
       </div>
     );
@@ -582,7 +599,7 @@ export function renderCellValue<TData, TValue>({
     try {
       if (!isValid(value)) {
         return (
-          <div onClick={selectCell} className={cellStyles}>
+          <div {...cellProps} className={cellStyles}>
             {value}
           </div>
         );
@@ -605,7 +622,7 @@ export function renderCellValue<TData, TValue>({
   if (value instanceof Date) {
     if (!isValid(value)) {
       return (
-        <div onClick={selectCell} className={cellStyles}>
+        <div {...cellProps} className={cellStyles}>
           {value.toString()}
         </div>
       );
@@ -635,7 +652,7 @@ export function renderCellValue<TData, TValue>({
     if (allMarkup || stringValue.length < MAX_STRING_LENGTH || isWrapped) {
       return (
         <div
-          onClick={selectCell}
+          {...cellProps}
           className={cn(cellStyles, isWrapped && COLUMN_WRAPPING_STYLES)}
         >
           <WhitespaceMarkers value={leading} />
@@ -665,7 +682,7 @@ export function renderCellValue<TData, TValue>({
 
   if (format) {
     return (
-      <div onClick={selectCell} className={cellStyles}>
+      <div {...cellProps} className={cellStyles}>
         {column.applyColumnFormatting(value)}
       </div>
     );
@@ -674,7 +691,7 @@ export function renderCellValue<TData, TValue>({
   // Format to the correct locale
   if (typeof value === "number") {
     return (
-      <div onClick={selectCell} className={cellStyles}>
+      <div {...cellProps} className={cellStyles}>
         <LocaleNumber
           value={value}
           minFractionDigits={column.columnDef.meta?.minFractionDigits}
@@ -685,7 +702,7 @@ export function renderCellValue<TData, TValue>({
 
   if (typeof value === "boolean") {
     return (
-      <div onClick={selectCell} className={cellStyles}>
+      <div {...cellProps} className={cellStyles}>
         {value ? "True" : "False"}
       </div>
     );
@@ -694,7 +711,7 @@ export function renderCellValue<TData, TValue>({
   if (isPrimitiveOrNullish(value)) {
     const rendered = renderValue();
     return (
-      <div onClick={selectCell} className={cellStyles}>
+      <div {...cellProps} className={cellStyles}>
         {rendered == null ? "" : String(rendered)}
       </div>
     );
@@ -703,9 +720,9 @@ export function renderCellValue<TData, TValue>({
   const mimeValues = getMimeValues(value);
   if (mimeValues) {
     return (
-      <div onClick={selectCell} className={cellStyles}>
+      <div {...cellProps} className={cellStyles}>
         {mimeValues.map((mimeValue, idx) => (
-          <MimeCell key={idx} value={mimeValue} />
+          <MimeCell key={`${mimeValue.mimetype}:${idx}`} value={mimeValue} />
         ))}
       </div>
     );
@@ -726,7 +743,7 @@ export function renderCellValue<TData, TValue>({
   }
 
   return (
-    <div onClick={selectCell} className={cellStyles}>
+    <div {...cellProps} className={cellStyles}>
       {renderAny(value)}
     </div>
   );

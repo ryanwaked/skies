@@ -30,10 +30,13 @@ const RENDERERS: FormRenderer[] = [ENV_RENDERER];
  */
 export const SelectorGrid: React.FC<{ children: React.ReactNode }> = ({
   children,
-}) => <div className="grid grid-cols-2 md:grid-cols-3 gap-4">{children}</div>;
+}) => <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">{children}</div>;
 
 /**
- * A colored button tile for selecting a provider/database.
+ * A quiet card tile for selecting a provider/database: hairline border,
+ * neutral surface, and a small tinted chip (from the provider's brand
+ * color, at low opacity) behind the logo — brand-recognizable without the
+ * loud solid-color blocks the old picker used.
  */
 export const SelectorButton: React.FC<{
   name: string;
@@ -43,12 +46,19 @@ export const SelectorButton: React.FC<{
 }> = ({ name, color, icon, onSelect }) => (
   <button
     type="button"
-    className="py-3 flex flex-col items-center justify-center gap-1 transition-all hover:scale-105 hover:brightness-110 rounded shadow-sm-solid hover:shadow-md-solid"
-    style={{ backgroundColor: color }}
+    className="flex flex-col items-center justify-center gap-2.5 rounded-[3px] border border-input bg-card px-2 py-4 text-center transition-colors hover:border-primary/50 hover:bg-accent/40"
     onClick={onSelect}
   >
-    {icon}
-    <span className="text-white font-medium text-lg">{name}</span>
+    <span
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[3px] border"
+      style={{
+        backgroundColor: `color-mix(in srgb, ${color} 14%, transparent)`,
+        borderColor: `color-mix(in srgb, ${color} 30%, transparent)`,
+      }}
+    >
+      {icon}
+    </span>
+    <span className="text-[13px] font-medium text-foreground">{name}</span>
   </button>
 );
 

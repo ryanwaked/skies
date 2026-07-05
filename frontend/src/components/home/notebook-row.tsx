@@ -31,7 +31,7 @@ export function relativeToRoot(path: string, root: string): string {
 
 /** Shared inner-row styling for notebook rows (workspace tree + collections). */
 export const NOTEBOOK_ROW_ITEM_CLASS =
-  "flex items-center pl-1 cursor-pointer hover:bg-accent/50 hover:text-accent-foreground rounded-l flex-1 overflow-hidden h-full pr-3 gap-2";
+  "flex items-center pl-1 text-[13px] cursor-pointer hover:bg-accent/50 hover:text-accent-foreground rounded-l flex-1 overflow-hidden h-full pr-3 gap-2";
 
 /**
  * A single notebook row: file icon, name, an `actions` slot (dropdown menu),
@@ -94,6 +94,7 @@ export const SessionShutdownButton: React.FC<{ filePath: string }> = ({
       <Button
         size={"icon"}
         variant="outline"
+        aria-label="Shutdown"
         className="opacity-80 hover:opacity-100 text-destructive border-destructive hover:border-destructive hover:text-destructive bg-background hover:bg-destructive/10"
         onClick={(e) => {
           e.stopPropagation();

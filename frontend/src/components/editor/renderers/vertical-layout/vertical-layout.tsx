@@ -26,10 +26,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { outputIsLoading, outputIsStale } from "@/core/cells/cell";
+import { useCellData, useCellRuntime } from "@/core/cells/cells";
 import type { CellId } from "@/core/cells/ids";
 import { isOutputEmpty } from "@/core/cells/outputs";
 import type { CellData, CellRuntimeState } from "@/core/cells/types";
 import { MarkdownLanguageAdapter } from "@/core/codemirror/language/languages/markdown";
+
+// The adapter is stateless across `isSupported` calls, so one module-level
+// instance serves every cell — avoids allocating a new parser per render.
+const markdownAdapter = new MarkdownLanguageAdapter();
+const isPureMarkdown = (code: string) => markdownAdapter.isSupported(code);
 import { useResolvedMarimoConfig } from "@/core/config/config";
 import { CSSClasses, KnownQueryParams } from "@/core/constants";
 import type { MarimoError, OutputMessage } from "@/core/kernel/messages";
@@ -88,23 +94,12 @@ const VerticalLayoutRenderer: React.FC<VerticalLayoutProps> = ({
 
   const renderCell = (cell: CellRuntimeState & CellData) => {
     return (
-      <VerticalCell
+      <VerticalCellById
         key={cell.id}
         cellId={cell.id}
-        output={cell.output}
-        consoleOutputs={cell.consoleOutputs}
-        status={cell.status}
-        code={cell.code}
-        config={cell.config}
         cellOutputArea={userConfig.display.cell_output}
-        stopped={cell.stopped}
         showCode={showCode && canShowCode}
-        errored={cell.errored}
         mode={mode}
-        runStartTimestamp={cell.runStartTimestamp}
-        interrupted={cell.interrupted}
-        staleInputs={cell.staleInputs}
-        name={cell.name}
         kiosk={kioskMode}
         showErrorTracebacks={userConfig.runtime.show_tracebacks ?? false}
       />
@@ -356,7 +351,7 @@ const VerticalCell = memo(
     // Kiosk and not presenting
     const kioskFull = kiosk && mode !== "present";
 
-    const isPureMarkdown = new MarkdownLanguageAdapter().isSupported(code);
+    const pureMarkdown = isPureMarkdown(code);
     const published = !showCode && !kioskFull;
     const className = cn(
       "marimo-cell",
@@ -365,7 +360,7 @@ const VerticalCell = memo(
         published: published,
         "has-error": errored,
         stopped: stopped,
-        borderless: isPureMarkdown && !published,
+        borderless: pureMarkdown && !published,
       },
     );
 
@@ -453,6 +448,57 @@ const VerticalCell = memo(
 );
 VerticalCell.displayName = "VerticalCell";
 
+/**
+ * Per-cell wrapper that subscribes to its own atom slice, so a notebook-state
+ * change only re-renders the cells whose data actually changed — not every
+ * cell (which is what happens when the parent spreads fresh objects from
+ * `flattenTopLevelNotebookCells`). Mirrors the edit-mode `CellComponent`
+ * pattern of selecting `useCellData`/`useCellRuntime` per cell.
+ */
+const VerticalCellById = memo(
+  ({
+    cellId,
+    cellOutputArea,
+    showCode,
+    mode,
+    kiosk,
+    showErrorTracebacks,
+  }: {
+    cellId: CellId;
+    cellOutputArea: "above" | "below";
+    showCode: boolean;
+    mode: AppMode;
+    kiosk: boolean;
+    showErrorTracebacks: boolean;
+  }) => {
+    const cellData = useCellData(cellId);
+    const cellRuntime = useCellRuntime(cellId);
+    return (
+      <VerticalCell
+        key={cellId}
+        cellId={cellId}
+        output={cellRuntime.output}
+        consoleOutputs={cellRuntime.consoleOutputs}
+        status={cellRuntime.status}
+        code={cellData.code}
+        config={cellData.config}
+        cellOutputArea={cellOutputArea}
+        stopped={cellRuntime.stopped}
+        showCode={showCode}
+        errored={cellRuntime.errored}
+        mode={mode}
+        runStartTimestamp={cellRuntime.runStartTimestamp}
+        interrupted={cellRuntime.interrupted}
+        staleInputs={cellRuntime.staleInputs}
+        name={cellData.name}
+        kiosk={kiosk}
+        showErrorTracebacks={showErrorTracebacks}
+      />
+    );
+  },
+);
+VerticalCellById.displayName = "VerticalCellById";
+
 export const VerticalLayoutPlugin: ICellRendererPlugin<
   VerticalLayout,
   VerticalLayout
@@ -492,7 +538,7 @@ export function groupCellsByColumn(
  * or if the code is empty.
  */
 export function shouldHideCode(code: string, output: OutputMessage | null) {
-  const isPureMarkdown = new MarkdownLanguageAdapter().isSupported(code);
+  const pureMarkdown = isPureMarkdown(code);
   const hasOutput = output !== null && !isOutputEmpty(output);
-  return (isPureMarkdown && hasOutput) || code.trim() === "";
+  return (pureMarkdown && hasOutput) || code.trim() === "";
 }

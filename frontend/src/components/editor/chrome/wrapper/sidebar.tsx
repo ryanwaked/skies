@@ -1,7 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { useAtom, useAtomValue } from "jotai";
-import { MessageCircleQuestionIcon } from "lucide-react";
 import type React from "react";
 import type { PropsWithChildren } from "react";
 import { useEffect, useMemo } from "react";
@@ -14,7 +13,6 @@ import {
 import { capabilitiesAtom } from "@/core/config/capabilities";
 import { aiEnabledAtom } from "@/core/config/config";
 import { cn } from "@/utils/cn";
-import { FeedbackButton } from "../components/feedback-button";
 import { panelLayoutAtom, useChromeActions, useChromeState } from "../state";
 import {
   isPanelHidden,
@@ -122,7 +120,7 @@ export const Sidebar: React.FC = () => {
   return (
     <div
       data-testid="chrome-sidebar"
-      // Hex's collapsed rail has no right border — the vertical divider only
+      // Skies' collapsed rail has no right border — the vertical divider only
       // appears at the open panel's right edge (app-chrome's helperPanel).
       className="h-full w-[48px] shrink-0 pt-1.5 pb-1.5 flex flex-col items-center gap-0 text-foreground text-sm select-none z-50 bg-background print:hidden hide-on-fullscreen"
     >
@@ -162,15 +160,6 @@ export const Sidebar: React.FC = () => {
       />
       <div className="flex-1" />
       <QueuedOrRunningStack />
-      {/* Bottom-anchored cluster (Hex keeps help/shortcuts pinned to the rail bottom) */}
-      <FeedbackButton>
-        <SidebarItem tooltip="Send feedback!" selected={false}>
-          <MessageCircleQuestionIcon
-            strokeWidth={1.5}
-            className="h-[16px] w-[16px]"
-          />
-        </SidebarItem>
-      </FeedbackButton>
     </div>
   );
 };
@@ -189,7 +178,7 @@ const ErrorPanelIcon: React.FC<{ Icon: PanelDescriptor["Icon"] }> = ({
 
 const QueuedOrRunningStack = () => {
   const count = useAtomValue(notebookQueuedOrRunningCountAtom);
-  // Hex-style rail status: a tiny dot (faint when idle, warn token while
+  // Skies rail status: a tiny dot (faint when idle, warn token while
   // cells are queued/running) with a quiet count beneath it.
   return (
     <Tooltip
@@ -230,7 +219,7 @@ const SidebarItem: React.FC<
     onClick?: () => void;
   }>
 > = ({ children, tooltip, selected, className, onClick }) => {
-  // Hex rail geometry (live-measured): 36x36 item box, 16px icon, 3px radius,
+  // Skies rail geometry (from frontend/hex-measurements.json): 36x36 item box, 16px icon, 3px radius,
   // flush 36px pitch (zero gap). Resting icons are foreground (#e4e6ec) —
   // not muted; hover adds a faint neutral wash; active is primary on a
   // primary tint.

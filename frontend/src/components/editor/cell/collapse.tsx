@@ -40,7 +40,7 @@ export const CollapseToggle: React.FC<Props> = (props) => {
 };
 
 const Arrow = ({ isCollapsed }: { isCollapsed: boolean }) => {
-  // Hex-style section chevron: single glyph that rotates when the
+  // Skies section chevron: single glyph that rotates when the
   // section is collapsed.
   return (
     <ChevronDownIcon
@@ -62,7 +62,7 @@ export const CollapsedCellBanner: React.FC<{
   const notebook = useNotebook();
   const states = getDescendantsStatus(notebook, cellId);
 
-  // Hex-style collapsed-section indicator: the heading row stays as-is,
+  // Skies collapsed-section indicator: the heading row stays as-is,
   // followed by a subtle "N cells" chip.
   return (
     <div className="flex items-center gap-2 mx-1 mt-1">

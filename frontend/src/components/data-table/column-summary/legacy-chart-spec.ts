@@ -2,7 +2,6 @@
 
 // Fallback spec
 
-import { mint, orange, slate } from "@radix-ui/colors";
 import type { TopLevelSpec } from "vega-lite";
 import type { Scale } from "vega-lite/types_unstable/scale.js";
 // @ts-expect-error vega-typings does not include formats
@@ -20,17 +19,20 @@ import {
 } from "@/utils/json/base64";
 
 /**
- * Column-summary chart colors. Hex's dark theme draws histogram bars in the
- * blush-pink brand with warn-yellow null bars; light mode keeps marimo's
- * mint/orange. Read at spec-build time since the spec model lives outside
- * React.
+ * Column-summary chart colors. Skies draws histogram bars with the sky-blue
+ * data tracer and null bars in the amber/gold ink, in both color modes.
+ * Read at spec-build time since the spec model lives outside React.
  */
 export function summaryBarColor(): string {
-  return store.get(resolvedThemeAtom) === "dark" ? "#f5c0c0" : mint.mint11;
+  return store.get(resolvedThemeAtom) === "dark" ? "#5fa6ef" : "#1b7be4";
 }
 
 export function summaryNullBarColor(): string {
-  return store.get(resolvedThemeAtom) === "dark" ? "#ffc940" : orange.orange11;
+  return store.get(resolvedThemeAtom) === "dark" ? "#d4a429" : "#9a6700";
+}
+
+export function summaryLabelColor(): string {
+  return store.get(resolvedThemeAtom) === "dark" ? "#bbb5c7" : "#75707f";
 }
 
 export function getLegacyNumericSpec(
@@ -222,7 +224,7 @@ export function getLegacyBooleanSpec(
             "datum.label === 'true' || datum.label === 'True'  ? 'True' : 'False'",
           tickWidth: 0,
           title: null,
-          labelColor: slate.slate9,
+          labelColor: summaryLabelColor(),
         },
       },
       x: {
@@ -255,7 +257,7 @@ export function getLegacyBooleanSpec(
           align: "left",
           baseline: "middle",
           dx: 3,
-          color: slate.slate9,
+          color: summaryLabelColor(),
         },
         encoding: {
           text: {

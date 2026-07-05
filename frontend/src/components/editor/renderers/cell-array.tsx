@@ -170,7 +170,7 @@ const CellColumn: React.FC<{
   const column = cellIds.get(columnId);
   invariant(column, `Expected column for: ${columnId}`);
 
-  // Hex-style sections: heading cells act as section containers for the
+  // Skies sections: heading cells act as section containers for the
   // cells beneath them.
   const sections = useAtomValue(cellSectionsAtom);
 

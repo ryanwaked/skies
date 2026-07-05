@@ -1,16 +1,13 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { useAtomValue } from "jotai";
-import {
-  ChevronDownIcon,
-  LayoutGridIcon,
-  LayoutTemplateIcon,
-  MessageSquareTextIcon,
-} from "lucide-react";
-import type { JSX, ReactNode } from "react";
+import { ChevronDownIcon } from "lucide-react";
+import type { JSX } from "react";
 import { ConfigButton } from "@/components/app-config/app-config-button";
+import { RunAllSplitButton } from "@/components/editor/controls/run-all-button";
 import { FilenameForm } from "@/components/editor/header/filename-form";
 import { useImperativeModal } from "@/components/modal/ImperativeModal";
+import { ScrollProgress } from "@/components/skies/scroll-progress";
 import { ShareStaticNotebookModal } from "@/components/static-html/share-modal";
 import { Tooltip } from "@/components/ui/tooltip";
 import { notebookScrollToRunning } from "@/core/cells/actions";
@@ -19,6 +16,7 @@ import { useTogglePresenting } from "@/core/layout/useTogglePresenting";
 import { viewStateAtom } from "@/core/mode";
 import { connectionAtom } from "@/core/network/connection";
 import { useFilename } from "@/core/saving/filename";
+import { SaveComponent } from "@/core/saving/save-component";
 import {
   getConnectionTooltip,
   isAppInteractionDisabled,
@@ -28,8 +26,6 @@ import { cn } from "@/utils/cn";
 import { NotebookMenuDropdown } from "../controls/notebook-menu-dropdown";
 import { ShutdownButton } from "../controls/shutdown-button";
 import { LayoutSelect } from "../renderers/layout-select";
-
-const hoverGhost = "hover:bg-[rgba(63,66,87,0.2)]";
 
 /**
  * Slim top bar for the notebook editor: notebook menu, editable title,
@@ -51,8 +47,13 @@ export const NotebookHeader = (): JSX.Element => {
   return (
     <div
       data-testid="notebook-header"
-      className="hex-topbar relative flex h-[40px] w-full shrink-0 items-center gap-1 border-b border-border bg-background pl-2 pr-3 print:hidden"
+      className="skies-topbar relative flex h-[40px] w-full shrink-0 items-center gap-1 border-b border-border bg-[var(--nav-solid)] pl-2 pr-3 print:hidden"
     >
+      {/* The scroll-progress hairline tracks the #App scroll container, which
+          collapses in present mode (the deck manages its own inner scroll).
+          Hide it there so it doesn't sit empty at the left edge. */}
+      {mode !== "present" && <ScrollProgress />}
+
       {!closed && (
         <NotebookMenuDropdown disabled={disabled} tooltip={connectionTooltip} />
       )}
@@ -75,40 +76,16 @@ export const NotebookHeader = (): JSX.Element => {
       <div className="flex shrink-0 items-center gap-1">
         {mode === "present" && <LayoutSelect />}
 
-        <Tooltip content="Comments — not wired up">
-          <button
-            type="button"
-            aria-label="Comments"
-            data-testid="header-comments-button"
-            className={cn(
-              "flex h-[28px] w-[28px] items-center justify-center rounded-[3px] text-muted-foreground transition-colors hover:text-foreground",
-              hoverGhost,
-            )}
-          >
-            <MessageSquareTextIcon
-              className="h-[16px] w-[16px]"
-              strokeWidth={1.5}
-            />
-          </button>
-        </Tooltip>
+        {!closed && <RunAllSplitButton />}
+        {!closed && <SaveComponent kioskMode={false} />}
+
+        <div className="mx-1 h-[18px] w-px bg-border" />
 
         <ShareButton />
 
-        <Tooltip content="Not wired up">
-          <button
-            type="button"
-            data-testid="header-publish-button"
-            className={cn(
-              "flex h-[28px] items-center rounded-[3px] border border-input px-[9px] py-[5px] text-[14px] font-normal text-foreground transition-colors",
-              hoverGhost,
-            )}
-          >
-            Publish app
-          </button>
-        </Tooltip>
-
         {!closed && (
           <>
+            <div className="mx-1 h-[18px] w-px bg-border" />
             <ConfigButton disabled={disabled} tooltip={connectionTooltip} />
             <ShutdownButton
               description="This will terminate the Python kernel. You'll lose all data that's in memory."
@@ -160,10 +137,13 @@ const HeaderStatusIndicator = ({
           className={cn(
             "size-1.5 rounded-full",
             isClosed && "bg-(--error)",
-            running && "bg-(--action-foreground) animate-pulse",
+            running && "skies-ping bg-(--action-foreground)",
             isOpen && !running && "bg-(--success) opacity-60",
             !isOpen && !isClosed && "bg-(--muted-foreground)",
           )}
+          style={
+            running ? { ["--ping-color" as string]: "var(--action-foreground)" } : undefined
+          }
         />
       </button>
     </Tooltip>
@@ -184,16 +164,14 @@ const ModeSwitch = () => {
       role="tablist"
       aria-label="Notebook view"
       data-testid="notebook-mode-switch"
-      // Hex centers the mode tabs in the 40px bar (measured tab-group block
-      // is centered at viewport midline, independent of the title width).
-      className="absolute left-1/2 top-1/2 flex shrink-0 -translate-x-1/2 -translate-y-1/2 items-center gap-0.5 rounded-[3px]"
+      // Inline in the bar's flow (the old absolutely-centered group collided
+      // with the right-hand actions at narrow widths). Site nav-link voice:
+      // quiet text with the copper-into-blue trace underline when active.
+      className="ml-3 flex h-full shrink-0 items-stretch gap-1"
     >
       <ModeTab
         active={!isPresenting}
         label="Notebook"
-        icon={
-          <LayoutGridIcon className="h-[16px] w-[16px]" strokeWidth={1.5} />
-        }
         onSelect={() => {
           if (isPresenting) {
             togglePresenting();
@@ -203,9 +181,6 @@ const ModeSwitch = () => {
       <ModeTab
         active={isPresenting}
         label="App builder"
-        icon={
-          <LayoutTemplateIcon className="h-[16px] w-[16px]" strokeWidth={1.5} />
-        }
         onSelect={() => {
           if (!isPresenting) {
             togglePresenting();
@@ -219,12 +194,10 @@ const ModeSwitch = () => {
 const ModeTab = ({
   active,
   label,
-  icon,
   onSelect,
 }: {
   active: boolean;
   label: string;
-  icon: ReactNode;
   onSelect: () => void;
 }) => (
   <button
@@ -234,13 +207,10 @@ const ModeTab = ({
     data-testid={`notebook-mode-tab-${label}`}
     onClick={onSelect}
     className={cn(
-      "flex h-[28px] items-center gap-1.5 rounded-[3px] px-[9px] py-[5px] text-[14px] font-normal transition-colors",
-      active
-        ? "bg-primary/[0.07] text-primary"
-        : "text-foreground hover:bg-[rgba(63,66,87,0.2)]",
+      "skies-mode-tab flex items-center px-[10px] text-[13.5px] font-normal transition-colors",
+      active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
     )}
   >
-    {icon}
     {label}
   </button>
 );
@@ -257,10 +227,7 @@ const ShareButton = () => {
         onClick={() =>
           openModal(<ShareStaticNotebookModal onClose={closeModal} />)
         }
-        className={cn(
-          "flex h-[28px] items-center rounded-[3px] bg-transparent px-[9px] py-[5px] text-[14px] font-normal text-foreground transition-colors",
-          hoverGhost,
-        )}
+        className="skies-cta flex h-[28px] items-center rounded-[3px] px-[10px] py-[5px] text-[13px] font-medium"
       >
         Share
       </button>

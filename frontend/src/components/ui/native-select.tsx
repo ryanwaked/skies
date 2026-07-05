@@ -4,9 +4,13 @@ import { cva } from "class-variance-authority";
 import * as React from "react";
 import { cn } from "@/utils/cn";
 import { Events } from "@/utils/events";
+import { focusRing } from "./styles";
 
 export const selectStyles = cva(
-  "flex h-6 w-fit mb-1 items-center justify-between rounded-sm bg-background px-2 text-sm font-prose ring-offset-background placeholder:text-muted-foreground focus:outline-hidden focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer",
+  cn(
+    "flex h-6 w-fit mb-1 items-center justify-between rounded-sm bg-background px-2 text-sm font-prose placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer",
+    focusRing,
+  ),
   {
     variants: {
       variant: {

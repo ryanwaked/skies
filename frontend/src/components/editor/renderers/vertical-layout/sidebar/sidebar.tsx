@@ -22,7 +22,7 @@ export const Sidebar = ({ isOpen, toggle, width }: SidebarProps) => {
       )}
     >
       <SidebarToggle isOpen={isOpen} toggle={toggle} />
-      {/* Hex panels separate from the canvas with a border on the content
+      {/* Skies panels separate from the canvas with a border on the content
           side (right edge for a left sidebar), not the viewport edge. */}
       <div className="relative h-full flex flex-col px-3 pb-16 pt-14 overflow-y-auto border-r border-border">
         <SidebarSlot />

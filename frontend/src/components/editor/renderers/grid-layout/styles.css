@@ -1,9 +1,9 @@
 /* Drop placeholder: subtle neutral dash, not the library's red (or a brand
-   fill). Hex drop targets are quiet — border-border dashes on a faint
+   fill). Skies drop targets are quiet — border-border dashes on a faint
    neutral wash. The vendor rule ships `background: red; opacity: 0.2`, so
    reset opacity and let the colors themselves carry the subtlety. */
 .react-grid-item.react-grid-placeholder {
-  background-color: rgb(63 66 87 / 20%);
+  background-color: var(--hover-wash);
   border: 1px dashed var(--border);
   border-radius: var(--radius);
   opacity: 1;

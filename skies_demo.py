@@ -7,11 +7,17 @@ app = marimo.App(
 )
 
 
+@app.cell
+def _(mo):
+    mo.md(r"""
+    # Introduction
+    """)
+    return
+
+
 @app.cell(hide_code=True)
 def introduction(mo):
     mo.md(r"""
-    # Introduction
-
     This paper looks to analyze the 2024 American Community Survey (ACS) data published by the United
     States Census Bureau. In it, we evaluate statistics of population, income, and cost of living at both a
     macroscopic level (metropolitan), as well as microscopic levels (by class, race, etc. within metropolitan
@@ -23,7 +29,7 @@ def introduction(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## Exploring the data
+    # Exploring the data
     """)
     return
 
@@ -67,7 +73,7 @@ def load_data(pd):
 
 
 @app.cell
-def rent_burden_query(mo, metros):
+def rent_burden_query(metros, mo):
     _df = mo.sql(
         f"""
         SELECT metro, median_income, median_rent, rent_burden_pct

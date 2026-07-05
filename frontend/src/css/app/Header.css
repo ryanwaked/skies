@@ -24,12 +24,12 @@
   animation-delay: 1000ms;
 }
 
-/* Hex-style notebook top bar.
+/* Skies notebook top bar.
  *
  * Restyle the reused marimo controls (notebook menu, config, shutdown) from
  * their default circular "mo-button" look into muted, ghost icon buttons so
  * they blend into the slim bar. */
-.hex-topbar button.mo-button {
+.skies-topbar button.mo-button {
   height: 28px;
   width: 28px;
   padding: 5px 9px;
@@ -41,43 +41,44 @@
   color: var(--muted-foreground);
 }
 
-/* Every chrome icon slot renders at exactly 16x16 (Hex ground truth). */
-.hex-topbar button.mo-button svg {
+/* Every chrome icon slot renders at exactly 16x16 (Skies chrome scale). */
+.skies-topbar button.mo-button svg {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
 }
 
-.hex-topbar button.mo-button:hover {
-  background-color: rgb(63 66 87 / 20%);
+.skies-topbar button.mo-button:hover {
+  background-color: var(--hover-wash);
   border: none;
   color: var(--foreground);
 }
 
-.hex-topbar button.mo-button.disabled,
-.hex-topbar button.mo-button:disabled {
+.skies-topbar button.mo-button.disabled,
+.skies-topbar button.mo-button:disabled {
   color: var(--muted-foreground);
   opacity: 0.5;
 }
 
-/* Breadcrumb (filename) text: 14px/400 muted, 28px row (Hex ground truth). */
-.hex-topbar .filename,
-.hex-topbar .missing-filename {
+/* Breadcrumb (filename) text: 14px/400 muted, 28px row. */
+.skies-topbar .filename,
+.skies-topbar .missing-filename {
   height: 28px;
+  /* stylelint-disable-next-line unit-allowed-list */
   font-size: 14px;
   font-weight: 400;
   color: var(--muted-foreground);
 }
 
 /* Unnamed-notebook input: drop the centered, boxed look inside the bar. */
-.hex-topbar .missing-filename {
+.skies-topbar .missing-filename {
   text-align: left;
   border-radius: 3px;
   box-shadow: none;
 }
 
-.hex-topbar .missing-filename:hover,
-.hex-topbar .missing-filename:focus {
-  background-color: rgb(63 66 87 / 20%);
+.skies-topbar .missing-filename:hover,
+.skies-topbar .missing-filename:focus {
+  background-color: var(--hover-wash);
   box-shadow: none;
 }

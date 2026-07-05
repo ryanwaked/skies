@@ -31,7 +31,7 @@ export const DATA_TYPE_ICON: Record<DataType | SelectableDataType, LucideIcon> =
   };
 
 /**
- * Hex-style quiet swatches: subtle token-based washes that hold on the
+ * Skies quiet swatches: subtle token-based washes that hold on the
  * dark canvas — never saturated palette fills.
  */
 export function getDataTypeColor(

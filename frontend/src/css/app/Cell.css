@@ -13,7 +13,7 @@
   max-width: inherit;
   width: 100%;
 
-  /* Hex-style frame: always-visible 1px border on a surface slightly
+  /* Skies frame: always-visible 1px border on a surface slightly
    * lighter than the canvas. */
   border: 1px solid var(--border);
 
@@ -22,6 +22,11 @@
 
   &:hover {
     border-color: var(--cell-border-hover);
+    /* Hover z-index is higher than focus-within z-index
+     * This is because you may hover for tooltip docs while
+     * not focused in another cell.
+     */
+    z-index: 30;
   }
 
   &:focus-visible {
@@ -65,7 +70,7 @@
       border-radius: 3px;
       pointer-events: none;
       opacity: 0.6;
-      box-shadow: 0px 0px 10px 0px var(--error);
+      box-shadow: 0 0 10px 0 var(--error);
       z-index: 1;
     }
 
@@ -73,6 +78,7 @@
     .cm-content {
       text-decoration: line-through;
       text-decoration-color: var(--error);
+      /* stylelint-disable-next-line unit-allowed-list */
       text-decoration-thickness: 1px;
     }
   }
@@ -89,15 +95,6 @@
 
   &:focus-within {
     z-index: 20;
-  }
-
-  /* Hover z-index is higher than focus-within z-index
-     * This is because you may hover for tooltip docs while
-     * not focused in another cell.
-     */
-
-  &:hover {
-    z-index: 30;
   }
 
   /* Interactive */
@@ -154,10 +151,52 @@
       border-bottom-right-radius: 2px;
     }
 
-    /* Focused/selected cell: faint blush-pink ring (Hex accent). */
+    /* Focused/selected cell: faint sky-blue ring (Skies accent), plus the
+     * site's measuring-tick corners — "this paper is the active one". */
     &:focus-within {
       border-color: var(--cell-focus-border);
       box-shadow: var(--cell-focus-shadow);
+    }
+
+    &:focus-within::after {
+      content: "";
+      position: absolute;
+      /* stylelint-disable-next-line unit-allowed-list */
+      inset: -1px;
+      pointer-events: none;
+      opacity: 0.8;
+      z-index: 25;
+      background-image:
+        linear-gradient(var(--sky-blue), var(--sky-blue)),
+        linear-gradient(var(--sky-blue), var(--sky-blue)),
+        linear-gradient(var(--sky-blue), var(--sky-blue)),
+        linear-gradient(var(--sky-blue), var(--sky-blue)),
+        linear-gradient(var(--sky-blue), var(--sky-blue)),
+        linear-gradient(var(--sky-blue), var(--sky-blue)),
+        linear-gradient(var(--sky-blue), var(--sky-blue)),
+        linear-gradient(var(--sky-blue), var(--sky-blue));
+      background-repeat: no-repeat;
+      /* Pixel-precise measuring-tick ruler at the focus edge. */
+      /* stylelint-disable unit-allowed-list */
+      background-size:
+        1px 11px,
+        11px 1px,
+        1px 11px,
+        11px 1px,
+        1px 11px,
+        11px 1px,
+        1px 11px,
+        11px 1px;
+      /* stylelint-enable unit-allowed-list */
+      background-position:
+        left top,
+        left top,
+        right top,
+        right top,
+        left bottom,
+        left bottom,
+        right bottom,
+        right bottom;
     }
 
     .cm {
@@ -296,8 +335,8 @@
     }
   }
 
-  /* Hex frames every prose cell, so "borderless" markdown cells keep the
-   * regular frame — except heading-only cells (a lone h1/h2/h3), which Hex
+  /* Skies frames every prose cell, so "borderless" markdown cells keep the
+   * regular frame — except heading-only cells (a lone h1/h2/h3), which Skies
    * renders directly on the canvas as section headings. */
   &.borderless {
     & > * {
@@ -312,6 +351,24 @@
 
     &:hover {
       border-color: color-mix(in srgb, var(--border), transparent 50%);
+    }
+
+    /* Section heads carry the site's measuring-tick ruler: a dashed
+     * hairline under the heading, drawn at a 1px/14px pitch. */
+    .markdown :is(h1, h2, h3):only-child {
+      padding-bottom: 12px;
+      /* Pixel-precise dashed ruler pitch. */
+      /* stylelint-disable unit-allowed-list */
+      background-image: repeating-linear-gradient(
+        90deg,
+        var(--input) 0 1px,
+        transparent 1px 14px
+      );
+      /* stylelint-enable unit-allowed-list */
+      background-repeat: no-repeat;
+      /* stylelint-disable-next-line unit-allowed-list */
+      background-size: 100% 5px;
+      background-position: left bottom;
     }
   }
 
@@ -339,7 +396,7 @@
 }
 
 /*
- * Hex-style "fieldset legend": the cell's name sits on the top border line,
+ * Skies "fieldset legend": the cell's name sits on the top border line,
  * interrupting it. The canvas-colored background masks the border underneath.
  */
 .marimo-cell .cell-frame-label {
@@ -348,10 +405,17 @@
   left: 14px;
   z-index: 25;
   padding: 0 6px;
-  font-size: 0.75rem;
+
+  /* Skies mono label voice (the site's kicker register). */
+  font-family: var(--monospace-font);
+  /* stylelint-disable-next-line unit-allowed-list */
+  font-size: 10px;
   line-height: 16px;
-  font-weight: 400;
-  color: var(--muted-foreground);
+  font-weight: 500;
+  /* stylelint-disable-next-line unit-allowed-list */
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--foreground-dim);
   background-color: var(--background);
   border: none;
   pointer-events: none;
@@ -447,8 +511,7 @@
 
   /* Hide when disconnected. */
 
-  .cell-running-icon,
-  .cell-queued-icon,
+  .cell-status-queued,
   .elapsed-time {
     visibility: hidden;
     animation: none;
@@ -510,23 +573,24 @@
 
 :root {
   /* Set a fixed gutter width to ensure the hover area is always wide enough */
+
   /* And make the gutter bigger when the window is super wide */
   --gutter-width: 100px;
 
-  /* Hex.tech cell-frame tokens, derived from the semantic vars so both
+  /* Skies cell-frame tokens, derived from the semantic vars so both
      themes stay coherent. */
 
   /* Stronger border on hover; resting border uses the muted var(--border). */
   --cell-border-hover: var(--input);
 
-  /* Brand-accent focus ring (blush pink in dark mode). */
+  /* Brand-accent focus ring (sky blue in both themes). */
   --cell-focus-border: var(--ring);
   --cell-focus-shadow:
     0 0 0 1px var(--ring),
     0 0 0 2px color-mix(in srgb, var(--primary) 5%, transparent);
 
   /* Hover background tint for gutter affordances. */
-  --cell-hover-tint: rgba(63, 66, 87, 0.2);
+  --cell-hover-tint: var(--hover-wash);
 }
 
 /* ------------------------ CodeMirror Editor ----------------------------- */
@@ -550,11 +614,11 @@
 
   &.cm-focused {
     .cm-activeLineGutter {
-      background: #e2f2ff;
+      background: color-mix(in srgb, var(--primary) 8%, transparent);
     }
 
     .cm-activeLine:not(.cm-error-line) {
-      background: hsl(210deg 100% 50% / 3%);
+      background: color-mix(in srgb, var(--primary) 3%, transparent);
     }
   }
 
@@ -573,17 +637,17 @@
     font-size: var(--marimo-code-editor-font-size, 0.75rem);
     font-family: var(--monospace-font);
 
-    /* Hex's Monaco runs 12px type on an 18px line box. */
+    /* Skies' Monaco runs 12px type on an 18px line box. */
     line-height: 1.5;
   }
 }
 
 .dark .marimo-cell .cm-editor.cm-focused .cm-activeLineGutter {
-  background: rgb(63 66 87 / 20%);
+  background: color-mix(in srgb, var(--foreground) 7%, transparent);
 }
 
 .dark .marimo-cell .cm-editor.cm-focused .cm-activeLine {
-  background: rgb(63 66 87 / 12%);
+  background: color-mix(in srgb, var(--foreground) 4%, transparent);
 }
 
 /* ------------------------------ Output Areas ------------------------------ */
@@ -597,7 +661,6 @@
      * the editor. */
   clear: both;
   display: flow-root;
-
   overflow: auto;
 }
 

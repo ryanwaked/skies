@@ -9,6 +9,8 @@ body.printing #App {
   * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    box-shadow: none !important;
+    text-shadow: none !important;
   }
 
   #App {
@@ -37,11 +39,6 @@ body.printing #App {
   .container {
     width: 100%;
     max-width: none;
-  }
-
-  * {
-    box-shadow: none !important;
-    text-shadow: none !important;
   }
 
   /* avoid breaking up a ui element (table, chart) */

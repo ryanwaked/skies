@@ -68,9 +68,9 @@ export const Params = {
         type: "interval",
         encodings: getEncodingAxisForMark(spec),
         mark: {
-          fill: "#F5C0C0",
+          fill: "#5FA6EF",
           fillOpacity: 0.07,
-          stroke: "#F5C0C0",
+          stroke: "#5FA6EF",
           strokeOpacity: 0.4,
         },
         // So this does not conflict with pan/zoom via metaKey

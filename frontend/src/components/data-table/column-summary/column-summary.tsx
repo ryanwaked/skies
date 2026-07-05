@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import React, { Suspense } from "react";
 import { useLocale } from "react-aria";
-import { HEX_DARK_VEGA_CONFIG } from "@/components/charts/hex-vega-theme";
+import { getSkiesVegaConfig } from "@/components/charts/skies-vega-theme";
 import { LazyVegaEmbed } from "@/components/charts/lazy";
 import { createBatchedLoader } from "@/plugins/impl/vega/batched";
 import { useTheme } from "@/theme/useTheme";
@@ -25,7 +25,10 @@ interface Props<TData, TValue> {
 // for all calls with the same key.
 const batchedLoader = createBatchedLoader();
 
-export const TableColumnSummary = <TData, TValue>({
+// Stable across renders — the chart's container style never changes.
+const CHART_STYLE = { minWidth: "unset", maxHeight: "40px" } as const;
+
+export const TableColumnSummary = React.memo(<TData, TValue>({
   columnId,
 }: Props<TData, TValue>) => {
   const { locale } = useLocale();
@@ -33,6 +36,11 @@ export const TableColumnSummary = <TData, TValue>({
   const chartSpecModel = React.use(ColumnChartContext);
   const { theme } = useTheme();
   const { spec, type, stats } = chartSpecModel.getHeaderSummary(columnId);
+
+  // Memoize the Vega config (the expensive derivation) so it only recomputes
+  // when the theme changes, not on every parent render.
+  const vegaConfig = React.useMemo(() => getSkiesVegaConfig(theme), [theme]);
+
   let chart: React.ReactNode = null;
   if (spec) {
     const skeleton = <ChartSkeleton seed={columnId} width={80} height={40} />;
@@ -52,14 +60,12 @@ export const TableColumnSummary = <TData, TValue>({
               height: 30,
               renderer: "svg",
               actions: false,
-              ...(theme === "dark"
-                ? { config: HEX_DARK_VEGA_CONFIG }
-                : { theme: "vox" as const }),
+              config: vegaConfig,
               // @ts-expect-error - Our `loader.load` method is broader than VegaLite's typings but is functionally supported.
               loader: batchedLoader,
               mode: "vega-lite",
             }}
-            style={{ minWidth: "unset", maxHeight: "40px" }}
+            style={CHART_STYLE}
           />
         </Suspense>
       </DelayMount>
@@ -176,4 +182,5 @@ export const TableColumnSummary = <TData, TValue>({
       {renderStats()}
     </div>
   );
-};
+});
+TableColumnSummary.displayName = "TableColumnSummary";

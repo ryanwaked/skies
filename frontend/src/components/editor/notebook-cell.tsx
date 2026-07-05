@@ -267,17 +267,17 @@ export interface CellProps {
    */
   collapseCount: number;
   /**
-   * Hex-style sections: true when this cell's output starts a section
+   * Skies sections: true when this cell's output starts a section
    * (H1–H3 markdown heading — the same cells that can be collapsed).
    */
   isSectionHead?: boolean;
   /**
-   * Hex-style sections: true when this cell sits inside a section
+   * Skies sections: true when this cell sits inside a section
    * (below a heading cell), which draws a left guide in the gutter.
    */
   inSection?: boolean;
   /**
-   * Hex-style sections: the last cell of this section, used as the anchor
+   * Skies sections: the last cell of this section, used as the anchor
    * when inserting a cell at the end of the section. Only set for section
    * heads.
    */
@@ -630,7 +630,7 @@ const EditableCellComponent = ({
               </div>
             </CellLeftSideActions>
             {inSection && (
-              // Hex-style section guide: a subtle vertical line in the
+              // Skies section guide: a subtle vertical line in the
               // gutter, under the section head's chevron. Extends up across
               // the inter-cell gap so the section reads as one container.
               <div
@@ -640,7 +640,7 @@ const EditableCellComponent = ({
               />
             )}
             {isSectionHead && sectionLastCellId != null && (
-              // Hex-style "Add cell": shown while hovering the heading row,
+              // Skies "Add cell": shown while hovering the heading row,
               // inserts an empty cell at the end of this section.
               <button
                 type="button"

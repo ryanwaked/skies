@@ -10,6 +10,18 @@
   color: var(--muted-foreground);
 }
 
+/* Running cells get a sky-blue spinner + a soft accent wash so the running
+   state reads at a glance — distinct from the muted idle/finished timer. */
+.elapsed-time.running {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 5px;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
 #App.disconnected .elapsed-time {
   visibility: hidden;
 }

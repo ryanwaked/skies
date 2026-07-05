@@ -1,7 +1,7 @@
 @reference "../../../css/globals.css";
 
-/* Hex-flat button chrome: neutral surfaces with token borders, subtle
- * tint hovers (blush pink for affirmative hints, semantic tints for
+/* Skies-flat button chrome: neutral surfaces with token borders, subtle
+ * tint hovers (sky blue for affirmative hints, semantic tints for
  * destructive/warning), no palette-scale colors. */
 
 .mo-button.gray {
@@ -10,14 +10,11 @@
   border-color: var(--border);
 }
 
-.mo-button.gray:hover {
-  background-color: rgb(63 66 87 / 20%);
+.mo-button.gray:hover,
+.mo-button.gray.selected,
+.mo-button.gray:active {
+  background-color: var(--hover-wash);
   color: var(--foreground);
-  border-color: var(--input);
-}
-
-.mo-button.gray.selected .mo-button.gray:active {
-  background-color: rgb(63 66 87 / 30%);
   border-color: var(--input);
 }
 
@@ -29,14 +26,11 @@
   border-color: var(--border);
 }
 
-.mo-button.white:hover {
-  background-color: rgb(63 66 87 / 20%);
+.mo-button.white:hover,
+.mo-button.white.selected,
+.mo-button.white:active {
+  background-color: var(--hover-wash);
   color: var(--foreground);
-  border-color: var(--input);
-}
-
-.mo-button.white.selected .mo-button.white:active {
-  background-color: rgb(63 66 87 / 30%);
   border-color: var(--input);
 }
 
@@ -55,17 +49,14 @@
   border-color: color-mix(in srgb, var(--success) 40%, transparent);
 }
 
-.mo-button.green:hover {
+.mo-button.green:hover,
+.mo-button.green.selected,
+.mo-button.green:active {
   background-color: color-mix(in srgb, var(--success) 15%, transparent);
   border-color: color-mix(in srgb, var(--success) 60%, transparent);
 }
 
-.mo-button.green.selected .mo-button.green:active {
-  background-color: color-mix(in srgb, var(--success) 20%, transparent);
-  border-color: color-mix(in srgb, var(--success) 60%, transparent);
-}
-
-/* Looks neutral, hovers with the brand tint (Hex active-tint pattern). */
+/* Looks neutral, hovers with the brand tint (Skies active-tint pattern). */
 .mo-button.hint-green {
   @apply bg-background;
 
@@ -73,14 +64,10 @@
   border-color: var(--border);
 }
 
-.mo-button.hint-green:hover {
+.mo-button.hint-green:hover,
+.mo-button.hint-green.selected,
+.mo-button.hint-green:active {
   background-color: color-mix(in srgb, var(--primary) 7%, transparent);
-  color: var(--accent-foreground);
-  border-color: var(--border);
-}
-
-.mo-button.hint-green.selected .mo-button.hint-green:active {
-  background-color: color-mix(in srgb, var(--primary) 12%, transparent);
   color: var(--accent-foreground);
   border-color: var(--border);
 }
@@ -91,13 +78,10 @@
   border-color: color-mix(in srgb, var(--error) 40%, transparent);
 }
 
-.mo-button.red:hover {
+.mo-button.red:hover,
+.mo-button.red.selected,
+.mo-button.red:active {
   background-color: color-mix(in srgb, var(--error) 15%, transparent);
-  border-color: color-mix(in srgb, var(--error) 60%, transparent);
-}
-
-.mo-button.red.selected .mo-button.red:active {
-  background-color: color-mix(in srgb, var(--error) 20%, transparent);
   border-color: color-mix(in srgb, var(--error) 60%, transparent);
 }
 
@@ -107,12 +91,9 @@
   border-color: var(--action-hover);
 }
 
-.mo-button.yellow:hover {
-  background-color: var(--action-hover);
-  border-color: var(--action-hover);
-}
-
-.mo-button.yellow.selected .mo-button.yellow:active {
+.mo-button.yellow:hover,
+.mo-button.yellow.selected,
+.mo-button.yellow:active {
   background-color: var(--action-hover);
   border-color: var(--action-hover);
 }

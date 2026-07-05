@@ -52,7 +52,9 @@ export const AppContainer: React.FC<PropsWithChildren<Props>> = ({
             className={cn(
               "mathjax_ignore",
               isAppClosed(connectionState) && "disconnected",
-              "bg-background w-full h-full text-textColor",
+              // skies-desk: the grid-and-grain desk shows behind the cell
+              // "papers" (fixed-attachment, so it holds still while they scroll)
+              "skies-desk w-full h-full text-textColor",
               "flex flex-col overflow-y-auto",
               width === "full" && "config-width-full",
               width === "columns"

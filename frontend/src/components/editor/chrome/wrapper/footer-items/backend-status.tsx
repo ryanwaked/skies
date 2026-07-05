@@ -107,7 +107,8 @@ export const BackendConnectionStatus: React.FC = () => {
 
     if (isAppConnected(connection)) {
       if (data?.isHealthy) {
-        return <span className="size-1.5 rounded-full bg-success" />;
+        // Live dot with the site's ping ring (see .skies-ping in skies.css)
+        return <span className="skies-ping size-1.5 rounded-full bg-success" />;
       }
       if (data?.lastChecked) {
         return <span className="size-1.5 rounded-full bg-action-foreground" />;

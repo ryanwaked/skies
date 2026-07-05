@@ -53,13 +53,13 @@ export const NotebookMenuDropdown: React.FC<Props> = ({
       aria-label="Config"
       shape="circle"
       size="small"
-      className="h-[27px] w-[27px]"
+      className="h-[28px] w-[28px]"
       data-testid="notebook-menu-dropdown"
       disabled={disabled}
       color={disabled ? "disabled" : "hint-green"}
     >
       <Tooltip content={tooltipContent}>
-        <MenuIcon strokeWidth={1.8} />
+        <MenuIcon strokeWidth={1.5} className="h-[16px] w-[16px]" />
       </Tooltip>
     </Button>
   );

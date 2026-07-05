@@ -11,6 +11,7 @@ import {
 } from "react-aria-components";
 import { cn } from "@/utils/cn";
 import { maxFractionalDigits } from "@/utils/numbers";
+import { focusRing } from "./styles";
 
 export interface NumberFieldProps extends AriaNumberFieldProps {
   placeholder?: string;
@@ -109,7 +110,8 @@ const StepperButton = (props: ButtonProps & { variant?: "default" | "xs" }) => {
     <Button
       {...props}
       className={cn(
-        "cursor-default text-muted-foreground pressed:bg-muted-foreground group-disabled:text-disabled-foreground outline-hidden focus-visible:text-primary",
+        "cursor-default text-muted-foreground pressed:bg-muted-foreground group-disabled:text-disabled-foreground focus-visible:text-primary",
+        focusRing,
         "disabled:cursor-not-allowed disabled:opacity-50",
         !props.isDisabled && "hover:text-primary hover:bg-muted",
         props.variant === "default" ? "px-0.5" : "px-0.25",

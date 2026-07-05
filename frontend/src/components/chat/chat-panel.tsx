@@ -114,7 +114,12 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   return (
     <div className="flex border-b px-2 py-1 justify-between shrink-0 items-center">
       <Tooltip content="New chat">
-        <Button variant="text" size="icon" onClick={onNewChat}>
+        <Button
+          variant="text"
+          size="icon"
+          aria-label="New chat"
+          onClick={onNewChat}
+        >
           <PlusIcon className="h-4 w-4" />
         </Button>
       </Tooltip>
@@ -125,6 +130,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
             variant="text"
             size="xs"
             className="hover:bg-foreground/10 py-2"
+            aria-label="AI Settings"
             onClick={() => handleClick("ai")}
           >
             <SettingsIcon className="h-4 w-4" />

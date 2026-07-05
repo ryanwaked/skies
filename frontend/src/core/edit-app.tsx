@@ -71,7 +71,7 @@ export const EditApp: React.FC<AppProps> = ({
   const isEditing = viewState.mode === "edit";
   const isPresenting = viewState.mode === "present";
   const isRunning = useAtomValue(notebookIsRunningAtom);
-  // The Hex-style top bar is shown in both edit and present mode; present
+  // The Skies top bar is shown in both edit and present mode; present
   // mode needs it to switch back via the Notebook/App builder control.
   const showHeaderBar = !hideControls && (isEditing || isPresenting);
 
@@ -173,7 +173,7 @@ export const EditApp: React.FC<AppProps> = ({
             "print:hidden z-50",
             // Keep the header sticky when scrolling horizontally, for column mode
             "sticky left-0",
-            // The Hex top bar lives in AppChrome (edge to edge, above the icon
+            // The Skies top bar lives in AppChrome (edge to edge, above the icon
             // rail); this header only hosts the disconnected overlay and the
             // spacing above the first cell.
             showHeaderBar ? "top-0 mb-4" : "pt-4 sm:pt-12 pb-2 mb-4",
@@ -193,15 +193,7 @@ export const EditApp: React.FC<AppProps> = ({
       <MultiCellActionToolbar />
       {!hideControls && (
         <TooltipProvider>
-          <Controls
-            presenting={isPresenting}
-            onTogglePresenting={togglePresenting}
-            onInterrupt={sendInterrupt}
-            onRun={runStaleCells}
-            connectionState={connection.state}
-            running={isRunning}
-            appConfig={appConfig}
-          />
+          <Controls presenting={isPresenting} />
         </TooltipProvider>
       )}
     </>

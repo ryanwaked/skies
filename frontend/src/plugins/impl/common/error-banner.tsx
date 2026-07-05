@@ -71,7 +71,7 @@ const bannerStyle = cva(
   {
     variants: {
       kind: {
-        // Hex banners are dark surfaces with subtle borders and semantic
+        // Skies banners are dark surfaces with subtle borders and semantic
         // accents — never bright palette tints.
         danger: "text-error border-error/40 bg-popover",
         info: "text-muted-foreground border-border bg-popover",

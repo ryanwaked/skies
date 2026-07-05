@@ -1,16 +1,40 @@
 /* Copyright 2026 Marimo. All rights reserved. */
-import { DatabaseIcon, DiamondPlusIcon, PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { useAtomValue } from "jotai";
+import {
+  BlocksIcon,
+  ChartColumnIcon,
+  DatabaseIcon,
+  DatabaseZapIcon,
+  DiamondPlusIcon,
+  HashIcon,
+  LayoutTemplateIcon,
+  ListFilterIcon,
+  PlusIcon,
+  SlidersHorizontalIcon,
+  TableIcon,
+  TablePropertiesIcon,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/editor/inputs/Inputs";
 import { MinimalHotkeys } from "@/components/shortcuts/renderShortcut";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { maybeAddMarimoImport } from "@/core/cells/add-missing-import";
+import { useImperativeModal } from "@/components/modal/ImperativeModal";
+import {
+  maybeAddAltairImport,
+  maybeAddMarimoImport,
+} from "@/core/cells/add-missing-import";
 import { useCellActions } from "@/core/cells/cells";
+import { localComponentsAtom } from "@/core/components/local-components";
 import { LanguageAdapters } from "@/core/codemirror/language/LanguageAdapters";
 import { MARKDOWN_INITIAL_HIDE_CODE } from "@/core/codemirror/language/languages/markdown";
 import {
@@ -19,6 +43,16 @@ import {
 } from "@/core/websocket/connection-utils";
 import type { WebSocketState } from "@/core/websocket/types";
 import { cn } from "@/utils/cn";
+import { AddConnectionDialogContent } from "../connections/add-connection-dialog";
+import {
+  CHART_TEMPLATE,
+  FILTER_TEMPLATE,
+  INPUT_TEMPLATES,
+  DATAFRAME_TEMPLATE,
+  SECTION_TEMPLATE,
+  SINGLE_VALUE_TEMPLATE,
+  TABLE_TEMPLATE,
+} from "./cell-insert-templates";
 import { Tooltip } from "../../ui/tooltip";
 import { MarkdownIcon, PythonIcon } from "./code/icons";
 
@@ -30,13 +64,33 @@ export const CreateCellButton = ({
 }: {
   connectionState: WebSocketState;
   tooltipContent: React.ReactNode;
-  onClick: ((opts: { code: string; hideCode?: boolean }) => void) | undefined;
+  onClick:
+    | ((opts: { code: string; hideCode?: boolean }) => void)
+    | undefined;
   oneClickShortcut: "shift" | "mod";
 }) => {
   const { createNewCell, addSetupCellIfDoesntExist } = useCellActions();
+  const { openModal, closeModal } = useImperativeModal();
+  const components = useAtomValue(localComponentsAtom);
   const shortcut = `${oneClickShortcut}-Click`;
   const [open, setOpen] = useState(false);
   const [justOpened, setJustOpened] = useState(false);
+  const justOpenedTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
+
+  useEffect(() => {
+    return () => {
+      if (justOpenedTimerRef.current) {
+        clearTimeout(justOpenedTimerRef.current);
+      }
+    };
+  }, []);
+
+  const scheduleClearJustOpened = () => {
+    if (justOpenedTimerRef.current) {
+      clearTimeout(justOpenedTimerRef.current);
+    }
+    justOpenedTimerRef.current = setTimeout(() => setJustOpened(false), 200);
+  };
 
   const baseTooltipContent =
     getConnectionTooltip(connectionState) || tooltipContent;
@@ -52,30 +106,37 @@ export const CreateCellButton = ({
     </div>
   );
 
-  const addPythonCell = () => {
-    onClick?.({ code: "" });
+  const insertCell = (code?: string, opts: { hideCode?: boolean } = {}) => {
+    onClick?.({ code: code ?? "", ...opts });
   };
 
-  // NB: When adding the marimo import for markdown and SQL, we run it
-  // automatically regardless of whether autoinstantiate or lazy execution is
-  // enabled; the user experience is confusing otherwise (how does the user
-  // know they need to run import marimo as mo. first?).
+  const addPythonCell = () => insertCell();
+
+  // NB: When adding the marimo import for markdown/SQL/chart cells, we run
+  // it automatically regardless of autoinstantiate/lazy-execution settings;
+  // the user experience is confusing otherwise (how would they know they
+  // need `import marimo as mo` first?).
   const addMarkdownCell = () => {
     maybeAddMarimoImport({ autoInstantiate: true, createNewCell });
-    onClick?.({
-      code: LanguageAdapters.markdown.defaultCode,
+    insertCell(LanguageAdapters.markdown.defaultCode, {
       hideCode: MARKDOWN_INITIAL_HIDE_CODE,
     });
   };
 
   const addSQLCell = () => {
     maybeAddMarimoImport({ autoInstantiate: true, createNewCell });
-    onClick?.({ code: LanguageAdapters.sql.defaultCode });
+    insertCell(LanguageAdapters.sql.defaultCode);
   };
 
-  const addSetupCell = () => {
-    addSetupCellIfDoesntExist({});
+  const addTemplateCell = (code: string, needsAltair?: boolean) => () => {
+    maybeAddMarimoImport({ autoInstantiate: true, createNewCell });
+    if (needsAltair) {
+      maybeAddAltairImport({ autoInstantiate: true, createNewCell });
+    }
+    insertCell(code);
   };
+
+  const addSetupCell = () => addSetupCellIfDoesntExist({});
 
   const renderIcon = (icon: React.ReactNode) => {
     return <div className="mr-3 text-muted-foreground">{icon}</div>;
@@ -85,7 +146,7 @@ export const CreateCellButton = ({
     setOpen(true);
     setJustOpened(true);
     // Allow interactions after a brief delay to prevent the dropdown items immediately being clicked
-    setTimeout(() => setJustOpened(false), 200);
+    scheduleClearJustOpened();
   };
 
   // We use onPointerDownCapture (not onPointerDown) to intercept events in
@@ -123,7 +184,7 @@ export const CreateCellButton = ({
     if (isOpen) {
       setJustOpened(true);
       // Allow interactions after a brief delay
-      setTimeout(() => setJustOpened(false), 200);
+      scheduleClearJustOpened();
     }
   };
 
@@ -171,6 +232,94 @@ export const CreateCellButton = ({
         <DropdownMenuItem onClick={addSQLCell}>
           {renderIcon(<DatabaseIcon size={13} strokeWidth={1.5} />)}
           SQL cell
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={addTemplateCell(CHART_TEMPLATE, true)}>
+          {renderIcon(<ChartColumnIcon size={13} strokeWidth={1.5} />)}
+          Chart
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={addTemplateCell(DATAFRAME_TEMPLATE)}>
+          {renderIcon(<TablePropertiesIcon size={13} strokeWidth={1.5} />)}
+          Dataframe
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={addTemplateCell(SINGLE_VALUE_TEMPLATE)}>
+          {renderIcon(<HashIcon size={13} strokeWidth={1.5} />)}
+          Single value
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={addTemplateCell(TABLE_TEMPLATE)}>
+          {renderIcon(<TableIcon size={13} strokeWidth={1.5} />)}
+          Table
+        </DropdownMenuItem>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            {renderIcon(<SlidersHorizontalIcon size={13} strokeWidth={1.5} />)}
+            Inputs
+          </DropdownMenuSubTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuSubContent>
+              {INPUT_TEMPLATES.map((input) => (
+                <DropdownMenuItem
+                  key={input.label}
+                  onClick={addTemplateCell(input.code)}
+                >
+                  {input.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuSubContent>
+          </DropdownMenuPortal>
+        </DropdownMenuSub>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            {renderIcon(<DatabaseZapIcon size={13} strokeWidth={1.5} />)}
+            Data
+          </DropdownMenuSubTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem
+                onClick={() =>
+                  openModal(
+                    <AddConnectionDialogContent onClose={closeModal} />,
+                  )
+                }
+              >
+                <DatabaseIcon className="mr-2 size-3.5" strokeWidth={1.5} />
+                Add database connection
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuPortal>
+        </DropdownMenuSub>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            {renderIcon(<BlocksIcon size={13} strokeWidth={1.5} />)}
+            Components
+          </DropdownMenuSubTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuSubContent>
+              {components.length === 0 ? (
+                <DropdownMenuItem disabled={true}>
+                  No components yet
+                </DropdownMenuItem>
+              ) : (
+                components.map((component) => (
+                  <DropdownMenuItem
+                    key={component.id}
+                    onClick={addTemplateCell(component.code)}
+                  >
+                    {component.name}
+                  </DropdownMenuItem>
+                ))
+              )}
+            </DropdownMenuSubContent>
+          </DropdownMenuPortal>
+        </DropdownMenuSub>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={addTemplateCell(SECTION_TEMPLATE)}>
+          {renderIcon(<LayoutTemplateIcon size={13} strokeWidth={1.5} />)}
+          Section
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={addTemplateCell(FILTER_TEMPLATE)}>
+          {renderIcon(<ListFilterIcon size={13} strokeWidth={1.5} />)}
+          Filter
         </DropdownMenuItem>
         <DropdownMenuItem onClick={addSetupCell}>
           {renderIcon(<DiamondPlusIcon size={13} strokeWidth={1.5} />)}

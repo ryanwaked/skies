@@ -99,6 +99,15 @@ module.exports = {
         mono: ["var(--monospace-font)", ...fontFamily.mono],
         heading: ["var(--heading-font)", ...fontFamily.sans],
       },
+      zIndex: {
+        base: "var(--z-base)",
+        dropdown: "var(--z-dropdown)",
+        sticky: "var(--z-sticky)",
+        overlay: "var(--z-overlay)",
+        modal: "var(--z-modal)",
+        toast: "var(--z-toast)",
+        tooltip: "var(--z-tooltip)",
+      },
       borderRadius: {
         /* Hex uses a single 3px radius everywhere; the shadcn calc chain
            (md = radius - 2px, sm = radius - 4px) was tuned for an 8px scale

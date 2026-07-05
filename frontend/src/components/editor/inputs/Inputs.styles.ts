@@ -22,7 +22,7 @@ export const button = cva(
       },
       shape: {
         rectangle: "rounded-[3px]",
-        // Hex's design language has no circular buttons; "circle" keeps its
+        // Skies' design language has no circular buttons; "circle" keeps its
         // square footprint but takes the 3px radius.
         circle: "rounded-[3px]",
       },

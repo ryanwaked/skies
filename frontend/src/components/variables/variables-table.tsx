@@ -94,12 +94,12 @@ const COLUMNS = [
     cell: ({ getValue }) => {
       const [dataType, value] = getValue();
       return (
-        <div className="max-w-[150px]">
-          <div className="text-ellipsis overflow-hidden whitespace-nowrap text-muted-foreground text-xs">
+        <div className="min-w-0 max-w-full">
+          <div className="text-ellipsis overflow-hidden whitespace-nowrap text-muted-foreground text-[10.5px] font-mono uppercase tracking-[0.04em]">
             {dataType}
           </div>
           <div
-            className="text-ellipsis overflow-hidden whitespace-nowrap font-code text-xs"
+            className="text-ellipsis overflow-hidden whitespace-nowrap font-code text-[11.5px] text-foreground mt-0.5"
             title={value ?? ""}
           >
             {value}
@@ -144,9 +144,9 @@ const COLUMNS = [
       };
 
       return (
-        <div className="flex flex-col gap-1 py-1">
-          <div className="flex flex-row overflow-x-hidden gap-2 items-center">
-            <span title="Declared by">
+        <div className="flex flex-col gap-1 py-1 min-w-0 max-w-full">
+          <div className="flex flex-row flex-wrap min-w-0 gap-1.5 items-center">
+            <span title="Declared by" className="shrink-0">
               <SquareEqualIcon
                 className="w-3.5 h-3.5 text-muted-foreground"
                 strokeWidth={1.5}
@@ -161,25 +161,22 @@ const COLUMNS = [
                 onClick={() => highlightInCell(declaredBy[0])}
               />
             ) : (
-              <div className="text-destructive flex flex-row gap-2">
-                {declaredBy.slice(0, 3).map((cellId, idx) => (
-                  <span className="flex" key={cellId}>
-                    <CellLink
-                      variant="focus"
-                      key={cellId}
-                      cellId={cellId}
-                      skipScroll={true}
-                      className="whitespace-nowrap text-destructive"
-                      onClick={() => highlightInCell(cellId)}
-                    />
-                    {idx < declaredBy.length - 1 && ", "}
-                  </span>
+              <div className="text-destructive flex flex-row flex-wrap gap-1.5 min-w-0">
+                {declaredBy.slice(0, 3).map((cellId) => (
+                  <CellLink
+                    variant="focus"
+                    key={cellId}
+                    cellId={cellId}
+                    skipScroll={true}
+                    className="whitespace-nowrap text-destructive"
+                    onClick={() => highlightInCell(cellId)}
+                  />
                 ))}
               </div>
             )}
           </div>
-          <div className="flex flex-row overflow-x-hidden gap-2 items-baseline">
-            <span title="Used by">
+          <div className="flex flex-row flex-wrap min-w-0 gap-1.5 items-baseline">
+            <span title="Used by" className="shrink-0">
               <WorkflowIcon
                 className="w-3.5 h-3.5 text-muted-foreground"
                 strokeWidth={1.5}
@@ -306,17 +303,22 @@ export const VariableTable: React.FC<Props> = memo(
         />
         <Table
           className={cn(
-            "w-full text-[13px] flex-1 border-separate border-spacing-0",
+            "w-full table-fixed text-[13px] flex-1 border-separate border-spacing-0",
             className,
           )}
         >
+          <colgroup>
+            <col className="w-[28%]" />
+            <col className="w-[34%]" />
+            <col className="w-[38%]" />
+          </colgroup>
           <TableHeader>
-            {/* Hex section-header scale: 10px/600 uppercase muted */}
-            <TableRow className="whitespace-nowrap text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {/* Skies section-header scale: 10px mono uppercase muted */}
+            <TableRow className="whitespace-nowrap text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-muted-foreground">
               {table.getFlatHeaders().map((header) => (
                 <TableHead
                   key={header.id}
-                  className="sticky top-0 h-8 bg-background border-b"
+                  className="sticky top-0 h-8 bg-card border-b overflow-hidden text-ellipsis"
                 >
                   {flexRender(
                     header.column.columnDef.header,
@@ -328,9 +330,12 @@ export const VariableTable: React.FC<Props> = memo(
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} className="hover:bg-[rgba(63,66,87,0.2)]">
+              <TableRow key={row.id} className="hover:bg-[var(--hover-wash)]">
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="py-1 border-b">
+                  <TableCell
+                    key={cell.id}
+                    className="py-1.5 px-2 border-b overflow-hidden"
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}

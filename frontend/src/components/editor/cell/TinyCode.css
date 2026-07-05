@@ -1,10 +1,13 @@
 .tiny-code .cm-editor {
   padding: 0;
   margin: 0;
+  /* Deliberately tiny: this is a non-interactive thumbnail of code. */
+  /* stylelint-disable unit-allowed-list */
   font-size: 8px;
+  line-height: 11px;
+  /* stylelint-enable unit-allowed-list */
 }
 
 .tiny-code .cm-editor .cm-scroller {
-  line-height: 11px;
   overflow-x: hidden;
 }

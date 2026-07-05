@@ -18,7 +18,7 @@
     min-width: unset;
   }
 
-  /* Autocomplete list items: 12px mono rows on Hex's ~22px line box */
+  /* Autocomplete list items: 12px mono rows on Skies' ~22px line box */
   .cm-tooltip-autocomplete > ul > li {
     padding: 0;
     padding-right: 6px;
@@ -44,25 +44,26 @@
     @apply text-xs text-muted-foreground;
   }
 
-  /* Section headers follow Hex's 10px/600 uppercase muted style */
+  /* Section headers take the Skies mono label voice: 10px uppercase,
+     letterspaced, muted */
   .cm-tooltip-autocomplete > ul > completion-section {
-    @apply text-[10px] font-semibold uppercase tracking-wide
+    @apply text-[10px] font-mono font-medium uppercase tracking-[0.12em]
       text-muted-foreground bg-muted-foreground/10 border-y border-border;
   }
 
   /* Hover state for list items: neutral hover tint */
   .cm-tooltip-autocomplete > ul > li:hover {
-    background-color: rgb(63 66 87 / 20%);
+    background-color: var(--hover-wash);
   }
 
-  /* Selected item: Hex active state — subtle brand tint, brand text
+  /* Selected item: Skies active state — subtle sky-blue tint, brand text
      (never a solid fill) */
   .cm-tooltip-autocomplete > ul > li[aria-selected] {
     background-color: color-mix(in srgb, var(--primary) 7%, transparent);
     color: var(--primary);
   }
 
-  /* Completion icons container. Hex/Monaco-dark keeps type icons muted:
+  /* Completion icons container. Skies/Monaco-dark keeps type icons muted:
      one quiet gray for every kind, no colored chips. */
   .cm-completionIcon {
     width: 1rem;
@@ -124,8 +125,9 @@
   }
 
   .cm-completionIcon-table::after {
-    /* Database icon for tables, stroked in the muted foreground (#b1b6c4) */
-    content: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="%23b1b6c4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>');
+    /* Database icon for tables, stroked in a mid ink that reads on both
+       the paper and night surfaces */
+    content: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="%238b8694" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>');
   }
 
   .cm-completionIcon-dataframe::after {
@@ -210,7 +212,7 @@
   scrollbar-width: thin;
   line-height: normal;
 
-  /* Hex hover/signature docs run 12px on the popover surface. */
+  /* Skies hover/signature docs run 12px on the popover surface. */
   @apply bg-popover shadow-md border border-border rounded-md text-xs py-1 px-2 font-prose;
 
   /* Paragraphs */

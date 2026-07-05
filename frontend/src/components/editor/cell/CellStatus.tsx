@@ -1,6 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import {
   BanIcon,
+  LoaderCircleIcon,
   MoreHorizontalIcon,
   RefreshCwIcon,
   WorkflowIcon,
@@ -175,6 +176,11 @@ export const CellStatusComponent: React.FC<CellStatusComponentProps> = ({
           data-testid="cell-status"
           data-status="running"
         >
+          <LoaderCircleIcon
+            className="h-3.5 w-3.5 animate-spin text-primary"
+            strokeWidth={1.5}
+            aria-hidden="true"
+          />
           <CellTimer
             startTime={Time.fromSeconds(runStartTimestamp) || Time.now()}
           />

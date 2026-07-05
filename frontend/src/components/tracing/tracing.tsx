@@ -15,7 +15,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useVegaEmbed } from "react-vega";
 import useResizeObserver from "use-resize-observer";
 import { compile } from "vega-lite";
-import { HEX_DARK_VEGA_CONFIG } from "@/components/charts/hex-vega-theme";
+import { getSkiesVegaConfig } from "@/components/charts/skies-vega-theme";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useCellIds } from "@/core/cells/cells";
 import type { CellId } from "@/core/cells/ids";
@@ -228,7 +228,7 @@ const TraceBlockBody: React.FC<{
     ref: vegaRef,
     spec: vegaSpec,
     options: {
-      config: theme === "dark" ? HEX_DARK_VEGA_CONFIG : undefined,
+      config: getSkiesVegaConfig(theme),
       width: width - 50,
       height: chartPosition === "above" ? 120 : 100,
       actions: false,

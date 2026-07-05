@@ -20,10 +20,15 @@ import {
   XCircleIcon,
   XIcon,
 } from "lucide-react";
-import React from "react";
+import React, { Suspense } from "react";
 import { JsonRpcError, mergeToolCalls } from "use-acp";
 import { z } from "zod";
-import { ReadonlyDiff } from "@/components/editor/code/readonly-diff";
+// Lazy-loaded: pulls @codemirror/merge only when a diff block renders.
+const ReadonlyDiff = React.lazy(() =>
+  import("@/components/editor/code/readonly-diff").then((m) => ({
+    default: m.ReadonlyDiff,
+  })),
+);
 import { JsonOutput } from "@/components/editor/output/JsonOutput";
 import { MarkdownRenderer } from "@/components/markdown/markdown-renderer";
 import { Button } from "@/components/ui/button";
@@ -651,10 +656,12 @@ export const DiffBlocks = (props: {
             <div className="px-2 py-1 bg-(--gray-2) border-b text-xs font-medium text-(--gray-11)">
               {item.path}
             </div>
-            <ReadonlyDiff
-              original={item.oldText || ""}
-              modified={item.newText || ""}
-            />
+            <Suspense fallback={null}>
+              <ReadonlyDiff
+                original={item.oldText || ""}
+                modified={item.newText || ""}
+              />
+            </Suspense>
           </div>
         );
       })}

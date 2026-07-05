@@ -234,16 +234,16 @@ const DatabaseSchemaSelector: React.FC<{
             icon={
               <DatabaseLogo
                 name={logo}
-                className="w-8 h-8 text-white brightness-0 invert dark:invert"
+                className="w-5 h-5"
               />
             }
             onSelect={() => onSelect(schema)}
           />
         ))}
       </SelectorGrid>
-      <h4 className="font-semibold text-muted-foreground text-lg flex items-center gap-4 my-2">
-        Data Catalogs
-        <hr className="flex-1" />
+      <h4 className="font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground flex items-center gap-3 my-1">
+        Data catalogs
+        <hr className="flex-1 border-border" />
       </h4>
       <SelectorGrid>
         {DATA_CATALOGS.map(({ name, schema, color, logo }) => (
@@ -254,7 +254,7 @@ const DatabaseSchemaSelector: React.FC<{
             icon={
               <DatabaseLogo
                 name={logo}
-                className="w-8 h-8 text-white brightness-0 invert dark:invert"
+                className="w-5 h-5"
               />
             }
             onSelect={() => onSelect(schema)}

@@ -43,13 +43,13 @@ import { NotebookRowLink, relativeToRoot } from "./notebook-row";
 import { WorkspaceContext } from "./state";
 
 /**
- * Hex-style 10px/600 uppercase muted section label, matching the sidebar
- * panel headers in src/components/editor/chrome/panels.
+ * Skies mono label voice: 10px JetBrains Mono uppercase, letterspaced,
+ * muted — matching the sidebar panel headers.
  */
 export const SectionLabel: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => (
-  <h3 className="text-[10px] font-semibold uppercase tracking-[0.05em] text-muted-foreground select-none">
+  <h3 className="font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--foreground-dim)] select-none">
     {children}
   </h3>
 );

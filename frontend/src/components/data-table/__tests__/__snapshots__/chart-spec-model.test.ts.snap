@@ -32,9 +32,9 @@ exports[`ColumnChartSpecModel > file URL handling > should handle arrow data 1`]
         "color": {
           "condition": {
             "test": "datum["bin_maxbins_10_date_range"] === "null"",
-            "value": "#cc4e00",
+            "value": "#9a6700",
           },
-          "value": "#027864",
+          "value": "#1b7be4",
         },
         "x": {
           "axis": null,
@@ -56,7 +56,7 @@ exports[`ColumnChartSpecModel > file URL handling > should handle arrow data 1`]
         },
       },
       "mark": {
-        "color": "#027864",
+        "color": "#1b7be4",
         "type": "bar",
       },
     },
@@ -65,9 +65,9 @@ exports[`ColumnChartSpecModel > file URL handling > should handle arrow data 1`]
         "color": {
           "condition": {
             "test": "datum["bin_maxbins_10_date_range"] === "null"",
-            "value": "#cc4e00",
+            "value": "#9a6700",
           },
-          "value": "#027864",
+          "value": "#1b7be4",
         },
         "tooltip": [
           {
@@ -181,7 +181,7 @@ exports[`ColumnChartSpecModel > should expect bin values to be used for number a
         },
       },
       "mark": {
-        "color": "#027864",
+        "color": "#1b7be4",
         "type": "bar",
       },
     },
@@ -296,9 +296,9 @@ exports[`ColumnChartSpecModel > should handle boolean stats 1`] = `
           "null",
         ],
         "range": [
-          "#027864",
-          "#027864",
-          "#cc4e00",
+          "#1b7be4",
+          "#1b7be4",
+          "#9a6700",
         ],
       },
       "type": "nominal",
@@ -325,7 +325,7 @@ exports[`ColumnChartSpecModel > should handle boolean stats 1`] = `
     },
     "y": {
       "axis": {
-        "labelColor": "#8b8d98",
+        "labelColor": "#75707f",
         "labelExpr": "datum.label === 'true' || datum.label === 'True'  ? 'True' : datum.label === 'false' || datum.label === 'False' ? 'False' : 'Null'",
         "tickWidth": 0,
         "title": null,
@@ -346,7 +346,7 @@ exports[`ColumnChartSpecModel > should handle boolean stats 1`] = `
   "layer": [
     {
       "mark": {
-        "color": "#027864",
+        "color": "#1b7be4",
         "height": 11,
         "type": "bar",
       },
@@ -362,14 +362,14 @@ exports[`ColumnChartSpecModel > should handle boolean stats 1`] = `
       "mark": {
         "align": "left",
         "baseline": "middle",
-        "color": "#8b8d98",
+        "color": "#75707f",
         "dx": 3,
         "type": "text",
       },
     },
   ],
   "mark": {
-    "color": "#027864",
+    "color": "#1b7be4",
     "type": "bar",
   },
   "transform": [
@@ -419,9 +419,9 @@ exports[`ColumnChartSpecModel > should handle datetime bin values 1`] = `
         "color": {
           "condition": {
             "test": "datum['bin_start'] === null && datum['bin_end'] === null",
-            "value": "#cc4e00",
+            "value": "#9a6700",
           },
-          "value": "#027864",
+          "value": "#1b7be4",
         },
         "opacity": {
           "condition": [
@@ -444,7 +444,7 @@ exports[`ColumnChartSpecModel > should handle datetime bin values 1`] = `
         },
       },
       "mark": {
-        "color": "#027864",
+        "color": "#1b7be4",
         "type": "bar",
       },
       "params": [
@@ -543,9 +543,9 @@ exports[`ColumnChartSpecModel > should handle string value counts 1`] = `
         "color": {
           "condition": {
             "test": "datum.value == "None" || datum.value == "null"",
-            "value": "#cc4e00",
+            "value": "#9a6700",
           },
-          "value": "#027864",
+          "value": "#1b7be4",
         },
         "opacity": {
           "condition": [
@@ -667,7 +667,7 @@ exports[`ColumnChartSpecModel > snapshot with legacy data spec > array 1`] = `
         },
       },
       "mark": {
-        "color": "#027864",
+        "color": "#1b7be4",
         "type": "bar",
       },
     },
@@ -755,7 +755,7 @@ exports[`ColumnChartSpecModel > snapshot with legacy data spec > csv data 1`] = 
         },
       },
       "mark": {
-        "color": "#027864",
+        "color": "#1b7be4",
         "type": "bar",
       },
     },
@@ -843,7 +843,7 @@ exports[`ColumnChartSpecModel > snapshot with legacy data spec > csv string 1`] 
         },
       },
       "mark": {
-        "color": "#027864",
+        "color": "#1b7be4",
         "type": "bar",
       },
     },
@@ -911,9 +911,9 @@ exports[`ColumnChartSpecModel > snapshot with legacy data spec > url data 1`] = 
         "color": {
           "condition": {
             "test": "datum["bin_maxbins_10_date_range"] === "null"",
-            "value": "#cc4e00",
+            "value": "#9a6700",
           },
-          "value": "#027864",
+          "value": "#1b7be4",
         },
         "x": {
           "axis": null,
@@ -935,7 +935,7 @@ exports[`ColumnChartSpecModel > snapshot with legacy data spec > url data 1`] = 
         },
       },
       "mark": {
-        "color": "#027864",
+        "color": "#1b7be4",
         "type": "bar",
       },
     },
@@ -944,9 +944,9 @@ exports[`ColumnChartSpecModel > snapshot with legacy data spec > url data 1`] = 
         "color": {
           "condition": {
             "test": "datum["bin_maxbins_10_date_range"] === "null"",
-            "value": "#cc4e00",
+            "value": "#9a6700",
           },
-          "value": "#027864",
+          "value": "#1b7be4",
         },
         "tooltip": [
           {

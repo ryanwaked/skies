@@ -1,6 +1,12 @@
 module.exports = {
   extends: ["stylelint-config-standard"],
-  ignoreFiles: ["**/*.tsx", "**/*.ts", "dist/**"],
+  ignoreFiles: [
+    "**/*.tsx",
+    "**/*.ts",
+    "dist/**",
+    // Generated/vendored from mapbox via plotly (see file header).
+    "src/plugins/impl/plotly/mapbox.css",
+  ],
   fix: true,
   reportNeedlessDisables: true,
   rules: {
@@ -11,7 +17,7 @@ module.exports = {
     // Turn off rules from the standard config
     "at-rule-no-unknown": [
       true,
-      { ignoreAtRules: ["tailwind", "reference", "config", "theme"] },
+      { ignoreAtRules: ["tailwind", "reference", "config", "theme", "source"] },
     ],
     "font-family-no-missing-generic-family-keyword": null,
     "number-max-precision": null,

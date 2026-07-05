@@ -122,7 +122,7 @@ const CachePanel = () => {
 
         {/* Statistics Section */}
         <div className="space-y-3">
-          <h3 className="text-[10px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+          <h3 className="text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-muted-foreground">
             Statistics
           </h3>
           <div className="grid grid-cols-2 gap-3">
@@ -154,7 +154,7 @@ const CachePanel = () => {
         {/* Storage Section */}
         {diskTotal > 0 && (
           <div className="space-y-3 pt-2 border-t">
-            <h3 className="text-[10px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+            <h3 className="text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-muted-foreground">
               Storage
             </h3>
             <div className="grid grid-cols-1 gap-3">
@@ -209,10 +209,10 @@ const StatCard: React.FC<{
 }> = ({ label, value, description }) => {
   return (
     <div className="flex flex-col gap-1 p-3 rounded-[3px] border bg-card">
-      <span className="text-[10px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+      <span className="text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </span>
-      <span className="text-base font-medium font-code">{value}</span>
+      <span className="text-[13px] font-medium font-code">{value}</span>
       {description && (
         <span className="text-xs text-muted-foreground">{description}</span>
       )}

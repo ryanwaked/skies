@@ -94,8 +94,7 @@ const StorageProviderSelector: React.FC<{
           icon={
             <ProtocolIcon
               protocol={protocol as KnownStorageProtocol}
-              forceDark={true}
-              className="w-7.5 h-7.5"
+              className="w-5 h-5"
             />
           }
           onSelect={() => onSelect(schema)}

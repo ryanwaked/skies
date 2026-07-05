@@ -1,8 +1,9 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import React from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import type { TopLevelSpec } from "vega-lite";
-import { HEX_DARK_VEGA_CONFIG } from "@/components/charts/hex-vega-theme";
+import { getSkiesVegaConfig } from "@/components/charts/skies-vega-theme";
 import { LazyVegaEmbed } from "@/components/charts/lazy";
 import { tooltipHandler } from "@/components/charts/tooltip";
 import { getContainerWidth } from "@/plugins/impl/vega/utils";
@@ -30,23 +31,25 @@ export const LazyChart: React.FC<{
 
     return (
       <React.Suspense fallback={<LoadingChart />}>
-        <LazyVegaEmbed
-          spec={spec}
-          data-container-width={getContainerWidth(spec)}
-          options={{
-            config: theme === "dark" ? HEX_DARK_VEGA_CONFIG : undefined,
-            height: height,
-            actions: {
-              export: true,
-              source: false,
-              compiled: false,
-              editor: false,
-            },
-            mode: "vega",
-            renderer: "canvas",
-            tooltip: tooltipHandler.call,
-          }}
-        />
+        <ErrorBoundary FallbackComponent={ChartErrorFallback}>
+          <LazyVegaEmbed
+            spec={spec}
+            data-container-width={getContainerWidth(spec)}
+            options={{
+              config: getSkiesVegaConfig(theme),
+              height: height,
+              actions: {
+                export: true,
+                source: false,
+                compiled: false,
+                editor: false,
+              },
+              mode: "vega",
+              renderer: "canvas",
+              tooltip: tooltipHandler.call,
+            }}
+          />
+        </ErrorBoundary>
       </React.Suspense>
     );
   };
@@ -60,4 +63,12 @@ export const LazyChart: React.FC<{
 
 const LoadingChart = () => {
   return <ChartInfoState className="mt-14">Loading chart...</ChartInfoState>;
+};
+
+const ChartErrorFallback = () => {
+  return (
+    <ChartInfoState className="mt-14">
+      Chart failed to render
+    </ChartInfoState>
+  );
 };

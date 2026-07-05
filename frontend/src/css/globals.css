@@ -42,27 +42,30 @@
   .marimo {
     --monospace-font: var(
       --marimo-monospace-font,
-      "IBM Plex Mono",
-      "Courier New",
-      Courier,
+      "JetBrains Mono",
+      ui-monospace,
+      SFMono-Regular,
+      Menlo,
       monospace
     );
     --text-font: var(
       --marimo-text-font,
-      "IBM Plex Sans",
-      system-ui,
       -apple-system,
       BlinkMacSystemFont,
+      "Helvetica Neue",
+      Helvetica,
+      Arial,
       sans-serif
     );
 
-    /* Hex renders markdown/section headings in IBM Plex Sans 600 with tight
-       (-0.04em) tracking — measured from the live app, not PP Formula. */
+    /* Skies renders markdown/section headings in the journal voice: Source
+       Serif 4 with gently tight (-0.012em) tracking, as on ryanwaked.com. */
     --heading-font: var(
       --marimo-heading-font,
-      "IBM Plex Sans",
-      system-ui,
-      sans-serif
+      "Source Serif 4",
+      Georgia,
+      "Times New Roman",
+      serif
     );
     --radius: 3px;
     /* stylelint-disable-next-line unit-allowed-list */
@@ -72,52 +75,76 @@
 
     /* Radix dark colors: https://github.com/radix-ui/colors/blob/main/src/dark.ts */
 
-    /* Base colors — Hex.tech dark palette, extracted from Hex's production
-       theme (base #17171F, logic-view canvas #1a1a23, surface #1f1f29,
-       borders #353548/#42425a, dark-mode brand = blush pink #F5C0C0). */
-    --background: light-dark(hsl(0deg 0% 100%), #1a1a23);
-    --foreground: light-dark(hsl(222.2deg 47.4% 11.2%), #e4e6ec);
-    --muted: light-dark(hsl(210deg 40% 96.1%), #191922);
-    --muted-foreground: light-dark(hsl(215.4deg 16.3% 46.9%), #b1b6c4);
-    --popover: light-dark(hsl(0deg 0% 100%), #1f1f29);
-    --popover-foreground: light-dark(hsl(222.2deg 47.4% 11.2%), #b1b6c4);
-    --card: light-dark(hsl(0deg 0% 100%), #1f1f29);
-    --card-foreground: light-dark(hsl(222.2deg 47.4% 11.2%), #e4e6ec);
-    --border: light-dark(hsl(214.3deg 31.8% 91.4%), #353548);
-    --input: light-dark(hsl(0deg 0% 64%), #42425a);
-    --primary: light-dark(hsl(208deg 93.5% 47.4%), #f5c0c0);
-    --primary-foreground: light-dark(hsl(210deg 40% 98%), #1a1a23);
-    --secondary: light-dark(hsl(210deg 40% 96.1%), #e4e6ec);
-    --secondary-foreground: light-dark(hsl(222.2deg 47.4% 11.2%), #1a1a23);
-    --accent: light-dark(hsl(209deg 100% 96.5%), #2b2730);
-    --accent-foreground: light-dark(hsl(211deg 90% 42%), #f5c0c0);
-    --ring: light-dark(hsl(215deg 20.2% 65.1%), rgb(245 192 192 / 50%));
+    /* Base colors — the Skies palette from ryanwaked.com ("Waked Binary"):
+       LIGHT is warm paper (#faf7f7 desk, white paper panels, deep-indigo ink
+       #15112a, hairline ink borders); DARK is the night flip (#15131d canvas,
+       #211d2c panels, moonlit ink). The only saturated colors are the trace
+       pair — sky blue for data/action, copper for the editorial voice — plus
+       gold and the semantic status tones. */
+    --background: light-dark(#faf7f7, #15131d);
+    --foreground: light-dark(#15112a, #f3f1f7);
+    --muted: light-dark(#f2eded, #1b1825);
+    --muted-foreground: light-dark(#5c5668, #bbb5c7);
+    --popover: light-dark(#fff, #211d2c);
+    --popover-foreground: light-dark(#15112a, #f3f1f7);
+    --card: light-dark(#fff, #211d2c);
+    --card-foreground: light-dark(#15112a, #f3f1f7);
+    --border: light-dark(rgb(21 17 42 / 10%), rgb(220 214 232 / 11%));
+    --input: light-dark(rgb(21 17 42 / 18%), rgb(220 214 232 / 18%));
+    --primary: light-dark(#1b7be4, #5fa6ef);
+    --primary-foreground: light-dark(#fff, #10131f);
+    --secondary: light-dark(#f2eded, #292435);
+    --secondary-foreground: light-dark(#15112a, #f3f1f7);
+    --accent: light-dark(rgb(27 123 228 / 12%), rgb(95 166 239 / 14%));
+    --accent-foreground: light-dark(#155ba4, #9ec7f3);
+    --ring: light-dark(rgb(27 123 228 / 50%), rgb(95 166 239 / 50%));
 
-    /* Semantic colors. */
-    --destructive: light-dark(hsl(0deg 100% 70%), #ed6f73);
-    --destructive-foreground: light-dark(hsl(210deg 40% 98%), #1a1a23);
-    --error: light-dark(hsl(0deg 77% 64%), #ed6f73);
-    --error-foreground: light-dark(hsl(210deg 40% 98%), #1a1a23);
-    --success: light-dark(hsl(130deg 100% 70%), #43d59d);
-    --success-foreground: light-dark(hsl(210deg 40% 98%), #1a1a23);
-    --action: light-dark(hsl(52deg 96.8% 82%), #3a3324);
-    --action-hover: light-dark(hsl(54deg 100% 86.7%), #443b28);
-    --action-foreground: light-dark(hsl(42deg 100% 29%), #ffc940);
-    --link: light-dark(hsl(211deg 90% 42%), #84a6e8);
-    --link-visited: light-dark(hsl(272deg 51% 54%), hsl(272deg 51% 74%));
-    --stale: hsl(42deg 56% 44% / 25%);
+    /* Skies signature inks (shared with charts and the sky wash). */
+    --sky-blue: light-dark(#1b7be4, #5fa6ef);
+    --copper: light-dark(#a8542c, #d98552);
+    --gold: light-dark(#c2980f, #e8c44e);
+    --foreground-dim: light-dark(#75707f, #847e92);
+    /* The top bar sits one notch darker than the canvas in dark mode so the
+       desk's grid+grain reads as receding behind the bar. Light mode matches
+       the canvas exactly. */
+    --nav-solid: light-dark(#faf7f7, #110f18);
+    --grid-line: light-dark(rgb(21 17 42 / 4.5%), rgb(220 214 232 / 4.5%));
+    --hover-wash: light-dark(rgb(21 17 42 / 5%), rgb(220 214 232 / 7%));
+    --trace-gradient: linear-gradient(90deg, var(--copper), var(--sky-blue));
 
-    /* Base shadows. */
-    --base-shadow: light-dark(hsl(0deg 0% 85% / 40%), hsla(0deg 0% 36% / 60%));
-    --base-shadow-darker: light-dark(
-      hsl(0deg 0% 50% / 40%),
-      hsl(0deg 0% 50% / 60%)
-    );
-    --base-shadow-opacity: 5%;
+    /* Semantic colors (the site's status tones). */
+    --destructive: light-dark(#cf222e, #f0564b);
+    --destructive-foreground: light-dark(#fff, #15131d);
+    --error: light-dark(#cf222e, #f0564b);
+    --error-foreground: light-dark(#fff, #15131d);
+    --success: light-dark(#1f883d, #3fb950);
+    --success-foreground: light-dark(#fff, #15131d);
+    --action: light-dark(#f6eccd, #2b2517);
+    --action-hover: light-dark(#f2e4b8, #342c1b);
+    --action-foreground: light-dark(#9a6700, #d4a429);
+    --link: light-dark(#1b7be4, #5fa6ef);
+    --link-visited: light-dark(#a8542c, #d98552);
+    --stale: light-dark(rgb(154 103 0 / 22%), rgb(212 164 41 / 25%));
 
-    /* Codemirror editor */
-    --cm-background: light-dark(var(--background), #1f1f29);
-    --cm-comment: light-dark(#708090, #6b7280);
+    /* Base shadows — light casts a faint violet paper shadow, dark pure black. */
+    --base-shadow: light-dark(rgb(40 30 70 / 16%), rgb(0 0 0 / 55%));
+    --base-shadow-darker: light-dark(rgb(40 30 70 / 30%), rgb(0 0 0 / 70%));
+
+    /* Codemirror editor (code sits on the paper/panel surface, not the desk) */
+    --cm-background: light-dark(#fff, #211d2c);
+    --cm-comment: light-dark(#75707f, #847e92);
+
+    /* Stacking order — one documented scale so overlays layer predictably.
+       Consume via the Tailwind utilities (z-dropdown, z-sticky, z-overlay,
+       z-modal, z-toast, z-tooltip) rather than raw numbers. Each step
+       separates concerns so a dropdown never fights a modal, etc. */
+    --z-base: 1;
+    --z-dropdown: 1000;
+    --z-sticky: 1100;
+    --z-overlay: 1200;
+    --z-modal: 1300;
+    --z-toast: 1400;
+    --z-tooltip: 1500;
   }
 
   .dark,
@@ -158,7 +185,8 @@
   --shadow-none: none;
   --shadow-xxs: 0px 0px 2px 0px var(--base-shadow-darker);
 
-  /* Button/input-level shadows are flat in Hex's design language; only
+  /* Button/input-level shadows are flat in the Skies language (the site's
+     "journal" dial ships flat cards on the grid-and-grain desk); only
      overlays (md and up: menus, popovers, dialogs) keep soft elevation.
      Elevation is centered and diffuse — marimo's diagonal offset shadows
      are part of its brand and must never reappear. */
@@ -166,19 +194,19 @@
   --shadow-sm: none;
 
   /* oxfmt-ignore: definition needs to be oneline or breaks variants */
-  --shadow-md: 0 2px 8px 0 light-dark(rgb(0 0 0 / 12%), rgb(0 0 0 / 40%));
+  --shadow-md: 0 2px 8px 0 light-dark(rgb(40 30 70 / 12%), rgb(0 0 0 / 40%));
 
   /* oxfmt-ignore: definition needs to be oneline or breaks variants */
-  --shadow-lg: 0 4px 16px 0 light-dark(rgb(0 0 0 / 14%), rgb(0 0 0 / 45%));
+  --shadow-lg: 0 4px 16px 0 light-dark(rgb(40 30 70 / 14%), rgb(0 0 0 / 45%));
 
   /* oxfmt-ignore: definition needs to be oneline or breaks variants */
-  --shadow-xl: 0 8px 24px 0 light-dark(rgb(0 0 0 / 16%), rgb(0 0 0 / 50%));
+  --shadow-xl: 0 8px 24px 0 light-dark(rgb(40 30 70 / 16%), rgb(0 0 0 / 50%));
 
   /* oxfmt-ignore: definition needs to be oneline or breaks variants */
-  --shadow-2xl: 0 12px 32px 0 light-dark(rgb(0 0 0 / 18%), rgb(0 0 0 / 55%));
+  --shadow-2xl: 0 12px 32px 0 light-dark(rgb(40 30 70 / 18%), rgb(0 0 0 / 55%));
 
   /* Marimo's signature offset "solid" shadows are intentionally disabled:
-     Hex's design language is flat (borders only, no offset shadows). */
+     the Skies language is flat (hairline borders, no offset shadows). */
   --shadow-xs-solid: none;
   --shadow-sm-solid: none;
   --shadow-md-solid: none;

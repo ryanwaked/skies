@@ -135,6 +135,7 @@ export const ContextAwarePanel: React.FC = () => {
       />
       <Panel
         data-testid="chrome-context-aware-panel"
+        className="bg-card"
         defaultSize={25}
         minSize={25}
         maxSize={80}
@@ -174,7 +175,7 @@ const ResizableComponent = ({ children }: ResizableComponentProps) => {
   return (
     <div
       data-testid="chrome-context-aware-panel"
-      className="absolute z-40 right-0 h-full bg-background flex flex-row"
+      className="absolute z-40 right-0 h-full bg-card flex flex-row"
     >
       <div
         ref={handleRefs.left}

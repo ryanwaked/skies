@@ -1,0 +1,730 @@
+/* =========================================================================
+   Skies — the ryanwaked.com design language, ported to the notebook.
+   The desk: a blueprint grid with e-paper grain under everything; content
+   surfaces are solid "paper" panels with hairline ink borders. The voice:
+   JetBrains Mono labels and kickers, Source Serif display headings. The
+   only saturated inks are the trace pair (sky blue + copper), gold, and
+   the semantic status tones.
+   ========================================================================= */
+
+/* Skies is a pixel-precise editorial design layer: type sizes (10.5px,
+   13.5px …) and measure (ch), blur/transform/inset values are all
+   deliberate measurements ported from ryanwaked.com. The rest of the app
+   uses rem/tokens; this layer is exempt. */
+/* stylelint-disable unit-allowed-list */
+
+/* ---------------- THE DESK (grid + grain canvas) ----------------
+   Painted as stacked fixed-attachment background layers so panels simply
+   cover it and scrolling never swims. Apply `.skies-desk` to any inner
+   container that would otherwise paint a flat --background over it. */
+body,
+.skies-desk {
+  background-color: var(--background);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.022'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size:
+    160px 160px,
+    50px 50px,
+    50px 50px;
+  background-attachment: fixed;
+}
+
+/* ---------------- KICKERS & LABELS ----------------
+   The site's mono label voice: 10px uppercase letterspaced captions with
+   the copper editorial slashes. Use for panel section headers, page
+   kickers, and meta rows. */
+.skies-kicker {
+  font-family: var(--monospace-font);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--foreground-dim);
+}
+
+.skies-kicker::before {
+  content: "// ";
+  color: var(--copper);
+}
+
+/* Label with a trailing hairline rule (the site's .doc-label device). */
+.skies-rule-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.skies-rule-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ---------------- STATUS PING ----------------
+   The live-dot ping ring from the site's status pills. Put it on a small
+   round dot element (e.g. the connected indicator). */
+@keyframes skies-ping {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+.skies-ping {
+  position: relative;
+  /* Override the ring color: --ping-color: var(--action-foreground); */
+  --ping-color: var(--success);
+}
+
+.skies-ping::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid var(--ping-color);
+  animation: skies-ping 1.8s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skies-ping::after {
+    animation: none;
+  }
+}
+
+/* ---------------- TRACE HAIRLINE ----------------
+   The copper-into-blue gradient the site draws under active nav links. */
+/* Top-bar mode tabs: the site's nav-link device — the trace underline
+   grows in from the left on hover, and stays for the active tab. Sits on
+   the bar's bottom edge (tabs are full bar height). */
+.skies-mode-tab {
+  position: relative;
+}
+
+.skies-mode-tab::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -1px;
+  height: 2px;
+  background: var(--trace-gradient);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.skies-mode-tab:hover::after,
+.skies-mode-tab[aria-selected="true"]::after {
+  transform: scaleX(1);
+}
+
+/* ---------------- SCROLL PROGRESS ----------------
+   White-into-blue hairline pinned above the top bar (viewport edge), echoing
+   the sky wash; the gradient compresses with the scaleX fill so the blue
+   always rides the leading edge. --scroll-p is set by ScrollProgress. */
+.skies-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  z-index: var(--z-sticky);
+  pointer-events: none;
+  background: linear-gradient(90deg, #fff 0%, #9cc8f4 45%, #1b7be4 100%);
+  transform-origin: left;
+  transform: scaleX(var(--scroll-p, 0));
+}
+
+/* ---------------- SKY WASH (home hero) ----------------
+   The site's blue-hour band: day sky settling into warm paper, four
+   oversized blurred plumes drifting on long offset loops; night flips to
+   a starlit indigo. --sky-fade (set on scroll by the PageSky component)
+   hands the surface back to the desk as the reader moves. */
+.skies-sky {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: min(468px, 60vh);
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: var(--sky-fade, 1);
+  background: linear-gradient(
+    180deg,
+    #1b7be4 0%,
+    #4f9cee 30%,
+    #9cc8f4 54%,
+    #dcd7c6 76%,
+    #f2e5d2 88%,
+    rgb(242 229 210 / 0%) 100%
+  );
+  mask-image: linear-gradient(
+    180deg,
+    #000 calc(100% - 70px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(180deg, #000 calc(100% - 70px), transparent 100%);
+}
+
+.skies-sky i {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(56px);
+  will-change: transform;
+}
+
+/* white haze behind the headline */
+.skies-sky i:nth-child(1) {
+  width: 58%;
+  height: 74%;
+  left: 8%;
+  top: 30%;
+  background: rgb(255 255 255 / 92%);
+  animation: skies-drift-a 23s ease-in-out infinite alternate;
+}
+
+/* warm beige pooling lower-left */
+.skies-sky i:nth-child(2) {
+  width: 46%;
+  height: 64%;
+  left: -10%;
+  bottom: -26%;
+  background: #f3dcbe;
+  opacity: 0.85;
+  animation: skies-drift-b 31s ease-in-out infinite alternate;
+}
+
+/* deep blue mass upper-right */
+.skies-sky i:nth-child(3) {
+  width: 52%;
+  height: 80%;
+  right: -12%;
+  top: -34%;
+  background: #1873e0;
+  opacity: 0.8;
+  animation: skies-drift-c 37s ease-in-out infinite alternate;
+}
+
+/* soft warm bloom lower-right */
+.skies-sky i:nth-child(4) {
+  width: 32%;
+  height: 48%;
+  right: 10%;
+  bottom: -12%;
+  background: #fbeedd;
+  opacity: 0.8;
+  animation: skies-drift-d 27s ease-in-out infinite alternate;
+}
+
+@keyframes skies-drift-a {
+  to {
+    transform: translate(5%, -7%) scale(1.07);
+  }
+}
+
+@keyframes skies-drift-b {
+  to {
+    transform: translate(9%, -5%) scale(1.12);
+  }
+}
+
+@keyframes skies-drift-c {
+  to {
+    transform: translate(-6%, 9%) scale(1.05);
+  }
+}
+
+@keyframes skies-drift-d {
+  to {
+    transform: translate(-8%, -9%) scale(1.15);
+  }
+}
+
+/* readability scrim — a pool of paper behind the text column, painted
+   above the plumes, below the content */
+.skies-sky::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    120% 95% at 28% 62%,
+    rgb(250 247 247 / 90%) 0%,
+    rgb(250 247 247 / 55%) 42%,
+    transparent 70%
+  );
+}
+
+/* ---- night sky (dark theme) ---- */
+.dark .skies-sky {
+  background: linear-gradient(
+    180deg,
+    #060e24 0%,
+    #0b1834 33%,
+    #121f3c 60%,
+    #1a1f33 78%,
+    #181626 87%,
+    rgb(24 22 38 / 0%) 100%
+  );
+}
+
+.dark .skies-sky i:nth-child(1) {
+  background: rgb(170 195 255 / 12%);
+}
+
+.dark .skies-sky i:nth-child(2) {
+  background: rgb(216 160 90 / 10%);
+}
+
+.dark .skies-sky i:nth-child(3) {
+  background: #0a2a66;
+  opacity: 0.55;
+}
+
+.dark .skies-sky i:nth-child(4) {
+  background: rgb(140 170 255 / 9%);
+}
+
+/* starfield — tiled speckle layers, fading out above the horizon */
+.dark .skies-sky::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background-image:
+    radial-gradient(
+      1.3px 1.3px at 18px 32px,
+      rgb(255 255 255 / 90%) 50%,
+      transparent 51%
+    ),
+    radial-gradient(
+      1px 1px at 92px 78px,
+      rgb(220 230 255 / 80%) 50%,
+      transparent 51%
+    ),
+    radial-gradient(
+      0.9px 0.9px at 150px 22px,
+      rgb(255 255 255 / 55%) 50%,
+      transparent 51%
+    ),
+    radial-gradient(
+      1.1px 1.1px at 200px 124px,
+      rgb(200 215 255 / 70%) 50%,
+      transparent 51%
+    ),
+    radial-gradient(
+      0.8px 0.8px at 58px 142px,
+      rgb(255 255 255 / 45%) 50%,
+      transparent 51%
+    ),
+    radial-gradient(
+      1px 1px at 234px 58px,
+      rgb(255 255 255 / 65%) 50%,
+      transparent 51%
+    );
+  background-size: 260px 170px;
+
+  mask-image: linear-gradient(180deg, #000 0%, #000 36%, transparent 70%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 36%, transparent 70%);
+  animation: skies-twinkle 7s ease-in-out infinite alternate;
+}
+
+@keyframes skies-twinkle {
+  from {
+    opacity: 0.6;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* night scrim — settle the text column on near-canvas ink instead of paper */
+.dark .skies-sky::after {
+  background: radial-gradient(
+    120% 95% at 28% 62%,
+    rgb(18 16 27 / 72%) 0%,
+    rgb(18 16 27 / 42%) 42%,
+    transparent 70%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skies-sky i,
+  .dark .skies-sky::before {
+    animation: none;
+  }
+}
+
+/* ---------------- PAPER PANELS ----------------
+   Word content sits on solid "paper" panels with hairline borders; the
+   grid stays visible as the desk around them. `.skies-ticks` adds the
+   site's measuring-tick corners. */
+.skies-paper {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--input);
+}
+
+.skies-ticks::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  opacity: 0.75;
+  z-index: 1;
+  background-image:
+    linear-gradient(var(--foreground-dim), var(--foreground-dim)),
+    linear-gradient(var(--foreground-dim), var(--foreground-dim)),
+    linear-gradient(var(--foreground-dim), var(--foreground-dim)),
+    linear-gradient(var(--foreground-dim), var(--foreground-dim)),
+    linear-gradient(var(--foreground-dim), var(--foreground-dim)),
+    linear-gradient(var(--foreground-dim), var(--foreground-dim)),
+    linear-gradient(var(--foreground-dim), var(--foreground-dim)),
+    linear-gradient(var(--foreground-dim), var(--foreground-dim));
+  background-repeat: no-repeat;
+  background-size:
+    1px 11px,
+    11px 1px,
+    1px 11px,
+    11px 1px,
+    1px 11px,
+    11px 1px,
+    1px 11px,
+    11px 1px;
+  background-position:
+    left top,
+    left top,
+    right top,
+    right top,
+    left bottom,
+    left bottom,
+    right bottom,
+    right bottom;
+}
+
+/* mono meta strip across the top of a paper panel */
+.skies-paper-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--monospace-font);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--foreground-dim);
+}
+
+/* ---------------- LINK CARDS ----------------
+   The site's resource cards: icon tile on an accent wash, label + mono
+   sub, an arrow that slides out on hover. */
+.skies-linkcard {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--foreground);
+  transition:
+    border-color 0.25s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.18s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.skies-linkcard:hover {
+  border-color: var(--foreground-dim);
+  transform: translateY(-2px);
+}
+
+.skies-linkcard__ic {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius);
+  flex: none;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: var(--accent-foreground);
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+.skies-linkcard__ic svg {
+  width: 17px;
+  height: 17px;
+}
+
+.skies-linkcard__meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.skies-linkcard__label {
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.skies-linkcard__sub {
+  display: block;
+  font-family: var(--monospace-font);
+  font-size: 10.5px;
+  color: var(--foreground-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 3px;
+}
+
+.skies-linkcard__arrow {
+  margin-left: auto;
+  color: var(--foreground-dim);
+  flex: none;
+  transition:
+    transform 0.18s cubic-bezier(0.22, 0.61, 0.36, 1),
+    color 0.18s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.skies-linkcard:hover .skies-linkcard__arrow {
+  transform: translate(2px, -2px);
+  color: var(--foreground);
+}
+
+/* ---------------- STATUS PILL ----------------
+   Mono lowercase pill with a live dot (pair with .skies-ping on the dot). */
+.skies-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--monospace-font);
+  font-size: 11px;
+  text-transform: lowercase;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: var(--success);
+  border: 1px solid color-mix(in srgb, var(--success) 38%, transparent);
+  background: color-mix(in srgb, var(--success) 13%, transparent);
+}
+
+.skies-status__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  flex: none;
+}
+
+/* ---------------- CTA BUTTON ----------------
+   The site's mono utility CTA: paper surface, hairline border, lifts a
+   hair on hover with the border taking the accent. */
+.skies-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  cursor: pointer;
+  font-family: var(--monospace-font);
+  font-size: 12.5px;
+  color: var(--foreground);
+  padding: 9px 15px;
+  border-radius: var(--radius);
+  border: 1px solid var(--input);
+  background: var(--card);
+  transition:
+    border-color 0.25s cubic-bezier(0.22, 0.61, 0.36, 1),
+    color 0.25s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.18s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.skies-cta svg {
+  color: var(--foreground-dim);
+  transition: color 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.skies-cta:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.skies-cta:hover svg {
+  color: var(--primary);
+}
+
+.skies-cta:active {
+  transform: translateY(0);
+}
+
+/* ---------------- HERO TEXT (home) ---------------- */
+.skies-hero {
+  position: relative;
+  z-index: 1;
+  padding-top: 34px;
+}
+
+/* Hero ink blends with the wash via --sky-fade (set on the page container
+   by PageSky): white over the saturated band, dissolving back to the
+   theme's ink in step with the sky as the reader scrolls. */
+.skies-hero .skies-kicker {
+  color: color-mix(
+    in oklab,
+    rgb(255 255 255 / 92%) calc(var(--sky-fade, 1) * 100%),
+    var(--foreground-dim)
+  );
+}
+
+.skies-hero .skies-kicker::before {
+  color: color-mix(
+    in oklab,
+    rgb(255 255 255 / 65%) calc(var(--sky-fade, 1) * 100%),
+    var(--copper)
+  );
+}
+
+.dark .skies-hero .skies-kicker {
+  color: color-mix(
+    in oklab,
+    rgb(220 230 255 / 75%) calc(var(--sky-fade, 1) * 100%),
+    var(--foreground-dim)
+  );
+}
+
+.skies-hero-title {
+  font-family: var(--heading-font);
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  line-height: 1.1;
+  color: color-mix(
+    in oklab,
+    #fff calc(var(--sky-fade, 1) * 100%),
+    var(--foreground)
+  );
+  margin-top: 12px;
+}
+
+.skies-hero-sub {
+  font-size: 14px;
+  color: var(--muted-foreground);
+  margin-top: 8px;
+  max-width: 56ch;
+}
+
+/* mono meta row under the hero title (counts, separators, live pill) */
+.skies-hero-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+  font-family: var(--monospace-font);
+  font-size: 12px;
+
+  /* Muted ink, not white: the meta row sits in the wash's pale plume zone
+     where white text washes out (the kicker/title above sit in solid blue). */
+  color: var(--muted-foreground);
+}
+
+.skies-hero-meta .dot {
+  color: var(--foreground-dim);
+}
+
+/* ---------------- OVER-SKY CONTROLS ----------------
+   Controls floating on the wash (home top-right cluster) sit on a frosted
+   paper chip so their ink keeps contrast over the saturated band; the chip
+   dissolves with the sky. */
+.skies-over-sky {
+  border-radius: var(--radius);
+  padding: 4px;
+  background: color-mix(
+    in oklab,
+    light-dark(rgb(255 255 255 / 72%), rgb(17 15 24 / 60%))
+      calc(var(--sky-fade, 1) * 100%),
+    transparent
+  );
+  backdrop-filter: blur(8px);
+}
+
+/* ---------------- SECTION HEADS ----------------
+   The site's doc-label: mono uppercase label with a trailing hairline
+   rule; pair with .skies-kicker for the copper slashes. */
+.skies-section-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.skies-section-head > .skies-kicker {
+  flex: none;
+  font-size: 11px;
+}
+
+.skies-section-head__rule {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.skies-section-head__control {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* stylelint-enable unit-allowed-list */
+
+/* ---------------- FINISHING TOUCHES ----------------
+   Site-wide hairline details that complete the Skies language. */
+
+/* Keyboard focus uses the same hairline vocabulary everywhere — a 1px ring
+   in the sky-blue --ring token, hugging the element. Components that need a
+   stronger focus (e.g. the design-system <Button>) override this locally. */
+:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: 1px;
+}
+
+/* Editorial link underline: offset and softened to 40% of the link ink so
+   the underline reads as a rule, not a hard line. */
+a.hyperlink {
+  /* stylelint-disable-next-line unit-allowed-list */
+  text-underline-offset: 2px;
+  text-decoration-color: color-mix(in srgb, var(--link) 40%, transparent);
+}
+
+/* Thin, low-contrast scrollbars over paper panels and the sidebar — the
+   browser default scrollbar is visually heavy against the flat desk. */
+.skies-paper,
+[data-panel] {
+  scrollbar-width: thin;
+  scrollbar-color: var(--input) transparent;
+}
+
+.skies-paper::-webkit-scrollbar,
+[data-panel]::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.skies-paper::-webkit-scrollbar-thumb,
+[data-panel]::-webkit-scrollbar-thumb {
+  background-color: var(--input);
+  border-radius: 4px;
+}
+
+.skies-paper::-webkit-scrollbar-track,
+[data-panel]::-webkit-scrollbar-track {
+  background: transparent;
+}

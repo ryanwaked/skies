@@ -32,7 +32,7 @@ import { PluralWord } from "@/utils/pluralize";
 // Configuration constants
 const PREVIEW_ITEM_LIMIT = 5;
 
-// Color mappings for data types. Hex keeps metadata chips muted — one quiet
+// Color mappings for data types. Skies keeps metadata chips muted — one quiet
 // neutral chip for every type, no rainbow palette.
 const MUTED_CHIP = "rounded-sm bg-muted text-muted-foreground";
 

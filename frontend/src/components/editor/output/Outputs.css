@@ -22,18 +22,16 @@
 
 .output {
   position: relative;
-}
 
-.output > * {
-  max-width: 100%;
-}
-
-.output {
   /* Unset max-width on .markdown. Instead, we will apply
   to individual elements so it does not affect UI elements in markdown. */
   .markdown {
     max-width: unset;
   }
+}
+
+.output > * {
+  max-width: 100%;
 }
 
 .stdout,
