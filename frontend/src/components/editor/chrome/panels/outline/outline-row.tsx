@@ -24,7 +24,7 @@ export const OutlineHeadingRow: React.FC<{
 }> = ({ item, occurrence, isActive }) => {
   const sharedProps = {
     className: cn(
-      "px-2 py-1 cursor-pointer rounded-[3px] hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground",
+      "text-[13px] px-2 py-1 cursor-pointer rounded-[3px] hover:bg-[var(--hover-wash)] hover:text-foreground",
       item.level === 1 && "font-medium",
       // Subtle indent guides for nested headings
       item.level === 2 && "ml-3 border-l border-border/60",
@@ -64,7 +64,7 @@ export const OutlineCellRow: React.FC<{
     <div
       className={cn(
         "flex items-center gap-1.5 min-w-0 px-2 py-1 cursor-pointer rounded-[3px]",
-        "hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground",
+        "hover:bg-[var(--hover-wash)] hover:text-foreground",
         // Indent guide at the level of the current section
         "border-l border-border/60",
         entry.indentLevel === 2 && "ml-3",

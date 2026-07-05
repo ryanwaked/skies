@@ -47,7 +47,7 @@ export const NotebookHeader = (): JSX.Element => {
   return (
     <div
       data-testid="notebook-header"
-      className="skies-topbar relative flex h-[40px] w-full shrink-0 items-center gap-1 border-b border-border bg-[var(--nav-solid)] pl-2 pr-3 print:hidden"
+      className="skies-topbar relative flex h-[44px] w-full shrink-0 items-center gap-1 border-b border-border bg-[var(--nav-solid)] pl-2 pr-3 print:hidden"
     >
       {/* The scroll-progress hairline tracks the #App scroll container, which
           collapses in present mode (the deck manages its own inner scroll).

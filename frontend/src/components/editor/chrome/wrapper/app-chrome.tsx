@@ -431,8 +431,8 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
         if (prevSize === 0 && size === 10) {
           // Skies opens its sidebar panel at 293px. react-resizable-panels only
           // takes percentages, so convert against the horizontal space next to
-          // the 48px icon rail.
-          const availableWidth = Math.max(window.innerWidth - 48, 1);
+          // the 44px icon rail.
+          const availableWidth = Math.max(window.innerWidth - 44, 1);
           const hexDefaultPct = Math.min(
             75,
             Math.max(10, (293 / availableWidth) * 100),

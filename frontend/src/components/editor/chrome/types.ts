@@ -11,8 +11,8 @@ import {
   DatabaseZapIcon,
   FileTextIcon,
   FolderIcon,
-  HeadingIcon,
   KeyRoundIcon,
+  ListTreeIcon,
   NetworkIcon,
   PenLineIcon,
   SearchIcon,
@@ -110,7 +110,7 @@ export const PANELS: PanelDescriptor[] = [
   // layouts referencing it still parse; PANEL_MAP lookups simply miss.
   {
     type: "outline",
-    Icon: HeadingIcon,
+    Icon: ListTreeIcon,
     label: "Outline",
     tooltip: "View outline",
     defaultSection: "sidebar",
