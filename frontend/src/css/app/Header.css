@@ -60,18 +60,22 @@
   opacity: 0.5;
 }
 
-/* Breadcrumb (filename) text: 14px/400 muted, 28px row. */
-.skies-topbar .filename,
+/* Notebook name: 14px bold, full-contrast foreground (black in light /
+   white in dark). The unnamed placeholder stays muted. */
+.skies-topbar .filename {
+  height: 28px;
+  /* stylelint-disable-next-line unit-allowed-list */
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
 .skies-topbar .missing-filename {
   height: 28px;
   /* stylelint-disable-next-line unit-allowed-list */
   font-size: 14px;
   font-weight: 400;
   color: var(--muted-foreground);
-}
-
-/* Unnamed-notebook input: drop the centered, boxed look inside the bar. */
-.skies-topbar .missing-filename {
   text-align: left;
   border-radius: 3px;
   box-shadow: none;

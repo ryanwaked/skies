@@ -12,6 +12,9 @@
   border-radius: 3px;
   max-width: inherit;
   width: 100%;
+  /* Prevent Chrome's scroll-anchoring from "jumping" sibling cells when a
+     hover state changes a border/background above the viewport. */
+  overflow-anchor: none;
 
   /* Skies frame: always-visible 1px border on a surface slightly
    * lighter than the canvas. */
@@ -339,10 +342,6 @@
     background: transparent;
     box-shadow: none;
 
-    &:hover {
-      border-color: color-mix(in srgb, var(--border), transparent 50%);
-    }
-
     /* Section heads carry the site's measuring-tick ruler: a dashed
      * hairline under the heading, drawn at a 1px/14px pitch. */
     .markdown :is(h1, h2, h3):only-child {
@@ -466,9 +465,10 @@
     background: transparent;
     box-shadow: none;
 
-    &:hover {
-      border-color: color-mix(in srgb, var(--border), transparent 50%);
-    }
+    /* No hover border toggle: re-declaring border-color here triggers
+       Chrome's scroll-anchoring to re-evaluate and visually "jump" the
+       cells below when the cursor enters this heading cell. Section
+       headings sit directly on the canvas and shouldn't frame on hover. */
   }
 
   &.published {
