@@ -28,6 +28,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Kbd } from "@/components/ui/kbd";
 import { NativeSelect } from "@/components/ui/native-select";
 import { NumberField } from "@/components/ui/number-field";
@@ -211,6 +212,42 @@ export const UserConfigForm: React.FC = () => {
       case "editor":
         return (
           <>
+            <SettingGroup title="Startup">
+              <OverriddenFormField
+                control={form.control}
+                name="server.default_notebook_directory"
+                render={({ field, override }) => (
+                  <div className="flex flex-col gap-y-1">
+                    <FormItem className={formItemClasses}>
+                      <FormLabel>Default notebook directory</FormLabel>
+                      <FormControl>
+                        <Input
+                          data-testid="default-notebook-directory-input"
+                          className="m-0 w-72"
+                          placeholder="~/notebooks"
+                          disabled={override.isOverridden}
+                          value={
+                            typeof override.value === "string"
+                              ? override.value
+                              : ""
+                          }
+                          onChange={(e) => field.onChange(e.target.value)}
+                          onBlur={() => onSubmit(form.getValues())}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                      <IsOverridden override={override} />
+                    </FormItem>
+                    <FormDescription>
+                      The folder marimo opens when you launch it without a
+                      file. Leave blank to use your Desktop if it exists,
+                      otherwise the current working directory. Applies the next
+                      time the server starts.
+                    </FormDescription>
+                  </div>
+                )}
+              />
+            </SettingGroup>
             <SettingGroup title="Autosave">
               <OverriddenFormField
                 control={form.control}

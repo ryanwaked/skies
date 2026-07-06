@@ -246,6 +246,39 @@ def _get_stdin_contents() -> str | None:
     return None
 
 
+def _resolve_default_edit_directory() -> str:
+    """Directory `marimo edit` opens when given no file or directory.
+
+    Resolution order:
+      1. The `server.default_notebook_directory` user setting, if set to an
+         existing directory (configurable from the home page's settings).
+      2. The user's Desktop (`~/Desktop`), if it exists — the friendly default.
+      3. The current working directory (marimo's historical behavior).
+    """
+    try:
+        from marimo._config.manager import get_default_config_manager
+
+        config = get_default_config_manager(current_path=None).get_config()
+        configured = config.get("server", {}).get(
+            "default_notebook_directory", ""
+        )
+        if configured:
+            expanded = os.path.expanduser(configured)
+            if os.path.isdir(expanded):
+                return expanded
+    except Exception:
+        # Never let config resolution block launching the editor.
+        _loggers.marimo_logger().debug(
+            "Could not read default_notebook_directory", exc_info=True
+        )
+
+    desktop = os.path.expanduser("~/Desktop")
+    if os.path.isdir(desktop):
+        return desktop
+
+    return os.getcwd()
+
+
 edit_help_msg = "\n".join(
     [
         "\b",
@@ -528,7 +561,9 @@ def edit(
                     ) from e
                 raise
     else:
-        name = os.getcwd()
+        # No file/directory given: open the configured default directory
+        # (Desktop by default). See `_resolve_default_edit_directory`.
+        name = _resolve_default_edit_directory()
 
     # We check this after name validation, because this will convert
     # URLs into local file paths

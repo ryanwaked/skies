@@ -1,0 +1,47 @@
+# Keep the Docker build context small and fast to transfer. The Skies image
+# (docker/Dockerfile.skies) only needs pyproject.toml, README.md, LICENSE and
+# the marimo/ package — including the pre-built marimo/_static, which is
+# git-ignored but IS part of the build context. Everything below is irrelevant
+# to building or running the image.
+
+# Version control / CI
+.git
+.github
+
+# Python caches & build outputs
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Frontend toolchain & intermediates — the built assets already live in
+# marimo/_static, so none of this is needed inside the image.
+node_modules/
+**/node_modules/
+frontend/dist/
+.turbo/
+**/.turbo/
+
+# macOS-only Skies.app packaging (Swift menu-bar app) — never used on Linux.
+packaging/
+
+# Dev-only trees not needed to build or run the image.
+docs/
+tests/
+examples/
+dagger/
+scripts/
+
+# OS / editor cruft
+.DS_Store
+*.log

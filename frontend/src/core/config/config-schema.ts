@@ -203,6 +203,7 @@ export const UserConfigSchema = z
     server: z
       .looseObject({
         disable_file_downloads: z.boolean().optional(),
+        default_notebook_directory: z.string().optional(),
       })
       .prefault(() => ({})),
     diagnostics: z

@@ -576,3 +576,106 @@ def test_running_notebooks_handles_files_outside_directory(
                 finally:
                     session_manager.workspace = original_workspace
                     session.app_file_manager.filename = original_filename
+
+
+_PREVIEW_NOTEBOOK = inspect.cleandoc(
+    '''
+    import marimo
+    app = marimo.App()
+
+    @app.cell
+    def _():
+        import marimo as mo
+        return (mo,)
+
+    @app.cell
+    def _(mo):
+        mo.md("""# Demo Title
+
+        Body text.""")
+        return
+
+    if __name__ == "__main__":
+        app.run()
+    '''
+)
+
+
+@with_session(SESSION_ID)
+def test_notebook_preview(client: TestClient) -> None:
+    session_manager = get_session_manager(client)
+    with tempfile.TemporaryDirectory() as temp_dir:
+        (Path(temp_dir) / "demo.py").write_text(_PREVIEW_NOTEBOOK)
+        session_manager.workspace = DirectoryWorkspace(
+            temp_dir, include_markdown=False
+        )
+
+        response = client.post(
+            "/api/home/notebook_preview",
+            headers=HEADERS,
+            json={"file": "demo.py"},
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert body["title"] == "Demo Title"
+        assert body["totalCells"] == 2
+        assert [c["cellType"] for c in body["cells"]] == ["python", "markdown"]
+
+
+@with_session(SESSION_ID)
+def test_notebook_preview_outside_workspace(client: TestClient) -> None:
+    # A path outside the workspace must not read arbitrary files; the endpoint
+    # returns an empty preview rather than a 500 or any file contents.
+    session_manager = get_session_manager(client)
+    with tempfile.TemporaryDirectory() as temp_dir:
+        session_manager.workspace = DirectoryWorkspace(
+            temp_dir, include_markdown=False
+        )
+        response = client.post(
+            "/api/home/notebook_preview",
+            headers=HEADERS,
+            json={"file": "/etc/passwd"},
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert body["cells"] == []
+        assert body["totalCells"] == 0
+
+
+@with_session(SESSION_ID)
+def test_notebook_preview_hidden_in_run_mode(client: TestClient) -> None:
+    # In `marimo run` without --include-code, source must not be disclosed.
+    session_manager = get_session_manager(client)
+    session_manager.mode = SessionMode.RUN
+    session_manager.include_code = False
+    with tempfile.TemporaryDirectory() as temp_dir:
+        (Path(temp_dir) / "demo.py").write_text(_PREVIEW_NOTEBOOK)
+        session_manager.workspace = DirectoryWorkspace(
+            temp_dir, include_markdown=False
+        )
+        response = client.post(
+            "/api/home/notebook_preview",
+            headers=HEADERS,
+            json={"file": "demo.py"},
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert body["cells"] == []
+        assert body["title"] is None
+
+
+@with_session(SESSION_ID)
+def test_notebook_preview_non_directory_workspace(client: TestClient) -> None:
+    # Non-directory workspaces don't enforce path containment on resolve(),
+    # so the endpoint refuses them (returns an empty preview).
+    file_key = get_session_manager(client).workspace.get_unique_file_key()
+    assert file_key
+    response = client.post(
+        "/api/home/notebook_preview",
+        headers=HEADERS,
+        json={"file": file_key},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["cells"] == []
+    assert body["totalCells"] == 0

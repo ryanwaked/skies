@@ -49,3 +49,29 @@ class WorkspaceFilesResponse(msgspec.Struct, rename="camel"):
 
 class ShutdownSessionRequest(msgspec.Struct, rename="camel"):
     session_id: SessionId
+
+
+class NotebookPreviewRequest(msgspec.Struct, rename="camel"):
+    # Workspace file key (path relative to the workspace root, or absolute).
+    file: str
+
+
+class NotebookPreviewCell(msgspec.Struct, rename="camel"):
+    # One of "markdown", "python", "sql".
+    cell_type: str
+    # Heuristic hint for a rendered output: "chart", "table", "widget", "none".
+    visual: str = "none"
+    # For markdown cells: the rendered markdown text (leading `#` headings kept),
+    # truncated for preview.
+    markdown: str | None = None
+    # For code/sql cells: the first few source lines, each truncated.
+    lines: list[str] = msgspec.field(default_factory=list)
+
+
+class NotebookPreviewResponse(msgspec.Struct, rename="camel"):
+    # The notebook's title (its first markdown heading), if any.
+    title: str | None = None
+    # The first several cells, in order, as a lightweight structural preview.
+    cells: list[NotebookPreviewCell] = msgspec.field(default_factory=list)
+    # Total number of cells in the notebook.
+    total_cells: int = 0

@@ -268,6 +268,17 @@ body,
   );
 }
 
+/* ---------------- MASTHEAD BACKDROP ----------------
+   The home masthead sits over the sky wash; without a backing its mono
+   labels, counts, and controls wash out against the saturated top of the
+   band. A solid paper header with a hairline bottom rule keeps every
+   masthead element readable and gives a crisp edge; the sky flows out
+   below the rule into the content area. */
+.skies-masthead {
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
+}
+
 /* ---- night sky (dark theme) ---- */
 .dark .skies-sky {
   background: linear-gradient(
@@ -723,6 +734,58 @@ body,
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* ---------------- NOTEBOOK MINI-PREVIEW ----------------
+   The home-page thumbnail's tinted "paper" plus a faint blueprint grid. The
+   paper color (--nb-paper) and edge (--nb-edge) are path-seeded and set
+   inline per notebook, so each notebook keeps a stable visual identity. */
+.skies-nb-preview {
+  background-color: var(--nb-paper, var(--card));
+  background-image:
+    repeating-linear-gradient(
+      color-mix(in srgb, var(--foreground) 4%, transparent) 0 1px,
+      transparent 1px 16px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--foreground) 4%, transparent) 0 1px,
+      transparent 1px 16px
+    );
+}
+
+/* ---------------- TYPE CHIPS ----------------
+   Hairline mono chips on notebook cards/rows marking which cell kinds a
+   notebook contains, tinted by kind (py = sky, sql = copper, md = dim,
+   viz = gold). */
+.skies-type-chip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-family: var(--monospace-font);
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--foreground-dim);
+}
+
+.skies-type-chip--py {
+  color: var(--sky-blue);
+}
+
+.skies-type-chip--sql {
+  color: var(--copper);
+}
+
+.skies-type-chip--md {
+  color: var(--foreground-dim);
+}
+
+.skies-type-chip--viz {
+  color: var(--gold);
 }
 /* stylelint-enable unit-allowed-list */
 

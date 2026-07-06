@@ -60,6 +60,7 @@ export function createErrorToastingRequests(
     getRecentFiles: "Failed to get recent files",
     getWorkspaceFiles: "Failed to get workspace files",
     getRunningNotebooks: "Failed to get running notebooks",
+    getNotebookPreview: "", // No toast — the card falls back silently
     shutdownSession: "Failed to shutdown session",
     exportAsHTML: "Failed to export HTML",
     exportAsIPYNB: "Failed to export ipynb",

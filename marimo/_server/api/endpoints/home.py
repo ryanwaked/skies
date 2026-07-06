@@ -16,6 +16,9 @@ from marimo._server.api.utils import parse_request
 from marimo._server.files.directory_scanner import DirectoryScanner
 from marimo._server.models.home import (
     MarimoFile,
+    NotebookPreviewCell,
+    NotebookPreviewRequest,
+    NotebookPreviewResponse,
     OpenTutorialRequest,
     RecentFilesResponse,
     RunningNotebooksResponse,
@@ -176,6 +179,187 @@ async def workspace_files(
         has_more=has_more,
         file_count=file_count,
     )
+
+
+# --- Notebook previews (home-page thumbnails) -----------------------------
+#
+# A lightweight, execution-free structural preview of a notebook's top: its
+# title and the first few cells (type + a snippet), used to render a "mini
+# mockup" thumbnail on the home page. Parsing is static (no kernel), so this
+# is cheap and safe to call per visible card.
+
+PREVIEW_MAX_CELLS = 6
+PREVIEW_MAX_MARKDOWN = 240
+PREVIEW_MAX_CODE_LINES = 5
+PREVIEW_MAX_LINE_LEN = 64
+# Skip parsing very large files to keep the endpoint snappy.
+PREVIEW_MAX_BYTES = 2_000_000
+
+_CHART_HINTS = (
+    "alt.chart",
+    ".mark_",
+    "altair",
+    "plt.",
+    "px.",
+    "plotly",
+    ".plot(",
+    "sns.",
+    "go.figure",
+    "hvplot",
+    "altair_chart",
+)
+_WIDGET_HINTS = (
+    "mo.ui.",
+    "mo.hstack",
+    "mo.vstack",
+    "mo.tabs",
+    "mo.accordion",
+    "mo.callout",
+)
+_TABLE_HINTS = (
+    "pd.dataframe",
+    ".head(",
+    ".describe(",
+    "st.dataframe",
+    "pl.dataframe",
+)
+
+
+def _visual_hint(code: str, cell_type: str) -> str:
+    """Heuristic guess at what a cell renders, for a placeholder glyph."""
+    if cell_type == "sql":
+        return "table"
+    low = code.lower()
+    if any(hint in low for hint in _CHART_HINTS):
+        return "chart"
+    if "mo.ui.table" in low or "mo.ui.dataframe" in low:
+        return "table"
+    if any(hint in low for hint in _WIDGET_HINTS):
+        return "widget"
+    if any(hint in low for hint in _TABLE_HINTS):
+        return "table"
+    return "none"
+
+
+def _classify_cell(code: str) -> tuple[str, str | None, list[str]]:
+    """Return (cell_type, markdown_text_or_none, code_lines)."""
+    from marimo._ast.compiler import extract_markdown
+
+    markdown = extract_markdown(code)
+    if markdown is not None:
+        return "markdown", markdown[:PREVIEW_MAX_MARKDOWN], []
+
+    cell_type = "sql" if "mo.sql(" in code else "python"
+    lines: list[str] = []
+    for raw in code.splitlines():
+        stripped = raw.rstrip()
+        if not stripped.strip():
+            continue
+        lines.append(stripped[:PREVIEW_MAX_LINE_LEN])
+        if len(lines) >= PREVIEW_MAX_CODE_LINES:
+            break
+    return cell_type, None, lines
+
+
+def _first_heading(markdown: str) -> str | None:
+    """The notebook's title: the heading atop its first markdown cell."""
+    for line in markdown.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith("#"):
+            return stripped.lstrip("#").strip() or None
+        # First non-empty line isn't a heading — this cell has no title.
+        return None
+    return None
+
+
+def _build_notebook_preview(path: str) -> NotebookPreviewResponse:
+    from marimo._ast.parse import parse_notebook
+
+    try:
+        if os.path.getsize(path) > PREVIEW_MAX_BYTES:
+            return NotebookPreviewResponse()
+        contents = pathlib.Path(path).read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return NotebookPreviewResponse()
+
+    try:
+        notebook = parse_notebook(contents, filepath=path)
+    except Exception:
+        LOGGER.debug("Failed to parse preview for %s", path, exc_info=True)
+        return NotebookPreviewResponse()
+    if notebook is None:
+        return NotebookPreviewResponse()
+
+    cells = notebook.cells
+    preview_cells: list[NotebookPreviewCell] = []
+    title: str | None = None
+    for cell in cells[:PREVIEW_MAX_CELLS]:
+        cell_type, markdown, lines = _classify_cell(cell.code)
+        if title is None and markdown is not None:
+            title = _first_heading(markdown)
+        preview_cells.append(
+            NotebookPreviewCell(
+                cell_type=cell_type,
+                visual=_visual_hint(cell.code, cell_type),
+                markdown=markdown,
+                lines=lines,
+            )
+        )
+    return NotebookPreviewResponse(
+        title=title,
+        cells=preview_cells,
+        total_cells=len(cells),
+    )
+
+
+@router.post("/notebook_preview")
+@requires("read")
+async def notebook_preview(
+    *,
+    request: Request,
+) -> NotebookPreviewResponse:
+    """
+    requestBody:
+        content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/NotebookPreviewRequest"
+    responses:
+        200:
+            description: A lightweight structural preview of a notebook
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/NotebookPreviewResponse"
+    """
+    body = await parse_request(request, cls=NotebookPreviewRequest)
+    app_state = AppState(request)
+    session_manager = app_state.session_manager
+
+    # Don't disclose notebook source when code is meant to be hidden
+    # (e.g. `marimo run` without --include-code), matching read_code/export.
+    if not session_manager.should_send_code_to_frontend():
+        return NotebookPreviewResponse()
+
+    workspace = session_manager.workspace
+    # Previews are a directory-gallery feature. Only DirectoryWorkspace has a
+    # root and enforces path containment on resolve(); refuse the other
+    # workspace kinds so a preview request can't read a file outside a
+    # workspace (e.g. EmptyWorkspace.resolve resolves arbitrary paths).
+    if workspace.directory is None:
+        return NotebookPreviewResponse()
+
+    try:
+        resolved = workspace.resolve(body.file)
+    except HTTPException:
+        # Outside the workspace (or missing) — no preview, card shows fallback.
+        resolved = None
+    if not resolved:
+        return NotebookPreviewResponse()
+
+    return await asyncio.to_thread(_build_notebook_preview, resolved)
 
 
 def _get_active_sessions(app_state: AppState) -> list[MarimoFile]:

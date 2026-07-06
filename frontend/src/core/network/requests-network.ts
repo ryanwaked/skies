@@ -381,6 +381,12 @@ export function createNetworkRequests(): EditRequests & RunRequests {
         .POST("/api/home/running_notebooks")
         .then(handleResponse);
     },
+    getNotebookPreview: (request) => {
+      // Uses the untyped API helper (not the generated openapi client) so the
+      // home page can consume this fork-local endpoint without regenerating
+      // the API types. API.post prepends `api`, so the path omits it.
+      return API.post("/home/notebook_preview", request);
+    },
     shutdownSession: (request) => {
       return getClient()
         .POST("/api/home/shutdown_session", {

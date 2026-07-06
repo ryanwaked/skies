@@ -3769,6 +3769,53 @@ components:
       - changes
       title: NotebookDocumentTransactionRequest
       type: object
+    NotebookPreviewCell:
+      properties:
+        cellType:
+          type: string
+        lines:
+          default: []
+          items:
+            type: string
+          type: array
+        markdown:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+        visual:
+          default: none
+          type: string
+      required:
+      - cellType
+      title: NotebookPreviewCell
+      type: object
+    NotebookPreviewRequest:
+      properties:
+        file:
+          type: string
+      required:
+      - file
+      title: NotebookPreviewRequest
+      type: object
+    NotebookPreviewResponse:
+      properties:
+        cells:
+          default: []
+          items:
+            $ref: '#/components/schemas/NotebookPreviewCell'
+          type: array
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+        totalCells:
+          default: 0
+          type: integer
+      required: []
+      title: NotebookPreviewResponse
+      type: object
     OpenAiConfig:
       description: "Configuration options for OpenAI or OpenAI-compatible services.\n\
         \n    **Keys.**\n\n    - `api_key`: the OpenAI API key\n    - `base_url`:\
@@ -4650,13 +4697,18 @@ components:
         \ Python's webbrowser module (eg, `\"firefox\"` or `\"chrome\"`)\n    - `follow_symlink`:\
         \ if true, the server will follow symlinks it finds\n        inside its static\
         \ assets directory.\n    - `disable_file_downloads`: if true, the file download\
-        \ button will be\n        hidden in the file explorer."
+        \ button will be\n        hidden in the file explorer.\n    - `default_notebook_directory`:\
+        \ the directory `marimo edit` opens by\n        default when no file or directory\
+        \ is given. Empty means \"use the\n        built-in default\" (the user's\
+        \ Desktop, falling back to the current\n        working directory)."
       properties:
         browser:
           anyOf:
           - enum:
             - default
           - type: string
+        default_notebook_directory:
+          type: string
         disable_file_downloads:
           type: boolean
         follow_symlink:
@@ -6435,6 +6487,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/FileUpdateResponse'
           description: Update a file or directory
+  /api/home/notebook_preview:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotebookPreviewRequest'
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotebookPreviewResponse'
+          description: A lightweight structural preview of a notebook
   /api/home/recent_files:
     post:
       responses:

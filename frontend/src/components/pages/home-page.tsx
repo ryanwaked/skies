@@ -18,7 +18,7 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import type React from "react";
-import { use, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, use, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "react-aria";
 import useEvent from "react-use-event-hook";
 import { PageSky } from "@/components/skies/page-sky";
@@ -38,7 +38,11 @@ import {
 } from "@/core/home/collections";
 import { isSessionId } from "@/core/kernel/session";
 import { useRequestClient } from "@/core/network/requests";
-import type { FileInfo, MarimoFile } from "@/core/network/types";
+import type {
+  FileInfo,
+  MarimoFile,
+  NotebookPreviewResponse,
+} from "@/core/network/types";
 import { combineAsyncData, useAsyncData } from "@/hooks/useAsyncData";
 import { useInterval } from "@/hooks/useInterval";
 import { Banner } from "@/plugins/impl/common/error-banner";
@@ -55,8 +59,13 @@ import {
   useConfirmDeleteFile,
   useFileOperations,
 } from "../editor/file-tree/file-operations";
-import { OpenTutorialDropDown } from "../home/components";
-import { NotebookCover } from "../home/notebook-cover";
+import { Header, OpenTutorialDropDown } from "../home/components";
+import { NotebookMiniPreview } from "../home/notebook-mini-preview";
+import { useNotebookPreview } from "../home/use-notebook-preview";
+import {
+  type PaneWidth,
+  useContainerWidth,
+} from "../home/use-container-width";
 import { CollectionMenuItems } from "../home/collections";
 import {
   type HomeSort,
@@ -151,6 +160,49 @@ function sortItems(items: CardItem[], sort: HomeSort): CardItem[] {
     return (b.lastModified ?? 0) - (a.lastModified ?? 0);
   });
 }
+
+// ---------------------------------------------------------------------------
+// Type chips & pane width
+// ---------------------------------------------------------------------------
+
+/** The cell kinds a notebook contains, derived from its preview payload. */
+type ChipKind = "py" | "sql" | "md" | "viz";
+
+function deriveChips(preview: NotebookPreviewResponse | null): ChipKind[] {
+  if (!preview) {
+    return [];
+  }
+  const chips: ChipKind[] = [];
+  if (preview.cells.some((c) => c.cellType === "python")) {chips.push("py");}
+  if (preview.cells.some((c) => c.cellType === "sql")) {chips.push("sql");}
+  if (preview.cells.some((c) => c.cellType === "markdown")) {chips.push("md");}
+  if (preview.cells.some((c) => c.visual !== "none")) {chips.push("viz");}
+  return chips;
+}
+
+const CHIP_CLASS: Record<ChipKind, string> = {
+  py: "skies-type-chip skies-type-chip--py",
+  sql: "skies-type-chip skies-type-chip--sql",
+  md: "skies-type-chip skies-type-chip--md",
+  viz: "skies-type-chip skies-type-chip--viz",
+};
+
+const TypeChips: React.FC<{ chips: ChipKind[]; max?: number }> = ({
+  chips,
+  max = 4,
+}) =>
+  chips.length === 0 ? null : (
+    <div className="flex items-center gap-1">
+      {chips.slice(0, max).map((chip) => (
+        <span key={chip} className={CHIP_CLASS[chip]}>
+          {chip}
+        </span>
+      ))}
+    </div>
+  );
+
+/** The main scroll pane's width bucket, for the list table's column collapse. */
+const PaneWidthContext = createContext<PaneWidth>("wide");
 
 // ---------------------------------------------------------------------------
 // Page shell
@@ -326,6 +378,10 @@ const HomeSidebar: React.FC<{
   counts: { all: number; recent: number; running: number };
 }> = ({ filter, setFilter, counts }) => {
   const [{ collections }, setCollections] = useAtom(collectionsAtom);
+  // Which collection is being renamed, tracked by identity (not by name) so a
+  // freshly-created collection opens in edit mode without every other
+  // collection that happens to share the default name doing the same.
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const addCollection = () => {
     const { state, id } = createCollection(
@@ -334,6 +390,7 @@ const HomeSidebar: React.FC<{
     );
     setCollections(state);
     setFilter({ kind: "collection", id });
+    setEditingId(id);
   };
 
   return (
@@ -413,6 +470,9 @@ const HomeSidebar: React.FC<{
             active={
               filter.kind === "collection" && filter.id === collection.id
             }
+            isEditing={editingId === collection.id}
+            onStartEditing={() => setEditingId(collection.id)}
+            onStopEditing={() => setEditingId(null)}
             onSelect={() =>
               setFilter({ kind: "collection", id: collection.id })
             }
@@ -477,14 +537,25 @@ const NavRow: React.FC<{
 const CollectionRow: React.FC<{
   collection: NotebookCollection;
   active: boolean;
+  isEditing: boolean;
+  onStartEditing: () => void;
+  onStopEditing: () => void;
   onSelect: () => void;
   onRename: (name: string) => void;
   onDelete: () => void;
-}> = ({ collection, active, onSelect, onRename, onDelete }) => {
-  const [editing, setEditing] = useState(collection.name === "Untitled collection");
+}> = ({
+  collection,
+  active,
+  isEditing,
+  onStartEditing,
+  onStopEditing,
+  onSelect,
+  onRename,
+  onDelete,
+}) => {
   const [draft, setDraft] = useState(collection.name);
 
-  if (editing) {
+  if (isEditing) {
     return (
       <input
         // eslint-disable-next-line jsx-a11y/no-autofocus
@@ -492,14 +563,14 @@ const CollectionRow: React.FC<{
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         onBlur={() => {
-          setEditing(false);
+          onStopEditing();
           if (draft.trim()) {onRename(draft.trim());}
         }}
         onKeyDown={(e) => {
           if (e.key === "Enter") {e.currentTarget.blur();}
           if (e.key === "Escape") {
             setDraft(collection.name);
-            setEditing(false);
+            onStopEditing();
           }
         }}
         className="mx-1 rounded-[4px] border border-input bg-card px-2 py-1 text-[13px] outline-none focus:border-primary"
@@ -541,7 +612,7 @@ const CollectionRow: React.FC<{
           <DropdownMenuItem
             onSelect={() => {
               setDraft(collection.name);
-              setEditing(true);
+              onStartEditing();
             }}
           >
             Rename
@@ -649,16 +720,43 @@ const MainPane: React.FC<{
     sort,
   ]);
 
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const paneWidth = useContainerWidth(bodyRef);
+
+  const allCount = workspaceCards.length;
+  const runningCount = runningCards.length;
+
+  // Lowercase mono word echoing the active filter, seaming the masthead to
+  // the body; append the query when searching.
+  const filterWord =
+    filter.kind === "collection"
+      ? (activeCollection?.name ?? "collection").toLowerCase()
+      : filter.kind;
+  const mastheadLabel = search ? `results · "${search}"` : filterWord;
+
+  // Surface pinned + running zones above the main list only on the default,
+  // unsearched browsing surfaces; every other view stays a flat surface.
+  const zoned = !search && (filter.kind === "all" || filter.kind === "recent");
+
   return (
     <main className="relative z-10 flex min-w-0 flex-1 flex-col">
-      <header className="flex shrink-0 flex-col gap-3 px-6 pt-5 pb-3">
+      <header className="skies-masthead relative z-10 flex shrink-0 flex-col px-6 pt-5 pb-3">
+        {/* Row 1 — masthead meta */}
         <div className="flex items-baseline gap-3">
           <p className="skies-kicker">{greeting()}</p>
+          <span className="ml-auto font-mono text-[10px] uppercase tabular-nums text-[var(--foreground-dim)]">
+            {allCount} notebooks
+            {runningCount > 0 && ` · ${runningCount} running`}
+          </span>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <h2 className="font-[var(--heading-font)] text-xl font-bold tracking-[-0.012em] text-foreground">
+        {/* Row 2 — title + controls */}
+        <div className="mt-1 flex items-end gap-3">
+          <h2 className="font-[var(--heading-font)] text-[2.25rem] font-bold leading-[1.2] tracking-[-0.012em] text-foreground">
             {title}
           </h2>
+          <span className="mb-1 font-mono text-[15px] tabular-nums text-[var(--foreground-dim)]">
+            ({items.length})
+          </span>
           <div className="ml-auto flex items-center gap-2">
             <div className="relative">
               <SearchIcon
@@ -675,8 +773,8 @@ const MainPane: React.FC<{
                     e.currentTarget.blur();
                   }
                 }}
-                placeholder="Search…"
-                className="mb-0 h-8 w-56 border-border pl-8 text-sm"
+                placeholder="filter index…"
+                className="mb-0 h-8 w-56 border-border pl-8 font-mono text-[12px] placeholder:text-[var(--foreground-dim)]"
               />
             </div>
             <SortToggle sort={sort} onChange={setSort} />
@@ -695,9 +793,29 @@ const MainPane: React.FC<{
             </button>
           </div>
         </div>
+        {/* Row 3 — masthead running-header (seams header to body) */}
+        <div className="mt-3">
+          <Header
+            control={
+              hasMore && filter.kind === "all" ? (
+                <span
+                  className="font-mono text-[10px] uppercase tabular-nums text-[var(--foreground-dim)]"
+                  title={`Showing the first ${fileCount} notebooks; your workspace has more.`}
+                >
+                  first {fileCount} shown
+                </span>
+              ) : undefined
+            }
+          >
+            {mastheadLabel}
+          </Header>
+        </div>
       </header>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-10">
+      <div
+        ref={bodyRef}
+        className="min-h-0 flex-1 overflow-y-auto px-6 pb-10 pt-4"
+      >
         {error ? (
           <Banner kind="danger" className="rounded p-4">
             {prettyError(error)}
@@ -705,22 +823,113 @@ const MainPane: React.FC<{
         ) : isPending ? (
           <Spinner centered={true} size="large" className="mt-10" />
         ) : (
-          <>
-            {hasMore && filter.kind === "all" && (
-              <Banner kind="warn" className="mb-3 rounded p-3 text-xs">
-                Showing the first {fileCount} files. Your workspace has more.
-              </Banner>
-            )}
-            <NotebookCollectionView
-              items={items}
+          <PaneWidthContext value={paneWidth}>
+            <ZoneRouter
+              zoned={zoned}
               filter={filter}
               view={view}
               search={search}
+              items={items}
+              runningCards={runningCards}
             />
-          </>
+          </PaneWidthContext>
         )}
       </div>
     </main>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Zone router (pinned + running shelves above the main list)
+// ---------------------------------------------------------------------------
+
+/** Resolve pinned paths into cards, enriching from the running set when known. */
+function resolvePinnedItems(
+  pinned: string[],
+  runningNotebooks: Map<string, MarimoFile>,
+): CardItem[] {
+  const known = new Map<string, CardItem>();
+  for (const [path, file] of runningNotebooks) {
+    known.set(path, marimoFileToCard(file));
+  }
+  return pinned.map(
+    (path): CardItem =>
+      known.get(path) ?? { path, name: path.split("/").pop() ?? path },
+  );
+}
+
+const ZoneRouter: React.FC<{
+  zoned: boolean;
+  filter: HomeFilter;
+  view: "grid" | "list";
+  search: string;
+  items: CardItem[];
+  runningCards: CardItem[];
+}> = ({ zoned, filter, view, search, items, runningCards }) => {
+  const pinned = useAtomValue(pinnedNotebooksAtom);
+  const { runningNotebooks } = use(RunningNotebooksContext);
+
+  // Recomputed only when the pinned or running set changes — not on every
+  // 10s running-poll re-render (ZoneRouter re-renders when the poll nonce
+  // changes even though pinned/running are referentially identical).
+  const pinnedItems = useMemo(
+    () => resolvePinnedItems(pinned, runningNotebooks),
+    [pinned, runningNotebooks],
+  );
+
+  const main = (
+    <NotebookCollectionView
+      items={items}
+      filter={filter}
+      view={view}
+      search={search}
+    />
+  );
+
+  if (!zoned) {
+    return main;
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      {pinnedItems.length > 0 && (
+        <section>
+          <Header>pinned</Header>
+          <div className="mt-3">
+            <CardGrid
+              items={pinnedItems}
+              runningNotebooks={runningNotebooks}
+              pinned={pinned}
+            />
+          </div>
+        </section>
+      )}
+      {runningCards.length > 0 && (
+        <section>
+          <Header>running</Header>
+          <div className="mt-3">
+            <CardList
+              items={runningCards}
+              runningNotebooks={runningNotebooks}
+              pinned={pinned}
+              showHeader={false}
+            />
+          </div>
+        </section>
+      )}
+      <section>
+        {(pinnedItems.length > 0 || runningCards.length > 0) && (
+          <Header>{filter.kind === "recent" ? "all recent" : "all notebooks"}</Header>
+        )}
+        <div
+          className={
+            pinnedItems.length > 0 || runningCards.length > 0 ? "mt-3" : ""
+          }
+        >
+          {main}
+        </div>
+      </section>
+    </div>
   );
 };
 
@@ -797,12 +1006,15 @@ const NotebookCollectionView: React.FC<{
   }
 
   if (items.length === 0) {
+    const title = search
+      ? `No entries match “${search}”.`
+      : filter.kind === "running"
+        ? "No notebooks running."
+        : filter.kind === "collection"
+          ? "No notebooks in this collection yet."
+          : "No notebooks in this index yet.";
     return (
-      <EmptyState
-        message={
-          search ? "No notebooks match your search." : "No notebooks here yet."
-        }
-      />
+      <EmptyState title={title} showNew={!search && filter.kind === "all"} />
     );
   }
 
@@ -821,10 +1033,26 @@ const NotebookCollectionView: React.FC<{
   );
 };
 
-const EmptyState: React.FC<{ message: string }> = ({ message }) => (
-  <div className="flex h-full min-h-40 flex-col items-center justify-center gap-2 text-[var(--foreground-dim)]">
-    <LayoutGridIcon size={22} strokeWidth={1.5} />
-    <p className="text-sm">{message}</p>
+const EmptyState: React.FC<{ title: string; showNew?: boolean }> = ({
+  title,
+  showNew,
+}) => (
+  <div className="skies-paper skies-ticks mx-auto mt-6 flex max-w-md flex-col items-center gap-3 px-8 py-10 text-center">
+    <p className="skies-kicker">empty index</p>
+    <p className="font-[var(--heading-font)] text-[15px] text-foreground">
+      {title}
+    </p>
+    {showNew && (
+      <a
+        className="skies-cta mt-1"
+        href={newNotebookURL().toString()}
+        target="_blank"
+        rel="noreferrer"
+      >
+        <PlusIcon size={14} strokeWidth={2} />
+        New notebook
+      </a>
+    )}
   </div>
 );
 
@@ -833,7 +1061,7 @@ const CardGrid: React.FC<{
   runningNotebooks: Map<string, MarimoFile>;
   pinned: string[];
 }> = ({ items, runningNotebooks, pinned }) => (
-  <div className="grid grid-cols-[repeat(auto-fill,minmax(232px,1fr))] gap-4">
+  <div className="grid grid-cols-[repeat(auto-fill,minmax(216px,1fr))] gap-3">
     {items.map((item) => (
       <NotebookCard
         key={item.path}
@@ -845,22 +1073,92 @@ const CardGrid: React.FC<{
   </div>
 );
 
+/** Column template shared by the list header and its rows, per pane width. */
+function listTemplate(paneWidth: PaneWidth): string {
+  switch (paneWidth) {
+    case "narrow":
+      return "grid-cols-[minmax(0,1fr)_auto_auto]";
+    case "mid":
+      return "grid-cols-[minmax(0,2.4fr)_auto_auto_auto]";
+    default:
+      return "grid-cols-[minmax(0,2.4fr)_minmax(0,3fr)_auto_auto_auto]";
+  }
+}
+
+const SortHeader: React.FC<{
+  label: string;
+  caret: string;
+  active: boolean;
+  onClick: () => void;
+  className?: string;
+}> = ({ label, caret, active, onClick, className }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={cn(
+      "flex items-center gap-1 uppercase hover:text-foreground",
+      active && "text-foreground",
+      className,
+    )}
+  >
+    {label}
+    {active && <span aria-hidden={true}>{caret}</span>}
+  </button>
+);
+
 const CardList: React.FC<{
   items: CardItem[];
   runningNotebooks: Map<string, MarimoFile>;
   pinned: string[];
-}> = ({ items, runningNotebooks, pinned }) => (
-  <div className="skies-paper flex flex-col divide-y divide-border overflow-hidden">
-    {items.map((item) => (
-      <NotebookListItem
-        key={item.path}
-        item={item}
-        isRunning={runningNotebooks.has(item.path)}
-        isPinned={pinned.includes(item.path)}
-      />
-    ))}
-  </div>
-);
+  showHeader?: boolean;
+}> = ({ items, runningNotebooks, pinned, showHeader = true }) => {
+  const paneWidth = use(PaneWidthContext);
+  const [sort, setSort] = useAtom(homeSortAtom);
+  const template = cn("grid items-center gap-4", listTemplate(paneWidth));
+  const showPath = paneWidth === "wide";
+  const showCells = paneWidth !== "narrow";
+
+  return (
+    <div className="skies-paper">
+      {showHeader && (
+        <div
+          className={cn(
+            template,
+            "sticky top-0 z-10 border-b border-border bg-card px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.06em] text-[var(--foreground-dim)]",
+          )}
+        >
+          <SortHeader
+            label="name"
+            caret="↑"
+            active={sort === "name"}
+            onClick={() => setSort("name")}
+          />
+          {showPath && <span>path</span>}
+          {showCells && <span>cells</span>}
+          <SortHeader
+            label="modified"
+            caret="↓"
+            active={sort === "recent"}
+            onClick={() => setSort("recent")}
+            className="justify-end text-right"
+          />
+          <span />
+        </div>
+      )}
+      {items.map((item) => (
+        <NotebookListItem
+          key={item.path}
+          item={item}
+          isRunning={runningNotebooks.has(item.path)}
+          isPinned={pinned.includes(item.path)}
+          template={template}
+          showPath={showPath}
+          showCells={showCells}
+        />
+      ))}
+    </div>
+  );
+};
 
 // ---------------------------------------------------------------------------
 // Pinned view (self-contained: resolves the pinned set across all sources)
@@ -873,22 +1171,17 @@ const PinnedView: React.FC<{ view: "grid" | "list"; search: string }> = ({
   const pinned = useAtomValue(pinnedNotebooksAtom);
   const { runningNotebooks } = use(RunningNotebooksContext);
 
-  const items: CardItem[] = useMemo(() => {
-    const known = new Map<string, CardItem>();
-    for (const [path, file] of runningNotebooks) {
-      known.set(path, marimoFileToCard(file));
-    }
-    return pinned
-      .map(
-        (path): CardItem =>
-          known.get(path) ?? { path, name: path.split("/").pop() ?? path },
-      )
-      .filter((c) => matchesSearch(c, search));
-  }, [pinned, runningNotebooks, search]);
+  const items: CardItem[] = useMemo(
+    () =>
+      resolvePinnedItems(pinned, runningNotebooks).filter((c) =>
+        matchesSearch(c, search),
+      ),
+    [pinned, runningNotebooks, search],
+  );
 
   if (items.length === 0) {
     return (
-      <EmptyState message="Pin notebooks from a card's ··· menu to keep them here." />
+      <EmptyState title="Pin entries from a card's ··· menu to keep them here." />
     );
   }
 
@@ -909,23 +1202,29 @@ const NotebookCard: React.FC<{
   isPinned: boolean;
 }> = ({ item, isRunning, isPinned }) => {
   const { locale } = useLocale();
-  const isMarkdown = item.path.endsWith(".md") || item.path.endsWith(".qmd");
+  const previewRef = useRef<HTMLDivElement>(null);
+  const { preview, status } = useNotebookPreview(item.path, previewRef);
+  const chips = deriveChips(preview);
 
   return (
     // The anchor is an inset click-target so the pin/menu buttons can sit
     // ABOVE it as siblings (nesting buttons inside an <a> is invalid HTML).
-    <div className="group relative flex flex-col overflow-hidden rounded-[6px] border border-border bg-card transition-all hover:-translate-y-0.5 hover:border-[var(--foreground-dim)] hover:shadow-md">
+    <div className="skies-ticks group relative flex flex-col rounded-[var(--radius)] border border-border bg-card transition-[transform,border-color,box-shadow] duration-150 ease-out hover:-translate-y-px hover:border-[var(--foreground-dim)] hover:shadow-sm motion-reduce:transition-none motion-reduce:hover:transform-none">
       <a
         href={hrefFor(item)}
         target={tabTarget(item.initializationId || item.path)}
         aria-label={item.name}
         className="absolute inset-0 z-0"
       />
-      <div className="pointer-events-none relative aspect-[16/9] overflow-hidden">
-        <NotebookCover
+      <div
+        ref={previewRef}
+        className="pointer-events-none relative aspect-[4/3] overflow-hidden rounded-t-[var(--radius)] border-b border-border"
+      >
+        <NotebookMiniPreview
           path={item.path}
           name={item.name}
-          className="h-full w-full"
+          preview={preview}
+          status={status}
         />
         {isRunning && (
           <span className="skies-status absolute left-2 top-2 backdrop-blur-sm">
@@ -938,7 +1237,8 @@ const NotebookCard: React.FC<{
         <PinButton path={item.path} isPinned={isPinned} onCover={true} />
         <CardMenu item={item} isPinned={isPinned} onCover={true} />
       </div>
-      <div className="pointer-events-none relative flex flex-col gap-0.5 px-3 py-2.5">
+      <div className="pointer-events-none relative flex flex-col gap-1 px-2.5 py-2">
+        {/* Line A — title */}
         <div className="flex items-center gap-1.5">
           <span className="truncate text-[13px] font-medium text-foreground">
             {item.name}
@@ -951,24 +1251,23 @@ const NotebookCard: React.FC<{
             />
           )}
         </div>
-        <div className="flex items-center justify-between gap-2">
-          <span
-            title={item.path}
-            className="truncate font-mono text-[10px] text-[var(--foreground-dim)]"
-          >
+        {/* Line B — catalog line */}
+        <div className="flex items-center gap-2 font-mono text-[10px] tabular-nums text-[var(--foreground-dim)]">
+          <span title={item.path} className="truncate">
             {item.path}
           </span>
           {!!item.lastModified && (
-            <span className="shrink-0 font-mono text-[10px] text-[var(--foreground-dim)]">
+            <span className="ml-auto shrink-0">
               {timeAgo(item.lastModified * 1000, locale)}
             </span>
           )}
-          {isMarkdown && (
-            <span className="shrink-0 font-mono text-[10px] text-[var(--foreground-dim)]">
-              md
-            </span>
-          )}
         </div>
+        {/* Line C — type chips */}
+        {chips.length > 0 && (
+          <div className="mt-0.5">
+            <TypeChips chips={chips} max={4} />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -978,10 +1277,23 @@ const NotebookListItem: React.FC<{
   item: CardItem;
   isRunning: boolean;
   isPinned: boolean;
-}> = ({ item, isRunning, isPinned }) => {
+  template: string;
+  showPath: boolean;
+  showCells: boolean;
+}> = ({ item, isRunning, isPinned, template, showPath, showCells }) => {
   const { locale } = useLocale();
+  const rowRef = useRef<HTMLDivElement>(null);
+  const { preview, status } = useNotebookPreview(item.path, rowRef);
+  const chips = deriveChips(preview);
+
   return (
-    <div className="group relative flex items-center gap-3 px-3 py-2 transition-colors hover:bg-[var(--hover-wash)]">
+    <div
+      ref={rowRef}
+      className={cn(
+        template,
+        "group relative border-b border-border px-3 py-2 transition-colors last:border-b-0 hover:bg-[var(--hover-wash)]",
+      )}
+    >
       {/* Inset anchor click-target; interactive buttons sit above it. */}
       <a
         href={hrefFor(item)}
@@ -989,51 +1301,62 @@ const NotebookListItem: React.FC<{
         aria-label={item.name}
         className="absolute inset-0 z-0"
       />
-      <div className="pointer-events-none relative h-8 w-12 shrink-0 overflow-hidden rounded-[4px] border border-border">
-        <NotebookCover
-          path={item.path}
-          name={item.name}
-          className="h-full w-full"
-        />
-      </div>
-      <div className="pointer-events-none relative flex min-w-0 flex-1 flex-col">
-        <span className="flex items-center gap-1.5 truncate text-[13px] font-medium text-foreground">
+      {/* NAME */}
+      <div className="pointer-events-none relative flex min-w-0 items-center gap-2">
+        <div className="relative h-5 w-5 shrink-0 overflow-hidden rounded-[3px] border border-border">
+          <NotebookMiniPreview path={item.path} name={item.name} compact={true} />
+        </div>
+        <span className="truncate text-[13px] font-medium text-foreground">
           {item.name}
-          {isPinned && (
-            <PinIcon
-              size={11}
-              className="shrink-0 text-[var(--gold)]"
-              fill="currentColor"
-            />
-          )}
-          {isRunning && (
-            <span className="skies-status">
-              <i className="skies-status__dot skies-ping" />
-              live
-            </span>
-          )}
         </span>
+        {isPinned && (
+          <PinIcon
+            size={11}
+            className="shrink-0 text-[var(--gold)]"
+            fill="currentColor"
+          />
+        )}
+        {isRunning && (
+          <span className="skies-status shrink-0">
+            <i className="skies-status__dot skies-ping" />
+            live
+          </span>
+        )}
+      </div>
+      {/* PATH */}
+      {showPath && (
         <span
           title={item.path}
-          className="truncate font-mono text-[10px] text-[var(--foreground-dim)]"
+          className="pointer-events-none relative truncate font-mono text-[11px] tabular-nums text-[var(--foreground-dim)]"
         >
           {item.path}
         </span>
-      </div>
-      {!!item.lastModified && (
-        <span className="pointer-events-none relative shrink-0 font-mono text-[10.5px] text-[var(--foreground-dim)]">
-          {timeAgo(item.lastModified * 1000, locale)}
-        </span>
       )}
+      {/* CELLS / TYPE */}
+      {showCells && (
+        <div className="pointer-events-none relative flex items-center gap-1">
+          {status === "ready" && preview && preview.totalCells > 0 && (
+            <span className="font-mono text-[10px] tabular-nums text-[var(--foreground-dim)]">
+              {preview.totalCells}c
+            </span>
+          )}
+          <TypeChips chips={chips} max={3} />
+        </div>
+      )}
+      {/* MODIFIED */}
+      <span className="pointer-events-none relative shrink-0 text-right font-mono text-[10.5px] tabular-nums text-[var(--foreground-dim)]">
+        {item.lastModified ? timeAgo(item.lastModified * 1000, locale) : ""}
+      </span>
+      {/* ACTIONS */}
       <div className="relative z-10 flex shrink-0 items-center gap-1">
         <PinButton path={item.path} isPinned={isPinned} onCover={false} />
         <CardMenu item={item} isPinned={isPinned} onCover={false} />
+        <ArrowUpRightIcon
+          size={15}
+          strokeWidth={1.5}
+          className="pointer-events-none shrink-0 text-[var(--foreground-dim)] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground"
+        />
       </div>
-      <ArrowUpRightIcon
-        size={15}
-        strokeWidth={1.5}
-        className="pointer-events-none relative shrink-0 text-[var(--foreground-dim)] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground"
-      />
     </div>
   );
 };
@@ -1059,7 +1382,7 @@ const PinButton: React.FC<{
       className={cn(
         "flex h-6 w-6 items-center justify-center rounded-[4px]",
         onCover
-          ? "bg-[var(--nav-solid)]/70 text-white backdrop-blur-sm hover:bg-[var(--nav-solid)]"
+          ? "border border-border bg-card/80 text-foreground backdrop-blur-sm hover:bg-card"
           : cn(
               "shrink-0",
               isPinned
@@ -1099,7 +1422,7 @@ const CardMenu: React.FC<{
           className={cn(
             "flex h-6 w-6 items-center justify-center rounded-[4px]",
             onCover
-              ? "bg-[var(--nav-solid)]/70 text-white backdrop-blur-sm hover:bg-[var(--nav-solid)]"
+              ? "border border-border bg-card/80 text-foreground backdrop-blur-sm hover:bg-card"
               : "shrink-0 text-[var(--foreground-dim)] opacity-0 group-hover:opacity-100 hover:text-foreground",
           )}
         >

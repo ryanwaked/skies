@@ -266,6 +266,7 @@ export class IslandsPyodideBridge implements RunRequests, EditRequests {
   getRecentFiles = throwNotImplemented;
   getWorkspaceFiles = throwNotImplemented;
   getRunningNotebooks = throwNotImplemented;
+  getNotebookPreview = throwNotImplemented;
   shutdownSession = throwNotImplemented;
   listSecretKeys = throwNotImplemented;
   writeSecret = throwNotImplemented;

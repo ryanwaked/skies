@@ -109,6 +109,35 @@ export type UsageResponse =
 export type WorkspaceFilesRequest = schemas["WorkspaceFilesRequest"];
 export type WorkspaceFilesResponse = schemas["WorkspaceFilesResponse"];
 export type RunningNotebooksResponse = schemas["RunningNotebooksResponse"];
+
+/**
+ * A lightweight, execution-free structural preview of a notebook's top, used
+ * to render a "mini mockup" thumbnail on the home page. Hand-declared (rather
+ * than generated from the OpenAPI schema) so the home page can consume the
+ * `/api/home/notebook_preview` endpoint without regenerating the API client.
+ */
+export type NotebookPreviewCellType = "markdown" | "python" | "sql";
+export type NotebookPreviewVisual = "chart" | "table" | "widget" | "none";
+export interface NotebookPreviewCell {
+  cellType: NotebookPreviewCellType;
+  visual: NotebookPreviewVisual;
+  /** Markdown cells: rendered text (leading `#` headings kept), truncated. */
+  markdown?: string | null;
+  /** Code/sql cells: the first few source lines, each truncated. */
+  lines: string[];
+}
+export interface NotebookPreviewRequest {
+  /** Workspace file key (path relative to the workspace root, or absolute). */
+  file: string;
+}
+export interface NotebookPreviewResponse {
+  /** The notebook's title (its first markdown heading), if any. */
+  title: string | null;
+  /** The first several cells, in order. */
+  cells: NotebookPreviewCell[];
+  /** Total number of cells in the notebook. */
+  totalCells: number;
+}
 export type OpenTutorialRequest = schemas["OpenTutorialRequest"];
 export type TutorialId = OpenTutorialRequest["tutorialId"];
 export type InvokeAiToolRequest = schemas["InvokeAiToolRequest"];
@@ -194,6 +223,9 @@ export interface EditRequests {
     request: WorkspaceFilesRequest,
   ) => Promise<WorkspaceFilesResponse>;
   getRunningNotebooks: () => Promise<RunningNotebooksResponse>;
+  getNotebookPreview: (
+    request: NotebookPreviewRequest,
+  ) => Promise<NotebookPreviewResponse>;
   shutdownSession: (
     request: ShutdownSessionRequest,
   ) => Promise<RunningNotebooksResponse>;

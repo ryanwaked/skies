@@ -1,0 +1,95 @@
+# syntax=docker/dockerfile:1.12
+#
+# Skies — a customized marimo fork — packaged for Linux/Docker (e.g. zimaOS).
+#
+# WHY THIS EXISTS: the stock docker/Dockerfile runs `uv pip install marimo` from
+# PyPI, so an image built from it contains NONE of the Skies customizations
+# (custom frontend, home page, secrets scopes, default-directory behavior, ...).
+# This Dockerfile builds a wheel from THIS source tree, so the fork ships inside
+# the image. marimo is pure Python, so the resulting wheel is architecture
+# independent and runs on x86_64 and arm64 alike.
+#
+# PREREQUISITE — build the frontend first so marimo/_static exists on disk:
+#     NODE_ENV=production ./scripts/buildfrontend.sh
+# marimo/_static is git-ignored but IS part of the Docker build context and is
+# baked into the wheel. The build fails early, with a clear message, if it is
+# missing.
+#
+# BUILD (run from the repository root):
+#     NODE_ENV=production ./scripts/buildfrontend.sh
+#     docker build -f docker/Dockerfile.skies -t skies:latest .
+#
+# RUN (persist notebooks in a named volume; serve on http://<host>:8080):
+#     docker run --rm -p 8080:8080 -v skies-data:/data skies:latest
+#
+# See docker/README-skies.md for zimaOS / docker-compose usage and security notes.
+
+# --- Build stage: produce the fork wheel (Skies frontend + backend) ----------
+FROM python:3.13-slim AS builder
+
+# uv provides the build backend (uv_build) and fast installs.
+COPY --from=ghcr.io/astral-sh/uv:0.10.9 /uv /uvx /bin/
+
+WORKDIR /src
+
+# Only the files uv_build needs to package the `marimo/` module.
+COPY pyproject.toml README.md LICENSE ./
+COPY marimo ./marimo
+
+# Fail early, with an actionable message, if the frontend was not built.
+RUN test -f marimo/_static/index.html || ( \
+      echo "" >&2; \
+      echo "ERROR: marimo/_static is missing or empty." >&2; \
+      echo "Build the frontend before 'docker build':" >&2; \
+      echo "    NODE_ENV=production ./scripts/buildfrontend.sh" >&2; \
+      echo "" >&2; \
+      exit 1 )
+
+RUN uv build --wheel --out-dir /dist .
+
+# --- Runtime stage: slim image with only the installed package ---------------
+FROM python:3.13-slim AS runtime
+
+LABEL org.opencontainers.image.title="Skies"
+LABEL org.opencontainers.image.description="Skies — a customized marimo reactive notebook"
+LABEL org.opencontainers.image.source="https://github.com/marimo-team/marimo"
+
+COPY --from=ghcr.io/astral-sh/uv:0.10.9 /uv /uvx /bin/
+
+ENV MARIMO_SKIP_UPDATE_CHECK=1 \
+    UV_SYSTEM_PYTHON=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    PORT=8080 \
+    HOST=0.0.0.0
+
+# Non-root runtime user.
+RUN useradd -m appuser
+
+WORKDIR /app
+
+COPY --from=builder /dist/*.whl /tmp/
+
+# Install the fork wheel BY PATH (guarantees this build is used, never a
+# same-versioned release from PyPI), plus the SQL stack and common data /
+# plotting libraries so Skies' demo notebooks (charts, SQL cells, dataframes)
+# run out of the box. The three SQL pins mirror the `[sql]` extra in
+# pyproject.toml. Add more here (e.g. scikit-learn) or install per-notebook.
+RUN WHEEL="$(ls /tmp/marimo-*.whl)" \
+ && uv pip install --no-cache-dir "${WHEEL}" \
+      "duckdb>=1.0.0" "polars[pyarrow]>=1.9.0" "sqlglot[c]>=26.8.0" \
+      altair pandas numpy \
+ && rm -f /tmp/*.whl \
+ && mkdir -p /data \
+ && chown -R appuser:appuser /data
+
+EXPOSE 8080
+STOPSIGNAL SIGTERM
+VOLUME ["/data"]
+USER appuser
+
+# --headless: never try to launch a browser inside the container.
+# --no-token:  convenient on a trusted LAN. REMOVE it (or front the container
+#              with a reverse proxy that adds authentication) if this port is
+#              reachable from an untrusted network.
+CMD ["sh", "-c", "exec marimo edit --no-token --headless -p \"$PORT\" --host \"$HOST\" /data"]

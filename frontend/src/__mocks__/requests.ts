@@ -59,6 +59,9 @@ export const MockRequestClient = {
       getRecentFiles: vi.fn().mockResolvedValue({ files: [] }),
       getWorkspaceFiles: vi.fn().mockResolvedValue({ files: [] }),
       getRunningNotebooks: vi.fn().mockResolvedValue({ files: [] }),
+      getNotebookPreview: vi
+        .fn()
+        .mockResolvedValue({ title: null, cells: [], totalCells: 0 }),
       shutdownSession: vi.fn().mockResolvedValue({}),
       exportAsHTML: vi.fn().mockResolvedValue({ html: "" }),
       exportAsIPYNB: vi.fn().mockResolvedValue(""),

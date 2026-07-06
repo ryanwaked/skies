@@ -624,6 +624,7 @@ export class PyodideBridge implements RunRequests, EditRequests {
   getRecentFiles = throwNotImplemented;
   getWorkspaceFiles = throwNotImplemented;
   getRunningNotebooks = throwNotImplemented;
+  getNotebookPreview = throwNotImplemented;
   shutdownSession = throwNotImplemented;
   exportAsIPYNB = throwNotImplemented;
   exportAsPDF = throwNotImplemented;

@@ -1439,6 +1439,45 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/home/notebook_preview": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["NotebookPreviewRequest"];
+        };
+      };
+      responses: {
+        /** @description A lightweight structural preview of a notebook */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["NotebookPreviewResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/home/recent_files": {
     parameters: {
       query?: never;
@@ -5650,6 +5689,29 @@ export interface components {
         | components["schemas"]["SetConfig"]
       )[];
     };
+    /** NotebookPreviewCell */
+    NotebookPreviewCell: {
+      cellType: string;
+      /** @default [] */
+      lines?: string[];
+      /** @default null */
+      markdown?: string | null;
+      /** @default none */
+      visual?: string;
+    };
+    /** NotebookPreviewRequest */
+    NotebookPreviewRequest: {
+      file: string;
+    };
+    /** NotebookPreviewResponse */
+    NotebookPreviewResponse: {
+      /** @default [] */
+      cells?: components["schemas"]["NotebookPreviewCell"][];
+      /** @default null */
+      title?: string | null;
+      /** @default 0 */
+      totalCells?: number;
+    };
     /**
      * OpenAiConfig
      * @description Configuration options for OpenAI or OpenAI-compatible services.
@@ -6242,9 +6304,14 @@ export interface components {
      *             inside its static assets directory.
      *         - `disable_file_downloads`: if true, the file download button will be
      *             hidden in the file explorer.
+     *         - `default_notebook_directory`: the directory `marimo edit` opens by
+     *             default when no file or directory is given. Empty means "use the
+     *             built-in default" (the user's Desktop, falling back to the current
+     *             working directory).
      */
     ServerConfig: {
       browser: "default" | string;
+      default_notebook_directory?: string;
       disable_file_downloads?: boolean;
       follow_symlink: boolean;
     };

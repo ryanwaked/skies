@@ -248,11 +248,16 @@ class ServerConfig(TypedDict):
         inside its static assets directory.
     - `disable_file_downloads`: if true, the file download button will be
         hidden in the file explorer.
+    - `default_notebook_directory`: the directory `marimo edit` opens by
+        default when no file or directory is given. Empty means "use the
+        built-in default" (the user's Desktop, falling back to the current
+        working directory).
     """
 
     browser: Literal["default"] | str
     follow_symlink: bool
     disable_file_downloads: NotRequired[bool]
+    default_notebook_directory: NotRequired[str]
 
 
 @dataclass
@@ -749,6 +754,7 @@ DEFAULT_CONFIG: MarimoConfig = {
     "server": {
         "browser": "default",
         "follow_symlink": False,
+        "default_notebook_directory": "",
     },
     "language_servers": {
         "pylsp": {

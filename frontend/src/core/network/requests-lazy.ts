@@ -100,6 +100,7 @@ const ACTIONS: Record<keyof AllRequests, Action> = {
   getRecentFiles: "startConnection",
   getWorkspaceFiles: "startConnection",
   getRunningNotebooks: "startConnection",
+  getNotebookPreview: "startConnection",
   shutdownSession: "startConnection",
   openTutorial: "startConnection",
   getUsageStats: "waitForConnectionOpen",
