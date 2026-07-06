@@ -115,7 +115,11 @@ body,
   right: 10px;
   bottom: -1px;
   height: 2px;
-  background: var(--trace-gradient);
+
+  /* The light-mode copper (#a8542c, a dark brown) muddied the copper→blue
+     trace through a grey midpoint. The underline uses the brighter
+     dark-mode trace pair in BOTH themes so it stays vivid on paper. */
+  background: linear-gradient(90deg, #d98552, #5fa6ef);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -659,6 +663,41 @@ body,
   backdrop-filter: blur(8px);
 }
 
+/* ---------------- NOTEBOOK MASTHEAD ----------------
+   The in-canvas title block above the first cell (Hex's project header in
+   the Skies voice): kicker, Source Serif display title, mono meta row.
+   Bottom padding stays small — the first section heading brings its own
+   air (see the notebook rhythm rules in Cell.css). */
+.skies-nb-masthead {
+  padding: 22px 0 0;
+}
+
+.skies-nb-masthead__title {
+  font-family: var(--heading-font);
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.012em;
+  line-height: 1.15;
+  color: var(--foreground);
+  margin-top: 10px;
+  text-wrap: balance;
+}
+
+.skies-nb-masthead__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+  font-family: var(--monospace-font);
+  font-size: 11.5px;
+  color: var(--foreground-dim);
+}
+
+.skies-nb-masthead__meta .dot {
+  color: var(--border);
+}
+
 /* ---------------- SECTION HEADS ----------------
    The site's doc-label: mono uppercase label with a trailing hairline
    rule; pair with .skies-kicker for the copper slashes. */
@@ -694,7 +733,9 @@ body,
    in the sky-blue --ring token, hugging the element. Components that need a
    stronger focus (e.g. the design-system <Button>) override this locally. */
 :focus-visible {
-  outline: 1px solid var(--ring);
+  /* Full-strength primary (not the 50%-alpha --ring): keyboard focus must
+     clear 3:1 non-text contrast on every surface (WCAG 2.4.7/1.4.11). */
+  outline: 1px solid var(--primary);
   outline-offset: 1px;
 }
 

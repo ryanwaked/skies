@@ -36,6 +36,7 @@ import { FloatingOutline } from "../chrome/panels/outline/floating-outline";
 import { useChromeActions } from "../chrome/state";
 import { Column } from "../columns/cell-column";
 import { NotebookBanner } from "../notebook-banner";
+import { NotebookTitleBlock } from "../notebook-title-block";
 import { StdinBlockingAlert } from "../stdin-blocking-alert";
 import { AddCellToolbar } from "./add-cell-toolbar";
 import { useFocusFirstEditor } from "./vertical-layout/useFocusFirstEditor";
@@ -107,7 +108,7 @@ const CellArrayInternal: React.FC<CellArrayProps> = ({
   return (
     <VerticalLayoutWrapper
       // 'pb' allows the user to put the cell in the middle of the screen
-      className="pb-[40vh]"
+      className="pb-[25vh]"
       invisible={false}
       appConfig={appConfig}
       innerClassName="pr-4" // For the floating actions
@@ -117,6 +118,9 @@ const CellArrayInternal: React.FC<CellArrayProps> = ({
       <StdinBlockingAlert />
       <ConnectingAlert />
       <NotebookBanner width={appConfig.width} />
+      {appConfig.width !== "columns" && (
+        <NotebookTitleBlock appConfig={appConfig} />
+      )}
       {/* Only show if not cells, otherwise running a single cell will start the connection */}
       {cellIds.idLength === 0 && <NotStartedConnectionAlert />}
       <div

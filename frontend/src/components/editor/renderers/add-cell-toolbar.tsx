@@ -79,7 +79,10 @@ const ToolbarItem: React.FC<ToolbarItemProps> = ({
     type="button"
     {...props}
     className={cn(
-      "flex h-[52px] w-[64px] flex-col items-center justify-center gap-[4px] rounded-[3px] px-[2px] py-[4px]",
+      // min-width keeps short items (Chart, Table) on the Hex 64px grid,
+      // but the box grows with longer labels ("Components", "Single value")
+      // so the hover wash always encompasses the text.
+      "flex h-[52px] min-w-[64px] flex-col items-center justify-center gap-[4px] rounded-[3px] px-[8px] py-[4px]",
       "text-foreground transition-all",
       "hover:bg-[var(--hover-wash)] hover:text-primary hover:-translate-y-px",
       "data-[state=open]:bg-[var(--hover-wash)] data-[state=open]:text-primary",

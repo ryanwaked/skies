@@ -25,6 +25,23 @@
   color: color-mix(in srgb, var(--muted-foreground), transparent 30%);
 }
 
+/* Give line numbers air so they don't crowd the fold arrows (Hex inset). */
+.cm .cm-lineNumbers .cm-gutterElement {
+  padding: 0 4px 0 8px;
+}
+
+/* Fold chevrons are per-line noise Hex doesn't show; reveal on hover of
+   the editor only. */
+.cm .cm-foldGutter {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.cm-editor:hover .cm-foldGutter,
+.cm-editor.cm-focused .cm-foldGutter {
+  opacity: 1;
+}
+
 .dark .cm .cm-gutters {
   background-color: transparent;
 

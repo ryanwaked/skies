@@ -16,7 +16,11 @@ html {
 
 :root {
   --content-width: 740px;
-  --content-width-medium: 880px;
+
+  /* Hex ratio: the notebook column runs ~62% of the viewport (840px at a
+     1362 viewport, per hex-measurements.json), not a fixed narrow column.
+     Cap at 1080px so prose measure stays sane on very wide screens. */
+  --content-width-medium: min(1080px, 62vw);
 }
 
 #App {

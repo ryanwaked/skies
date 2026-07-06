@@ -121,8 +121,14 @@ export class ColumnChartSpecModel<T> {
         view: {
           stroke: "transparent",
         },
+        // Compact chrome for the tiny (~80×30) header charts. Spec-level
+        // config takes precedence over the embed-level Skies config, whose
+        // notebook-scale paddings would consume the whole mini plot area.
+        padding: 0,
         axis: {
           domain: false,
+          labelPadding: 2,
+          titlePadding: 2,
         },
       },
       height: 100,

@@ -23,7 +23,9 @@ import {
 } from "@/core/websocket/connection-utils";
 import { type ConnectionStatus, WebSocketState } from "@/core/websocket/types";
 import { cn } from "@/utils/cn";
+import { Paths } from "@/utils/paths";
 import { NotebookMenuDropdown } from "../controls/notebook-menu-dropdown";
+import { NotebookStatusTicks } from "./notebook-status-ticks";
 import { ShutdownButton } from "../controls/shutdown-button";
 import { LayoutSelect } from "../renderers/layout-select";
 
@@ -59,6 +61,7 @@ export const NotebookHeader = (): JSX.Element => {
       )}
 
       <div className="flex min-w-0 shrink items-center">
+        <HeaderBreadcrumb filename={filename} />
         <FilenameForm filename={filename} />
         <ChevronDownIcon
           className="h-[16px] w-[16px] shrink-0 text-muted-foreground"
@@ -68,6 +71,8 @@ export const NotebookHeader = (): JSX.Element => {
       </div>
 
       <HeaderStatusIndicator connection={connection} />
+
+      {!closed && <NotebookStatusTicks />}
 
       <ModeSwitch />
 
@@ -96,6 +101,26 @@ export const NotebookHeader = (): JSX.Element => {
         )}
       </div>
     </div>
+  );
+};
+
+/**
+ * Muted path context before the editable filename (Hex breadcrumb voice):
+ * the parent directory's name and a separator, 14px/400. Display-only.
+ */
+const HeaderBreadcrumb = ({ filename }: { filename: string | null }) => {
+  if (!filename) {
+    return null;
+  }
+  const dir = Paths.basename(Paths.dirname(filename));
+  if (!dir) {
+    return null;
+  }
+  return (
+    <span className="hidden shrink-0 items-center pl-1 text-sm text-muted-foreground sm:flex">
+      {dir}
+      <span className="px-1.5 text-[var(--foreground-dim)]">/</span>
+    </span>
   );
 };
 

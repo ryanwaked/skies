@@ -310,14 +310,14 @@ export const DataSources: React.FC = () => {
       <div className="flex items-center gap-1 w-full px-2 py-1.5 border-b shrink-0">
         <CommandInput
           placeholder="Search tables..."
-          className="h-6 py-0 text-xs placeholder:text-muted-foreground"
+          className="h-full py-0 text-[13px] placeholder:text-muted-foreground"
           value={searchValue}
           onValueChange={(value) => {
             // If searching, remove open previews
             closeAllColumns(value.length > 0);
             setSearchValue(value);
           }}
-          rootClassName="flex-1 h-7 px-2 rounded-[3px] border bg-card"
+          rootClassName="flex-1 h-7 px-2.5 rounded-[3px] border bg-card"
         />
         {hasSearch && (
           <button
@@ -540,7 +540,7 @@ const DatabaseItem: React.FC<{
   return (
     <>
       <CommandItem
-        className="text-[13px] flex flex-row gap-1 items-center cursor-pointer"
+        className="text-[13px] h-7 flex flex-row gap-1 items-center cursor-pointer"
         style={indentStyle(INDENT.database)}
         onSelect={() => {
           setIsExpanded(!isExpanded);
@@ -557,7 +557,7 @@ const DatabaseItem: React.FC<{
               : "text-muted-foreground",
           )}
         />
-        <span>
+        <span className="truncate">
           {database.name === "" ? <i>Not connected</i> : database.name}
         </span>
       </CommandItem>
@@ -694,7 +694,7 @@ const SchemaNode: React.FC<SchemaNodeProps> = (props) => {
   return (
     <>
       <CommandItem
-        className="text-[13px] flex flex-row gap-1 items-center cursor-pointer"
+        className="text-[13px] h-7 flex flex-row gap-1 items-center cursor-pointer"
         style={indentStyle(schemaHeaderIndentRem(depth))}
         onSelect={() => {
           setIsExpanded(!isExpanded);
@@ -709,7 +709,7 @@ const SchemaNode: React.FC<SchemaNodeProps> = (props) => {
             isSelected && isExpanded && "text-foreground",
           )}
         />
-        <span>{schema.name}</span>
+        <span className="truncate">{schema.name}</span>
       </CommandItem>
       {isExpanded && (
         <>
@@ -926,11 +926,11 @@ const DatasetTableItem: React.FC<{
       return null;
     }
 
+    // Metadata never wraps: the name column truncates instead (Hex rule —
+    // one dense line per row, meta right-aligned).
     return (
-      <div className="flex flex-row gap-2 items-center pl-6 group-hover:hidden">
-        <span className="text-xs text-muted-foreground">
-          {label.join(", ")}
-        </span>
+      <div className="pl-3 shrink-0 whitespace-nowrap text-[11px] text-[var(--foreground-dim)] group-hover:hidden">
+        {label.join(" · ")}
       </div>
     );
   };
@@ -997,9 +997,9 @@ const DatasetTableItem: React.FC<{
         forceMount={true}
         onSelect={() => setIsExpanded(!isExpanded)}
       >
-        <div className="flex gap-2 items-center flex-1 pl-1">
+        <div className="flex gap-2 items-center flex-1 min-w-0 pl-1">
           {renderTableType()}
-          <span>{table.name}</span>
+          <span className="truncate">{table.name}</span>
         </div>
         {renderRowsByColumns()}
         <Tooltip content="Add table to notebook" delayDuration={400}>
@@ -1094,7 +1094,7 @@ const DatasetColumnItem: React.FC<{
         onSelect={() => setIsExpanded(!isExpanded)}
       >
         <div
-          className="flex flex-row gap-2 items-center flex-1"
+          className="flex flex-row gap-2 items-center flex-1 min-w-0"
           style={indentStyle(
             columnIndentRem ??
               (sqlTableContext ? schemaColumnIndentRem(0) : INDENT.columnLocal),
@@ -1120,7 +1120,7 @@ const DatasetColumnItem: React.FC<{
             />
           </Button>
         </Tooltip>
-        <span className="text-xs text-muted-foreground">
+        <span className="text-[11px] text-[var(--foreground-dim)] shrink-0 whitespace-nowrap">
           {column.external_type}
         </span>
       </CommandItem>

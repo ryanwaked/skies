@@ -13,6 +13,18 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
+@pytest.fixture(autouse=True)
+def _isolate_marimo_wide_dotenv(
+    monkeypatch: pytest.MonkeyPatch, tmp_path_factory: pytest.TempPathFactory
+):
+    # The marimo-wide dotenv provider is always present; point it at an
+    # isolated, empty config dir so tests don't read the developer's real
+    # ~/.config/marimo/.env.
+    monkeypatch.setenv(
+        "XDG_CONFIG_HOME", str(tmp_path_factory.mktemp("xdg_config"))
+    )
+
+
 def test_get_secret_keys_basic(monkeypatch: pytest.MonkeyPatch):
     # Setup environment variables
     monkeypatch.setenv("ENV_SECRET", "value")
@@ -26,10 +38,13 @@ def test_get_secret_keys_basic(monkeypatch: pytest.MonkeyPatch):
 
     result = get_secret_keys(config, original_environ)
 
-    # Should have one provider (env)
-    assert len(result) == 1
+    # env + the always-present marimo-wide dotenv (empty here)
+    assert len(result) == 2
     assert result[0].provider == "env"
     assert "ENV_SECRET" in result[0].keys
+    assert result[-1].provider == "dotenv"
+    assert result[-1].name == "Marimo-wide"
+    assert result[-1].keys == []
 
 
 def test_get_secret_keys_empty(monkeypatch: pytest.MonkeyPatch):
@@ -47,8 +62,8 @@ def test_get_secret_keys_empty(monkeypatch: pytest.MonkeyPatch):
 
     result = get_secret_keys(config, original_environ)
 
-    # Should have one provider (env)
-    assert len(result) == 1
+    # env + the always-present marimo-wide dotenv
+    assert len(result) == 2
     assert result[0].provider == "env"
 
     # Our test key should be in the result
@@ -76,8 +91,9 @@ def test_get_secret_keys_with_dotenv(
 
     result = get_secret_keys(config, original_environ)
 
-    # Should have two providers (env and dotenv)
-    assert len(result) == 2
+    # env + project dotenv + the marimo-wide dotenv
+    assert len(result) == 3
+    assert result[-1].name == "Marimo-wide"
 
     # First provider should be env
     assert result[0].provider == "env"
@@ -112,8 +128,9 @@ def test_get_secret_keys_multiple_dotenv(
 
     result = get_secret_keys(config, original_environ)
 
-    # Should have three providers (env and two dotenv)
-    assert len(result) == 3
+    # env + two project dotenvs + the marimo-wide dotenv
+    assert len(result) == 4
+    assert result[-1].name == "Marimo-wide"
 
     # First provider should be env
     assert result[0].provider == "env"
@@ -298,3 +315,31 @@ def test_write_secret_nonexistent_file(tmp_path: Path):
 
     content = env_file.read_text()
     assert content == 'NEW_SECRET="new_value"\n'
+
+
+def test_write_marimo_wide_secret():
+    # The autouse fixture isolates XDG_CONFIG_HOME; writing to the
+    # "Marimo-wide" scope should create <config>/marimo/.env on demand.
+    from marimo._utils.xdg import marimo_wide_dotenv_path
+
+    wide_path = marimo_wide_dotenv_path()
+    assert not wide_path.exists()
+
+    config = MarimoConfig(runtime={"dotenv": []})
+    write_secret(
+        CreateSecretRequest(
+            key="WIDE_SECRET",
+            value="wide_value",
+            provider="dotenv",
+            name="Marimo-wide",
+        ),
+        config,
+    )
+
+    assert wide_path.exists()
+    assert 'WIDE_SECRET="wide_value"' in wide_path.read_text()
+
+    # And it should now surface under the marimo-wide provider.
+    result = get_secret_keys(config, {})
+    marimo_wide = next(p for p in result if p.name == "Marimo-wide")
+    assert "WIDE_SECRET" in marimo_wide.keys

@@ -57,7 +57,9 @@
   color: var(--muted-foreground) !important;
   border: 1px solid var(--border) !important;
   border-radius: var(--radius) !important;
-  opacity: 0.2;
+  /* Hidden until the chart is hovered or focused (Hex behavior);
+     .vega-embed:hover / :focus-within below restores it. */
+  opacity: 0;
   transition: opacity 0.4s ease-in;
   cursor: pointer;
   line-height: 0px;
@@ -172,4 +174,19 @@
 
 #vg-tooltip-element.vg-tooltip td.key {
   color: var(--muted-foreground);
+}
+
+/* Values in the site's .chart-tip voice: mono, right-aligned numbers. */
+#vg-tooltip-element.vg-tooltip td.value {
+  font-family: var(--monospace-font);
+  /* stylelint-disable-next-line unit-allowed-list */
+  font-size: 11px;
+  text-align: right;
+}
+
+#vg-tooltip-element.vg-tooltip h2 {
+  color: var(--muted-foreground);
+  /* stylelint-disable-next-line unit-allowed-list */
+  font-size: 11px;
+  font-weight: 500;
 }

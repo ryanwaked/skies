@@ -6,16 +6,27 @@ import { headingToIdentifier } from "@/core/dom/outline";
 import { getInitialAppMode } from "@/core/mode";
 import { Logger } from "@/utils/Logger";
 
-function getRootScrollableElement() {
-  // HACK: this is a bit leaky
-  // this gets the root element that contains the scrollable content
+function getRootScrollableElement(): HTMLElement {
+  // The notebook scrolls inside #App in edit mode; run mode scrolls the
+  // document. Fall back to the document element so the scroll-spy always
+  // has a container to listen on.
   return getInitialAppMode() === "edit"
-    ? document.getElementById("App")
-    : undefined;
+    ? (document.getElementById("App") ?? document.documentElement)
+    : document.documentElement;
 }
 
+// Reference line below the top bar: the heading last crossing above this
+// line is the section the reader is currently in.
+const ACTIVE_LINE_OFFSET = 100;
+
 /**
- * React hook to find the active header in the outline
+ * React hook to find the active header in the outline.
+ *
+ * Uses a position-based scroll-spy (not a pure IntersectionObserver): on
+ * every scroll it picks the last heading whose top has crossed above the
+ * reference line, so the highlight tracks the section you're reading and
+ * never blanks out mid-section (the old "topmost intersecting" logic left
+ * a dead zone whenever a long section had no heading in view).
  */
 export function useActiveOutline(
   headerElements: (readonly [HTMLElement, string])[],
@@ -26,8 +37,6 @@ export function useActiveOutline(
   const [activeOccurrences, setActiveOccurrences] = useState<
     number | undefined
   >(undefined);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const topmostHeader = useRef<HTMLElement | null>(null);
 
   const occurrences = useRef<Map<HTMLElement, number>>(
     new Map<HTMLElement, number>(),
@@ -35,64 +44,78 @@ export function useActiveOutline(
 
   useEffect(() => {
     if (headerElements.length === 0) {
+      setActiveHeaderId(undefined);
+      setActiveOccurrences(undefined);
       return;
     }
 
-    const callback: IntersectionObserverCallback = (entries) => {
-      let needsUpdate = false;
+    // Precompute the occurrence index for duplicate-text headings.
+    occurrences.current = new Map<HTMLElement, number>();
+    headerElements.forEach(([element]) => {
+      const identifier = headingToIdentifier(element);
+      const idx = headerElements
+        .map(([el]) => el)
+        .filter((el) =>
+          "id" in identifier
+            ? el.id === identifier.id
+            : el.textContent === element.textContent,
+        )
+        .indexOf(element);
+      occurrences.current.set(element, idx);
+    });
 
-      entries.forEach((entry) => {
-        const element = entry.target as HTMLElement;
-        if (entry.isIntersecting) {
-          if (
-            !topmostHeader.current ||
-            element.getBoundingClientRect().top <
-              topmostHeader.current.getBoundingClientRect().top
-          ) {
-            topmostHeader.current = element;
-            needsUpdate = true;
-          }
-        } else if (element === topmostHeader.current) {
-          topmostHeader.current = null;
-          needsUpdate = true;
+    const scroller = getRootScrollableElement();
+    // #App is offset in the viewport; the document element sits at 0.
+    const containerTop = () =>
+      scroller && scroller !== document.documentElement
+        ? scroller.getBoundingClientRect().top
+        : 0;
+
+    const computeActive = () => {
+      const line = containerTop() + ACTIVE_LINE_OFFSET;
+      let active: HTMLElement | null = null;
+      // Headings are in document order; the last one above the line wins.
+      for (const [element] of headerElements) {
+        if (element.getBoundingClientRect().top <= line) {
+          active = element;
+        } else {
+          break;
         }
-      });
-
-      if (needsUpdate && topmostHeader.current) {
-        const identifier = headingToIdentifier(topmostHeader.current);
-        const id = "id" in identifier ? identifier.id : identifier.path;
-        setActiveHeaderId(id);
-        setActiveOccurrences(occurrences.current.get(topmostHeader.current));
       }
+      // Before the first heading, highlight the first one so the outline is
+      // never empty while content is on screen.
+      active ??= headerElements[0][0];
+
+      const identifier = headingToIdentifier(active);
+      const id = "id" in identifier ? identifier.id : identifier.path;
+      setActiveHeaderId(id);
+      setActiveOccurrences(occurrences.current.get(active));
     };
 
-    observerRef.current = new IntersectionObserver(callback, {
-      root: getRootScrollableElement(),
-      rootMargin: "0px",
-      threshold: 0,
-    });
-
-    headerElements.forEach((element) => {
-      if (element) {
-        const identifier: OutlineItem["by"] = headingToIdentifier(element[0]);
-        const idxOfEl: number = headerElements
-          .map(([el]: readonly [HTMLElement, string]) => el)
-          .filter((el: HTMLElement) =>
-            "id" in identifier
-              ? el.id === identifier.id
-              : el.textContent === element[0].textContent,
-          )
-          .indexOf(element[0]);
-        occurrences.current.set(element[0], idxOfEl);
-        observerRef.current?.observe(element[0]);
+    // rAF-throttle: coalesce scroll bursts into one measurement per frame.
+    let frame = 0;
+    const onScroll = () => {
+      if (frame) {
+        return;
       }
-    });
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        computeActive();
+      });
+    };
+
+    computeActive();
+    const scrollTarget: EventTarget =
+      scroller === document.documentElement ? window : scroller;
+    scrollTarget.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
 
     return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
+      if (frame) {
+        cancelAnimationFrame(frame);
       }
-      topmostHeader.current = null;
+      scrollTarget.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
     };
   }, [headerElements]);
 

@@ -68,6 +68,18 @@
   line-height: 1.25;
 }
 
+/* The cell frame (or the canvas rhythm, for heading-only section cells)
+   owns the space around a heading that starts or ends an output — without
+   this, heading margins stack on top of output padding and the column gap,
+   ballooning the 16px notebook rhythm to 60px+ around every section head. */
+.markdown > :is(h1, h2, h3, h4, h5, h6):first-child {
+  margin-top: 0;
+}
+
+.markdown > :is(h1, h2, h3, h4, h5, h6):last-child {
+  margin-bottom: 0;
+}
+
 /*
 Skies type scale (geometry inherited from the fork's original
 live measurements — see frontend/hex-measurements.json): 14px/22px body prose,

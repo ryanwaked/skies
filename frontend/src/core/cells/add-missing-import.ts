@@ -1,10 +1,61 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
+import { cellActionsState } from "../codemirror/cells/state";
+import { updateEditorCodeFromPython } from "../codemirror/language/utils";
 import { getRequestClient } from "../network/requests";
 import { store } from "../state/jotai";
 import { variablesAtom } from "../variables/state";
-import { type CellActions, notebookAtom } from "./cells";
+import { type CellActions, getCellEditorView, notebookAtom } from "./cells";
 import { CellId } from "./ids";
+
+const IMPORT_LINE = /^\s*(?:import|from)\s/;
+
+/**
+ * If the notebook already has an imports-only cell (every non-blank,
+ * non-comment line is an `import`/`from`), append the missing import as a
+ * new line at its end and re-run it — rather than spawning a separate
+ * one-line import cell above the user's new cell. Returns true when it
+ * handled the import; callers fall back to creating a cell otherwise.
+ */
+function tryAppendToExistingImportsCell(
+  importStatement: string,
+  autoInstantiate: boolean,
+  appStore: typeof store,
+): boolean {
+  const { cellData, cellIds } = appStore.get(notebookAtom);
+  const importsCellId = cellIds.inOrderIds.find((id) => {
+    const lines = cellData[id].code
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0 && !line.startsWith("#"));
+    return lines.length > 0 && lines.every((line) => IMPORT_LINE.test(line));
+  });
+  if (!importsCellId) {
+    return false;
+  }
+
+  // Need the live editor view to keep CodeMirror and cell state in sync.
+  const view = getCellEditorView(importsCellId);
+  if (!view) {
+    return false;
+  }
+
+  const newCode = `${cellData[importsCellId].code.trimEnd()}\n${importStatement}`;
+  const actions = view.state.facet(cellActionsState);
+  actions.updateCellCode({
+    cellId: importsCellId,
+    code: newCode,
+    formattingChange: false,
+  });
+  updateEditorCodeFromPython(view, newCode);
+  if (autoInstantiate) {
+    void getRequestClient().sendRun({
+      cellIds: [importsCellId],
+      codes: [newCode],
+    });
+  }
+  return true;
+}
 
 /**
  * Checks if any Python imports are missing from the current file and adds them if necessary.
@@ -73,6 +124,17 @@ export function maybeAddMarimoImport({
     moduleName: "marimo",
     variableName: "mo",
     onAddImport: (importStatement) => {
+      // Prefer folding the import into an existing imports cell — but only
+      // in the normal auto-instantiate flow. The AI staging flow passes
+      // autoInstantiate=false and tracks the returned new-cell id so the
+      // change can be reverted; editing an existing cell here would mutate
+      // it outside that staged/revert system.
+      if (
+        autoInstantiate &&
+        tryAppendToExistingImportsCell(importStatement, autoInstantiate, store)
+      ) {
+        return;
+      }
       newCellId = CellId.create();
       createNewCell({
         cellId: fromCellId ?? "__end__",
@@ -109,6 +171,12 @@ export function maybeAddAltairImport({
     moduleName: "altair",
     variableName: "alt",
     onAddImport: (importStatement) => {
+      if (
+        autoInstantiate &&
+        tryAppendToExistingImportsCell(importStatement, autoInstantiate, store)
+      ) {
+        return;
+      }
       newCellId = CellId.create();
       createNewCell({
         cellId: fromCellId ?? "__end__",

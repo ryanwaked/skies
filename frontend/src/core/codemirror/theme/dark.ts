@@ -20,7 +20,7 @@ export const darkTheme = [
       gutterForeground: "color-mix(in srgb, var(--muted-foreground) 60%, transparent)",
     },
     styles: [
-      { tag: t.comment, color: "#847e92" },
+      { tag: t.comment, color: "#8f89a3" },
       { tag: t.variableName, color: "#e9e6f2" },
       { tag: [t.string, t.special(t.brace)], color: "#d98552" },
       { tag: t.number, color: "#e8c44e" },

@@ -26,6 +26,61 @@ export function getContainerWidth(spec: unknown): ContainerWidth | undefined {
   return undefined;
 }
 
+/** Composite vega-lite operators whose inner views manage their own size. */
+const COMPOSITE_KEYS = ["facet", "repeat", "concat", "hconcat", "vconcat", "spec"];
+
+/**
+ * Identity cache: the same input spec object must always yield the same
+ * output object. react-vega re-embeds (tearing down the view mid-render)
+ * whenever the spec prop identity changes, so callers that can't wrap
+ * this in useMemo (e.g. inside OutputRenderer's switch) still need
+ * referential stability across renders.
+ */
+const layoutCache = new WeakMap<object, object>();
+
+/**
+ * Skies layout default (Hex behavior): a single-view vega-lite spec with
+ * no explicit width fills the cell column — width:"container" + fit-x
+ * autosize. Left untouched: composite specs (container sizing breaks
+ * their inner-view layout), full Vega specs (vegafusion path), and any
+ * spec where the author set a width. Height is never injected — band
+ * scales size row charts by category count and must keep doing so.
+ */
+export function withSkiesLayout<T extends object>(spec: T): T {
+  const cached = layoutCache.get(spec);
+  if (cached) {
+    return cached as T;
+  }
+  const result = computeSkiesLayout(spec);
+  layoutCache.set(spec, result);
+  return result;
+}
+
+function computeSkiesLayout<T extends object>(spec: T): T {
+  const record = spec as Record<string, unknown>;
+  const schema = record.$schema;
+  if (typeof schema === "string" && !schema.includes("vega-lite")) {
+    return spec;
+  }
+  if (COMPOSITE_KEYS.some((key) => key in record)) {
+    return spec;
+  }
+  if (record.width != null) {
+    return spec;
+  }
+  // Respect an author-set autosize verbatim (string "none"/"fit"/"pad" or a
+  // full object); only default to fit-x when none was provided.
+  const autosize =
+    record.autosize != null
+      ? record.autosize
+      : { type: "fit-x", contains: "padding" };
+  return {
+    ...spec,
+    width: "container",
+    autosize,
+  };
+}
+
 export function mergeAsArrays<T>(
   left: T | T[] | undefined,
   right: T | T[] | undefined,

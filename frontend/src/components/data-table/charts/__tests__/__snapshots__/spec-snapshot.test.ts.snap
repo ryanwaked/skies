@@ -3,7 +3,7 @@
 exports[`create vega spec > should create and augment a spec 1`] = `
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
-  "background": "white",
+  "background": "transparent",
   "config": {
     "axis": {
       "grid": false,
@@ -53,7 +53,7 @@ exports[`create vega spec > should create and augment a spec 1`] = `
 exports[`multi-series charts > should fold two y series for line charts 1`] = `
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
-  "background": "white",
+  "background": "transparent",
   "config": {
     "axis": {
       "grid": false,

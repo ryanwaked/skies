@@ -135,7 +135,7 @@ export const WriteSecretModal: React.FC<{
             )}
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="location">Location</Label>
+            <Label htmlFor="location">Scope</Label>
             {providerNames.length === 0 && (
               <p className="text-sm text-muted-foreground">
                 No dotenv locations configured.
@@ -147,21 +147,22 @@ export const WriteSecretModal: React.FC<{
                 onValueChange={(value) => setLocation(value)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a provider" />
+                  <SelectValue placeholder="Select a scope" />
                 </SelectTrigger>
                 <SelectContent>
                   {providerNames.map((name) => (
                     <SelectItem key={name} value={name}>
-                      {name}
+                      {scopeLabel(name)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             )}
             <FormDescription>
-              You can configure the location by setting the{" "}
+              Marimo-wide secrets are available in every notebook; project
+              secrets live in a{" "}
               <ExternalLink href="https://links.marimo.app/dotenv">
-                dotenv configuration
+                project <code>.env</code>
               </ExternalLink>
               .
             </FormDescription>
@@ -179,6 +180,17 @@ export const WriteSecretModal: React.FC<{
     </DialogContent>
   );
 };
+
+/** Friendlier scope names for the dotenv write targets. */
+function scopeLabel(name: string): string {
+  if (name === "Marimo-wide") {
+    return "Marimo-wide (all notebooks)";
+  }
+  if (name === ".env") {
+    return "This project (.env)";
+  }
+  return name;
+}
 
 export function replaceInvalid(input: string): string {
   return input.replaceAll(/\W/g, "_");

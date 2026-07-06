@@ -20,7 +20,10 @@ export const VerticalLayoutWrapper: React.FC<PropsWithChildren<Props>> = ({
   return (
     <div
       className={cn(
-        "px-1 sm:px-16 md:px-20 xl:px-24 print:px-0 print:pb-0",
+        // Hex gutter: 40px, not marimo's 64-96px staircase — the column
+        // token (--content-width-medium) owns the measure, gutters are
+        // just breathing room against the panels.
+        "px-1 sm:px-10 print:px-0 print:pb-0",
         // Large mobile bottom padding due to mobile browser navigation bar
         "pb-24 sm:pb-12",
         className,
@@ -29,8 +32,6 @@ export const VerticalLayoutWrapper: React.FC<PropsWithChildren<Props>> = ({
       <div
         className={cn(
           "m-auto",
-          // This padding needs to be the same from above to be correctly applied
-          "pb-24 sm:pb-12",
           appConfig.width === "compact" &&
             "max-w-(--content-width) sm:min-w-[400px]",
           appConfig.width === "medium" &&

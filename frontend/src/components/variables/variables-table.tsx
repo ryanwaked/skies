@@ -11,20 +11,17 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { SquareEqualIcon, WorkflowIcon } from "lucide-react";
 import React, { memo, useMemo } from "react";
 import { useLocale } from "react-aria";
-import { CellLink } from "@/components/editor/links/cell-link";
-import { getCellEditorView, useCellNames } from "@/core/cells/cells";
+import { useCellNames } from "@/core/cells/cells";
 import type { CellId } from "@/core/cells/ids";
 import { isInternalCellName } from "@/core/cells/names";
-import { goToVariableDefinition } from "@/core/codemirror/go-to-definition/commands";
 import type { Variable, Variables } from "@/core/variables/types";
 import { sortBy } from "@/utils/arrays";
 import { cn } from "@/utils/cn";
 import { DataTableColumnHeader } from "../data-table/column-header";
-import { CellLinkList } from "../editor/links/cell-link-list";
 import { SearchInput } from "../ui/input";
+import { Tooltip } from "../ui/tooltip";
 import {
   Table,
   TableBody,
@@ -57,142 +54,97 @@ function columnDefOf<T>(columnDef: ColumnDef<ResolvedVariable, T>) {
 
 const ColumnIds = {
   name: "name",
-  type: "type-value",
+  type: "type",
+  value: "value",
+  // Retained as the default sort key (notebook declaration order) even
+  // though the declared-by/used-by column no longer renders — that detail
+  // lives in the name chip's tooltip now (Hex layout: NAME / TYPE / VALUE
+  // single-line rows).
   defs: "defs-refs",
 };
+
+/** Tooltip body for a variable chip: provenance + the copy affordance. */
+const VariableTooltip: React.FC<{ variable: ResolvedVariable }> = ({
+  variable,
+}) => (
+  <div className="flex flex-col gap-0.5 text-xs">
+    <span className="font-code">{variable.name}</span>
+    <span className="text-muted-foreground">
+      Declared by {variable.declaredByNames.join(", ") || "—"}
+    </span>
+    {variable.usedByNames.length > 0 && (
+      <span className="text-muted-foreground">
+        Used by{" "}
+        {variable.usedByNames.length > 3
+          ? `${variable.usedByNames.slice(0, 3).join(", ")}, +${variable.usedByNames.length - 3} more`
+          : variable.usedByNames.join(", ")}
+      </span>
+    )}
+    <span className="text-muted-foreground">Click to copy name</span>
+  </div>
+);
 
 const COLUMNS = [
   columnDefOf({
     id: ColumnIds.name,
-    accessorFn: (v) => [v.name, v.declaredBy] as const,
+    // Fold provenance names into the accessor so global search still
+    // matches "which variables does cell X touch".
+    accessorFn: (v) =>
+      `${v.name} ${v.declaredByNames.join(" ")} ${v.usedByNames.join(" ")}`,
     enableSorting: true,
     sortingFn: "alphanumeric",
     header: ({ column }) => (
       <DataTableColumnHeader header={"Name"} column={column} />
     ),
-    cell: ({ getValue }) => {
-      const [name, declaredBy] = getValue();
-      return <VariableName name={name} declaredBy={declaredBy} />;
-    },
+    cell: ({ row }) => (
+      <Tooltip
+        content={<VariableTooltip variable={row.original} />}
+        delayDuration={300}
+        side="right"
+      >
+        {/* Tooltip needs a focusable single child; VariableName is a div. */}
+        <span className="block min-w-0 max-w-full">
+          <VariableName
+            name={row.original.name}
+            declaredBy={row.original.declaredBy}
+            dataType={row.original.dataType}
+          />
+        </span>
+      </Tooltip>
+    ),
   }),
   columnDefOf({
     id: ColumnIds.type,
-    accessorFn: (v) => [v.dataType, v.value] as const,
+    accessorFn: (v) => v.dataType,
     enableSorting: true,
     sortingFn: "alphanumeric",
     header: ({ column }) => (
-      <DataTableColumnHeader
-        header={
-          <div className="flex flex-col gap-1">
-            <span>Type</span>
-            <span>Value</span>
-          </div>
-        }
-        column={column}
-      />
+      <DataTableColumnHeader header={"Type"} column={column} />
     ),
-    cell: ({ getValue }) => {
-      const [dataType, value] = getValue();
-      return (
-        <div className="min-w-0 max-w-full">
-          <div className="text-ellipsis overflow-hidden whitespace-nowrap text-muted-foreground text-[10.5px] font-mono uppercase tracking-[0.04em]">
-            {dataType}
-          </div>
-          <div
-            className="text-ellipsis overflow-hidden whitespace-nowrap font-code text-[11.5px] text-foreground mt-0.5"
-            title={value ?? ""}
-          >
-            {value}
-          </div>
-        </div>
-      );
-    },
+    cell: ({ getValue }) => (
+      <div
+        className="text-ellipsis overflow-hidden whitespace-nowrap text-[12px] text-foreground"
+        title={getValue() ?? ""}
+      >
+        {getValue()}
+      </div>
+    ),
   }),
   columnDefOf({
-    id: ColumnIds.defs,
-    // Include declaredByNames and usedByNames for filtering
-    accessorFn: (v) =>
-      [
-        v.declaredBy,
-        v.usedBy,
-        v.name,
-        v.declaredByNames,
-        v.usedByNames,
-      ] as const,
-    enableSorting: true,
-    sortingFn: "basic",
+    id: ColumnIds.value,
+    accessorFn: (v) => v.value,
+    enableSorting: false,
     header: ({ column }) => (
-      <DataTableColumnHeader
-        header={
-          <div className="flex flex-col gap-1">
-            <span>Declared By</span>
-            <span>Used By</span>
-          </div>
-        }
-        column={column}
-      />
+      <DataTableColumnHeader header={"Value"} column={column} />
     ),
-    cell: ({ getValue }) => {
-      const [declaredBy, usedBy, name] = getValue();
-
-      // Highlight the variable in the cell editor
-      const highlightInCell = (cellId: CellId) => {
-        const editorView = getCellEditorView(cellId);
-        if (editorView) {
-          goToVariableDefinition(editorView, name);
-        }
-      };
-
-      return (
-        <div className="flex flex-col gap-1 py-1 min-w-0 max-w-full">
-          <div className="flex flex-row flex-wrap min-w-0 gap-1.5 items-center">
-            <span title="Declared by" className="shrink-0">
-              <SquareEqualIcon
-                className="w-3.5 h-3.5 text-muted-foreground"
-                strokeWidth={1.5}
-              />
-            </span>
-
-            {declaredBy.length === 1 ? (
-              <CellLink
-                variant="focus"
-                cellId={declaredBy[0]}
-                skipScroll={true}
-                onClick={() => highlightInCell(declaredBy[0])}
-              />
-            ) : (
-              <div className="text-destructive flex flex-row flex-wrap gap-1.5 min-w-0">
-                {declaredBy.slice(0, 3).map((cellId) => (
-                  <CellLink
-                    variant="focus"
-                    key={cellId}
-                    cellId={cellId}
-                    skipScroll={true}
-                    className="whitespace-nowrap text-destructive"
-                    onClick={() => highlightInCell(cellId)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="flex flex-row flex-wrap min-w-0 gap-1.5 items-baseline">
-            <span title="Used by" className="shrink-0">
-              <WorkflowIcon
-                className="w-3.5 h-3.5 text-muted-foreground"
-                strokeWidth={1.5}
-              />
-            </span>
-
-            <CellLinkList
-              maxCount={3}
-              cellIds={usedBy}
-              skipScroll={true}
-              onClick={highlightInCell}
-            />
-          </div>
-        </div>
-      );
-    },
+    cell: ({ getValue }) => (
+      <div
+        className="text-ellipsis overflow-hidden whitespace-nowrap font-code text-[11.5px] text-muted-foreground"
+        title={getValue() ?? ""}
+      >
+        {getValue()}
+      </div>
+    ),
   }),
 ];
 
@@ -226,6 +178,11 @@ function sortData({
       sortedVariables = sortBy(variables, (v) =>
         cellIdToIndex.get(v.declaredBy[0]),
       );
+      break;
+    default:
+      // Unknown/stale sort key (e.g. a non-sortable column persisted from an
+      // earlier version): fall back to the notebook's declaration order.
+      sortedVariables = variables;
       break;
   }
 
@@ -307,18 +264,21 @@ export const VariableTable: React.FC<Props> = memo(
             className,
           )}
         >
+          {/* Hex variable-explorer grid (hex-sidebar-spec §5.8):
+              NAME ~45% / TYPE ~25% / VALUE ~30%, single-line 28px rows,
+              alignment only — no row borders, no zebra. */}
           <colgroup>
-            <col className="w-[28%]" />
-            <col className="w-[34%]" />
-            <col className="w-[38%]" />
+            <col className="w-[45%]" />
+            <col className="w-[25%]" />
+            <col className="w-[30%]" />
           </colgroup>
           <TableHeader>
-            {/* Skies section-header scale: 10px mono uppercase muted */}
-            <TableRow className="whitespace-nowrap text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-muted-foreground">
+            {/* Skies eyebrow: 11px mono uppercase, 0.08em tracking */}
+            <TableRow className="whitespace-nowrap text-[11px] font-mono font-semibold uppercase tracking-[0.08em] text-muted-foreground">
               {table.getFlatHeaders().map((header) => (
                 <TableHead
                   key={header.id}
-                  className="sticky top-0 h-8 bg-card border-b overflow-hidden text-ellipsis"
+                  className="sticky top-0 h-7 bg-card border-b overflow-hidden text-ellipsis"
                 >
                   {flexRender(
                     header.column.columnDef.header,
@@ -330,11 +290,14 @@ export const VariableTable: React.FC<Props> = memo(
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} className="hover:bg-[var(--hover-wash)]">
+              <TableRow
+                key={row.id}
+                className="h-7 hover:bg-[var(--hover-wash)]"
+              >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
-                    className="py-1.5 px-2 border-b overflow-hidden"
+                    className="py-0.5 px-2 overflow-hidden"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>

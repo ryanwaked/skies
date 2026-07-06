@@ -24,8 +24,9 @@ export const DatasourceLabel: React.FC<{
   return (
     <div
       className={cn(
-        // Skies section header: 10px mono uppercase, 0.12em tracking, muted color
-        "flex gap-1.5 items-center py-1.5 text-muted-foreground text-[10px] font-mono font-medium uppercase tracking-[0.12em]",
+        // Skies section header at Hex eyebrow size: 11px mono uppercase,
+        // 0.08em tracking, muted color (hex-sidebar-spec §3)
+        "flex gap-1.5 items-center py-1.5 text-muted-foreground text-[11px] font-mono font-semibold uppercase tracking-[0.08em]",
         className,
       )}
       style={style}
@@ -112,12 +113,12 @@ export const ColumnName = ({
   // Skies data browser: type icons are quiet, thin-stroke, muted glyphs —
   // no colored chips.
   return (
-    <div className="flex flex-row items-center gap-1.5">
+    <div className="flex flex-row items-center gap-1.5 min-w-0">
       <Icon
         className="w-3.5 h-3.5 shrink-0 text-muted-foreground"
         strokeWidth={1.5}
       />
-      {columnName}
+      <span className="truncate">{columnName}</span>
     </div>
   );
 };

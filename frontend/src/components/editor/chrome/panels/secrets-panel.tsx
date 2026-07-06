@@ -9,7 +9,6 @@ import {
   PlusIcon,
 } from "lucide-react";
 import React, { Suspense, useState } from "react";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { Spinner } from "@/components/icons/spinner";
 import { useImperativeModal } from "@/components/modal/ImperativeModal";
 import { Badge } from "@/components/ui/badge";
@@ -53,8 +52,6 @@ function accessorFor(key: string): string {
 const codeExtensions = [EditorView.lineWrapping];
 
 const SecretsPanel: React.FC = () => {
-  const { openModal, closeModal } = useImperativeModal();
-  const [selected, setSelected] = useState<SecretRow>();
   const {
     data: secretKeyProviders,
     isPending,
@@ -74,81 +71,169 @@ const SecretsPanel: React.FC = () => {
     return <ErrorBanner error={error} />;
   }
 
-  // Provider names without 'env' provider
+  // Provider names without 'env' provider — the writable dotenv "scopes"
+  // offered when adding a secret (project `.env` + the marimo-wide file).
   const providerNames = secretKeyProviders
     .filter((provider) => provider.provider !== "env")
     .map((provider) => provider.name);
 
-  const rows: SecretRow[] = secretKeyProviders.flatMap((provider) =>
-    provider.keys.map((key) => ({
-      key,
-      provider: provider.provider,
-      providerName: provider.name,
-    })),
+  const toRows = (predicate: (provider: string) => boolean): SecretRow[] =>
+    secretKeyProviders
+      .filter((provider) => predicate(provider.provider))
+      .flatMap((provider) =>
+        provider.keys.map((key) => ({
+          key,
+          provider: provider.provider,
+          providerName: provider.name,
+        })),
+      );
+
+  // Two views: marimo-managed dotenv secrets (writable), and the read-only
+  // OS environment (the "non-marimo" secrets). Default to marimo secrets.
+  const marimoRows = toRows((provider) => provider !== "env");
+  const envRows = toRows((provider) => provider === "env");
+
+  return <SecretsTabs marimoRows={marimoRows} envRows={envRows} providerNames={providerNames} refetch={refetch} />;
+};
+
+type SecretsTabValue = "marimo" | "env";
+
+const SecretsTabs: React.FC<{
+  marimoRows: SecretRow[];
+  envRows: SecretRow[];
+  providerNames: string[];
+  refetch: () => void;
+}> = ({ marimoRows, envRows, providerNames, refetch }) => {
+  // A plain state toggle (not radix Tabs) keeps the resizable list/detail
+  // panels from capturing pointer events over the tab bar in this panel.
+  const [tab, setTab] = useState<SecretsTabValue>("marimo");
+
+  return (
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="mx-3 mt-2 flex w-fit shrink-0 gap-0.5 rounded-[3px] border border-border p-0.5">
+        <SecretsTabButton active={tab === "marimo"} onClick={() => setTab("marimo")}>
+          Marimo secrets
+        </SecretsTabButton>
+        <SecretsTabButton active={tab === "env"} onClick={() => setTab("env")}>
+          Environment
+        </SecretsTabButton>
+      </div>
+      {tab === "marimo" ? (
+        <SecretsBrowser
+          isEnv={false}
+          rows={marimoRows}
+          allowAdd={true}
+          providerNames={providerNames}
+          refetch={refetch}
+          emptyTitle="No marimo secrets"
+          emptyDescription="Add a secret to a project `.env` or marimo-wide, and it's loaded into your environment."
+        />
+      ) : (
+        <SecretsBrowser
+          isEnv={true}
+          rows={envRows}
+          allowAdd={false}
+          providerNames={providerNames}
+          refetch={refetch}
+          emptyTitle="No environment variables"
+          emptyDescription="Secrets already present in your OS environment appear here (read-only)."
+        />
+      )}
+    </div>
   );
+};
+
+const SecretsTabButton: React.FC<
+  React.PropsWithChildren<{ active: boolean; onClick: () => void }>
+> = ({ active, onClick, children }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={cn(
+      "rounded-[2px] px-2.5 py-1 text-xs font-medium transition-colors",
+      active
+        ? "bg-accent text-accent-foreground"
+        : "text-muted-foreground hover:text-foreground",
+    )}
+  >
+    {children}
+  </button>
+);
+
+export default SecretsPanel;
+
+/**
+ * The list + detail view for one set of secret rows. Rendered once per tab
+ * (marimo-managed vs OS environment); only the marimo tab allows adding.
+ */
+const SecretsBrowser: React.FC<{
+  isEnv: boolean;
+  rows: SecretRow[];
+  allowAdd: boolean;
+  providerNames: string[];
+  refetch: () => void;
+  emptyTitle: string;
+  emptyDescription: string;
+}> = ({
+  isEnv,
+  rows,
+  allowAdd,
+  providerNames,
+  refetch,
+  emptyTitle,
+  emptyDescription,
+}) => {
+  const { openModal, closeModal } = useImperativeModal();
+  const [selected, setSelected] = useState<SecretRow>();
+
+  const addButton = allowAdd ? (
+    <HideInKioskMode>
+      <button
+        type="button"
+        className="flex items-center gap-1 px-2 h-6 rounded-[3px] text-xs text-muted-foreground hover:bg-[var(--hover-wash)] hover:text-foreground"
+        onClick={() =>
+          openModal(
+            <WriteSecretModal
+              providerNames={providerNames}
+              onSuccess={() => {
+                refetch();
+                closeModal();
+              }}
+              onClose={closeModal}
+            />,
+          )
+        }
+      >
+        <PlusIcon strokeWidth={1.5} className="h-3.5 w-3.5" />
+        Add
+      </button>
+    </HideInKioskMode>
+  ) : null;
 
   if (rows.length === 0) {
     return (
-      <PanelEmptyState
-        title="No environment variables"
-        description="No environment variables are available in this notebook."
-        icon={<KeyIcon />}
-        action={
-          <HideInKioskMode>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() =>
-                openModal(
-                  <WriteSecretModal
-                    providerNames={providerNames}
-                    onSuccess={() => {
-                      refetch();
-                      closeModal();
-                    }}
-                    onClose={closeModal}
-                  />,
-                )
-              }
-            >
-              <PlusIcon strokeWidth={1.5} className="h-3.5 w-3.5 mr-1.5" />
-              Add
-            </Button>
-          </HideInKioskMode>
-        }
-      />
+      <div className="flex min-h-0 flex-1 items-center justify-center">
+        <PanelEmptyState
+          title={emptyTitle}
+          description={emptyDescription}
+          icon={<KeyIcon />}
+          action={addButton}
+        />
+      </div>
     );
   }
 
   return (
-    <PanelGroup direction="horizontal" className="h-full">
-      <Panel defaultSize={55} minSize={30} maxSize={80}>
-        <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between px-3 h-8 shrink-0 border-b border-border">
-            <span className="skies-kicker">secrets</span>
-            <HideInKioskMode>
-              <button
-                type="button"
-                className="flex items-center gap-1 px-2 h-6 rounded-[3px] text-xs text-muted-foreground hover:bg-[var(--hover-wash)] hover:text-foreground"
-                onClick={() =>
-                  openModal(
-                    <WriteSecretModal
-                      providerNames={providerNames}
-                      onSuccess={() => {
-                        refetch();
-                        closeModal();
-                      }}
-                      onClose={closeModal}
-                    />,
-                  )
-                }
-              >
-                <PlusIcon strokeWidth={1.5} className="h-3.5 w-3.5" />
-                Add
-              </button>
-            </HideInKioskMode>
-          </div>
-          <Table className="table-fixed overflow-y-auto overflow-x-hidden flex-1">
+    <div className="flex min-h-0 flex-1">
+      <div className="flex w-[55%] min-w-0 flex-col border-r border-border">
+        <div className="flex items-center justify-between px-3 h-8 shrink-0 border-b border-border">
+          <span className="skies-kicker">
+            {isEnv ? "environment" : "secrets"}
+          </span>
+          {addButton}
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+          <Table className="table-fixed">
             <colgroup>
               <col className="w-[46%]" />
               <col className="w-[34%]" />
@@ -160,7 +245,7 @@ const SecretsPanel: React.FC = () => {
                   Name
                 </TableCell>
                 <TableCell className="h-8 py-0 bg-card border-b font-medium">
-                  Source
+                  {isEnv ? "Scope" : "Source"}
                 </TableCell>
                 <TableCell className="h-8 py-0 bg-card border-b" />
               </TableRow>
@@ -187,14 +272,12 @@ const SecretsPanel: React.FC = () => {
                     </span>
                   </TableCell>
                   <TableCell className="py-1.5 overflow-hidden">
-                    {row.provider !== "env" && (
-                      <Badge
-                        variant="outline"
-                        className="select-none max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
-                      >
-                        {row.providerName}
-                      </Badge>
-                    )}
+                    <Badge
+                      variant="outline"
+                      className="select-none max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
+                    >
+                      {isEnv ? "os environment" : row.providerName}
+                    </Badge>
                   </TableCell>
                   <TableCell className="py-1.5">
                     <SecretRowActions row={row} />
@@ -204,25 +287,20 @@ const SecretsPanel: React.FC = () => {
             </TableBody>
           </Table>
         </div>
-      </Panel>
-      <PanelResizeHandle className="w-1 bg-border hover:bg-primary/30 transition-colors" />
-      <Panel defaultSize={45}>
-        <div className="h-full flex flex-col overflow-hidden">
-          {selected ? (
-            <SecretDetail key={selected.key} row={selected} />
-          ) : (
-            <PanelEmptyState
-              title=""
-              description="Click on an environment variable to view how to access it."
-            />
-          )}
-        </div>
-      </Panel>
-    </PanelGroup>
+      </div>
+      <div className="flex flex-1 min-w-0 flex-col overflow-hidden">
+        {selected ? (
+          <SecretDetail key={selected.key} row={selected} />
+        ) : (
+          <PanelEmptyState
+            title=""
+            description="Click on a secret to view how to access it."
+          />
+        )}
+      </div>
+    </div>
   );
 };
-
-export default SecretsPanel;
 
 const SecretRowActions: React.FC<{ row: SecretRow }> = ({ row }) => {
   const insertCode = useInsertCode();

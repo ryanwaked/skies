@@ -10,8 +10,13 @@ from marimo._secrets.env_provider import (
     EnvSecretsProvider,
 )
 from marimo._secrets.models import SecretKeysWithProvider, SecretProvider
+from marimo._utils.xdg import marimo_wide_dotenv_path
 
 LOGGER = _loggers.marimo_logger()
+
+# Display name for the user-level dotenv (secrets shared across all
+# notebooks). Kept distinct from any project `.env` basename.
+MARIMO_WIDE_LABEL = "Marimo-wide"
 
 if TYPE_CHECKING:
     from marimo._server.models.secrets import CreateSecretRequest
@@ -22,10 +27,18 @@ def _get_providers(
 ) -> list[SecretProvider]:
     providers: list[SecretProvider] = [EnvSecretsProvider(original_environ)]
 
-    # Add dotenv providers
+    # Add project-scoped dotenv providers (from `runtime.dotenv`).
     dotenvs: list[str] = config.get("runtime", {}).get("dotenv", [])
     if dotenvs and isinstance(dotenvs, list):
         providers.extend(DotEnvSecretsProvider(dotenv) for dotenv in dotenvs)
+
+    # Always offer the marimo-wide dotenv, so a secret can be scoped to the
+    # current project (a `.env`) or to every notebook (this user-level file).
+    providers.append(
+        DotEnvSecretsProvider(
+            str(marimo_wide_dotenv_path()), label=MARIMO_WIDE_LABEL
+        )
+    )
 
     return providers
 

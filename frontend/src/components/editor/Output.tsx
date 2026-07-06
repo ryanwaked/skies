@@ -28,7 +28,7 @@ import { useOverflowDetection } from "@/hooks/useOverflowDetection";
 import { renderHTML } from "@/plugins/core/RenderHTML";
 import { Banner } from "@/plugins/impl/common/error-banner";
 import type { TopLevelFacetedUnitSpec } from "@/plugins/impl/data-explorer/queries/types";
-import { getContainerWidth } from "@/plugins/impl/vega/utils";
+import { getContainerWidth, withSkiesLayout } from "@/plugins/impl/vega/utils";
 import { useTheme } from "@/theme/useTheme";
 import { Events } from "@/utils/events";
 import { invariant } from "@/utils/invariant";
@@ -210,6 +210,11 @@ export const OutputRenderer: React.FC<{
       const specHeight = (parsedJsonData as { height?: unknown })?.height;
       const reservedHeight =
         typeof specHeight === "number" ? specHeight + 60 : 340;
+      // Static chart outputs get the same fill-the-column default as the
+      // interactive vega plugin (no-op for vega specs / explicit widths).
+      const sizedSpec = withSkiesLayout(
+        parsedJsonData as TopLevelFacetedUnitSpec,
+      );
       return (
         <Suspense
           fallback={
@@ -219,8 +224,8 @@ export const OutputRenderer: React.FC<{
           }
         >
           <LazyVegaEmbed
-            spec={parsedJsonData as TopLevelFacetedUnitSpec}
-            data-container-width={getContainerWidth(parsedJsonData)}
+            spec={sizedSpec}
+            data-container-width={getContainerWidth(sizedSpec)}
             options={{
               config: getSkiesVegaConfig(theme),
               mode: "vega-lite",

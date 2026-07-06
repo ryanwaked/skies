@@ -116,7 +116,7 @@ const SKIES_DARK_COLORSPACE: NamedColorspace = {
   base00: "transparent", // background (cell surface shows through)
   base01: "#211d2c", // raised surface
   base02: "rgb(220 214 232 / 14%)", // indent guides + collapsed-string background
-  base03: "#847e92", // comments
+  base03: "#8f89a3", // comments
   base04: "rgb(187 181 199 / 60%)", // metadata (item counts, ellipsis)
   base05: "#e9e6f2", // default foreground
   base06: "#e9e6f2",

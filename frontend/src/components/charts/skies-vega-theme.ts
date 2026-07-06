@@ -3,41 +3,97 @@
 import type { Config } from "vega-lite";
 
 /**
- * Vega/vega-lite configs matching the Skies design language from
- * ryanwaked.com: charts sit transparent on the desk grid with JetBrains
- * Mono guides, Source Serif titles, hairline ink grid lines, and a
- * categorical palette led by the trace pair (sky blue, copper) and gold.
+ * Vega/vega-lite configs porting the Waked Binary figure language from
+ * ryanwaked.com (see frontend/charts-plan.md): transparent charts on the
+ * desk grid, hairline grids as the only chrome (no plot frame, no tick
+ * marks, no domain), JetBrains Mono guides, Source Serif titles anchored
+ * start, and a categorical palette led by the trace pair (sky blue,
+ * copper) then gold.
  *
  * Used in place of vega-themes' stock presets at every vega-embed call
  * site, in both color modes, via `getSkiesVegaConfig`.
  */
-export const SKIES_LIGHT_VEGA_CONFIG: Config = {
+
+/** Shared, mode-independent geometry (kit rules: thin marks, real gaps).
+ * NO `padding` here: this config also reaches the 80×30 table-header
+ * summary charts, where fixed padding consumes the whole plot area and
+ * the bars vanish (vega's default 5px is fine everywhere). */
+const SKIES_BASE_CONFIG = {
   background: "transparent",
-  view: { stroke: "rgba(21, 17, 42, 0.12)" },
+
+  // Kit rule: grids are the chrome — no plot frame, no ticks, no domain.
+  view: { stroke: null },
+
+  // NO `bar` config here: a config-level cornerRadiusEnd silently kills
+  // vega-lite's ranged bars (x/x2 binned histograms — the table-header
+  // summary charts render nothing). Square corners also match the kit.
+  scale: { bandPaddingInner: 0.32, bandPaddingOuter: 0.12 },
+
+
+  line: { strokeWidth: 1.6, strokeCap: "round", strokeJoin: "round" },
+  point: { size: 42, filled: true, opacity: 0.9 },
+  area: { opacity: 0.22, line: true },
+  tick: { thickness: 1.5 },
+} as const;
+
+const SKIES_AXIS_BASE = {
+  domain: false,
+  ticks: false,
+  gridWidth: 1,
+  labelFont: "JetBrains Mono",
+  labelFontSize: 10.5,
+  labelPadding: 8,
+  labelLimit: 220,
+  labelOverlap: true,
+  titleFont: "JetBrains Mono",
+  titleFontSize: 10,
+  titleFontWeight: 500,
+  titlePadding: 12,
+} as const;
+
+const SKIES_LEGEND_BASE = {
+  orient: "bottom",
+  direction: "horizontal",
+  labelFont: "JetBrains Mono",
+  labelFontSize: 10.5,
+  titleFont: "JetBrains Mono",
+  titleFontSize: 10,
+  symbolSize: 60,
+  symbolType: "square",
+  padding: 12,
+} as const;
+
+const SKIES_TITLE_BASE = {
+  font: "Source Serif 4",
+  fontWeight: 700,
+  fontSize: 15,
+  subtitleFontSize: 11,
+  anchor: "start",
+  offset: 14,
+} as const;
+
+export const SKIES_LIGHT_VEGA_CONFIG: Config = {
+  ...SKIES_BASE_CONFIG,
   // Default single-series mark color = the sky-blue data tracer (matches
   // the first categorical color below); explicit color encodings still win.
   mark: { color: "#1b7be4" },
+  arc: { stroke: "#fff", strokeWidth: 1.5 },
+  rule: { color: "rgba(21, 17, 42, 0.28)" },
   title: {
+    ...SKIES_TITLE_BASE,
     color: "#15112a",
     subtitleColor: "#5c5668",
-    font: "Source Serif 4",
-    fontWeight: 700,
   },
   axis: {
-    domainColor: "rgba(21, 17, 42, 0.12)",
-    gridColor: "rgba(21, 17, 42, 0.08)",
-    tickColor: "rgba(21, 17, 42, 0.12)",
+    ...SKIES_AXIS_BASE,
+    gridColor: "rgba(21, 17, 42, 0.045)", // = --grid-line (light)
     labelColor: "#75707f",
     titleColor: "#5c5668",
-    labelFont: "JetBrains Mono",
-    titleFont: "JetBrains Mono",
-    labelFontSize: 10.5,
   },
   legend: {
+    ...SKIES_LEGEND_BASE,
     labelColor: "#5c5668",
     titleColor: "#75707f",
-    labelFont: "JetBrains Mono",
-    titleFont: "JetBrains Mono",
   },
   range: {
     // Skies light categorical palette: sky blue and copper (the trace
@@ -46,53 +102,48 @@ export const SKIES_LIGHT_VEGA_CONFIG: Config = {
       "#1b7be4",
       "#a8542c",
       "#c2980f",
+      "#75707f",
       "#1f883d",
       "#7c5cbf",
       "#0e7f8a",
       "#cf222e",
-      "#75707f",
     ],
   },
 } as const;
 
 export const SKIES_DARK_VEGA_CONFIG: Config = {
-  background: "transparent",
-  view: { stroke: "rgba(220, 214, 232, 0.14)" },
+  ...SKIES_BASE_CONFIG,
   mark: { color: "#5fa6ef" },
+  arc: { stroke: "#15131d", strokeWidth: 1.5 },
+  rule: { color: "rgba(220, 214, 232, 0.28)" },
   title: {
+    ...SKIES_TITLE_BASE,
     color: "#f3f1f7",
     subtitleColor: "#bbb5c7",
-    font: "Source Serif 4",
-    fontWeight: 700,
   },
   axis: {
-    domainColor: "rgba(220, 214, 232, 0.14)",
-    gridColor: "rgba(220, 214, 232, 0.09)",
-    tickColor: "rgba(220, 214, 232, 0.14)",
-    labelColor: "#847e92",
+    ...SKIES_AXIS_BASE,
+    gridColor: "rgba(220, 214, 232, 0.055)", // = --grid-line (dark)
+    labelColor: "#8f89a3",
     titleColor: "#bbb5c7",
-    labelFont: "JetBrains Mono",
-    titleFont: "JetBrains Mono",
-    labelFontSize: 10.5,
   },
   legend: {
+    ...SKIES_LEGEND_BASE,
     labelColor: "#bbb5c7",
-    titleColor: "#847e92",
-    labelFont: "JetBrains Mono",
-    titleFont: "JetBrains Mono",
+    titleColor: "#8f89a3",
   },
   range: {
     // Skies night categorical palette: the moonlit trace pair leads, then
-    // hues tuned to the #15131d canvas.
+    // gold and hues tuned to the #15131d canvas.
     category: [
       "#5fa6ef",
       "#d98552",
       "#e8c44e",
+      "#8f89a3",
       "#3fb950",
       "#b79ce8",
       "#58c1cc",
       "#f0564b",
-      "#847e92",
     ],
   },
 } as const;

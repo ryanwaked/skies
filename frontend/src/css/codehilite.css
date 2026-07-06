@@ -19,18 +19,18 @@
       rgb(27 123 228 / 15%),
       rgb(95 166 239 / 24%)
     );
-    --codehilite-c: light-dark(#75707f, #847e92);
+    --codehilite-c: light-dark(#75707f, #8f89a3);
     --codehilite-err: light-dark(#cf222e, #f0564b);
     --codehilite-k: light-dark(#155ba4, #5fa6ef);
     --codehilite-l: light-dark(#9a6700, #e8c44e);
     --codehilite-n: light-dark(#15112a, #e9e6f2);
     --codehilite-o: light-dark(#5c5668, #bbb5c7);
-    --codehilite-ch: light-dark(#75707f, #847e92);
-    --codehilite-cm: light-dark(#75707f, #847e92);
-    --codehilite-cp: light-dark(#75707f, #847e92);
-    --codehilite-cpf: light-dark(#75707f, #847e92);
-    --codehilite-c1: light-dark(#75707f, #847e92);
-    --codehilite-cs: light-dark(#75707f, #847e92);
+    --codehilite-ch: light-dark(#75707f, #8f89a3);
+    --codehilite-cm: light-dark(#75707f, #8f89a3);
+    --codehilite-cp: light-dark(#75707f, #8f89a3);
+    --codehilite-cpf: light-dark(#75707f, #8f89a3);
+    --codehilite-c1: light-dark(#75707f, #8f89a3);
+    --codehilite-cs: light-dark(#75707f, #8f89a3);
     --codehilite-kc: light-dark(#155ba4, #79aef0);
     --codehilite-kd: light-dark(#155ba4, #5fa6ef);
     --codehilite-kn: light-dark(#155ba4, #5fa6ef);

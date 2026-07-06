@@ -61,9 +61,11 @@ class TableManager(abc.ABC, Generic[T]):
     # Upper limit for frontend table component to show column summary charts
     # to ensure browser performance
     DEFAULT_SUMMARY_CHARTS_ROW_LIMIT = 20_000
-    # Lower limit for frontend to show column summary charts, since for
-    # very small tables column summaries just take up space.
-    DEFAULT_SUMMARY_CHARTS_MINIMUM_ROWS = 11
+    # Lower limit for frontend to show column summary charts. Skies keeps
+    # this at 2 (upstream: 11) so small Python-rendered frames get the same
+    # header metric charts as SQL results — Hex shows the strip regardless
+    # of table size; only degenerate 0/1-row tables skip it.
+    DEFAULT_SUMMARY_CHARTS_MINIMUM_ROWS = 2
     # Upper limit for column summaries to avoid hanging up the kernel
     # Note: Keep this value in sync with DataTablePlugin's banner text
     DEFAULT_SUMMARY_STATS_ROW_LIMIT = 1_000_000

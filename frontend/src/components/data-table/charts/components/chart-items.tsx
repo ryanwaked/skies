@@ -111,7 +111,9 @@ const ColumnSelectorWithAggregation: React.FC<{
   const { selectedDataType } = getColumnDataTypes(column);
 
   return (
-    <div className="flex flex-row justify-between">
+    // Stack the aggregation ("average") control on its own line below the
+    // column selector so neither control is squeezed (was a single row).
+    <div className="flex flex-col gap-2">
       <ColumnSelector fieldName={columnFieldName} columns={columns} />
       {isNonTemporalField(column) && (
         <AggregationSelect

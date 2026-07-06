@@ -6,7 +6,10 @@ exports[`ColumnChartSpecModel > file URL handling > should handle arrow data 1`]
   "config": {
     "axis": {
       "domain": false,
+      "labelPadding": 2,
+      "titlePadding": 2,
     },
+    "padding": 0,
     "view": {
       "stroke": "transparent",
     },
@@ -129,7 +132,10 @@ exports[`ColumnChartSpecModel > should expect bin values to be used for number a
   "config": {
     "axis": {
       "domain": false,
+      "labelPadding": 2,
+      "titlePadding": 2,
     },
+    "padding": 0,
     "view": {
       "stroke": "transparent",
     },
@@ -263,7 +269,10 @@ exports[`ColumnChartSpecModel > should handle boolean stats 1`] = `
   "config": {
     "axis": {
       "domain": false,
+      "labelPadding": 2,
+      "titlePadding": 2,
     },
+    "padding": 0,
     "view": {
       "stroke": "transparent",
     },
@@ -387,7 +396,10 @@ exports[`ColumnChartSpecModel > should handle datetime bin values 1`] = `
   "config": {
     "axis": {
       "domain": false,
+      "labelPadding": 2,
+      "titlePadding": 2,
     },
+    "padding": 0,
     "view": {
       "stroke": "transparent",
     },
@@ -510,7 +522,10 @@ exports[`ColumnChartSpecModel > should handle string value counts 1`] = `
   "config": {
     "axis": {
       "domain": false,
+      "labelPadding": 2,
+      "titlePadding": 2,
     },
+    "padding": 0,
     "view": {
       "stroke": "transparent",
     },
@@ -639,7 +654,10 @@ exports[`ColumnChartSpecModel > snapshot with legacy data spec > array 1`] = `
   "config": {
     "axis": {
       "domain": false,
+      "labelPadding": 2,
+      "titlePadding": 2,
     },
+    "padding": 0,
     "view": {
       "stroke": "transparent",
     },
@@ -720,7 +738,10 @@ exports[`ColumnChartSpecModel > snapshot with legacy data spec > csv data 1`] = 
   "config": {
     "axis": {
       "domain": false,
+      "labelPadding": 2,
+      "titlePadding": 2,
     },
+    "padding": 0,
     "view": {
       "stroke": "transparent",
     },
@@ -808,7 +829,10 @@ exports[`ColumnChartSpecModel > snapshot with legacy data spec > csv string 1`] 
   "config": {
     "axis": {
       "domain": false,
+      "labelPadding": 2,
+      "titlePadding": 2,
     },
+    "padding": 0,
     "view": {
       "stroke": "transparent",
     },
@@ -896,7 +920,10 @@ exports[`ColumnChartSpecModel > snapshot with legacy data spec > url data 1`] = 
   "config": {
     "axis": {
       "domain": false,
+      "labelPadding": 2,
+      "titlePadding": 2,
     },
+    "padding": 0,
     "view": {
       "stroke": "transparent",
     },

@@ -2,7 +2,7 @@ import marimo
 
 __generated_with = "0.23.13"
 app = marimo.App(
-    width="full",
+    width="medium",
     app_title="Evaluating Rent Burden Against Income in Major US Metropolitan Areas",
 )
 
@@ -117,6 +117,11 @@ def _():
     _password = os.environ.get("marimo", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhlbGxvQHJ5YW53YWtlZC5jb20iLCJtZFJlZ2lvbiI6ImF3cy11cy13ZXN0LTIiLCJzZXNzaW9uIjoiaGVsbG8ucnlhbndha2VkLmNvbSIsInBhdCI6InlsRVBXWHVvZU1MODJxM0dKQy05dUpOV0JydE1ra0JmTVYyR0N2RzZUQ2siLCJ1c2VySWQiOiI3ZjQ4YzkzOS1lNGQwLTQ5ZDAtODdlNi0xZTgxMDZjYzlkYjQiLCJpc3MiOiJtZF9wYXQiLCJyZWFkT25seSI6ZmFsc2UsInRva2VuVHlwZSI6InJlYWRfd3JpdGUiLCJpYXQiOjE3ODMyNjc4Mjl9.kq8043j3ew4yfZdtx91BWVyxhFu5d-Lqr7uEBi-uuzo")
     conn = duckdb.connect("md:us_gov_db", config={"motherduck_token": _password})
     return (conn,)
+
+
+@app.cell
+def _():
+    return
 
 
 @app.cell

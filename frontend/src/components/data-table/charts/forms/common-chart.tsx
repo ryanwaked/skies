@@ -232,18 +232,22 @@ const AxisStyleOptions: React.FC<{ axis: "xAxis" | "yAxis" }> = ({ axis }) => {
           value: scale,
         }))}
       />
-      <div className="flex flex-row justify-between">
+      {/* Two-column grid so each domain input grows to fill its half
+          (was fixed w-14 / 56px, which clipped signed/decimal values). */}
+      <div className="grid grid-cols-2 gap-3">
         <NumberField
           fieldName={`${axis}.domainMin`}
           label="Min"
-          inputClassName="w-14"
+          className="justify-between"
+          inputClassName="flex-1 min-w-0"
           minValue={Number.MIN_SAFE_INTEGER}
           placeholder="auto"
         />
         <NumberField
           fieldName={`${axis}.domainMax`}
           label="Max"
-          inputClassName="w-14"
+          className="justify-between"
+          inputClassName="flex-1 min-w-0"
           minValue={Number.MIN_SAFE_INTEGER}
           placeholder="auto"
         />

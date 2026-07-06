@@ -160,6 +160,7 @@ from marimo._utils.paths import normalize_path
 from marimo._utils.platform import is_pyodide
 from marimo._utils.signals import restore_signals
 from marimo._utils.typed_connection import TypedConnection
+from marimo._utils.xdg import marimo_wide_dotenv_path
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
@@ -2257,6 +2258,12 @@ class Kernel:
         if not isinstance(dotenvs, list):
             LOGGER.warning("dotenv configuration is not a list")
             return
+
+        # Also load the marimo-wide (user-level) dotenv so secrets written
+        # there are available across all notebooks. Project dotenvs are
+        # loaded first, so they take precedence (load_dotenv never overrides
+        # an already-set key).
+        dotenvs = [*dotenvs, str(marimo_wide_dotenv_path())]
 
         for env in dotenvs:
             if Path(env).exists():

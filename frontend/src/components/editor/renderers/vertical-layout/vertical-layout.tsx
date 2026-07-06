@@ -56,6 +56,7 @@ import {
   downloadHTMLAsImage,
 } from "@/utils/download";
 import { Filenames } from "@/utils/filenames";
+import { NotebookTitleBlock } from "../../notebook-title-block";
 import { FloatingOutline } from "../../chrome/panels/outline/floating-outline";
 import { cellDomProps } from "../../common";
 import type { ICellRendererPlugin, ICellRendererProps } from "../types";
@@ -153,6 +154,11 @@ const VerticalLayoutRenderer: React.FC<VerticalLayoutProps> = ({
   // spacing is handled elsewhere
   return (
     <VerticalLayoutWrapper invisible={invisible} appConfig={appConfig}>
+      {/* Same masthead as edit mode, so the published/read view opens with
+          the title block instead of dropping straight into the first cell. */}
+      {appConfig.width !== "columns" && cells.length > 0 && (
+        <NotebookTitleBlock appConfig={appConfig} />
+      )}
       <div className={cn("flex flex-col", showCode && canShowCode && "gap-5")}>
         {renderCells()}
       </div>

@@ -103,7 +103,9 @@
     --sky-blue: light-dark(#1b7be4, #5fa6ef);
     --copper: light-dark(#a8542c, #d98552);
     --gold: light-dark(#c2980f, #e8c44e);
-    --foreground-dim: light-dark(#75707f, #847e92);
+    /* Dim ink clears WCAG 4.5:1 on BOTH the canvas and the (lighter) card
+       surface in each mode — #847e92 measured 4.24:1 on the dark card. */
+    --foreground-dim: light-dark(#75707f, #8f89a3);
     /* The top bar sits one notch darker than the canvas in dark mode so the
        desk's grid+grain reads as receding behind the bar. Light mode matches
        the canvas exactly. */
@@ -132,7 +134,9 @@
 
     /* Codemirror editor (code sits on the paper/panel surface, not the desk) */
     --cm-background: light-dark(#fff, #211d2c);
-    --cm-comment: light-dark(#75707f, #847e92);
+    /* Comments are still text: keep in step with --foreground-dim so they
+       clear 4.5:1 on the card/editor surface. */
+    --cm-comment: light-dark(#75707f, #8f89a3);
 
     /* Stacking order — one documented scale so overlays layer predictably.
        Consume via the Tailwind utilities (z-dropdown, z-sticky, z-overlay,

@@ -97,7 +97,7 @@ const TerminalSkeleton: React.FC = () => {
       className="w-full h-full flex items-start p-3 font-mono text-xs select-none"
       style={{
         background: isDark ? "#15131d" : "#ffffff",
-        color: isDark ? "#847e92" : "#75707f",
+        color: isDark ? "#8f89a3" : "#75707f",
       }}
     >
       <span className="opacity-70">Starting terminal</span>

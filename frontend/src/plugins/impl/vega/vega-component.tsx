@@ -28,7 +28,7 @@ import { makeSelectable } from "./make-selectable";
 import { getSelectionParamNames, ParamNames } from "./params";
 import { resolveVegaSpecData } from "./resolve-data";
 import type { VegaLiteSpec } from "./types";
-import { getContainerWidth } from "./utils";
+import { getContainerWidth, withSkiesLayout } from "./utils";
 
 // register arrow reader under type 'arrow'
 formats("arrow", arrow);
@@ -132,10 +132,12 @@ const LoadedVegaComponent = ({
   // Aggressively memoize the spec, so Vega doesn't re-render/re-mount the component
   const specMemo = useDeepCompareMemoize(spec);
   const selectableSpec = useMemo(() => {
-    return makeSelectable(fixRelativeUrl(specMemo), {
-      chartSelection,
-      fieldSelection,
-    });
+    return withSkiesLayout(
+      makeSelectable(fixRelativeUrl(specMemo), {
+        chartSelection,
+        fieldSelection,
+      }),
+    );
   }, [specMemo, chartSelection, fieldSelection]);
   const names = useMemo(
     () => getSelectionParamNames(selectableSpec),

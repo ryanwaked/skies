@@ -123,9 +123,11 @@ describe("computeLayoutOnFigureChange", () => {
 
     // Dragmode is still preserved
     expect(result.dragmode).toBe("zoom");
-    // Axis settings are NOT preserved — they come from the new figure's layout
-    expect(result.xaxis).toBeUndefined();
-    expect(result.yaxis).toBeUndefined();
+    // User axis state (ranges/zoom) is NOT preserved — a fresh layout only
+    // carries the Skies axis theme (grid/line/zeroline colors)
+    expect(result.xaxis).not.toHaveProperty("range");
+    expect(result.yaxis).not.toHaveProperty("range");
+    expect(result.xaxis).toHaveProperty("gridcolor");
     // New figure's layout is applied
     expect(result.title).toEqual({ text: "Bar" });
   });
@@ -147,9 +149,10 @@ describe("computeLayoutOnFigureChange", () => {
 
     // nextFigure.layout.dragmode should be preserved via base, not overwritten
     expect(result.dragmode).toBe("lasso");
-    // Axis settings are NOT preserved for incompatible traces
-    expect(result.xaxis).toBeUndefined();
-    expect(result.yaxis).toBeUndefined();
+    // User axis state is NOT preserved for incompatible traces — only the
+    // Skies axis theme remains
+    expect(result.xaxis).not.toHaveProperty("range");
+    expect(result.yaxis).not.toHaveProperty("range");
   });
 
   it("uses shapes from new figure, not previous layout", () => {

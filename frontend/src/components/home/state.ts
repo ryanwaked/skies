@@ -41,3 +41,31 @@ export const expandedFoldersAtom = atomWithStorage<Record<string, boolean>>(
   jotaiJsonStorage,
   { getOnInit: true },
 );
+
+/** Notebook paths the user has pinned to the top of the home page. */
+export const pinnedNotebooksAtom = atomWithStorage<string[]>(
+  "marimo:home:pinned",
+  [],
+  jotaiJsonStorage,
+  { getOnInit: true },
+);
+
+export type HomeSort = "recent" | "name";
+
+/** Sort order for the recent-notebooks list. */
+export const homeSortAtom = atomWithStorage<HomeSort>(
+  "marimo:home:sort",
+  "recent",
+  jotaiJsonStorage,
+  { getOnInit: true },
+);
+
+export type HomeView = "grid" | "list";
+
+/** Card grid vs compact list layout for the home page. */
+export const homeViewAtom = atomWithStorage<HomeView>(
+  "marimo:home:view",
+  "grid",
+  jotaiJsonStorage,
+  { getOnInit: true },
+);

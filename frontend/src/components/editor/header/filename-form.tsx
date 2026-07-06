@@ -50,7 +50,7 @@ export const FilenameForm = ({
       resetOnBlur={true}
       data-testid="filename-input"
       className={cn(
-        "h-7 my-0 px-1.5 py-0 font-sans text-sm font-bold text-foreground truncate",
+        "h-7 my-0 px-1.5 py-0 font-sans text-sm font-medium text-foreground truncate",
         filename === null ? "missing-filename" : "filename",
       )}
     />

@@ -32,12 +32,16 @@ class EnvSecretsProvider(SecretProvider):
 class DotEnvSecretsProvider(SecretProvider):
     type = "dotenv"
 
-    def __init__(self, file: str):
+    def __init__(self, file: str, label: str | None = None):
         self.file = file
+        # A display label distinguishes dotenv files that share a basename
+        # (e.g. the project `.env` and the marimo-wide `.env`), which would
+        # otherwise collide when matching a write target by name.
+        self._label = label
 
     @property
     def name(self) -> str:
-        return Path(self.file).name
+        return self._label or Path(self.file).name
 
     def get_keys(self) -> set[str]:
         env_dict = read_dotenv_with_fallback(self.file)
@@ -46,8 +50,10 @@ class DotEnvSecretsProvider(SecretProvider):
     def write_key(self, key: str, value: str) -> None:
         filepath = Path(self.file)
         if not filepath.exists():
-            # If is `.env`, then create it.
+            # If is `.env`, then create it (including any parent dirs, so the
+            # marimo-wide `~/.config/marimo/.env` can be created on demand).
             if filepath.name == ".env":
+                filepath.parent.mkdir(parents=True, exist_ok=True)
                 filepath.touch()
             else:
                 raise FileNotFoundError(f"File {filepath} does not exist")

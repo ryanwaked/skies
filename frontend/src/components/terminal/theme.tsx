@@ -23,7 +23,7 @@ export function createTerminalTheme(theme: ResolvedTheme) {
         magenta: "#b79ce8",
         cyan: "#58c1cc",
         white: "#e9e6f2",
-        brightBlack: "#847e92",
+        brightBlack: "#8f89a3",
         brightRed: "#f57c73",
         brightGreen: "#66cc74",
         brightYellow: "#f0d478",

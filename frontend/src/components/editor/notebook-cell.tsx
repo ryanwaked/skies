@@ -74,6 +74,7 @@ import { CellActionsContextMenu } from "./cell/cell-context-menu";
 import { CellEditor } from "./cell/code/cell-editor";
 import { CollapsedCellBanner, CollapseToggle } from "./cell/collapse";
 import { DeleteButton } from "./cell/DeleteButton";
+import { CellVariablesFooter } from "./cell/cell-variables-footer";
 import { PendingDeleteConfirmation } from "./cell/PendingDeleteConfirmation";
 import { RunButton } from "./cell/RunButton";
 import {
@@ -556,6 +557,9 @@ const EditableCellComponent = ({
     }),
     borderless:
       isMarkdownCodeHidden && hasOutput && !navigationProps["data-selected"],
+    // Skies measuring-tick corner brackets on prose markdown cells (not
+    // section-heading cells, which sit frameless on the canvas).
+    "skies-ticks": isMarkdown && !isSectionHead && hasOutput,
     "pending-cut": isPendingCut,
   });
 
@@ -674,20 +678,30 @@ const EditableCellComponent = ({
               data-hidden={isMarkdownCodeHidden}
             >
               <StagedAICellBackground cellId={cellId} />
-              <div className="absolute right-2 -top-4 z-10">
-                <CellToolbar
-                  edited={cellData.edited}
-                  status={cellRuntime.status}
-                  cellConfig={cellData.config}
-                  needsRun={needsRun}
-                  hasOutput={hasOutput}
-                  hasConsoleOutput={hasConsoleOutput}
-                  cellActionDropdownRef={cellActionDropdownRef}
-                  cellId={cellId}
-                  name={cellData.name}
-                  getEditorView={getEditorView}
-                  onRun={runCell}
-                />
+              {/* The run/stop/⋯ toolbar rides the viewport down a tall cell
+                  so it stays reachable at the cell body's end (was pinned to
+                  the cell top and scrolled away). The outer column is
+                  `absolute` — kept OUT of the tray's flex row so it doesn't
+                  become a squeezed flex item — and spans the tray height on
+                  the right; the inner `sticky` toolbar follows the scroll
+                  within it. pointer-events-none on the strip so it never eats
+                  clicks over the editor; re-enabled on the buttons. */}
+              <div className="pointer-events-none absolute inset-y-0 right-2 z-10">
+                <div className="pointer-events-auto sticky top-3 -mt-4">
+                  <CellToolbar
+                    edited={cellData.edited}
+                    status={cellRuntime.status}
+                    cellConfig={cellData.config}
+                    needsRun={needsRun}
+                    hasOutput={hasOutput}
+                    hasConsoleOutput={hasConsoleOutput}
+                    cellActionDropdownRef={cellActionDropdownRef}
+                    cellId={cellId}
+                    name={cellData.name}
+                    getEditorView={getEditorView}
+                    onRun={runCell}
+                  />
+                </div>
               </div>
               <CellEditor
                 theme={theme}
@@ -825,6 +839,7 @@ const EditableCellComponent = ({
               cellId={cellId}
               debuggerActive={cellRuntime.debuggerActive}
             />
+            <CellVariablesFooter cellId={cellId} />
             <PendingDeleteConfirmation cellId={cellId} />
           </div>
           <StagedAICellFooter cellId={cellId} />

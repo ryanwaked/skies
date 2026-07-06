@@ -62,6 +62,16 @@ def marimo_config_path() -> Path:
     return xdg_config_home() / "marimo" / "marimo.toml"
 
 
+def marimo_wide_dotenv_path() -> Path:
+    """Get the marimo-wide (user-level) `.env` path using XDG specification.
+
+    Secrets written here are available across all of the user's notebooks,
+    as opposed to a project-local `.env`. Lives beside the global config:
+    `$XDG_CONFIG_HOME/marimo/.env` if set, otherwise `~/.config/marimo/.env`.
+    """
+    return xdg_config_home() / "marimo" / ".env"
+
+
 def marimo_cache_dir() -> Path:
     """Get marimo cache directory using XDG specification.
 

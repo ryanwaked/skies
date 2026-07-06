@@ -342,10 +342,19 @@
     background: transparent;
     box-shadow: none;
 
-    /* Section heads carry the site's measuring-tick ruler: a dashed
-     * hairline under the heading, drawn at a 1px/14px pitch. */
-    .markdown :is(h1, h2, h3):only-child {
-      padding-bottom: 12px;
+    /* Section-head rhythm (Hex cadence): ~40px above the heading
+     * (16px column gap + 24px here), 16px gap below to its content.
+     * The output frame padding is dropped — the heading sits directly
+     * on the canvas and the column gap carries the spacing below. */
+    .output-area {
+      padding: 24px 0 0;
+    }
+
+    /* Only top-level section breaks (a lone h1) keep the site's
+     * measuring-tick ruler, thinned; h2/h3 heads hold space with size
+     * alone, as in Hex. */
+    .markdown h1:only-child {
+      padding-bottom: 10px;
       /* Pixel-precise dashed ruler pitch. */
       /* stylelint-disable unit-allowed-list */
       background-image: repeating-linear-gradient(
@@ -356,7 +365,7 @@
       /* stylelint-enable unit-allowed-list */
       background-repeat: no-repeat;
       /* stylelint-disable-next-line unit-allowed-list */
-      background-size: 100% 5px;
+      background-size: 100% 4px;
       background-position: left bottom;
     }
   }
@@ -390,21 +399,22 @@
  */
 .marimo-cell .cell-frame-label {
   position: absolute;
-  top: -8px;
+  top: -9px;
   left: 14px;
   z-index: 25;
   padding: 0 6px;
 
-  /* Skies mono label voice (the site's kicker register). */
+  /* Skies mono label voice (the site's kicker register) at Hex's on-border
+   * label size — 12px reads as a *name*, 10px read as decoration. */
   font-family: var(--monospace-font);
   /* stylelint-disable-next-line unit-allowed-list */
-  font-size: 10px;
-  line-height: 16px;
+  font-size: 12px;
+  line-height: 18px;
   font-weight: 500;
   /* stylelint-disable-next-line unit-allowed-list */
-  letter-spacing: 0.1em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--foreground-dim);
+  color: var(--muted-foreground);
   background-color: var(--background);
   border: none;
   pointer-events: none;
@@ -599,8 +609,8 @@
 /* .marimo-cell is needed to take precedence over codemirror's generated class ... */
 .marimo-cell .cm-editor {
   border: 1px solid transparent;
-  padding: 3px;
-  padding-right: 24px;
+  /* Hex-style inset: code doesn't hug the frame (was 3px all around). */
+  padding: 8px 24px 8px 6px;
 
   &.cm-focused {
     .cm-activeLineGutter {
