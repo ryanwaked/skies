@@ -1,0 +1,81 @@
+# Skies fork CI — a lean, self-contained pipeline that validates this fork's
+# own changes. It deliberately uses NONE of upstream marimo's secret-manager
+# (Doppler) or release/publish machinery, so it runs cleanly on a private fork
+# with no configured secrets. The inherited upstream workflows fail here only
+# because they need marimo-team's Doppler credentials — not because of the code.
+name: Skies CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: skies-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  MARIMO_SKIP_UPDATE_CHECK: "1"
+
+jobs:
+  frontend:
+    name: Frontend · typecheck + lint + tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm turbo typecheck --filter @marimo-team/frontend
+
+      - name: Lint (oxlint)
+        working-directory: frontend
+        run: pnpm exec oxlint
+
+      - name: Unit tests
+        working-directory: frontend
+        run: pnpm exec vitest run
+
+  backend:
+    name: Backend · Skies changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up uv + Python
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+
+      # Scoped to the fork's own backend surface: marimo-wide secrets scopes,
+      # the `marimo edit` default-directory resolver, and the home-page
+      # notebook-preview endpoint. Keeps CI fast and avoids upstream suites
+      # that assume the marimo-team CI environment.
+      - name: Tests
+        run: >
+          uv run --group test pytest -q
+          tests/_secrets/test_secrets.py
+          tests/_cli/test_edit_default_directory.py
+          tests/_server/api/endpoints/test_home.py
+          tests/_server/api/endpoints/test_notebook_preview.py
