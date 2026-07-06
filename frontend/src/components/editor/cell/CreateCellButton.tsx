@@ -56,6 +56,44 @@ import {
 import { Tooltip } from "../../ui/tooltip";
 import { MarkdownIcon, PythonIcon } from "./code/icons";
 
+// A single, shared record of which "other cell types" modifiers are currently
+// held. Read as a fallback at pointer-down time so a ⌘/Ctrl-click still opens
+// the cell-type menu even when the pointer event's own modifier flag doesn't
+// register — the cause of the "only works if I hold ⌘ *and* click" flakiness
+// (the button calls preventDefault(), which also blocks the :focus fallback).
+// One global listener set is shared across every CreateCellButton instance; a
+// per-instance window listener would attach 2×(cell count) keydown handlers.
+const heldModifiers = { mod: false, shift: false };
+let modifierListenersInstalled = false;
+
+function installModifierListeners(): void {
+  if (modifierListenersInstalled || typeof window === "undefined") {
+    return;
+  }
+  modifierListenersInstalled = true;
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Meta" || e.key === "Control") {
+      heldModifiers.mod = true;
+    } else if (e.key === "Shift") {
+      heldModifiers.shift = true;
+    }
+  });
+  window.addEventListener("keyup", (e) => {
+    if (e.key === "Meta" || e.key === "Control") {
+      heldModifiers.mod = false;
+    } else if (e.key === "Shift") {
+      heldModifiers.shift = false;
+    }
+  });
+  // A keyup can be missed when focus leaves the window (e.g. ⌘-Tab); treat any
+  // window blur as "modifiers released" so a stale flag can't wrongly open the
+  // menu on the next plain click.
+  window.addEventListener("blur", () => {
+    heldModifiers.mod = false;
+    heldModifiers.shift = false;
+  });
+}
+
 export const CreateCellButton = ({
   connectionState,
   onClick,
@@ -78,6 +116,7 @@ export const CreateCellButton = ({
   const justOpenedTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
   useEffect(() => {
+    installModifierListeners();
     return () => {
       if (justOpenedTimerRef.current) {
         clearTimeout(justOpenedTimerRef.current);
@@ -128,13 +167,15 @@ export const CreateCellButton = ({
     insertCell(LanguageAdapters.sql.defaultCode);
   };
 
-  const addTemplateCell = (code: string, needsAltair?: boolean) => () => {
-    maybeAddMarimoImport({ autoInstantiate: true, createNewCell });
-    if (needsAltair) {
-      maybeAddAltairImport({ autoInstantiate: true, createNewCell });
-    }
-    insertCell(code);
-  };
+  const addTemplateCell =
+    (code: string, opts: { needsAltair?: boolean; hideCode?: boolean } = {}) =>
+    () => {
+      maybeAddMarimoImport({ autoInstantiate: true, createNewCell });
+      if (opts.needsAltair) {
+        maybeAddAltairImport({ autoInstantiate: true, createNewCell });
+      }
+      insertCell(code, { hideCode: opts.hideCode });
+    };
 
   const addSetupCell = () => addSetupCellIfDoesntExist({});
 
@@ -163,8 +204,13 @@ export const CreateCellButton = ({
     e.preventDefault();
     e.stopPropagation();
 
+    // Consult the shared held-modifier tracker as a fallback: a deliberate
+    // ⌘/Ctrl-click should open the menu even if this pointer event's own
+    // modifier flag didn't register the key.
     const hasModifier =
-      oneClickShortcut === "shift" ? e.shiftKey : e.metaKey || e.ctrlKey;
+      oneClickShortcut === "shift"
+        ? e.shiftKey || heldModifiers.shift
+        : e.metaKey || e.ctrlKey || heldModifiers.mod;
 
     if (hasModifier) {
       openDropdown();
@@ -234,7 +280,9 @@ export const CreateCellButton = ({
           SQL cell
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={addTemplateCell(CHART_TEMPLATE, true)}>
+        <DropdownMenuItem
+          onClick={addTemplateCell(CHART_TEMPLATE, { needsAltair: true })}
+        >
           {renderIcon(<ChartColumnIcon size={13} strokeWidth={1.5} />)}
           Chart
         </DropdownMenuItem>
@@ -313,7 +361,11 @@ export const CreateCellButton = ({
           </DropdownMenuPortal>
         </DropdownMenuSub>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={addTemplateCell(SECTION_TEMPLATE)}>
+        <DropdownMenuItem
+          onClick={addTemplateCell(SECTION_TEMPLATE, {
+            hideCode: MARKDOWN_INITIAL_HIDE_CODE,
+          })}
+        >
           {renderIcon(<LayoutTemplateIcon size={13} strokeWidth={1.5} />)}
           Section
         </DropdownMenuItem>
