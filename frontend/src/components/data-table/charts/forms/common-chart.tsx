@@ -82,24 +82,23 @@ export const CommonChartForm: React.FC = () => {
       <XAxis />
       <YAxis />
 
-      {yColumnExists && (
-        <>
-          {hasMultipleSeries ? (
-            <FieldSection>
-              <Title text="Color by" />
-              <p className="text-xs text-muted-foreground">
-                Color by is controlled by series.
-              </p>
-            </FieldSection>
-          ) : (
-            <ColorByAxis />
-          )}
-          {showStacking && (
-            <div className="flex flex-row gap-2">
-              <BooleanField fieldName="general.stacking" label="Stacked" />
-            </div>
-          )}
-        </>
+      {/* The "Color by" picker lets you encode color by any dataframe column;
+          it's always available (not gated on the Y column) so it's easy to
+          find. With 2+ Y series, color is driven by the series instead. */}
+      {hasMultipleSeries ? (
+        <FieldSection>
+          <Title text="Color by" />
+          <p className="text-xs text-muted-foreground">
+            Color by is controlled by series.
+          </p>
+        </FieldSection>
+      ) : (
+        <ColorByAxis />
+      )}
+      {yColumnExists && showStacking && (
+        <div className="flex flex-row gap-2">
+          <BooleanField fieldName="general.stacking" label="Stacked" />
+        </div>
       )}
 
       <FormSectionHorizontalRule />

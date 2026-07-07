@@ -18,9 +18,14 @@ import {
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import type { CellId } from "@/core/cells/ids";
+import {
+  cellSectionsAtom,
+  getSectionInfo,
+} from "@/core/cells/sections";
 import { useAppConfig } from "@/core/config/config";
+import { store } from "@/core/state/jotai";
 import { Arrays } from "@/utils/arrays";
 import type { CellColumnId, MultiColumn } from "@/utils/id-tree";
 import { invariant } from "@/utils/invariant";
@@ -43,10 +48,18 @@ const SortableCellsProviderInternal = ({
   children,
   multiColumn,
 }: SortableCellsProviderProps) => {
-  const { dropCellOverCell, dropCellOverColumn, moveColumn, compactColumns } =
-    useCellActions();
+  const {
+    dropCellOverCell,
+    dropCellOverColumn,
+    moveColumn,
+    compactColumns,
+    moveCellsRelativeTo,
+  } = useCellActions();
 
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+  // When a section heading is being dragged, the ids of the whole section
+  // (head + the cells beneath it) so they move together on drop.
+  const sectionMembersRef = useRef<CellId[] | null>(null);
   const [clonedItems, setClonedItems] = useState<MultiColumn<CellId> | null>(
     null,
   );
@@ -75,6 +88,12 @@ const SortableCellsProviderInternal = ({
     setActiveId(event.active.id);
     const notebook = getNotebook();
     setClonedItems(notebook.cellIds);
+    // If a section heading is being dragged, remember its member cells so the
+    // whole section moves as a group when dropped (see handleDragEnd).
+    sectionMembersRef.current = getDraggedSectionMembers(
+      notebook.cellIds,
+      event.active.id,
+    );
   });
 
   const handleDragCancel = useEvent(() => {
@@ -87,6 +106,7 @@ const SortableCellsProviderInternal = ({
 
     setActiveId(null);
     setClonedItems(null);
+    sectionMembersRef.current = null;
   });
 
   /**
@@ -172,6 +192,12 @@ const SortableCellsProviderInternal = ({
       return;
     }
 
+    // A section moves as a group only on drop, so don't live-reorder its
+    // heading cell-by-cell here.
+    if (sectionMembersRef.current) {
+      return;
+    }
+
     // Handle moving cells
     if (isCellId(active.id)) {
       // Moving a cell to a column
@@ -204,9 +230,23 @@ const SortableCellsProviderInternal = ({
 
   const handleDragEnd = useEvent((event: DragEndEvent) => {
     const { active, over } = event;
+    const sectionMembers = sectionMembersRef.current;
+    sectionMembersRef.current = null;
 
     if (over === null || active.id === over.id) {
       return;
+    }
+
+    // Move a dragged section (its heading + all cells beneath it) as a group.
+    if (sectionMembers && isCellId(over.id)) {
+      const position = getSectionDropPosition(sectionMembers, over.id);
+      if (position) {
+        moveCellsRelativeTo({
+          cellIds: sectionMembers,
+          targetCellId: over.id,
+          position,
+        });
+      }
     }
 
     compactColumns();
@@ -232,6 +272,61 @@ const SortableCellsProviderInternal = ({
 };
 
 export const SortableCellsProvider = React.memo(SortableCellsProviderInternal);
+
+/**
+ * When `activeId` is a section heading, the ids of the whole section (the head
+ * plus every top-level cell beneath it, in order) so they can be dragged as a
+ * unit. Returns `null` for non-heads and lone headings (nothing extra to move,
+ * so they drag like a normal single cell).
+ */
+function getDraggedSectionMembers(
+  cellIds: MultiColumn<CellId>,
+  activeId: UniqueIdentifier,
+): CellId[] | null {
+  if (!isCellId(activeId)) {
+    return null;
+  }
+  const info = getSectionInfo(store.get(cellSectionsAtom), activeId);
+  if (!info.isSectionHead || info.lastCellId == null) {
+    return null;
+  }
+  const topLevel = cellIds.findWithId(activeId).topLevelIds;
+  const start = topLevel.indexOf(activeId);
+  const end = topLevel.indexOf(info.lastCellId);
+  if (start === -1 || end <= start) {
+    return null;
+  }
+  return topLevel.slice(start, end + 1);
+}
+
+/**
+ * Where to drop a dragged section relative to the cell under the cursor:
+ * before it if the target sits above the section, after it otherwise. `null`
+ * when the target is one of the section's own cells (a no-op).
+ */
+function getSectionDropPosition(
+  members: CellId[],
+  overId: CellId,
+): "before" | "after" | null {
+  if (members.includes(overId)) {
+    return null;
+  }
+  const cellIds = getNotebook().cellIds;
+  const headId = members[0];
+  const headColumn = cellIds.findWithId(headId);
+  const overColumn = cellIds.findWithId(overId);
+  // Different column: insert before the target.
+  if (headColumn.id !== overColumn.id) {
+    return "before";
+  }
+  const topLevel = headColumn.topLevelIds;
+  const overIdx = topLevel.indexOf(overId);
+  const headIdx = topLevel.indexOf(headId);
+  if (overIdx === -1 || headIdx === -1) {
+    return "before";
+  }
+  return overIdx < headIdx ? "before" : "after";
+}
 
 function isCellId(id: UniqueIdentifier): id is CellId {
   return typeof id === "string" && !id.startsWith("tree_");
