@@ -10,17 +10,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tooltip } from "@/components/ui/tooltip";
-import { needsRunAtom, notebookIsRunningAtom } from "@/core/cells/cells";
+import { notebookIsRunningAtom } from "@/core/cells/cells";
 import { canInteractWithAppAtom } from "@/core/network/connection";
 import { useRequestClient } from "@/core/network/requests";
 import { cn } from "@/utils/cn";
-import { renderShortcut } from "../../shortcuts/renderShortcut";
 import { useShouldShowInterrupt } from "../cell/useShouldShowInterrupt";
 
 /** Shared tint for both halves of the split control: the Skies active
  * treatment — sky-blue ink on a soft sky-blue wash, never a solid fill. */
 const splitTint =
-  "bg-primary/[0.07] text-primary transition-colors hover:bg-primary/[0.14]";
+  "bg-primary/[0.14] text-primary transition-colors hover:bg-primary/[0.22]";
 
 /**
  * Skies "Run all" split button: a 24px main half that runs stale cells
@@ -30,7 +29,6 @@ const splitTint =
  */
 export const RunAllSplitButton = () => {
   const canInteractWithApp = useAtomValue(canInteractWithAppAtom);
-  const needsRun = useAtomValue(needsRunAtom);
   const running = useAtomValue(notebookIsRunningAtom);
   const runStaleCells = useRunStaleCells();
   const runAllCells = useRunAllCells();
@@ -45,26 +43,17 @@ export const RunAllSplitButton = () => {
       data-testid="notebook-run-toolbar"
       className="flex items-center gap-px shrink-0"
     >
-      <Tooltip
-        content={
-          running
-            ? "Running…"
-            : needsRun
-              ? renderShortcut("global.runStale")
-              : "Nothing to run"
-        }
-      >
+      <Tooltip content={running ? "Running…" : "Run all cells"}>
         <button
           type="button"
           data-testid="run-button"
-          onClick={() => runStaleCells()}
+          onClick={() => runAllCells()}
           disabled={mainDisabled}
           className={cn(
-            "flex h-[24px] items-center gap-1.5 rounded-l-[3px] rounded-r-none px-[8px] py-[4px] text-[12px] font-normal",
+            "flex h-[24px] items-center gap-1.5 rounded-l-[3px] rounded-r-none px-[8px] py-[4px] text-[12px] font-medium",
             splitTint,
-            mainDisabled && "cursor-default hover:bg-primary/[0.07]",
+            mainDisabled && "cursor-default hover:bg-primary/[0.14]",
             !canInteractWithApp && "opacity-50",
-            !needsRun && !running && "opacity-70",
           )}
         >
           {running ? (
@@ -105,11 +94,11 @@ export const RunAllSplitButton = () => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem
-            data-testid="run-all-cells-menu-item"
+            data-testid="run-stale-cells-menu-item"
             disabled={!canInteractWithApp || running}
-            onSelect={() => runAllCells()}
+            onSelect={() => runStaleCells()}
           >
-            Run all cells
+            Run stale cells
           </DropdownMenuItem>
           <DropdownMenuItem
             data-testid="interrupt-kernel-menu-item"

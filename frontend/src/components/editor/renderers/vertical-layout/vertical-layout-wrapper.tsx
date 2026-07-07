@@ -26,6 +26,10 @@ export const VerticalLayoutWrapper: React.FC<PropsWithChildren<Props>> = ({
         "px-1 sm:px-10 print:px-0 print:pb-0",
         // Large mobile bottom padding due to mobile browser navigation bar
         "pb-24 sm:pb-12",
+        // In full width the content otherwise runs right under the floating
+        // table of contents pinned to the right edge; reserve room for it on
+        // wider screens (where the TOC is shown).
+        appConfig.width === "full" && "md:pr-16 lg:pr-24",
         className,
       )}
     >

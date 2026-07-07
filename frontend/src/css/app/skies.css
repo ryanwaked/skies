@@ -584,6 +584,32 @@ body,
   transform: translateY(0);
 }
 
+/* Square, icon-only CTA (e.g. the shutdown button): drop the text padding
+   and center the glyph so it reads as a tidy square. */
+.skies-cta.skies-cta--icon {
+  padding: 0;
+  gap: 0;
+  justify-content: center;
+}
+
+/* Destructive CTA: the same paper-card treatment as .skies-cta but in the
+   error color, so it reads as dangerous without a loud fill. */
+.skies-cta.skies-cta--danger,
+.skies-cta.skies-cta--danger svg {
+  color: var(--error);
+}
+.skies-cta.skies-cta--danger {
+  border-color: color-mix(in srgb, var(--error) 45%, transparent);
+}
+.skies-cta.skies-cta--danger:hover,
+.skies-cta.skies-cta--danger:hover svg {
+  color: var(--error);
+}
+.skies-cta.skies-cta--danger:hover {
+  border-color: var(--error);
+  background: color-mix(in srgb, var(--error) 8%, var(--card));
+}
+
 /* ---------------- HERO TEXT (home) ---------------- */
 .skies-hero {
   position: relative;

@@ -11,9 +11,10 @@ export const Kbd: React.FC<Props> = (props) => {
     <kbd
       className={clsx(
         props.className,
-        // text-[0.75rem]: don't want to set line height; want to inherit
-        // whatever line height is used to make sure text is not off-center
-        "rounded-lg bg-muted/40 px-2 text-[0.75rem] font-prose center border border-border text-muted-foreground block whitespace-nowrap",
+        // A little keyboard key cap: hairline border with a slightly heavier
+        // bottom edge for depth, square-ish min width so single keys read as
+        // caps rather than loose glyphs.
+        "inline-flex min-w-[1.5em] items-center justify-center whitespace-nowrap rounded-[4px] border border-border border-b-[1.5px] bg-muted/50 px-1.5 py-px text-[0.7rem] font-medium leading-[1.4] text-muted-foreground",
       )}
     >
       {props.children}

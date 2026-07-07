@@ -1,7 +1,12 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { KeyIcon, PlusCircleIcon } from "lucide-react";
-import { createContext, type ReactNode, use } from "react";
+import {
+  ChevronRightIcon,
+  KeyIcon,
+  PlusCircleIcon,
+  TerminalIcon,
+} from "lucide-react";
+import { createContext, type ReactNode, use, useState } from "react";
 import { z } from "zod";
 import type { FormRenderer } from "@/components/forms/form";
 import { FieldOptions } from "@/components/forms/options";
@@ -39,6 +44,8 @@ import { displaySecret, isSecret, prefixSecret } from "./secrets";
 interface SecretsContextType {
   providerNames: string[];
   secretKeys: string[];
+  /** OS environment variable names, kept separate from managed secrets. */
+  envKeys: string[];
   loading: boolean;
   error: Error | undefined;
   refreshSecrets: () => void;
@@ -47,6 +54,7 @@ interface SecretsContextType {
 const SecretsContext = createContext<SecretsContextType>({
   providerNames: [],
   secretKeys: [],
+  envKeys: [],
   loading: false,
   error: undefined,
   refreshSecrets: Functions.NOOP,
@@ -66,21 +74,32 @@ export const SecretsProvider = ({ children }: SecretsProviderProps) => {
     refetch: reload,
   } = useAsyncData(async () => {
     const result = await SECRETS_REGISTRY.request({});
-    // Provider names without 'env' provider
-    const providerNames = sortProviders(result.secrets)
+    const sorted = sortProviders(result.secrets);
+    // Provider names without the OS 'env' provider (you can't write to it).
+    const providerNames = sorted
       .filter((provider) => provider.provider !== "env")
       .map((provider) => provider.name);
 
-    return {
-      secretKeys: result.secrets.flatMap((secret) => secret.keys).toSorted(),
-      providerNames: providerNames,
-    };
+    // marimo-managed secrets (dotenv providers) are shown by default; the
+    // (usually dozens of) OS environment variables are kept separate so they
+    // can be tucked behind an expander instead of flooding the list.
+    const secretKeys = sorted
+      .filter((provider) => provider.provider !== "env")
+      .flatMap((secret) => secret.keys)
+      .toSorted();
+    const envKeys = sorted
+      .filter((provider) => provider.provider === "env")
+      .flatMap((secret) => secret.keys)
+      .toSorted();
+
+    return { secretKeys, envKeys, providerNames };
   }, []);
 
   return (
     <SecretsContext
       value={{
         secretKeys: data?.secretKeys || [],
+        envKeys: data?.envKeys || [],
         providerNames: data?.providerNames || [],
         loading: isPending,
         error,
@@ -103,8 +122,9 @@ export const ENV_RENDERER: FormRenderer<z.ZodString | z.ZodNumber> = {
     return false;
   },
   Component: ({ schema, form, path }) => {
-    const { secretKeys, providerNames, refreshSecrets } = useSecrets();
+    const { secretKeys, envKeys, providerNames, refreshSecrets } = useSecrets();
     const { openModal, closeModal } = useImperativeModal();
+    const [showEnv, setShowEnv] = useState(false);
 
     const {
       label,
@@ -198,6 +218,37 @@ export const ENV_RENDERER: FormRenderer<z.ZodString | z.ZodNumber> = {
                         {displaySecret(key)}
                       </DropdownMenuItem>
                     ))}
+                    {envKeys.length > 0 && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onSelect={(e) => {
+                            // Toggle the section in place; keep the menu open.
+                            e.preventDefault();
+                            setShowEnv((v) => !v);
+                          }}
+                        >
+                          <TerminalIcon className="mr-2 h-3.5 w-3.5" />
+                          System environment ({envKeys.length})
+                          <ChevronRightIcon
+                            className={cn(
+                              "ml-auto h-3.5 w-3.5 transition-transform",
+                              showEnv && "rotate-90",
+                            )}
+                          />
+                        </DropdownMenuItem>
+                        {showEnv &&
+                          envKeys.map((key) => (
+                            <DropdownMenuItem
+                              key={key}
+                              className="pl-7"
+                              onSelect={() => field.onChange(prefixSecret(key))}
+                            >
+                              {displaySecret(key)}
+                            </DropdownMenuItem>
+                          ))}
+                      </>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>

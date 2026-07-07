@@ -92,11 +92,11 @@ export const MinimalHotkeys: React.FC<{
               delayDuration={300}
               tabIndex={-1}
             >
-              <span key={label}>{symbol}</span>
+              <Kbd key={label}>{symbol}</Kbd>
             </Tooltip>
           );
         }
-        return <span key={label}>{capitalize(label)}</span>;
+        return <Kbd key={label}>{capitalize(label)}</Kbd>;
       })}
     </DropdownMenuShortcut>
   );

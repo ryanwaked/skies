@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { useAtomValue } from "jotai";
-import { ChevronDownIcon } from "lucide-react";
+import { Undo2Icon } from "lucide-react";
 import type { JSX } from "react";
 import { ConfigButton } from "@/components/app-config/app-config-button";
 import { RunAllSplitButton } from "@/components/editor/controls/run-all-button";
@@ -11,7 +11,12 @@ import { ScrollProgress } from "@/components/skies/scroll-progress";
 import { ShareStaticNotebookModal } from "@/components/static-html/share-modal";
 import { Tooltip } from "@/components/ui/tooltip";
 import { notebookScrollToRunning } from "@/core/cells/actions";
-import { notebookIsRunningAtom } from "@/core/cells/cells";
+import {
+  canUndoDeletesAtom,
+  notebookIsRunningAtom,
+  undoLabelAtom,
+  useCellActions,
+} from "@/core/cells/cells";
 import { useTogglePresenting } from "@/core/layout/useTogglePresenting";
 import { viewStateAtom } from "@/core/mode";
 import { connectionAtom } from "@/core/network/connection";
@@ -63,12 +68,11 @@ export const NotebookHeader = (): JSX.Element => {
       <div className="flex min-w-0 shrink items-center">
         <HeaderBreadcrumb filename={filename} />
         <FilenameForm filename={filename} />
-        <ChevronDownIcon
-          className="h-[16px] w-[16px] shrink-0 text-muted-foreground"
-          strokeWidth={1.5}
-          aria-hidden="true"
-        />
       </div>
+
+      {/* Hairline divider mirroring the right-side action separators (the
+          chevron here was a dead affordance). */}
+      <div className="mx-1 h-[18px] w-px shrink-0 bg-border" />
 
       <HeaderStatusIndicator connection={connection} />
 
@@ -81,6 +85,7 @@ export const NotebookHeader = (): JSX.Element => {
       <div className="flex shrink-0 items-center gap-1">
         {mode === "present" && <LayoutSelect />}
 
+        {!closed && <TopBarUndo />}
         {!closed && <RunAllSplitButton />}
         {!closed && <SaveComponent kioskMode={false} />}
 
@@ -239,6 +244,33 @@ const ModeTab = ({
     {label}
   </button>
 );
+
+/**
+ * Undo the last cell deletion, shown next to Run all when available. marimo
+ * has no notebook-level redo (code edits redo per-cell via the editor's own
+ * ⇧⌘Z), so only undo lives here.
+ */
+const TopBarUndo = () => {
+  const undoAvailable = useAtomValue(canUndoDeletesAtom);
+  const undoLabel = useAtomValue(undoLabelAtom);
+  const { undoDeleteCell } = useCellActions();
+  if (!undoAvailable) {
+    return null;
+  }
+  return (
+    <Tooltip content={undoLabel}>
+      <button
+        type="button"
+        aria-label="Undo delete cell"
+        data-testid="header-undo-button"
+        onClick={undoDeleteCell}
+        className="flex h-[24px] w-[24px] items-center justify-center rounded-[3px] text-muted-foreground transition-colors hover:bg-[var(--hover-wash)] hover:text-foreground"
+      >
+        <Undo2Icon className="h-[16px] w-[16px]" strokeWidth={1.5} />
+      </button>
+    </Tooltip>
+  );
+};
 
 /** Ghost share button; opens marimo's "Publish HTML to web" dialog. */
 const ShareButton = () => {
