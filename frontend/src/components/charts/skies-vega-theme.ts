@@ -96,21 +96,22 @@ export const SKIES_LIGHT_VEGA_CONFIG: Config = {
     titleColor: "#75707f",
   },
   range: {
-    // Skies light categorical palette: sky blue and copper (the trace
-    // pair) lead, then gold and inks that hold up on warm paper. Hues are
-    // saturated to read vibrant (not anemic) against #faf7f7 while staying
-    // dark enough to remain legible as fills — the warm-paper analogue of
-    // the night palette below. Slot 4 is an intentional neutral (as in
-    // dark) so 4-series charts still separate cleanly.
+    // Skies light categorical palette: fresh, vibrant, modern — brighter
+    // and cleaner than an earthy paper set (Tailwind-500 / Observable
+    // energy) so charts feel lively on #faf7f7, led by the sky-blue + warm
+    // trace pair. Gold/green sit at the bright end (yellow is inherently
+    // low-contrast on paper — that's the modern look, not a bug). Slot 4
+    // is an intentional neutral (as in dark) so 4-series charts separate;
+    // lightened here so nothing in the ramp reads dark.
     category: [
       "#1b7be4", // sky blue (= --sky-blue light)
-      "#d1651f", // copper (= --copper light)
-      "#dca200", // gold
-      "#75707f", // neutral ink
-      "#1a9c43", // grass
-      "#8347d9", // violet
-      "#0d9aa8", // teal
-      "#cf222e", // crimson
+      "#f97316", // warm trace (copper family, freshened to orange)
+      "#f5b301", // gold
+      "#8b8696", // neutral ink (airy)
+      "#22c55e", // green
+      "#8b5cf6", // violet
+      "#06b6d4", // teal / cyan
+      "#ef4444", // red
     ],
   },
 } as const;
