@@ -97,16 +97,20 @@ export const SKIES_LIGHT_VEGA_CONFIG: Config = {
   },
   range: {
     // Skies light categorical palette: sky blue and copper (the trace
-    // pair) lead, then gold and inks that hold up on warm paper.
+    // pair) lead, then gold and inks that hold up on warm paper. Hues are
+    // saturated to read vibrant (not anemic) against #faf7f7 while staying
+    // dark enough to remain legible as fills — the warm-paper analogue of
+    // the night palette below. Slot 4 is an intentional neutral (as in
+    // dark) so 4-series charts still separate cleanly.
     category: [
-      "#1b7be4",
-      "#a8542c",
-      "#c2980f",
-      "#75707f",
-      "#1f883d",
-      "#7c5cbf",
-      "#0e7f8a",
-      "#cf222e",
+      "#1b7be4", // sky blue (= --sky-blue light)
+      "#d1651f", // copper (= --copper light)
+      "#dca200", // gold
+      "#75707f", // neutral ink
+      "#1a9c43", // grass
+      "#8347d9", // violet
+      "#0d9aa8", // teal
+      "#cf222e", // crimson
     ],
   },
 } as const;
