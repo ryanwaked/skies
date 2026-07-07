@@ -105,38 +105,42 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
     />
   );
 
-  const trigger =
-    variant === "rail" ? (
-      <Tooltip content="Runtime reactivity" side="right" delayDuration={200}>
-        <button
-          type="button"
-          aria-label="Runtime reactivity"
-          data-testid="rail-runtime-settings"
-          className={cn(
-            "flex h-[36px] w-[36px] items-center justify-center rounded-[3px] text-foreground hover:bg-[rgba(63,66,87,0.2)]",
-            className,
-          )}
-        >
-          {zapIcon}
-        </button>
-      </Tooltip>
-    ) : (
-      <FooterItem
-        tooltip="Runtime reactivity"
-        selected={false}
-        data-testid="footer-runtime-settings"
-        className={className}
-      >
-        <div className="flex items-center gap-1">
-          {zapIcon}
-          <ChevronDownIcon size={12} strokeWidth={1.5} />
-        </div>
-      </FooterItem>
-    );
-
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild={true}>{trigger}</DropdownMenuTrigger>
+      {/* Tooltip must wrap the trigger (not the reverse): DropdownMenuTrigger's
+          `asChild` merges its click/ref onto its direct child, so the button
+          has to be that direct child or the menu never opens. */}
+      {variant === "rail" ? (
+        <Tooltip content="Runtime reactivity" side="right" delayDuration={200}>
+          <DropdownMenuTrigger asChild={true}>
+            <button
+              type="button"
+              aria-label="Runtime reactivity"
+              data-testid="rail-runtime-settings"
+              className={cn(
+                "flex h-[36px] w-[36px] items-center justify-center rounded-[3px] text-foreground hover:bg-[rgba(63,66,87,0.2)]",
+                className,
+              )}
+            >
+              {zapIcon}
+            </button>
+          </DropdownMenuTrigger>
+        </Tooltip>
+      ) : (
+        <DropdownMenuTrigger asChild={true}>
+          <FooterItem
+            tooltip="Runtime reactivity"
+            selected={false}
+            data-testid="footer-runtime-settings"
+            className={className}
+          >
+            <div className="flex items-center gap-1">
+              {zapIcon}
+              <ChevronDownIcon size={12} strokeWidth={1.5} />
+            </div>
+          </FooterItem>
+        </DropdownMenuTrigger>
+      )}
       <DropdownMenuContent
         align="start"
         side={variant === "rail" ? "right" : undefined}
