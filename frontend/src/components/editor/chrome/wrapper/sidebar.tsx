@@ -285,27 +285,27 @@ const RailUtilityButtons: React.FC = () => {
   );
 };
 
-const RailVerticalBar: React.FC<{
+const RailBar: React.FC<{
   percent: number;
   icon: React.ReactNode;
   tooltip: React.ReactNode;
 }> = ({ percent, icon, tooltip }) => (
   <Tooltip content={tooltip} side="right" delayDuration={200}>
     <div className="flex flex-col items-center gap-1">
-      <div className="relative h-8 w-1.5 overflow-hidden rounded-full border border-border bg-muted">
+      <span className="text-foreground">{icon}</span>
+      <div className="h-1 w-7 overflow-hidden rounded-full bg-muted">
         <div
           className={cn(
-            "absolute inset-x-0 bottom-0 rounded-full transition-[height] duration-500",
+            "h-full rounded-full transition-[width] duration-500",
             percent >= 90
               ? "bg-error"
               : percent >= 75
                 ? "bg-action-foreground"
                 : "bg-primary",
           )}
-          style={{ height: `${Math.max(3, Math.min(100, percent))}%` }}
+          style={{ width: `${Math.max(3, Math.min(100, percent))}%` }}
         />
       </div>
-      <span className="text-muted-foreground">{icon}</span>
     </div>
   </Tooltip>
 );
@@ -333,10 +333,10 @@ const RailResourceBars: React.FC = () => {
   const cpuPct = Math.round(data.cpu.percent);
   const gb = (bytes: number) => (bytes / 1024 ** 3).toFixed(1);
   return (
-    <div className="flex items-end justify-center gap-2.5 pt-2 pb-1">
-      <RailVerticalBar
+    <div className="flex flex-col items-center gap-2 pt-1.5 pb-1.5">
+      <RailBar
         percent={memPct}
-        icon={<MemoryStickIcon className="h-3 w-3" strokeWidth={1.5} />}
+        icon={<MemoryStickIcon className="h-[16px] w-[16px]" strokeWidth={1.5} />}
         tooltip={
           <span>
             <b>Memory:</b> {gb(data.memory.total - data.memory.available)} /{" "}
@@ -344,9 +344,9 @@ const RailResourceBars: React.FC = () => {
           </span>
         }
       />
-      <RailVerticalBar
+      <RailBar
         percent={cpuPct}
-        icon={<CpuIcon className="h-3 w-3" strokeWidth={1.5} />}
+        icon={<CpuIcon className="h-[16px] w-[16px]" strokeWidth={1.5} />}
         tooltip={
           <span>
             <b>CPU:</b> {cpuPct}%

@@ -294,7 +294,15 @@ def _build_notebook_preview(path: str) -> NotebookPreviewResponse:
 
     cells = notebook.cells
     preview_cells: list[NotebookPreviewCell] = []
-    title: str | None = None
+    # Prefer the notebook's configured title (App(app_title="...")). The first
+    # markdown heading is only a fallback — it's usually a section like "Setup",
+    # not the notebook's name.
+    app_title = notebook.app.options.get("app_title")
+    title: str | None = (
+        app_title.strip()
+        if isinstance(app_title, str) and app_title.strip()
+        else None
+    )
     for cell in cells[:PREVIEW_MAX_CELLS]:
         cell_type, markdown, lines = _classify_cell(cell.code)
         if title is None and markdown is not None:
