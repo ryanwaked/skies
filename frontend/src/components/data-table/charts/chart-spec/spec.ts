@@ -365,6 +365,30 @@ function getPieChartSpec(
   };
 }
 
+/**
+ * The chart title. Kept as a plain string unless the user customized its size
+ * or weight, in which case it becomes a vega-lite title object so the exported
+ * altair code and the preview stay minimal in the common case.
+ */
+function buildTitle(
+  title: string | undefined,
+  formValues: ChartSchemaType,
+): string | { text: string; fontSize?: number; fontWeight?: "bold" } | undefined {
+  if (!title) {
+    return undefined;
+  }
+  const fontSize = formValues.general?.titleFontSize;
+  const bold = formValues.general?.titleBold;
+  if (fontSize == null && !bold) {
+    return title;
+  }
+  return {
+    text: title,
+    ...(fontSize != null && { fontSize }),
+    ...(bold && { fontWeight: "bold" as const }),
+  };
+}
+
 function getBaseSpec(
   chartType: ChartType,
   formValues: ChartSchemaType,
@@ -384,7 +408,7 @@ function getBaseSpec(
     // Transparent in both modes: charts sit directly on the Skies
     // paper/canvas surface (the shared getSkiesVegaConfig owns colors).
     background: "transparent",
-    title: title,
+    title: buildTitle(title, formValues),
     data: { values: [] },
     height: formValues.yAxis?.height ?? height,
     width: formValues.xAxis?.width ?? width,

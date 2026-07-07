@@ -322,8 +322,7 @@ const PackagesList: React.FC<{
       <TableHeader>
         <TableRow>
           <TableHead>Name</TableHead>
-          <TableHead className="w-16 text-right">Version</TableHead>
-          <TableHead className="w-14" />
+          <TableHead className="w-20 text-right">Version</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -341,15 +340,19 @@ const PackagesList: React.FC<{
             <TableCell className="text-[13px] truncate" title={item.name}>
               {item.name}
             </TableCell>
-            <TableCell
-              className="font-code text-xs text-muted-foreground text-right truncate"
-              title={item.version}
-            >
-              {item.version}
-            </TableCell>
-            <TableCell className="flex justify-end">
-              <UpgradeButton packageName={item.name} onSuccess={onSuccess} />
-              <RemoveButton packageName={item.name} onSuccess={onSuccess} />
+            {/* Version and the hover-revealed actions share one right-aligned
+                column, so there's no empty gutter reserved for the actions. */}
+            <TableCell className="w-20 text-right align-middle">
+              <span
+                className="block truncate font-code text-xs text-muted-foreground group-hover:hidden"
+                title={item.version}
+              >
+                {item.version}
+              </span>
+              <span className="hidden items-center justify-end gap-0.5 group-hover:flex">
+                <UpgradeButton packageName={item.name} onSuccess={onSuccess} />
+                <RemoveButton packageName={item.name} onSuccess={onSuccess} />
+              </span>
             </TableCell>
           </TableRow>
         ))}

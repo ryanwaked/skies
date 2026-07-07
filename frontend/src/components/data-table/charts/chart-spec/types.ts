@@ -9,7 +9,12 @@ import { ChartType, type SelectableDataType } from "../types";
 export interface BaseSpec {
   $schema: string;
   background: string;
-  title: string | undefined;
+  // A plain string, or a vega-lite title object when the user customizes the
+  // title's size/weight.
+  title:
+    | string
+    | { text: string; fontSize?: number; fontWeight?: "bold" }
+    | undefined;
   data: { values: object[] };
   height: number;
   width: number | "container";

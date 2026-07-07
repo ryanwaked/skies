@@ -65,6 +65,19 @@ export const tabsStorageAtom = atomWithStorage<TabStorageMap>(
 );
 
 /**
+ * Device-wide flag: once the user clicks "Proceed" on the large-dataset
+ * rendering warning, remember it so the disclaimer doesn't reappear on every
+ * chart, tab switch, or page reload. `getOnInit` so the persisted value is read
+ * synchronously and a previously-dismissed warning never flashes back.
+ */
+export const largeChartWarningAcknowledgedAtom = atomWithStorage<boolean>(
+  "marimo:charts:large-data-acknowledged",
+  false,
+  undefined,
+  { getOnInit: true },
+);
+
+/**
  * Convenience function to get the tab name for a given tab number and chart type
  */
 export function getChartTabName(tabNum: number, chartType: ChartType) {

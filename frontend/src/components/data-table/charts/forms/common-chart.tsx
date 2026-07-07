@@ -119,6 +119,14 @@ export const StyleForm: React.FC = () => {
         </AccordionFormTrigger>
         <AccordionFormContent>
           <InputField label="Plot title" fieldName="general.title" />
+          <SliderField
+            fieldName="general.titleFontSize"
+            label="Title size"
+            defaultValue={16}
+            start={10}
+            stop={32}
+          />
+          <BooleanField fieldName="general.titleBold" label="Bold title" />
           <BooleanField
             fieldName="style.gridLines"
             label="Show grid lines"

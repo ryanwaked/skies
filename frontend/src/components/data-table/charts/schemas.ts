@@ -72,6 +72,8 @@ export const ChartSchema = z.object({
   general: z
     .object({
       title: z.string().optional(),
+      titleFontSize: z.number().optional(),
+      titleBold: z.boolean().optional(),
       xColumn: AxisSchema.optional(),
       // The first Y series. Kept as a standalone field (rather than folding it
       // into `yColumns`) so charts saved before multi-series support continue

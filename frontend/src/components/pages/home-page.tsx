@@ -1238,10 +1238,13 @@ const NotebookCard: React.FC<{
         <CardMenu item={item} isPinned={isPinned} onCover={true} />
       </div>
       <div className="pointer-events-none relative flex flex-col gap-1 px-2.5 py-2">
-        {/* Line A — title */}
+        {/* Line A — worded title (first markdown heading), else the filename */}
         <div className="flex items-center gap-1.5">
-          <span className="truncate text-[13px] font-medium text-foreground">
-            {item.name}
+          <span
+            title={preview?.title || item.name}
+            className="truncate text-[13px] font-medium text-foreground"
+          >
+            {preview?.title || item.name}
           </span>
           {isPinned && (
             <PinIcon
@@ -1251,10 +1254,10 @@ const NotebookCard: React.FC<{
             />
           )}
         </div>
-        {/* Line B — catalog line */}
+        {/* Line B — the file name */}
         <div className="flex items-center gap-2 font-mono text-[10px] tabular-nums text-[var(--foreground-dim)]">
           <span title={item.path} className="truncate">
-            {item.path}
+            {item.name}
           </span>
           {!!item.lastModified && (
             <span className="ml-auto shrink-0">

@@ -52,8 +52,10 @@ const fieldGroupVariants = cva("", {
       default: [
         "relative flex w-full items-center overflow-hidden rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
         selectStyles(),
-        /* Focus Within */
-        "data-focus-within:outline-hidden data-focus-within:ring-2 data-focus-within:ring-ring data-focus-within:ring-offset-2",
+        /* Focus within: match the canonical `focusRing` (hairline ring-1,
+           border swap, no offset) so grouped inputs highlight identically to
+           standalone ones — the offset ring read as a doubled/clipped border. */
+        "data-focus-within:outline-hidden data-focus-within:ring-1 data-focus-within:ring-ring data-focus-within:border-primary",
         /* Disabled */
         "data-disabled:opacity-50",
       ],

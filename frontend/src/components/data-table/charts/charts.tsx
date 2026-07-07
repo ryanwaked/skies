@@ -13,7 +13,7 @@ import {
   XIcon,
 } from "lucide-react";
 import type { JSX } from "react";
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { type UseFormReturn, useForm } from "react-hook-form";
 import useResizeObserver from "use-resize-observer";
 import { PythonIcon } from "@/components/editor/cell/code/icons";
@@ -45,7 +45,12 @@ import { HeatmapForm } from "./forms/heatmap";
 import { PieForm } from "./forms/pie";
 import { LazyChart } from "./lazy-chart";
 import { ChartSchema, type ChartSchemaType, getChartDefaults } from "./schemas";
-import { getChartTabName, type TabName, tabsStorageAtom } from "./storage";
+import {
+  getChartTabName,
+  largeChartWarningAcknowledgedAtom,
+  type TabName,
+  tabsStorageAtom,
+} from "./storage";
 import { ChartType } from "./types";
 
 const NEW_CHART_TYPE = "bar" as ChartType;
@@ -307,7 +312,19 @@ export const ChartPanel: React.FC<{
     useState<ChartType>(chartType);
   const [formCollapsed, setFormCollapsed] = useState(false);
 
-  const [renderLargeCharts, setRenderLargeCharts] = useState(!isLargeDataset);
+  const [largeDataAcknowledged, setLargeDataAcknowledged] = useAtom(
+    largeChartWarningAcknowledgedAtom,
+  );
+  const [renderLargeCharts, setRenderLargeCharts] = useState(
+    largeDataAcknowledged || !isLargeDataset,
+  );
+  // If the warning was dismissed before (this session or a past one), keep it
+  // dismissed here too instead of showing it again.
+  useEffect(() => {
+    if (largeDataAcknowledged) {
+      setRenderLargeCharts(true);
+    }
+  }, [largeDataAcknowledged]);
 
   const { ref: chartContainerRef } = useResizeObserver();
 
@@ -373,7 +390,10 @@ export const ChartPanel: React.FC<{
             </span>
             <Button
               variant="warn"
-              onClick={() => setRenderLargeCharts(true)}
+              onClick={() => {
+                setRenderLargeCharts(true);
+                setLargeDataAcknowledged(true);
+              }}
               className="h-8"
             >
               Proceed
@@ -385,7 +405,14 @@ export const ChartPanel: React.FC<{
     return (
       <LazyChart baseSpec={specWithoutData} data={data} height={CHART_HEIGHT} />
     );
-  }, [isPending, error, renderLargeCharts, specWithoutData, data]);
+  }, [
+    isPending,
+    error,
+    renderLargeCharts,
+    specWithoutData,
+    data,
+    setLargeDataAcknowledged,
+  ]);
 
   const developmentMode = import.meta.env.DEV;
 
