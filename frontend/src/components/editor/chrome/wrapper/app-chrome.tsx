@@ -11,7 +11,6 @@ import {
   PanelGroup,
   PanelResizeHandle,
 } from "react-resizable-panels";
-import { Footer } from "./footer";
 import { Sidebar } from "./sidebar";
 import "./app-chrome.css";
 import { Tooltip } from "radix-ui";
@@ -598,11 +597,6 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
         <ContextAwarePanel />
       </PanelGroup>
       <PendingAICells />
-      <ErrorBoundary>
-        <TooltipProvider>
-          <Footer />
-        </TooltipProvider>
-      </ErrorBoundary>
     </PanelsWrapper>
   );
 };

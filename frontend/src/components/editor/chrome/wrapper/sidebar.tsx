@@ -1,7 +1,13 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { CommandIcon, CpuIcon, KeyboardIcon, MemoryStickIcon } from "lucide-react";
+import {
+  CommandIcon,
+  CpuIcon,
+  KeyboardIcon,
+  MemoryStickIcon,
+  PanelBottomIcon,
+} from "lucide-react";
 import type React from "react";
 import type { PropsWithChildren } from "react";
 import { useEffect, useMemo, useState } from "react";
@@ -21,6 +27,7 @@ import { useRequestClient } from "@/core/network/requests";
 import { isWasm } from "@/core/wasm/utils";
 import { WebSocketState } from "@/core/websocket/types";
 import { useAsyncData } from "@/hooks/useAsyncData";
+import { useHotkey } from "@/hooks/useHotkey";
 import { useInterval } from "@/hooks/useInterval";
 import { cn } from "@/utils/cn";
 import { panelLayoutAtom, useChromeActions, useChromeState } from "../state";
@@ -32,16 +39,30 @@ import {
 } from "../types";
 import { RuntimeSettings } from "./footer-items/runtime-settings";
 import { PANEL_PRELOADERS } from "./lazy-panels";
+import { useSetDependencyPanelTab } from "./useDependencyPanelTab";
 
 export const Sidebar: React.FC = () => {
   const { selectedPanel, selectedDeveloperPanelTab, isSidebarOpen } =
     useChromeState();
-  const { toggleApplication, openApplication, setIsSidebarOpen } =
-    useChromeActions();
+  const {
+    toggleApplication,
+    openApplication,
+    setIsSidebarOpen,
+    toggleDeveloperPanel,
+  } = useChromeActions();
+  const setDependencyPanelTab = useSetDependencyPanelTab();
   const [panelLayout, setPanelLayout] = useAtom(panelLayoutAtom);
   // Subscribe to capabilities to re-render when they change
   const capabilities = useAtomValue(capabilitiesAtom);
   const aiEnabled = useAtomValue(aiEnabledAtom);
+
+  // Editor chrome hotkeys — previously registered by the (now removed) footer.
+  useHotkey("global.toggleTerminal", () => toggleApplication("terminal"));
+  useHotkey("global.togglePanel", () => toggleDeveloperPanel());
+  useHotkey("global.toggleMinimap", () => {
+    toggleApplication("dependencies");
+    setDependencyPanelTab("minimap");
+  });
 
   const renderIcon = ({ Icon }: PanelDescriptor, className?: string) => {
     return (
@@ -171,6 +192,7 @@ export const Sidebar: React.FC = () => {
       />
       <div className="flex-1" />
       <QueuedOrRunningStack />
+      <RailDeveloperPanelToggle />
       <RailUtilityButtons />
       <RailResourceBars />
     </div>
@@ -257,6 +279,43 @@ const SidebarItem: React.FC<
     <Tooltip content={tooltip} side="right" delayDuration={200}>
       {content}
     </Tooltip>
+  );
+};
+
+/**
+ * Toggle the bottom developer panel (terminal, dependencies, ...). Moved here
+ * from the removed status footer; tints red and shows a badge when cells have
+ * errors.
+ */
+const RailDeveloperPanelToggle: React.FC = () => {
+  const { isDeveloperPanelOpen } = useChromeState();
+  const { toggleDeveloperPanel } = useChromeActions();
+  const errorCount = useAtomValue(cellErrorCount);
+  const panelLayout = useAtomValue(panelLayoutAtom);
+  // Don't double-count when the errors panel is already docked in the sidebar.
+  const issueCount = panelLayout.sidebar.includes("errors") ? 0 : errorCount;
+  return (
+    <SidebarItem
+      tooltip={
+        <span className="flex items-center gap-2">
+          Toggle developer panel {renderShortcut("global.togglePanel", false)}
+        </span>
+      }
+      selected={isDeveloperPanelOpen}
+      onClick={() => toggleDeveloperPanel()}
+    >
+      <span className="relative flex items-center justify-center">
+        <PanelBottomIcon
+          strokeWidth={1.5}
+          className={cn("h-[16px] w-[16px]", issueCount > 0 && "text-error")}
+        />
+        {issueCount > 0 && (
+          <span className="absolute -right-2 -top-1.5 flex h-3 min-w-[12px] items-center justify-center rounded-full bg-error px-[3px] text-[9px] font-semibold leading-none text-white">
+            {issueCount}
+          </span>
+        )}
+      </span>
+    </SidebarItem>
   );
 };
 
