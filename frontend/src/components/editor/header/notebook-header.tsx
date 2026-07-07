@@ -87,7 +87,6 @@ export const NotebookHeader = (): JSX.Element => {
 
         {!closed && <TopBarUndo />}
         {!closed && <RunAllSplitButton />}
-        {!closed && <SaveComponent kioskMode={false} />}
 
         <div className="mx-1 h-[18px] w-px bg-border" />
 
@@ -96,6 +95,7 @@ export const NotebookHeader = (): JSX.Element => {
         {!closed && (
           <>
             <div className="mx-1 h-[18px] w-px bg-border" />
+            <SaveComponent kioskMode={false} />
             <ConfigButton disabled={disabled} tooltip={connectionTooltip} />
             <ShutdownButton
               description="This will terminate the Python kernel. You'll lose all data that's in memory."

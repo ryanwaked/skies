@@ -50,7 +50,7 @@ export const RunAllSplitButton = () => {
           onClick={() => runAllCells()}
           disabled={mainDisabled}
           className={cn(
-            "flex h-[24px] items-center gap-1.5 rounded-l-[3px] rounded-r-none px-[8px] py-[4px] text-[12px] font-medium",
+            "flex h-[28px] items-center gap-1.5 rounded-l-[3px] rounded-r-none px-[8px] py-[4px] text-[12px] font-medium",
             splitTint,
             mainDisabled && "cursor-default hover:bg-primary/[0.14]",
             !canInteractWithApp && "opacity-50",
@@ -80,7 +80,7 @@ export const RunAllSplitButton = () => {
             data-testid="run-all-menu-trigger"
             disabled={!canInteractWithApp}
             className={cn(
-              "flex h-[24px] w-[24px] items-center justify-center rounded-r-[3px] rounded-l-none",
+              "flex h-[28px] w-[28px] items-center justify-center rounded-r-[3px] rounded-l-none",
               splitTint,
               !canInteractWithApp && "opacity-50 hover:bg-primary/[0.07]",
             )}
