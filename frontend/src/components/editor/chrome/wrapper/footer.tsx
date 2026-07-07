@@ -1,9 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { useAtomValue, useSetAtom } from "jotai";
-import { AlertTriangleIcon, CommandIcon, XCircleIcon } from "lucide-react";
+import { useAtomValue } from "jotai";
+import { AlertTriangleIcon, XCircleIcon } from "lucide-react";
 import type React from "react";
-import { commandPaletteAtom } from "@/components/editor/controls/state";
 import { renderShortcut } from "@/components/shortcuts/renderShortcut";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cellErrorCount } from "@/core/cells/cells";
@@ -16,10 +15,8 @@ import {
   BackendConnectionStatus,
   connectionStatusAtom,
 } from "./footer-items/backend-status";
-import { MachineStats } from "./footer-items/machine-stats";
 import { PyodideStatus } from "./footer-items/pyodide-status";
 import { RTCStatus } from "./footer-items/rtc-status";
-import { RuntimeSettings } from "./footer-items/runtime-settings";
 import { useSetDependencyPanelTab } from "./useDependencyPanelTab";
 
 export const Footer: React.FC = () => {
@@ -85,8 +82,6 @@ export const Footer: React.FC = () => {
         </div>
       </FooterItem>
 
-      <RuntimeSettings />
-
       <div className="mx-auto" />
 
       <PyodideStatus />
@@ -108,26 +103,9 @@ export const Footer: React.FC = () => {
       </ShowInKioskMode>
 
       <div className="flex items-center shrink-0 min-w-0">
-        <CommandPaletteItem />
-        <MachineStats />
         <RTCStatus />
       </div>
     </footer>
-  );
-};
-
-/** Command palette trigger — chrome lives in bars, not floating over cells. */
-const CommandPaletteItem: React.FC = () => {
-  const setCommandPaletteOpen = useSetAtom(commandPaletteAtom);
-  return (
-    <FooterItem
-      tooltip={renderShortcut("global.commandPalette")}
-      selected={false}
-      onClick={() => setCommandPaletteOpen((value) => !value)}
-      data-testid="footer-command-palette"
-    >
-      <CommandIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
-    </FooterItem>
   );
 };
 

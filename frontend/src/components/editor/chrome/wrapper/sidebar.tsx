@@ -1,9 +1,13 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { CommandIcon, CpuIcon, KeyboardIcon, MemoryStickIcon } from "lucide-react";
 import type React from "react";
 import type { PropsWithChildren } from "react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { keyboardShortcutsAtom } from "@/components/editor/controls/keyboard-shortcuts";
+import { commandPaletteAtom } from "@/components/editor/controls/state";
+import { renderShortcut } from "@/components/shortcuts/renderShortcut";
 import { ReorderableList } from "@/components/ui/reorderable-list";
 import { Tooltip } from "@/components/ui/tooltip";
 import {
@@ -12,6 +16,12 @@ import {
 } from "@/core/cells/cells";
 import { capabilitiesAtom } from "@/core/config/capabilities";
 import { aiEnabledAtom } from "@/core/config/config";
+import { connectionAtom } from "@/core/network/connection";
+import { useRequestClient } from "@/core/network/requests";
+import { isWasm } from "@/core/wasm/utils";
+import { WebSocketState } from "@/core/websocket/types";
+import { useAsyncData } from "@/hooks/useAsyncData";
+import { useInterval } from "@/hooks/useInterval";
 import { cn } from "@/utils/cn";
 import { panelLayoutAtom, useChromeActions, useChromeState } from "../state";
 import {
@@ -20,6 +30,7 @@ import {
   PANELS,
   type PanelDescriptor,
 } from "../types";
+import { RuntimeSettings } from "./footer-items/runtime-settings";
 import { PANEL_PRELOADERS } from "./lazy-panels";
 
 export const Sidebar: React.FC = () => {
@@ -160,6 +171,8 @@ export const Sidebar: React.FC = () => {
       />
       <div className="flex-1" />
       <QueuedOrRunningStack />
+      <RailUtilityButtons />
+      <RailResourceBars />
     </div>
   );
 };
@@ -244,5 +257,102 @@ const SidebarItem: React.FC<
     <Tooltip content={tooltip} side="right" delayDuration={200}>
       {content}
     </Tooltip>
+  );
+};
+
+/** Utility buttons at the rail bottom (moved out of the old status footer). */
+const RailUtilityButtons: React.FC = () => {
+  const setCommandPaletteOpen = useSetAtom(commandPaletteAtom);
+  const setKeyboardShortcutsOpen = useSetAtom(keyboardShortcutsAtom);
+  return (
+    <div className="flex flex-col items-center gap-0">
+      <SidebarItem
+        tooltip={renderShortcut("global.commandPalette")}
+        selected={false}
+        onClick={() => setCommandPaletteOpen((v) => !v)}
+      >
+        <CommandIcon className="h-[16px] w-[16px]" strokeWidth={1.5} />
+      </SidebarItem>
+      <SidebarItem
+        tooltip="Keyboard shortcuts"
+        selected={false}
+        onClick={() => setKeyboardShortcutsOpen((v) => !v)}
+      >
+        <KeyboardIcon className="h-[16px] w-[16px]" strokeWidth={1.5} />
+      </SidebarItem>
+      <RuntimeSettings variant="rail" />
+    </div>
+  );
+};
+
+const RailVerticalBar: React.FC<{
+  percent: number;
+  icon: React.ReactNode;
+  tooltip: React.ReactNode;
+}> = ({ percent, icon, tooltip }) => (
+  <Tooltip content={tooltip} side="right" delayDuration={200}>
+    <div className="flex flex-col items-center gap-1">
+      <div className="relative h-8 w-1.5 overflow-hidden rounded-full border border-border bg-muted">
+        <div
+          className={cn(
+            "absolute inset-x-0 bottom-0 rounded-full transition-[height] duration-500",
+            percent >= 90
+              ? "bg-error"
+              : percent >= 75
+                ? "bg-action-foreground"
+                : "bg-primary",
+          )}
+          style={{ height: `${Math.max(3, Math.min(100, percent))}%` }}
+        />
+      </div>
+      <span className="text-muted-foreground">{icon}</span>
+    </div>
+  </Tooltip>
+);
+
+/** Two vertical resource bars (memory + CPU) pinned to the very bottom. */
+const RailResourceBars: React.FC = () => {
+  const [nonce, setNonce] = useState(0);
+  const connection = useAtomValue(connectionAtom);
+  const { getUsageStats } = useRequestClient();
+  useInterval(() => setNonce((n) => n + 1), {
+    delayMs: 10_000,
+    whenVisible: true,
+  });
+  const { data } = useAsyncData(async () => {
+    if (isWasm() || connection.state !== WebSocketState.OPEN) {
+      return null;
+    }
+    return getUsageStats();
+  }, [nonce, connection.state]);
+
+  if (!data) {
+    return null;
+  }
+  const memPct = Math.round(data.memory.percent);
+  const cpuPct = Math.round(data.cpu.percent);
+  const gb = (bytes: number) => (bytes / 1024 ** 3).toFixed(1);
+  return (
+    <div className="flex items-end justify-center gap-2.5 pt-2 pb-1">
+      <RailVerticalBar
+        percent={memPct}
+        icon={<MemoryStickIcon className="h-3 w-3" strokeWidth={1.5} />}
+        tooltip={
+          <span>
+            <b>Memory:</b> {gb(data.memory.total - data.memory.available)} /{" "}
+            {gb(data.memory.total)} GB ({memPct}%)
+          </span>
+        }
+      />
+      <RailVerticalBar
+        percent={cpuPct}
+        icon={<CpuIcon className="h-3 w-3" strokeWidth={1.5} />}
+        tooltip={
+          <span>
+            <b>CPU:</b> {cpuPct}%
+          </span>
+        }
+      />
+    </div>
   );
 };

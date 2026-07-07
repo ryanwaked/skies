@@ -28,10 +28,13 @@ import { FooterItem } from "../footer-item";
 
 interface RuntimeSettingsProps {
   className?: string;
+  /** "footer" = the status-bar item; "rail" = a 36×36 icon button. */
+  variant?: "footer" | "rail";
 }
 
 export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
   className,
+  variant = "footer",
 }) => {
   const { saveUserConfig } = useRequestClient();
   const [config, setUserConfig] = useResolvedMarimoConfig();
@@ -84,33 +87,61 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
     config.runtime.on_cell_change === "lazy" &&
     (isWasm() || config.runtime.auto_reload !== "autorun");
 
+  const zapIcon = allReactivityDisabled ? (
+    <ZapOffIcon
+      size={variant === "rail" ? 16 : 14}
+      strokeWidth={1.5}
+      className="text-muted-foreground"
+    />
+  ) : (
+    <ZapIcon
+      size={variant === "rail" ? 16 : 14}
+      strokeWidth={1.5}
+      // In the rail, match the neutral icon treatment; in the footer keep the
+      // action color so reactivity-on reads as a status.
+      className={
+        variant === "rail" ? "text-foreground" : "text-action-foreground"
+      }
+    />
+  );
+
+  const trigger =
+    variant === "rail" ? (
+      <Tooltip content="Runtime reactivity" side="right" delayDuration={200}>
+        <button
+          type="button"
+          aria-label="Runtime reactivity"
+          data-testid="rail-runtime-settings"
+          className={cn(
+            "flex h-[36px] w-[36px] items-center justify-center rounded-[3px] text-foreground hover:bg-[rgba(63,66,87,0.2)]",
+            className,
+          )}
+        >
+          {zapIcon}
+        </button>
+      </Tooltip>
+    ) : (
+      <FooterItem
+        tooltip="Runtime reactivity"
+        selected={false}
+        data-testid="footer-runtime-settings"
+        className={className}
+      >
+        <div className="flex items-center gap-1">
+          {zapIcon}
+          <ChevronDownIcon size={12} strokeWidth={1.5} />
+        </div>
+      </FooterItem>
+    );
+
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild={true}>
-        <FooterItem
-          tooltip="Runtime reactivity"
-          selected={false}
-          data-testid="footer-runtime-settings"
-        >
-          <div className="flex items-center gap-1">
-            {allReactivityDisabled ? (
-              <ZapOffIcon
-                size={14}
-                strokeWidth={1.5}
-                className="text-muted-foreground"
-              />
-            ) : (
-              <ZapIcon
-                size={14}
-                strokeWidth={1.5}
-                className="text-action-foreground"
-              />
-            )}
-            <ChevronDownIcon size={12} strokeWidth={1.5} />
-          </div>
-        </FooterItem>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-64">
+      <DropdownMenuTrigger asChild={true}>{trigger}</DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="start"
+        side={variant === "rail" ? "right" : undefined}
+        className="w-64"
+      >
         <DropdownMenuLabel>
           <div className="flex items-center justify-between w-full">
             <span>Runtime reactivity</span>
