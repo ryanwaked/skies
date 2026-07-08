@@ -239,6 +239,7 @@ def _generate_server_api_schema() -> dict[str, Any]:
         completion,
         export,
         files,
+        git_history,
         home,
         lsp,
         models,
@@ -293,6 +294,15 @@ def _generate_server_api_schema() -> dict[str, Any]:
         # Secrets
         secrets_models.SecretKeysWithProvider,
         secrets.CreateSecretRequest,
+        # Git history
+        git_history.GitCommitInfo,
+        git_history.GitLogResponse,
+        git_history.GitShowRequest,
+        git_history.GitShowResponse,
+        git_history.GitCommitRequest,
+        git_history.GitCommitResponse,
+        git_history.GitRestoreRequest,
+        git_history.GitRestoreResponse,
         # Operations
         notifications.CellNotification,
         notifications.HumanReadableStatus,

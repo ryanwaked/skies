@@ -2281,6 +2281,46 @@ components:
       required: []
       title: GetCacheInfoRequest
       type: object
+    GitCommitInfo:
+      properties:
+        commitHash:
+          type: string
+        date:
+          type: string
+        message:
+          type: string
+      required:
+      - commitHash
+      - date
+      - message
+      title: GitCommitInfo
+      type: object
+    GitCommitRequest:
+      properties:
+        message:
+          type: string
+      required:
+      - message
+      title: GitCommitRequest
+      type: object
+    GitCommitResponse:
+      properties:
+        commit:
+          anyOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/GitCommitInfo'
+          default: null
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+        success:
+          type: boolean
+      required:
+      - success
+      title: GitCommitResponse
+      type: object
     GitHubConfig:
       description: "Configuration options for GitHub.\n\n**Keys.**\n\n- `api_key`:\
         \ the GitHub API token\n- `base_url`: the base URL for the API\n- `copilot_settings`:\
@@ -2296,6 +2336,58 @@ components:
           type: object
       required: []
       title: GitHubConfig
+      type: object
+    GitLogResponse:
+      properties:
+        available:
+          type: boolean
+        commits:
+          items:
+            $ref: '#/components/schemas/GitCommitInfo'
+          type: array
+      required:
+      - available
+      - commits
+      title: GitLogResponse
+      type: object
+    GitRestoreRequest:
+      properties:
+        commitHash:
+          type: string
+      required:
+      - commitHash
+      title: GitRestoreRequest
+      type: object
+    GitRestoreResponse:
+      properties:
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+        success:
+          type: boolean
+      required:
+      - success
+      title: GitRestoreResponse
+      type: object
+    GitShowRequest:
+      properties:
+        commitHash:
+          type: string
+      required:
+      - commitHash
+      title: GitShowRequest
+      type: object
+    GitShowResponse:
+      properties:
+        content:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+      required: []
+      title: GitShowResponse
       type: object
     GoogleAiConfig:
       description: 'Configuration options for Google AI.
@@ -6691,6 +6783,84 @@ paths:
               schema:
                 $ref: '#/components/schemas/FileUpdateResponse'
           description: Update a file or directory
+  /api/git_history/commit:
+    post:
+      parameters:
+      - in: header
+        name: Marimo-Session-Id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GitCommitRequest'
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GitCommitResponse'
+          description: Commit the notebook's current saved content with a message
+  /api/git_history/log:
+    post:
+      parameters:
+      - in: header
+        name: Marimo-Session-Id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GitLogResponse'
+          description: List the notebook's version history, most recent first
+  /api/git_history/restore:
+    post:
+      parameters:
+      - in: header
+        name: Marimo-Session-Id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GitRestoreRequest'
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GitRestoreResponse'
+          description: Restore the notebook to a previous version
+  /api/git_history/show:
+    post:
+      parameters:
+      - in: header
+        name: Marimo-Session-Id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GitShowRequest'
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GitShowResponse'
+          description: Get the notebook source as of a given commit
   /api/home/notebook_preview:
     post:
       requestBody:

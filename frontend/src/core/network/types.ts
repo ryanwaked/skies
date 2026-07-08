@@ -40,6 +40,14 @@ export type FileMoveRequest = schemas["FileMoveRequest"];
 export type FileMoveResponse = schemas["FileMoveResponse"];
 export type FileUpdateRequest = schemas["FileUpdateRequest"];
 export type FileUpdateResponse = schemas["FileUpdateResponse"];
+export type GitCommitInfo = schemas["GitCommitInfo"];
+export type GitLogResponse = schemas["GitLogResponse"];
+export type GitShowRequest = schemas["GitShowRequest"];
+export type GitShowResponse = schemas["GitShowResponse"];
+export type GitCommitRequest = schemas["GitCommitRequest"];
+export type GitCommitResponse = schemas["GitCommitResponse"];
+export type GitRestoreRequest = schemas["GitRestoreRequest"];
+export type GitRestoreResponse = schemas["GitRestoreResponse"];
 export type FormatCellsRequest = schemas["FormatCellsRequest"];
 export type FormatResponse = schemas["FormatResponse"];
 export type InvokeFunctionRequest = schemas["InvokeFunctionRequest"];
@@ -216,6 +224,11 @@ export interface EditRequests {
   ) => Promise<FileMoveResponse>;
   sendUpdateFile: (request: FileUpdateRequest) => Promise<FileUpdateResponse>;
   sendFileDetails: (request: { path: string }) => Promise<FileDetailsResponse>;
+  // Notebook git version history
+  getGitLog: () => Promise<GitLogResponse>;
+  getGitShow: (request: GitShowRequest) => Promise<GitShowResponse>;
+  sendGitCommit: (request: GitCommitRequest) => Promise<GitCommitResponse>;
+  sendGitRestore: (request: GitRestoreRequest) => Promise<GitRestoreResponse>;
   // Homepage requests
   openTutorial: (request: OpenTutorialRequest) => Promise<MarimoFile>;
   getRecentFiles: () => Promise<RecentFilesResponse>;

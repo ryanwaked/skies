@@ -69,7 +69,7 @@ def test_index_when_empty(client: TestClient) -> None:
     content = response.text
     assert "<marimo-filename hidden></marimo-filename>" in content
     assert '"mode": "home"' in content
-    assert "<title>marimo</title>" in content
+    assert "<title>Skies</title>" in content
 
 
 @with_workspace(EmptyWorkspace())
@@ -85,7 +85,7 @@ def test_index_when_new_file(client: TestClient) -> None:
     content = response.text
     assert "<marimo-filename hidden></marimo-filename>" in content
     assert '"mode": "edit"' in content
-    assert "<title>marimo</title>" in content
+    assert "<title>Skies</title>" in content
 
 
 def test_index_missing_assets_in_source_checkout_shows_build_hint(
@@ -219,7 +219,7 @@ def test_index_with_directory(client: TestClient, tmp_path: Path) -> None:
         content = response.text
         assert "<marimo-filename" in content
         assert '"mode": "home"' in content
-        assert "<title>marimo</title>" in content
+        assert "<title>Skies</title>" in content
 
 
 def test_index_with_directory_run_mode(
@@ -236,7 +236,7 @@ def test_index_with_directory_run_mode(
         content = response.text
         assert "<marimo-filename" in content
         assert '"mode": "gallery"' in content
-        assert "<title>marimo</title>" in content
+        assert "<title>Skies</title>" in content
 
 
 def test_favicon(client: TestClient) -> None:

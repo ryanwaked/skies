@@ -32,6 +32,7 @@ import { Paths } from "@/utils/paths";
 import { NotebookMenuDropdown } from "../controls/notebook-menu-dropdown";
 import { NotebookStatusTicks } from "./notebook-status-ticks";
 import { ShutdownButton } from "../controls/shutdown-button";
+import { VersionHistoryButton } from "../controls/version-history-button";
 import { LayoutSelect } from "../renderers/layout-select";
 
 /**
@@ -96,6 +97,10 @@ export const NotebookHeader = (): JSX.Element => {
           <>
             <div className="mx-1 h-[18px] w-px bg-border" />
             <SaveComponent kioskMode={false} />
+            <VersionHistoryButton
+              disabled={disabled}
+              tooltip={connectionTooltip ?? "Version history"}
+            />
             <ConfigButton disabled={disabled} tooltip={connectionTooltip} />
             <ShutdownButton
               description="This will terminate the Python kernel. You'll lose all data that's in memory."

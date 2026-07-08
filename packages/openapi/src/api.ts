@@ -1439,6 +1439,166 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/git_history/commit": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header: {
+          "Marimo-Session-Id": string;
+        };
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["GitCommitRequest"];
+        };
+      };
+      responses: {
+        /** @description Commit the notebook's current saved content with a message */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["GitCommitResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/git_history/log": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header: {
+          "Marimo-Session-Id": string;
+        };
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description List the notebook's version history, most recent first */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["GitLogResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/git_history/restore": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header: {
+          "Marimo-Session-Id": string;
+        };
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["GitRestoreRequest"];
+        };
+      };
+      responses: {
+        /** @description Restore the notebook to a previous version */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["GitRestoreResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/git_history/show": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header: {
+          "Marimo-Session-Id": string;
+        };
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["GitShowRequest"];
+        };
+      };
+      responses: {
+        /** @description Get the notebook source as of a given commit */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["GitShowResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/home/notebook_preview": {
     parameters: {
       query?: never;
@@ -4726,6 +4886,24 @@ export interface components {
     };
     /** GetCacheInfoRequest */
     GetCacheInfoRequest: Record<string, any>;
+    /** GitCommitInfo */
+    GitCommitInfo: {
+      commitHash: string;
+      date: string;
+      message: string;
+    };
+    /** GitCommitRequest */
+    GitCommitRequest: {
+      message: string;
+    };
+    /** GitCommitResponse */
+    GitCommitResponse: {
+      /** @default null */
+      commit?: null | components["schemas"]["GitCommitInfo"];
+      /** @default null */
+      message?: string | null;
+      success: boolean;
+    };
     /**
      * GitHubConfig
      * @description Configuration options for GitHub.
@@ -4742,6 +4920,30 @@ export interface components {
       api_key?: string;
       base_url?: string;
       copilot_settings?: Record<string, any>;
+    };
+    /** GitLogResponse */
+    GitLogResponse: {
+      available: boolean;
+      commits: components["schemas"]["GitCommitInfo"][];
+    };
+    /** GitRestoreRequest */
+    GitRestoreRequest: {
+      commitHash: string;
+    };
+    /** GitRestoreResponse */
+    GitRestoreResponse: {
+      /** @default null */
+      message?: string | null;
+      success: boolean;
+    };
+    /** GitShowRequest */
+    GitShowRequest: {
+      commitHash: string;
+    };
+    /** GitShowResponse */
+    GitShowResponse: {
+      /** @default null */
+      content?: string | null;
     };
     /**
      * GoogleAiConfig

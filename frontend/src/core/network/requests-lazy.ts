@@ -96,6 +96,13 @@ const ACTIONS: Record<keyof AllRequests, Action> = {
   sendFileDetails: "throwError",
   openFile: "throwError",
 
+  // Notebook git version history: needs a running kernel/session but
+  // shouldn't itself start one.
+  getGitLog: "waitForConnectionOpen",
+  getGitShow: "waitForConnectionOpen",
+  sendGitCommit: "waitForConnectionOpen",
+  sendGitRestore: "waitForConnectionOpen",
+
   // Home operations throw errors
   getRecentFiles: "startConnection",
   getWorkspaceFiles: "startConnection",
