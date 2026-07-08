@@ -16,6 +16,7 @@ import {
   RefreshCcwIcon,
   SearchIcon,
   Trash2Icon,
+  UploadIcon,
 } from "lucide-react";
 import type React from "react";
 import { createContext, use, useEffect, useMemo, useRef, useState } from "react";
@@ -29,6 +30,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "@/components/ui/use-toast";
 import {
   createCollection,
   collectionsAtom,
@@ -49,6 +51,7 @@ import { Banner } from "@/plugins/impl/common/error-banner";
 import { cn } from "@/utils/cn";
 import { timeAgo } from "@/utils/dates";
 import { prettyError } from "@/utils/errors";
+import { openNotebook } from "@/utils/links";
 import { Maps } from "@/utils/maps";
 import { asURL } from "@/utils/url";
 import { newNotebookURL } from "@/utils/urls";
@@ -372,6 +375,75 @@ const Workspace: React.FC<{
 // Sidebar
 // ---------------------------------------------------------------------------
 
+/**
+ * Import a notebook from disk into the workspace: uploads the chosen `.py`
+ * file to the workspace root via the file-create endpoint, then opens it.
+ * A quiet ghost button so the primary "New notebook" CTA stays dominant.
+ */
+const ImportNotebookButton: React.FC = () => {
+  const { sendCreateFileOrFolder } = useRequestClient();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+
+  const importFile = async (file: File | undefined) => {
+    if (!file || busy) {
+      return;
+    }
+    setBusy(true);
+    try {
+      const res = await sendCreateFileOrFolder({
+        path: "",
+        type: "file",
+        name: file.name,
+        file,
+      });
+      if (res.success && res.info) {
+        toast({ description: `Imported "${file.name}"` });
+        openNotebook(res.info.path);
+      } else {
+        toast({
+          variant: "danger",
+          title: "Import failed",
+          description: res.message ?? "Could not import that notebook.",
+        });
+      }
+    } catch (error) {
+      toast({
+        variant: "danger",
+        title: "Import failed",
+        description: prettyError(error),
+      });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        disabled={busy}
+        onClick={() => inputRef.current?.click()}
+        className="mt-2 flex h-8 w-full items-center justify-center gap-2 rounded-[var(--radius)] text-[12px] font-medium text-[var(--foreground-dim)] transition-colors hover:bg-[var(--hover-wash)] hover:text-foreground disabled:opacity-50"
+      >
+        <UploadIcon size={14} strokeWidth={1.8} />
+        Import notebook
+      </button>
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".py"
+        className="hidden"
+        onChange={(e) => {
+          void importFile(e.target.files?.[0]);
+          // Reset so importing the same file twice re-fires onChange.
+          e.target.value = "";
+        }}
+      />
+    </>
+  );
+};
+
 const HomeSidebar: React.FC<{
   filter: HomeFilter;
   setFilter: (f: HomeFilter) => void;
@@ -413,6 +485,7 @@ const HomeSidebar: React.FC<{
           New notebook
           <kbd className="ml-auto font-mono text-[10px] opacity-60">n</kbd>
         </a>
+        <ImportNotebookButton />
       </div>
 
       <nav className="mt-4 flex flex-col gap-0.5 px-2">
@@ -726,14 +799,6 @@ const MainPane: React.FC<{
   const allCount = workspaceCards.length;
   const runningCount = runningCards.length;
 
-  // Lowercase mono word echoing the active filter, seaming the masthead to
-  // the body; append the query when searching.
-  const filterWord =
-    filter.kind === "collection"
-      ? (activeCollection?.name ?? "collection").toLowerCase()
-      : filter.kind;
-  const mastheadLabel = search ? `results · "${search}"` : filterWord;
-
   // Surface pinned + running zones above the main list only on the default,
   // unsearched browsing surfaces; every other view stays a flat surface.
   const zoned = !search && (filter.kind === "all" || filter.kind === "recent");
@@ -747,6 +812,7 @@ const MainPane: React.FC<{
           <span className="ml-auto font-mono text-[10px] uppercase tabular-nums text-[var(--foreground-dim)]">
             {allCount} notebooks
             {runningCount > 0 && ` · ${runningCount} running`}
+            {hasMore && filter.kind === "all" && ` · first ${fileCount} shown`}
           </span>
         </div>
         {/* Row 2 — title + controls */}
@@ -792,23 +858,6 @@ const MainPane: React.FC<{
               )}
             </button>
           </div>
-        </div>
-        {/* Row 3 — masthead running-header (seams header to body) */}
-        <div className="mt-3">
-          <Header
-            control={
-              hasMore && filter.kind === "all" ? (
-                <span
-                  className="font-mono text-[10px] uppercase tabular-nums text-[var(--foreground-dim)]"
-                  title={`Showing the first ${fileCount} notebooks; your workspace has more.`}
-                >
-                  first {fileCount} shown
-                </span>
-              ) : undefined
-            }
-          >
-            {mastheadLabel}
-          </Header>
         </div>
       </header>
 
@@ -896,11 +945,7 @@ const ZoneRouter: React.FC<{
         <section>
           <Header>pinned</Header>
           <div className="mt-3">
-            <CardGrid
-              items={pinnedItems}
-              runningNotebooks={runningNotebooks}
-              pinned={pinned}
-            />
+            <CardGrid items={pinnedItems} pinned={pinned} />
           </div>
         </section>
       )}
@@ -1019,11 +1064,7 @@ const NotebookCollectionView: React.FC<{
   }
 
   return view === "grid" ? (
-    <CardGrid
-      items={items}
-      runningNotebooks={runningNotebooks}
-      pinned={pinned}
-    />
+    <CardGrid items={items} pinned={pinned} />
   ) : (
     <CardList
       items={items}
@@ -1058,15 +1099,13 @@ const EmptyState: React.FC<{ title: string; showNew?: boolean }> = ({
 
 const CardGrid: React.FC<{
   items: CardItem[];
-  runningNotebooks: Map<string, MarimoFile>;
   pinned: string[];
-}> = ({ items, runningNotebooks, pinned }) => (
+}> = ({ items, pinned }) => (
   <div className="grid grid-cols-[repeat(auto-fill,minmax(216px,1fr))] gap-3">
     {items.map((item) => (
       <NotebookCard
         key={item.path}
         item={item}
-        isRunning={runningNotebooks.has(item.path)}
         isPinned={pinned.includes(item.path)}
       />
     ))}
@@ -1186,7 +1225,7 @@ const PinnedView: React.FC<{ view: "grid" | "list"; search: string }> = ({
   }
 
   return view === "grid" ? (
-    <CardGrid items={items} runningNotebooks={runningNotebooks} pinned={pinned} />
+    <CardGrid items={items} pinned={pinned} />
   ) : (
     <CardList items={items} runningNotebooks={runningNotebooks} pinned={pinned} />
   );
@@ -1198,9 +1237,8 @@ const PinnedView: React.FC<{ view: "grid" | "list"; search: string }> = ({
 
 const NotebookCard: React.FC<{
   item: CardItem;
-  isRunning: boolean;
   isPinned: boolean;
-}> = ({ item, isRunning, isPinned }) => {
+}> = ({ item, isPinned }) => {
   const { locale } = useLocale();
   const previewRef = useRef<HTMLDivElement>(null);
   const { preview, status } = useNotebookPreview(item.path, previewRef);
@@ -1226,12 +1264,8 @@ const NotebookCard: React.FC<{
           preview={preview}
           status={status}
         />
-        {isRunning && (
-          <span className="skies-status absolute left-2 top-2 backdrop-blur-sm">
-            <i className="skies-status__dot skies-ping" />
-            live
-          </span>
-        )}
+        {/* No "live" pill here — the RUNNING shelf above the grid already
+            names the running notebooks; repeating it overlapped the title. */}
       </div>
       <div className="absolute right-1.5 top-1.5 z-10 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
         <PinButton path={item.path} isPinned={isPinned} onCover={true} />

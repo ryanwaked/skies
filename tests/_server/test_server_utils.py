@@ -5,7 +5,7 @@ from marimo._server.api.utils import parse_title
 
 
 def test_parse_title() -> None:
-    assert parse_title(None) == "marimo"
+    assert parse_title(None) == "Skies"
     assert parse_title("example_file.txt") == "example file"
     assert (
         parse_title("another_example_file_with_underscores.docx")

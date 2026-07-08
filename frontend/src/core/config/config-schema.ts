@@ -285,7 +285,7 @@ export function parseAppConfig(config: unknown) {
     return AppConfigSchema.parse(config);
   } catch (error) {
     Logger.error(
-      `Marimo got an unexpected value in the configuration file: ${error}`,
+      `Skies got an unexpected value in the configuration file: ${error}`,
     );
     return AppConfigSchema.parse({});
   }
@@ -303,11 +303,11 @@ export function parseUserConfig(config: unknown): UserConfig {
   } catch (error) {
     if (error instanceof z.ZodError) {
       Logger.error(
-        `Marimo got an unexpected value in the configuration file: ${z.prettifyError(error)}`,
+        `Skies got an unexpected value in the configuration file: ${z.prettifyError(error)}`,
       );
     } else {
       Logger.error(
-        `Marimo got an unexpected value in the configuration file: ${error}`,
+        `Skies got an unexpected value in the configuration file: ${error}`,
       );
     }
     return defaultUserConfig();
@@ -326,7 +326,7 @@ export function parseConfigOverrides(config: unknown): {} {
     }
     return overrides as {};
   } catch (error) {
-    Logger.error(`Marimo got an unexpected configuration overrides: ${error}`);
+    Logger.error(`Skies got an unexpected configuration overrides: ${error}`);
     return {};
   }
 }

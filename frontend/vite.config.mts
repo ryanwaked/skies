@@ -53,7 +53,7 @@ const htmlDevPlugin = (): Plugin => {
           ? "read"
           : "edit";
         html = html.replace("{{ base_url }}", "");
-        html = html.replace("{{ title }}", "marimo");
+        html = html.replace("{{ title }}", "Skies");
         html = html.replace(
           "'{{ mount_config }}'",
           JSON.stringify({

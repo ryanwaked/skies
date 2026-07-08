@@ -112,7 +112,7 @@ const SecretsTabs: React.FC<{
     <div className="flex h-full min-h-0 flex-col">
       <div className="mx-3 mt-2 flex w-fit shrink-0 gap-0.5 rounded-[3px] border border-border p-0.5">
         <SecretsTabButton active={tab === "marimo"} onClick={() => setTab("marimo")}>
-          Marimo secrets
+          Skies secrets
         </SecretsTabButton>
         <SecretsTabButton active={tab === "env"} onClick={() => setTab("env")}>
           Environment
@@ -125,8 +125,8 @@ const SecretsTabs: React.FC<{
           allowAdd={true}
           providerNames={providerNames}
           refetch={refetch}
-          emptyTitle="No marimo secrets"
-          emptyDescription="Add a secret to a project `.env` or marimo-wide, and it's loaded into your environment."
+          emptyTitle="No Skies secrets"
+          emptyDescription="Add a secret to a project `.env` or globally, and it's loaded into your environment."
         />
       ) : (
         <SecretsBrowser

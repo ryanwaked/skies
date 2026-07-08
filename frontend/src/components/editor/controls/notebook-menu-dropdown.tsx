@@ -155,6 +155,7 @@ export const NotebookMenuDropdown: React.FC<Props> = ({
         <div className="flex-1 px-2 text-xs text-muted-foreground flex flex-col gap-1">
           <span>Locale: {locale}</span>
           <span>Version: {getMarimoVersion()}</span>
+          <span className="opacity-70">Skies — a marimo fork</span>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

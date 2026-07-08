@@ -1355,6 +1355,7 @@ export const UserConfigForm: React.FC = () => {
             <div className="p-2 text-xs text-muted-foreground self-start flex flex-col gap-1">
               <span>Version: {marimoVersion}</span>
               <span>Locale: {locale}</span>
+              <span className="opacity-70">Skies — a marimo fork</span>
             </div>
 
             <div className="flex-1" />

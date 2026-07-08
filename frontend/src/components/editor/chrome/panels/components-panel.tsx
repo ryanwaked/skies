@@ -325,25 +325,29 @@ const ComponentViewer: React.FC<{
           <XIcon strokeWidth={1.5} className="h-3.5 w-3.5" />
         </Button>
       </div>
-      <div className="px-2 py-2 space-y-3 overflow-y-auto overflow-x-hidden flex-1">
-        <div className="flex items-center justify-between gap-2">
-          {component.description ? (
-            <span className="text-[10.5px] font-mono text-[var(--foreground-dim)] truncate">
-              {component.description}
-            </span>
-          ) : (
-            <span />
-          )}
-          <HideInKioskMode>
-            <Button size="xs" variant="outline" onClick={handleInsert}>
-              Insert component
-              <BetweenHorizontalStartIcon
-                strokeWidth={1.5}
-                className="ml-2 h-4 w-4"
-              />
-            </Button>
-          </HideInKioskMode>
-        </div>
+      <div className="px-2 py-2 space-y-2 overflow-y-auto overflow-x-hidden flex-1">
+        {/* Description gets its own full-width line (wraps instead of
+            truncating), and the insert action a clean full-width row —
+            side-by-side they crowded each other at panel widths. */}
+        {component.description && (
+          <p className="text-[11px] leading-snug text-[var(--foreground-dim)]">
+            {component.description}
+          </p>
+        )}
+        <HideInKioskMode>
+          <Button
+            size="xs"
+            variant="outline"
+            className="w-full whitespace-nowrap"
+            onClick={handleInsert}
+          >
+            Insert component
+            <BetweenHorizontalStartIcon
+              strokeWidth={1.5}
+              className="ml-2 h-4 w-4"
+            />
+          </Button>
+        </HideInKioskMode>
         <Suspense>
           <LazyAnyLanguageCodeMirror
             theme={theme === "dark" ? "dark" : "light"}

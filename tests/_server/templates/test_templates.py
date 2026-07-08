@@ -116,7 +116,7 @@ class TestNotebookPageTemplate(unittest.TestCase):
 
         assert self.base_url not in result
         assert str(self.server_token) in result
-        assert "<title>marimo</title>" in result
+        assert "<title>Skies</title>" in result
         assert "read" in result
         assert '"cwd": ""' in result
         _assert_no_leftover_replacements(result)
