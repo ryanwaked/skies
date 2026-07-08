@@ -48,7 +48,7 @@ export const LanguageToggles: React.FC<LanguageTogglesProps> = ({
         canSwitchToLanguage={canUseSQL && currentLanguageAdapter === "python"}
         icon={
           <DatabaseIcon
-            color={"var(--sky-11)"}
+            color={"var(--sky-blue)"}
             strokeWidth={2.5}
             className="w-4 h-4"
           />
@@ -65,7 +65,7 @@ export const LanguageToggles: React.FC<LanguageTogglesProps> = ({
         }
         icon={
           <MarkdownIcon
-            fill={"var(--sky-11)"}
+            fill={"var(--sky-blue)"}
             color="black"
             className="w-4 h-4"
           />
@@ -80,7 +80,7 @@ export const LanguageToggles: React.FC<LanguageTogglesProps> = ({
         canSwitchToLanguage={true}
         icon={
           <PythonIcon
-            fill={"var(--sky-11)"}
+            fill={"var(--sky-blue)"}
             color="black"
             className="w-4 h-4"
           />

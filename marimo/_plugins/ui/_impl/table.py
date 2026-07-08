@@ -252,6 +252,20 @@ def get_default_table_max_columns() -> int:
         return ctx.marimo_config["display"]["default_table_max_columns"]
 
 
+def get_default_column_summary_charts_row_limit() -> int:
+    """Get the row limit under which tables show per-column summary charts."""
+    try:
+        ctx = get_context()
+    except ContextNotInitializedError:
+        return TableManager.DEFAULT_SUMMARY_CHARTS_ROW_LIMIT
+    else:
+        # NotRequired key: fall back to the manager default if unset.
+        return ctx.marimo_config["display"].get(
+            "column_summary_row_limit",
+            TableManager.DEFAULT_SUMMARY_CHARTS_ROW_LIMIT,
+        )
+
+
 _DATATYPE_TO_CATEGORY: dict[str, str] = {
     "string": "str",
     "boolean": "boolean",
@@ -696,7 +710,7 @@ class table(
             self._column_charts_row_limit = _internal_column_charts_row_limit
         else:
             self._column_charts_row_limit = (
-                TableManager.DEFAULT_SUMMARY_CHARTS_ROW_LIMIT
+                get_default_column_summary_charts_row_limit()
             )
 
         if _internal_summary_row_limit is not None:

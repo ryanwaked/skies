@@ -91,23 +91,39 @@ export const ComponentsPanel: React.FC = () => {
                     value={`${component.name} ${component.description ?? ""}`}
                     onSelect={() => setSelectedId(component.id)}
                     className={cn(
-                      "min-h-[26px] py-1 rounded-[3px]",
-                      selectedId === component.id &&
-                        "bg-primary/[0.07] text-primary",
+                      // Two-line row: the name truncates, the description wraps
+                      // to two lines below it (no longer clipped to one line at
+                      // 45% width) so components read clearly at a glance.
+                      "items-start gap-2 px-2 py-1.5 rounded-[3px]",
+                      selectedId === component.id && "bg-primary/[0.07]",
                     )}
                   >
                     <BlocksIcon
                       strokeWidth={1.5}
-                      className="h-3.5 w-3.5 mr-2 shrink-0 text-muted-foreground"
+                      className={cn(
+                        "h-3.5 w-3.5 mt-px shrink-0",
+                        selectedId === component.id
+                          ? "text-primary"
+                          : "text-muted-foreground",
+                      )}
                     />
-                    <span className="flex-1 truncate text-[13px]">
-                      {component.name}
-                    </span>
-                    {component.description && (
-                      <span className="ml-2 truncate text-[10.5px] font-mono text-[var(--foreground-dim)] max-w-[45%]">
-                        {component.description}
+                    <div className="flex flex-col min-w-0 gap-0.5">
+                      <span
+                        className={cn(
+                          "truncate text-[13px] leading-tight",
+                          selectedId === component.id
+                            ? "text-primary"
+                            : "text-foreground",
+                        )}
+                      >
+                        {component.name}
                       </span>
-                    )}
+                      {component.description && (
+                        <span className="text-[11px] leading-snug text-[var(--foreground-dim)] line-clamp-2">
+                          {component.description}
+                        </span>
+                      )}
+                    </div>
                   </CommandItem>
                 ))}
               </CommandList>

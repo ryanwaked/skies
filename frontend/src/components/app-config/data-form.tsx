@@ -178,6 +178,42 @@ export const DataForm = ({
           </div>
         )}
       />
+      <OverriddenFormField
+        control={form.control}
+        name="display.column_summary_row_limit"
+        render={({ field, override }) => (
+          <div className="flex flex-col space-y-1">
+            <FormItem className={formItemClasses}>
+              <FormLabel>Column summary chart limit</FormLabel>
+              <FormControl>
+                <NumberField
+                  aria-label="Column summary chart limit"
+                  data-testid="column-summary-row-limit-input"
+                  className="m-0 w-24"
+                  {...field}
+                  value={override.value}
+                  isDisabled={override.isOverridden}
+                  minValue={0}
+                  step={1000}
+                  onChange={(value) => {
+                    field.onChange(value);
+                    if (!Number.isNaN(value)) {
+                      onSubmit(form.getValues());
+                    }
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+              <IsOverridden override={override} />
+            </FormItem>
+            <FormDescription>
+              Tables with up to this many rows show the mini summary charts in
+              each column header. Higher values can slow rendering on very large
+              tables.
+            </FormDescription>
+          </div>
+        )}
+      />
 
       <SettingGroup title="SQL">
         <div className="flex flex-col gap-1">

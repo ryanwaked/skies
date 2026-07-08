@@ -27,12 +27,16 @@ from marimo._plugins.ui._impl.table import (
     SearchTableArgs,
     SortArgs,
     TableSearchError,
+    get_default_column_summary_charts_row_limit,
     get_default_table_max_columns,
     get_default_table_page_size,
 )
 from marimo._plugins.ui._impl.tables.default_table import DefaultTableManager
 from marimo._plugins.ui._impl.tables.selection import INDEX_COLUMN_NAME
-from marimo._plugins.ui._impl.tables.table_manager import TableCell
+from marimo._plugins.ui._impl.tables.table_manager import (
+    TableCell,
+    TableManager,
+)
 from marimo._plugins.ui._impl.utils.dataframe import TableData
 from marimo._runtime.functions import EmptyArgs
 from marimo._runtime.runtime import Kernel
@@ -2561,6 +2565,14 @@ def test_default_table_page_size():
 
 def test_default_table_max_columns():
     assert get_default_table_max_columns() == DEFAULT_MAX_COLUMNS
+
+
+def test_default_column_summary_charts_row_limit():
+    assert (
+        get_default_column_summary_charts_row_limit()
+        == TableManager.DEFAULT_SUMMARY_CHARTS_ROW_LIMIT
+        == 500_000
+    )
 
 
 def test_table_max_height():

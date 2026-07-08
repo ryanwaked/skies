@@ -615,7 +615,11 @@ const EditableCellComponent = ({
                 className="cell-frame-label border-transparent"
               />
             )}
-            <CellLeftSideActions cellId={cellId} actions={actions}>
+            <CellLeftSideActions
+              cellId={cellId}
+              actions={actions}
+              languageAdapter={languageAdapter}
+            >
               <div className="cell-gutter-actions flex flex-col items-center z-20 print:hidden">
                 <span className={cn(!isCollapsed && "hover-action")}>
                   <CollapseToggle
@@ -918,13 +922,18 @@ const CellLeftSideActions = memo(
     cellId: CellId;
     actions: CellComponentActions;
     /**
+     * Language of this cell. ⌘/Ctrl-clicking a create button adds a new cell
+     * of the same language (a plain click opens the cell-type menu instead).
+     */
+    languageAdapter?: LanguageAdapterType;
+    /**
      * Gutter affordances (collapse chevron, drag handle) rendered below the
      * create-above button, at the top of the cell.
      */
     children?: React.ReactNode;
   }) => {
     const connection = useAtomValue(connectionAtom);
-    const { className, actions, cellId, children } = props;
+    const { className, actions, cellId, children, languageAdapter } = props;
 
     const createBelow = useEvent(
       (opts: { code?: string; hideCode?: boolean } = {}) =>
@@ -950,6 +959,7 @@ const CellLeftSideActions = memo(
             connectionState={connection.state}
             onClick={createAbove}
             oneClickShortcut={oneClickShortcut}
+            adjacentLanguage={languageAdapter}
           />
         </div>
         {children}
@@ -961,6 +971,7 @@ const CellLeftSideActions = memo(
             connectionState={connection.state}
             onClick={createBelow}
             oneClickShortcut={oneClickShortcut}
+            adjacentLanguage={languageAdapter}
           />
         </div>
       </div>

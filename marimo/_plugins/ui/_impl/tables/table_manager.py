@@ -62,8 +62,10 @@ class TableManager(abc.ABC, Generic[T]):
     # render from compact server-computed bins (a fixed handful of bins), so
     # the browser cost is independent of table size — this gate only bounds
     # the server-side binning. Skies raises it (upstream: 20_000) so the
-    # useful header charts stay visible for larger analytical tables.
-    DEFAULT_SUMMARY_CHARTS_ROW_LIMIT = 200_000
+    # useful header charts stay visible for larger analytical tables. This is
+    # the fallback default; users can override it via the
+    # `display.column_summary_row_limit` setting.
+    DEFAULT_SUMMARY_CHARTS_ROW_LIMIT = 500_000
     # Lower limit for frontend to show column summary charts. Skies keeps
     # this at 2 (upstream: 11) so small Python-rendered frames get the same
     # header metric charts as SQL results — Hex shows the strip regardless

@@ -36,6 +36,7 @@ import {
 import { useCellActions } from "@/core/cells/cells";
 import { localComponentsAtom } from "@/core/components/local-components";
 import { LanguageAdapters } from "@/core/codemirror/language/LanguageAdapters";
+import type { LanguageAdapterType } from "@/core/codemirror/language/types";
 import { MARKDOWN_INITIAL_HIDE_CODE } from "@/core/codemirror/language/languages/markdown";
 import {
   getConnectionTooltip,
@@ -56,9 +57,9 @@ import {
 import { Tooltip } from "../../ui/tooltip";
 import { MarkdownIcon, PythonIcon } from "./code/icons";
 
-// A single, shared record of which "other cell types" modifiers are currently
-// held. Read as a fallback at pointer-down time so a ⌘/Ctrl-click still opens
-// the cell-type menu even when the pointer event's own modifier flag doesn't
+// A single, shared record of which cell-type modifiers are currently held.
+// Read as a fallback at pointer-down time so a ⌘/Ctrl-click still adds a
+// same-type cell even when the pointer event's own modifier flag doesn't
 // register — the cause of the "only works if I hold ⌘ *and* click" flakiness
 // (the button calls preventDefault(), which also blocks the :focus fallback).
 // One global listener set is shared across every CreateCellButton instance; a
@@ -99,6 +100,7 @@ export const CreateCellButton = ({
   onClick,
   tooltipContent,
   oneClickShortcut,
+  adjacentLanguage,
 }: {
   connectionState: WebSocketState;
   tooltipContent: React.ReactNode;
@@ -106,6 +108,11 @@ export const CreateCellButton = ({
     | ((opts: { code: string; hideCode?: boolean }) => void)
     | undefined;
   oneClickShortcut: "shift" | "mod";
+  /**
+   * Language of the adjacent cell. A ⌘/Ctrl-click adds a new cell of this
+   * language; a plain click opens the cell-type menu.
+   */
+  adjacentLanguage?: LanguageAdapterType;
 }) => {
   const { createNewCell, addSetupCellIfDoesntExist } = useCellActions();
   const { openModal, closeModal } = useImperativeModal();
@@ -140,7 +147,7 @@ export const CreateCellButton = ({
       <div>{baseTooltipContent}</div>
       <div className="text-xs text-muted-foreground font-medium pt-1 -mt-2 border-t border-border">
         {<MinimalHotkeys shortcut={shortcut} className="inline" />}{" "}
-        <span>for other cell types</span>
+        <span>to add the same cell type</span>
       </div>
     </div>
   );
@@ -179,6 +186,22 @@ export const CreateCellButton = ({
 
   const addSetupCell = () => addSetupCellIfDoesntExist({});
 
+  // ⌘/Ctrl-click adds a new cell matching the adjacent cell's language
+  // (falls back to Python). Reuses the per-language helpers above so the
+  // markdown/SQL marimo-import side effects still run.
+  const addSameTypeCell = () => {
+    switch (adjacentLanguage) {
+      case "markdown":
+        addMarkdownCell();
+        return;
+      case "sql":
+        addSQLCell();
+        return;
+      default:
+        addPythonCell();
+    }
+  };
+
   const renderIcon = (icon: React.ReactNode) => {
     return <div className="mr-3 text-muted-foreground">{icon}</div>;
   };
@@ -212,10 +235,13 @@ export const CreateCellButton = ({
         ? e.shiftKey || heldModifiers.shift
         : e.metaKey || e.ctrlKey || heldModifiers.mod;
 
+    // Skies: a plain click opens the cell-type menu; a ⌘/Ctrl-click adds a
+    // cell of the same type as the adjacent cell (the inverse of upstream,
+    // where a plain click added a Python cell and the modifier opened the menu).
     if (hasModifier) {
-      openDropdown();
+      addSameTypeCell();
     } else {
-      addPythonCell();
+      openDropdown();
     }
   };
 
@@ -266,7 +292,7 @@ export const CreateCellButton = ({
           </Tooltip>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent side="bottom" sideOffset={-30}>
+      <DropdownMenuContent align="start" side="bottom" sideOffset={4}>
         <DropdownMenuItem onClick={handleFirstItemClick}>
           {renderIcon(<PythonIcon />)}
           Python cell

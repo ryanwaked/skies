@@ -825,7 +825,11 @@ body,
   /* Full-strength primary (not the 50%-alpha --ring): keyboard focus must
      clear 3:1 non-text contrast on every surface (WCAG 2.4.7/1.4.11). */
   outline: 1px solid var(--primary);
-  outline-offset: 1px;
+  /* Inset (not +1px) so the outline truly hugs the element — as the note above
+     intends — and can never be clipped by an overflow-hidden/auto ancestor.
+     A +1px offset was the cause of the focus highlight's top edge being cut
+     off on inputs flush to the top of a scrolling panel (rail search fields). */
+  outline-offset: -1px;
 }
 
 /* Editorial link underline: offset and softened to 40% of the link ink so

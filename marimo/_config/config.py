@@ -207,6 +207,7 @@ class DisplayConfig(TypedDict):
     - `custom_css`: list of paths to custom CSS files
     - `default_table_page_size`: default number of rows to display in tables
     - `default_table_max_columns`: default maximum number of columns to display in tables
+    - `column_summary_row_limit`: tables with up to this many rows show per-column summary charts
     - `reference_highlighting`: if `True`, highlight reactive variable references
     - `locale`: locale for date formatting and internationalization (e.g., "en-US", "en-GB", "de-DE")
     """
@@ -219,6 +220,7 @@ class DisplayConfig(TypedDict):
     custom_css: NotRequired[list[str]]
     default_table_page_size: int
     default_table_max_columns: int
+    column_summary_row_limit: NotRequired[int]
     reference_highlighting: NotRequired[bool]
     locale: NotRequired[str | None]
 
@@ -723,6 +725,10 @@ DEFAULT_CONFIG: MarimoConfig = {
         "dataframes": "rich",
         "default_table_page_size": 10,
         "default_table_max_columns": 50,
+        # `column_summary_row_limit` is intentionally omitted here: it is a
+        # NotRequired key whose default (500_000) is supplied by
+        # get_default_column_summary_charts_row_limit(). Keeping it out of the
+        # baked defaults means it never bloats exported-notebook config blobs.
         "reference_highlighting": True,
     },
     "formatting": {"line_length": 79},

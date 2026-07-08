@@ -143,6 +143,7 @@ export const UserConfigSchema = z
         dataframes: z.enum(["rich", "plain"]).prefault("rich"),
         default_table_page_size: z.number().prefault(10),
         default_table_max_columns: z.number().prefault(50),
+        column_summary_row_limit: z.number().prefault(500_000),
         default_width: z
           .enum(VALID_APP_WIDTHS)
           .prefault("medium")
