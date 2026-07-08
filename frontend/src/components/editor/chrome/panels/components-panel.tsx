@@ -45,6 +45,12 @@ import { HideInKioskMode } from "../../kiosk-mode";
 import { LazyAnyLanguageCodeMirror } from "@/plugins/impl/code/LazyAnyLanguageCodeMirror";
 import { usePanelOrientation, usePanelSection } from "./panel-context";
 import { PanelEmptyState } from "./empty-state";
+import {
+  PANEL_SEARCH_ACTION,
+  PANEL_SEARCH_INPUT,
+  PANEL_SEARCH_INPUT_ROOT,
+  PANEL_SEARCH_ROW,
+} from "./panel-styles";
 
 const extensions = [EditorView.lineWrapping];
 
@@ -69,11 +75,11 @@ export const ComponentsPanel: React.FC = () => {
         <Panel defaultSize={40} minSize={20} maxSize={70}>
           <div className="flex h-full flex-col">
             <Command className="flex-1 min-h-0 rounded-none bg-card">
-              <div className="flex items-center w-full border-b">
+              <div className={PANEL_SEARCH_ROW}>
                 <CommandInput
                   placeholder="Search components..."
-                  className="h-6 m-1"
-                  rootClassName="flex-1 border-r"
+                  className={PANEL_SEARCH_INPUT}
+                  rootClassName={PANEL_SEARCH_INPUT_ROOT}
                 />
                 <ExportImportButtons />
               </div>
@@ -195,7 +201,7 @@ const ExportImportButtons: React.FC = () => {
           type="button"
           aria-label="Export components"
           disabled={components.length === 0}
-          className="px-2 h-full text-muted-foreground hover:bg-[var(--hover-wash)] hover:text-foreground disabled:opacity-40"
+          className={PANEL_SEARCH_ACTION}
           onClick={handleExport}
         >
           <DownloadIcon strokeWidth={1.5} className="h-3.5 w-3.5" />
@@ -205,7 +211,7 @@ const ExportImportButtons: React.FC = () => {
         <button
           type="button"
           aria-label="Import components"
-          className="px-2 h-full text-muted-foreground hover:bg-[var(--hover-wash)] hover:text-foreground border-l"
+          className={PANEL_SEARCH_ACTION}
           onClick={() => fileInputRef.current?.click()}
         >
           <UploadIcon strokeWidth={1.5} className="h-3.5 w-3.5" />

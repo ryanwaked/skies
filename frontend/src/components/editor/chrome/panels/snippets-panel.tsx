@@ -19,6 +19,12 @@ import { useAsyncData } from "@/hooks/useAsyncData";
 import { renderHTML } from "@/plugins/core/RenderHTML";
 import { ErrorBanner } from "@/plugins/impl/common/error-banner";
 import { PanelEmptyState } from "./empty-state";
+import {
+  PANEL_SEARCH_ACTION,
+  PANEL_SEARCH_INPUT,
+  PANEL_SEARCH_INPUT_ROOT,
+  PANEL_SEARCH_ROW,
+} from "./panel-styles";
 
 import "./snippets-panel.css";
 import { EditorView } from "@codemirror/view";
@@ -68,14 +74,14 @@ const SnippetsPanel: React.FC = () => {
         <Panel defaultSize={40} minSize={20} maxSize={70}>
           <div className="flex h-full flex-col">
             <Command className="flex-1 min-h-0 rounded-none">
-              <div className="flex items-center w-full border-b">
+              <div className={PANEL_SEARCH_ROW}>
                 <CommandInput
                   placeholder="Search snippets..."
-                  className="h-6 m-1"
-                  rootClassName="flex-1 border-r"
+                  className={PANEL_SEARCH_INPUT}
+                  rootClassName={PANEL_SEARCH_INPUT_ROOT}
                 />
                 <ContributeSnippetButton>
-                  <button className="float-right px-2 m-0 h-full text-muted-foreground hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground">
+                  <button type="button" className={PANEL_SEARCH_ACTION}>
                     <PlusIcon strokeWidth={1.5} className="h-4 w-4" />
                   </button>
                 </ContributeSnippetButton>

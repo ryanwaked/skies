@@ -11,6 +11,10 @@ import { useOpenSettingsToTab } from "@/components/app-config/state";
 import { Spinner } from "@/components/icons/spinner";
 import { SearchInput } from "@/components/ui/input";
 import {
+  PANEL_SEARCH_INPUT_ROOT,
+  PANEL_SEARCH_ROW,
+} from "./panel-styles";
+import {
   Table,
   TableBody,
   TableCell,
@@ -201,7 +205,7 @@ const InstallPackageForm: React.FC<{
   };
 
   return (
-    <div className="flex items-center w-full border-b">
+    <div className={PANEL_SEARCH_ROW}>
       <SearchInput
         placeholder={`Install packages with ${packageManager}...`}
         id={PACKAGES_INPUT_ID}
@@ -221,7 +225,7 @@ const InstallPackageForm: React.FC<{
             </Tooltip>
           )
         }
-        rootClassName="flex-1 border-none"
+        rootClassName={PANEL_SEARCH_INPUT_ROOT}
         value={input}
         onKeyDown={(e) => {
           if (e.key === "Enter") {

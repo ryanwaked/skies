@@ -12,6 +12,10 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/utils/cn";
 import { raf2 } from "../../navigation/focus-utils";
 import { PanelEmptyState } from "./empty-state";
+import {
+  PANEL_SEARCH_INPUT_ROOT,
+  PANEL_SEARCH_ROW,
+} from "./panel-styles";
 
 /** Cap total matches so pathological queries (e.g. "a") stay responsive. */
 const MAX_MATCHES = 500;
@@ -197,22 +201,24 @@ const SearchPanel: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Flat bordered search input row with case-sensitivity toggle */}
-      <div className="flex items-center gap-1.5 border-b border-border px-3 shrink-0">
-        <SearchIcon
-          strokeWidth={1.5}
-          className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
-        />
-        <input
-          ref={inputRef}
-          data-testid="search-panel-input"
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search cells"
-          spellCheck={false}
-          className="flex-1 h-7 min-w-0 bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none"
-        />
+      {/* Data-browser search row: a flat bordered pill + a case-sensitivity toggle */}
+      <div className={PANEL_SEARCH_ROW}>
+        <div className={cn(PANEL_SEARCH_INPUT_ROOT, "flex items-center gap-1.5")}>
+          <SearchIcon
+            strokeWidth={1.5}
+            className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
+          />
+          <input
+            ref={inputRef}
+            data-testid="search-panel-input"
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search cells"
+            spellCheck={false}
+            className="flex-1 min-w-0 h-full bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground outline-none"
+          />
+        </div>
         <button
           type="button"
           data-testid="search-panel-case-toggle"
@@ -221,10 +227,10 @@ const SearchPanel: React.FC = () => {
           title="Match case"
           onClick={() => setCaseSensitive((v) => !v)}
           className={cn(
-            "h-5 w-5 shrink-0 flex items-center justify-center rounded-[3px] text-[11px] font-medium leading-none",
+            "h-7 w-7 shrink-0 flex items-center justify-center rounded-[3px] text-[11px] font-medium leading-none",
             caseSensitive
               ? "bg-primary/[0.07] text-primary"
-              : "text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]",
+              : "text-muted-foreground hover:text-foreground hover:bg-[var(--hover-wash)]",
           )}
         >
           Aa
