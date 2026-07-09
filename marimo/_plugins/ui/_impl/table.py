@@ -122,6 +122,9 @@ class ColumnSummaries:
     # Disabled because of too many columns/rows
     # This will show a banner in the frontend
     is_disabled: bool | None = None
+    # Which limit triggered is_disabled, so the frontend can show an
+    # accurate message. None when is_disabled is False/None.
+    disabled_reason: Literal["rows", "columns"] | None = None
 
 
 ShowColumnSummaries = bool | Literal["stats", "chart"]
@@ -689,19 +692,23 @@ class table(
 
         # Set the default value for show_column_summaries,
         # if it is not set by the user
+        self._column_summary_disabled_reason: Literal["columns"] | None = None
         if show_column_summaries is None:
+            exceeds_column_limit = (
+                self._manager.get_num_columns()
+                > TableManager.DEFAULT_SUMMARY_CHARTS_COLUMN_LIMIT
+            )
             # cast to bool --- comparison come back as a NumPy bool
             show_column_summaries = bool(
-                (
-                    self._manager.get_num_columns()
-                    <= TableManager.DEFAULT_SUMMARY_CHARTS_COLUMN_LIMIT
-                )
+                not exceeds_column_limit
                 and (
                     total_rows == "too_many"
                     or total_rows
                     >= TableManager.DEFAULT_SUMMARY_CHARTS_MINIMUM_ROWS
                 )
             )
+            if exceeds_column_limit:
+                self._column_summary_disabled_reason = "columns"
         self._show_column_summaries: ShowColumnSummaries = (
             show_column_summaries
         )
@@ -1127,14 +1134,18 @@ class table(
         show_column_summaries = self._show_column_summaries
 
         if not show_column_summaries:
+            # Only show the banner when auto-detection turned summaries off
+            # because of the column-count limit; an explicit user opt-out
+            # (show_column_summaries=False) or the too-few-rows case stay
+            # silent, matching prior behavior.
+            disabled_reason = self._column_summary_disabled_reason
             return ColumnSummaries(
                 data=None,
                 stats={},
                 bin_values={},
                 value_counts={},
-                # This is not 'disabled' because of too many rows
-                # so we don't want to display the banner
-                is_disabled=False,
+                is_disabled=disabled_reason is not None,
+                disabled_reason=disabled_reason,
                 show_charts=False,
             )
 
@@ -1149,6 +1160,7 @@ class table(
                 bin_values={},
                 value_counts={},
                 is_disabled=True,
+                disabled_reason="rows",
                 show_charts=False,
             )
 

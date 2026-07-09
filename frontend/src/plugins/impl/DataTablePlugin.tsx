@@ -102,6 +102,7 @@ interface ColumnSummaries<T = unknown> {
   value_counts: Record<ColumnName, ValueCounts>;
   show_charts: boolean;
   is_disabled?: boolean;
+  disabled_reason?: "rows" | "columns" | null;
 }
 
 export type GetRowIds = (opts: {}) => Promise<{
@@ -310,6 +311,7 @@ export const DataTablePlugin = createPlugin<S>("marimo-table")
         value_counts: z.record(z.string(), valueCounts),
         show_charts: z.boolean(),
         is_disabled: z.boolean().optional(),
+        disabled_reason: z.enum(["rows", "columns"]).nullish(),
       }),
     ),
     search: rpc
@@ -1128,15 +1130,25 @@ const DataTableComponent = ({
           the table's <code>page_size</code> to embed more in the static export.
         </Banner>
       )}
-      {columnSummaries?.is_disabled && (
-        // Note: Keep the text in sync with the constant defined in table_manager.py
-        //       This hard-code can be removed when Functions can pass structural
-        //       error information from the backend
-        <Banner className="mb-1 rounded">
-          Column summaries are unavailable. Filter your data to fewer than
-          1,000,000 rows.
-        </Banner>
-      )}
+      {columnSummaries?.is_disabled &&
+        columnSummaries.disabled_reason === "columns" && (
+          // Note: Keep the column count in sync with
+          // TableManager.DEFAULT_SUMMARY_CHARTS_COLUMN_LIMIT in table_manager.py
+          <Banner className="mb-1 rounded">
+            Column summaries are unavailable. Tables with more than 40
+            columns don't show them.
+          </Banner>
+        )}
+      {columnSummaries?.is_disabled &&
+        columnSummaries.disabled_reason !== "columns" && (
+          // Note: Keep the text in sync with the constant defined in table_manager.py
+          //       This hard-code can be removed when Functions can pass structural
+          //       error information from the backend
+          <Banner className="mb-1 rounded">
+            Column summaries are unavailable. Filter your data to fewer than
+            1,000,000 rows.
+          </Banner>
+        )}
 
       <ColumnChartContext value={chartSpecModel}>
         <Labeled label={label} align="top" fullWidth={true}>
