@@ -18,8 +18,10 @@ from marimo._session import (
     Session,
 )
 from marimo._session.consumer import SessionConsumer
+from marimo._session.managers.ssh import RemoteComputeTarget
 from marimo._session.model import ConnectionState, SessionMode
 from marimo._session.notebook import AppFileManager
+from marimo._session.session import SessionImpl
 from marimo._types.ids import SessionId
 
 if TYPE_CHECKING:
@@ -410,6 +412,65 @@ def test_session_manager_auth_token_run_mode_without_provided_token(
     assert str(session_manager.skew_protection_token) == str(
         session_manager2.skew_protection_token
     )
+
+
+def test_remote_compute_target_get_set_clear(
+    session_manager: SessionManager,
+) -> None:
+    file_key = "notebook.py"
+    assert session_manager.get_remote_compute_target(file_key) is None
+
+    target = RemoteComputeTarget(
+        name="gpu-box",
+        ssh_destination="user@example.com",
+        remote_python="python3",
+    )
+    session_manager.set_remote_compute_target(file_key, target)
+    assert session_manager.get_remote_compute_target(file_key) is target
+    # Unrelated notebooks are unaffected.
+    assert session_manager.get_remote_compute_target("other.py") is None
+
+    session_manager.set_remote_compute_target(file_key, None)
+    assert session_manager.get_remote_compute_target(file_key) is None
+
+
+async def test_create_session_passes_remote_compute_target(
+    session_manager: SessionManager,
+    mock_session_consumer: SessionConsumer,
+    temp_marimo_file: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The configured remote-compute target for a notebook should reach
+    `SessionImpl.create()`, which is what picks the SSH kernel-manager
+    branch. Patches `SessionImpl.create` so this stays a unit test rather
+    than actually spawning an SSH connection."""
+    target = RemoteComputeTarget(
+        name="gpu-box",
+        ssh_destination="user@example.com",
+        remote_python="python3",
+    )
+    session_manager.set_remote_compute_target(temp_marimo_file, target)
+
+    captured: dict[str, object] = {}
+    original_create = SessionImpl.create
+
+    def _capturing_create(**kwargs: object) -> Session:
+        captured.update(kwargs)
+        # Don't build a real SSH kernel manager; just fall back to local.
+        kwargs["remote_compute_target"] = None
+        return original_create(**kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(SessionImpl, "create", _capturing_create)
+
+    session = session_manager.create_session(
+        session_id,
+        mock_session_consumer,
+        query_params={},
+        file_key=temp_marimo_file,
+        auto_instantiate=False,
+    )
+    assert captured["remote_compute_target"] is target
+    session.close()
 
 
 def test_recents_listener_subscribed_to_event_bus(

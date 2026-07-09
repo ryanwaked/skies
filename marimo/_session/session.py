@@ -45,11 +45,15 @@ from marimo._session.extensions.types import (
     ExtensionRegistry,
     SessionExtension,
 )
-from marimo._session.kernel_exit import classify_kernel_exit
+from marimo._session.kernel_exit import (
+    classify_kernel_exit,
+    classify_ssh_kernel_exit,
+)
 from marimo._session.managers import (
     KernelManagerImpl,
     QueueManagerImpl,
 )
+from marimo._session.managers.ssh import SSHKernelManagerImpl
 from marimo._session.model import ConnectionState, SessionMode
 from marimo._session.notebook import AppFileManager
 from marimo._session.room import Room
@@ -70,6 +74,7 @@ if TYPE_CHECKING:
     from marimo._runtime.virtual_file import VirtualFileStorageType
     from marimo._server.models.models import InstantiateNotebookRequest
     from marimo._session.app_host import AppHostContext
+    from marimo._session.managers.ssh import RemoteComputeTarget
 
 LOGGER = _loggers.marimo_logger()
 
@@ -102,6 +107,7 @@ class SessionImpl(Session):
         extensions: list[SessionExtension] | None = None,
         sandbox_mode: SandboxMode | None = None,
         app_host_context: AppHostContext | None = None,
+        remote_compute_target: RemoteComputeTarget | None = None,
     ) -> Session:
         """
         Create a new session.
@@ -138,6 +144,26 @@ class SessionImpl(Session):
                 app_host=app_host,
                 session_id=app_host_context.session_id,
                 queue_manager=queue_manager,
+                mode=mode,
+                configs=configs,
+                app_metadata=app_metadata,
+                config_manager=config_manager,
+                redirect_console_to_browser=redirect_console_to_browser,
+            )
+        elif remote_compute_target is not None:
+            # Remote-compute path — the kernel runs over SSH on a
+            # user-configured remote machine instead of locally. Takes
+            # priority over sandbox_mode.MULTI: a notebook can't run both
+            # in a local IPC sandbox and on a remote target at once.
+            from marimo._ipc import QueueManager as IPCQueueManager
+            from marimo._session.managers import IPCQueueManagerImpl
+
+            ipc_queue_manager, connection_info = IPCQueueManager.create()
+            queue_manager = IPCQueueManagerImpl.from_ipc(ipc_queue_manager)
+            kernel_manager = SSHKernelManagerImpl(
+                queue_manager=queue_manager,
+                connection_info=connection_info,
+                target=remote_compute_target,
                 mode=mode,
                 configs=configs,
                 app_metadata=app_metadata,
@@ -342,6 +368,10 @@ class SessionImpl(Session):
         # ``exitcode`` is provided by multiprocessing.Process; threads don't
         # have one, so we treat absence as "unknown".
         exitcode = getattr(task, "exitcode", None)
+        if isinstance(self._kernel_manager, SSHKernelManagerImpl):
+            return classify_ssh_kernel_exit(
+                exitcode, self._kernel_manager.target.name
+            )
         return classify_kernel_exit(exitcode)
 
     def put_control_request(

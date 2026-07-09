@@ -29,6 +29,9 @@ from marimo._server.api.endpoints.home import router as home_router
 from marimo._server.api.endpoints.login import router as login_router
 from marimo._server.api.endpoints.lsp import router as lsp_router
 from marimo._server.api.endpoints.packages import router as packages_router
+from marimo._server.api.endpoints.remote_compute import (
+    router as remote_compute_router,
+)
 from marimo._server.api.endpoints.secrets import router as secrets_router
 from marimo._server.api.endpoints.sql import router as sql_router
 from marimo._server.api.endpoints.storage import router as storage_router
@@ -61,6 +64,11 @@ def build_routes(base_url: str = "") -> list[BaseRoute]:
     )
     app_router.include_router(
         git_history_router, prefix="/api/git_history", name="git_history"
+    )
+    app_router.include_router(
+        remote_compute_router,
+        prefix="/api/remote_compute",
+        name="remote_compute",
     )
     app_router.include_router(cache_router, prefix="/api/cache", name="cache")
     app_router.include_router(

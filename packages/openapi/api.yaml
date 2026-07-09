@@ -3562,6 +3562,8 @@ components:
           $ref: '#/components/schemas/MCPConfig'
         package_management:
           $ref: '#/components/schemas/PackageManagementConfig'
+        remote_compute:
+          $ref: '#/components/schemas/RemoteComputeConfig'
         runtime:
           $ref: '#/components/schemas/RuntimeConfig'
         save:
@@ -4549,6 +4551,47 @@ components:
       - op
       title: ReloadNotification
       type: object
+    RemoteComputeConfig:
+      description: 'Configuration for running notebook kernels on remote machines
+        over SSH.
+
+
+        **Keys.**
+
+
+        - `targets`: the list of configured remote compute targets.'
+      properties:
+        targets:
+          items:
+            $ref: '#/components/schemas/RemoteComputeTargetConfig'
+          type: array
+      required: []
+      title: RemoteComputeConfig
+      type: object
+    RemoteComputeTargetConfig:
+      description: "A named remote machine that a notebook's kernel can run on over\
+        \ SSH.\n\n**Keys.**\n\n- `name`: a display name for this target, unique among\
+        \ the user's\n  configured targets.\n- `ssh_destination`: an SSH destination\
+        \ string (e.g. `user@host`, or a\n  `Host` alias from `~/.ssh/config`). marimo\
+        \ shells out to the system\n  `ssh`/`scp` binaries, so all of ssh's own config\
+        \ (keys, agent\n  forwarding, `ProxyJump`, 2FA) is respected automatically.\n\
+        - `remote_python`: path to (or name of) the Python interpreter to use\n  on\
+        \ the remote host. It must already have marimo and its IPC\n  dependencies\
+        \ (`pyzmq`) installed.\n- `remote_workdir`: directory on the remote host to\
+        \ copy the notebook\n  into and run it from. Defaults to a per-notebook directory\
+        \ under\n  `~/.marimo/remote_compute` on the remote host."
+      properties:
+        name:
+          type: string
+        remote_python:
+          type: string
+        remote_workdir:
+          type: string
+        ssh_destination:
+          type: string
+      required: []
+      title: RemoteComputeTargetConfig
+      type: object
     RemovePackageRequest:
       properties:
         group:
@@ -5122,6 +5165,29 @@ components:
       - cellId
       - name
       title: SetName
+      type: object
+    SetRemoteComputeTargetRequest:
+      properties:
+        targetName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+      required: []
+      title: SetRemoteComputeTargetRequest
+      type: object
+    SetRemoteComputeTargetResponse:
+      properties:
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+        success:
+          type: boolean
+      required:
+      - success
+      title: SetRemoteComputeTargetResponse
       type: object
     SetupRootError:
       properties:
@@ -6140,6 +6206,27 @@ components:
           type: boolean
       required: []
       title: VenvConfig
+      type: object
+    VerifyRemoteComputeTargetRequest:
+      properties:
+        sshDestination:
+          type: string
+      required:
+      - sshDestination
+      title: VerifyRemoteComputeTargetRequest
+      type: object
+    VerifyRemoteComputeTargetResponse:
+      properties:
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+        success:
+          type: boolean
+      required:
+      - success
+      title: VerifyRemoteComputeTargetResponse
       type: object
     VersionControlConfig:
       description: 'Configuration for connected git provider accounts.
@@ -7597,6 +7684,45 @@ paths:
               schema:
                 $ref: '#/components/schemas/DependencyTreeResponse'
           description: List dependency tree
+  /api/remote_compute/set_target:
+    post:
+      parameters:
+      - in: header
+        name: Marimo-Session-Id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetRemoteComputeTargetRequest'
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetRemoteComputeTargetResponse'
+          description: 'Set (or clear) the remote-compute target this notebook''s
+            kernel should run on, restarting its session so the change takes effect.
+
+            '
+  /api/remote_compute/verify_target:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyRemoteComputeTargetRequest'
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyRemoteComputeTargetResponse'
+          description: Check that an SSH destination is reachable
   /api/secrets/create:
     post:
       parameters:

@@ -51,6 +51,14 @@ export type GitRestoreResponse = schemas["GitRestoreResponse"];
 export type GitVerifyProviderResponse = schemas["GitVerifyProviderResponse"];
 export type GitCreateRemoteRequest = schemas["GitCreateRemoteRequest"];
 export type GitCreateRemoteResponse = schemas["GitCreateRemoteResponse"];
+export type VerifyRemoteComputeTargetRequest =
+  schemas["VerifyRemoteComputeTargetRequest"];
+export type VerifyRemoteComputeTargetResponse =
+  schemas["VerifyRemoteComputeTargetResponse"];
+export type SetRemoteComputeTargetRequest =
+  schemas["SetRemoteComputeTargetRequest"];
+export type SetRemoteComputeTargetResponse =
+  schemas["SetRemoteComputeTargetResponse"];
 export type FormatCellsRequest = schemas["FormatCellsRequest"];
 export type FormatResponse = schemas["FormatResponse"];
 export type InvokeFunctionRequest = schemas["InvokeFunctionRequest"];
@@ -236,6 +244,13 @@ export interface EditRequests {
   sendGitCreateRemote: (
     request: GitCreateRemoteRequest,
   ) => Promise<GitCreateRemoteResponse>;
+  // Remote compute (SSH)
+  verifyRemoteComputeTarget: (
+    request: VerifyRemoteComputeTargetRequest,
+  ) => Promise<VerifyRemoteComputeTargetResponse>;
+  setRemoteComputeTarget: (
+    request: SetRemoteComputeTargetRequest,
+  ) => Promise<SetRemoteComputeTargetResponse>;
   // Homepage requests
   openTutorial: (request: OpenTutorialRequest) => Promise<MarimoFile>;
   getRecentFiles: () => Promise<RecentFilesResponse>;

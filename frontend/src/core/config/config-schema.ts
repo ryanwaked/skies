@@ -235,6 +235,20 @@ export const UserConfigSchema = z
           .optional(),
       })
       .optional(),
+    remote_compute: z
+      .looseObject({
+        targets: z
+          .array(
+            z.looseObject({
+              name: z.string(),
+              ssh_destination: z.string(),
+              remote_python: z.string(),
+              remote_workdir: z.string().optional(),
+            }),
+          )
+          .optional(),
+      })
+      .optional(),
   })
   .partial()
   .prefault(() => ({
@@ -260,6 +274,12 @@ export type DiagnosticsConfig = UserConfig["diagnostics"];
 export type DisplayConfig = UserConfig["display"];
 export type AiConfig = UserConfig["ai"];
 export type VersionControlConfig = UserConfig["version_control"];
+export type RemoteComputeConfig = UserConfig["remote_compute"];
+export type RemoteComputeTargetConfig = NonNullable<
+  RemoteComputeConfig
+>["targets"] extends (infer T)[] | undefined
+  ? T
+  : never;
 
 export const AppTitleSchema = z.string();
 export const SqlOutputSchema = z

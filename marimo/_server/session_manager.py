@@ -53,6 +53,7 @@ from marimo._utils.file_watcher import FileWatcherManager
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
+    from marimo._session.managers.ssh import RemoteComputeTarget
     from marimo._session.notebook import AppFileManager
 
 LOGGER = _loggers.marimo_logger()
@@ -108,6 +109,14 @@ class SessionManager:
                 sandbox=sandbox_mode is SandboxMode.MULTI,
             )
 
+        # Per-notebook overrides of where the kernel should run, set via the
+        # remote-compute "set target" endpoint. In-memory only: this is a
+        # choice about which machine runs the *next* kernel, not part of the
+        # notebook's persisted content.
+        self._remote_compute_overrides: dict[
+            MarimoFileKey, RemoteComputeTarget
+        ] = {}
+
         self._repository = SessionRepository()
 
         def _get_code() -> str:
@@ -158,6 +167,27 @@ class SessionManager:
     def sessions(self) -> Mapping[SessionId, Session]:
         """Get all sessions as a dict."""
         return self._repository.sessions
+
+    def get_remote_compute_target(
+        self, file_key: MarimoFileKey
+    ) -> RemoteComputeTarget | None:
+        """Get the remote-compute target this notebook's next kernel should
+        run on, or `None` for local."""
+        return self._remote_compute_overrides.get(file_key)
+
+    def set_remote_compute_target(
+        self, file_key: MarimoFileKey, target: RemoteComputeTarget | None
+    ) -> None:
+        """Set (or clear, with `None`) the remote-compute target this
+        notebook's next kernel should run on.
+
+        Takes effect the next time a session is created for `file_key`; it
+        does not migrate an already-running kernel.
+        """
+        if target is None:
+            self._remote_compute_overrides.pop(file_key, None)
+        else:
+            self._remote_compute_overrides[file_key] = target
 
     def app_manager(self, key: MarimoFileKey) -> AppFileManager:
         """Get the app manager for the given key."""
@@ -235,6 +265,7 @@ class SessionManager:
             )
             if self._app_host_pool
             else None,
+            remote_compute_target=self._remote_compute_overrides.get(file_key),
         )
 
         # Add to repository

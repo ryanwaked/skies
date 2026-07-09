@@ -32,6 +32,7 @@ from marimo._session._venv import (
     has_marimo_installed,
     install_marimo_into_venv,
 )
+from marimo._session.managers._subprocess_wrapper import SubprocessWrapper
 from marimo._session.model import SessionMode
 from marimo._session.queue import ProcessLike, QueueType, route_control_request
 from marimo._session.types import KernelManager, QueueManager
@@ -345,7 +346,7 @@ class IPCKernelManagerImpl(KernelManager):
             LOGGER.debug("Kernel ready")
 
             # Create a ProcessLike wrapper for the subprocess
-            self.kernel_task = _SubprocessWrapper(self._process)
+            self.kernel_task = SubprocessWrapper(self._process)
         except KernelStartupError:
             # Already a KernelStartupError, just cleanup and re-raise
             cleanup_sandbox_dir(self._sandbox_dir)
@@ -415,31 +416,3 @@ class IPCKernelManagerImpl(KernelManager):
         raise NotImplementedError(
             "IPC kernel uses stream_queue, not kernel_connection"
         )
-
-
-class _SubprocessWrapper(ProcessLike):
-    """Wrapper to make subprocess.Popen compatible with ProcessLike."""
-
-    def __init__(self, process: subprocess.Popen[bytes]) -> None:
-        self._process = process
-
-    @property
-    def pid(self) -> int | None:
-        return self._process.pid
-
-    @property
-    def exitcode(self) -> int | None:
-        """Mirror multiprocessing.Process.exitcode for exit diagnostics."""
-        return self._process.poll()
-
-    def is_alive(self) -> bool:
-        return self._process.poll() is None
-
-    def terminate(self) -> None:
-        self._process.terminate()
-
-    def kill(self) -> None:
-        self._process.kill()
-
-    def join(self, timeout: float | None = None) -> None:
-        self._process.wait(timeout=timeout)

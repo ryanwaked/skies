@@ -463,6 +463,44 @@ class VersionControlConfig(TypedDict, total=False):
 
 
 @dataclass
+class RemoteComputeTargetConfig(TypedDict, total=False):
+    """A named remote machine that a notebook's kernel can run on over SSH.
+
+    **Keys.**
+
+    - `name`: a display name for this target, unique among the user's
+      configured targets.
+    - `ssh_destination`: an SSH destination string (e.g. `user@host`, or a
+      `Host` alias from `~/.ssh/config`). marimo shells out to the system
+      `ssh`/`scp` binaries, so all of ssh's own config (keys, agent
+      forwarding, `ProxyJump`, 2FA) is respected automatically.
+    - `remote_python`: path to (or name of) the Python interpreter to use
+      on the remote host. It must already have marimo and its IPC
+      dependencies (`pyzmq`) installed.
+    - `remote_workdir`: directory on the remote host to copy the notebook
+      into and run it from. Defaults to a per-notebook directory under
+      `~/.marimo/remote_compute` on the remote host.
+    """
+
+    name: str
+    ssh_destination: str
+    remote_python: str
+    remote_workdir: NotRequired[str]
+
+
+@dataclass
+class RemoteComputeConfig(TypedDict, total=False):
+    """Configuration for running notebook kernels on remote machines over SSH.
+
+    **Keys.**
+
+    - `targets`: the list of configured remote compute targets.
+    """
+
+    targets: list[RemoteComputeTargetConfig]
+
+
+@dataclass
 class PythonLanguageServerConfig(TypedDict, total=False):
     """
     Configuration options for Python Language Server.
@@ -669,6 +707,7 @@ class MarimoConfig(TypedDict):
     mcp: NotRequired[MCPConfig]
     venv: NotRequired[VenvConfig]
     version_control: NotRequired[VersionControlConfig]
+    remote_compute: NotRequired[RemoteComputeConfig]
 
 
 @mddoc
@@ -737,6 +776,7 @@ class PartialMarimoConfig(TypedDict, total=False):
     sharing: NotRequired[SharingConfig]
     venv: NotRequired[VenvConfig]
     version_control: NotRequired[VersionControlConfig]
+    remote_compute: NotRequired[RemoteComputeConfig]
 
 
 DEFAULT_CONFIG: MarimoConfig = {

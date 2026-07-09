@@ -110,11 +110,13 @@ class TestIPCKernelManagerImpl:
 
 class TestSubprocessWrapper:
     def test_exitcode_uses_popen_returncode(self) -> None:
-        from marimo._session.managers.ipc import _SubprocessWrapper
+        from marimo._session.managers._subprocess_wrapper import (
+            SubprocessWrapper,
+        )
 
         process = MagicMock()
         process.poll.return_value = -9
-        wrapper = _SubprocessWrapper(process)
+        wrapper = SubprocessWrapper(process)
 
         assert wrapper.exitcode == -9
 

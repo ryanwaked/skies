@@ -244,6 +244,7 @@ def _generate_server_api_schema() -> dict[str, Any]:
         lsp,
         models,
         packages,
+        remote_compute,
         secrets,
     )
     from marimo._snippets import snippets
@@ -306,6 +307,11 @@ def _generate_server_api_schema() -> dict[str, Any]:
         git_history.GitVerifyProviderResponse,
         git_history.GitCreateRemoteRequest,
         git_history.GitCreateRemoteResponse,
+        # Remote compute
+        remote_compute.VerifyRemoteComputeTargetRequest,
+        remote_compute.VerifyRemoteComputeTargetResponse,
+        remote_compute.SetRemoteComputeTargetRequest,
+        remote_compute.SetRemoteComputeTargetResponse,
         # Operations
         notifications.CellNotification,
         notifications.HumanReadableStatus,
