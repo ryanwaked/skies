@@ -52,7 +52,7 @@ export class SQLParser implements LanguageParser<SQLMetadata> {
   };
 
   get defaultCode(): string {
-    return `_df = mo.sql(f"""SELECT * FROM """)`;
+    return `_df = mo.sql(f"""\n""")`;
   }
 
   /**

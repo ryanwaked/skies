@@ -623,13 +623,13 @@ _df = mo.sql(
       const engine = "postgres_engine" as ConnectionName;
       setLatestEngineSelected(engine);
       expect(adapter.defaultCode).toBe(
-        `_df = mo.sql(f"""SELECT * FROM """, engine=${engine})`,
+        `_df = mo.sql(f"""\n""", engine=${engine})`,
       );
     });
 
     it("should not include engine in defaultCode when using default engine", () => {
       setLatestEngineSelected(DUCKDB_ENGINE);
-      expect(adapter.defaultCode).toBe(`_df = mo.sql(f"""SELECT * FROM """)`);
+      expect(adapter.defaultCode).toBe(`_df = mo.sql(f"""\n""")`);
     });
   });
 });
