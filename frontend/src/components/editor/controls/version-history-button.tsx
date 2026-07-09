@@ -246,7 +246,7 @@ const VersionHistoryPanel: React.FC<{ onRestored: () => void }> = ({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
+      <div className="flex items-center justify-between gap-3 border-b py-3 pr-12 pl-4">
         <h2 className="text-[13px] font-medium">Version history</h2>
         {log.hasRemote ? (
           <a
@@ -301,35 +301,38 @@ const VersionHistoryPanel: React.FC<{ onRestored: () => void }> = ({
           </Button>
         </div>
       )}
-      <div className="flex min-h-0 flex-1">
-        <div className="flex w-[280px] shrink-0 flex-col border-r">
-          <div className="flex items-center gap-1.5 border-b p-2">
-            <Input
-              value={commitMessage}
-              onChange={(e) => setCommitMessage(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleCommit();
-                }
-              }}
-              placeholder="Save a labeled version…"
-              className="h-7 flex-1 text-[12px]"
-            />
-            <Button
-              size="xs"
-              variant="outline"
-              disabled={isCommitting}
-              onClick={handleCommit}
-            >
-              Save
-            </Button>
-          </div>
-          {commits.length === 0 ? (
-            <PanelEmptyState
-              title="No versions yet"
-              description="Versions appear here after you save the notebook."
-            />
-          ) : (
+      <div className="flex items-center gap-1.5 border-b p-2">
+        <Input
+          value={commitMessage}
+          onChange={(e) => setCommitMessage(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleCommit();
+            }
+          }}
+          placeholder="Save a labeled version…"
+          className="h-7 max-w-72 flex-1 text-[12px]"
+        />
+        <Button
+          size="xs"
+          variant="outline"
+          disabled={isCommitting}
+          onClick={handleCommit}
+        >
+          Save
+        </Button>
+      </div>
+      {commits.length === 0 ? (
+        <div className="flex flex-1 items-center justify-center">
+          <PanelEmptyState
+            title="No versions yet"
+            description="Save the notebook (or use Save above) to create the first version."
+            icon={<HistoryIcon />}
+          />
+        </div>
+      ) : (
+        <div className="flex min-h-0 flex-1">
+          <div className="flex w-[280px] shrink-0 flex-col border-r">
             <Command className="min-h-0 flex-1 rounded-none bg-card">
               <CommandList className="max-h-none flex-1 overflow-y-auto p-1">
                 {commits.map((commit) => (
@@ -353,39 +356,39 @@ const VersionHistoryPanel: React.FC<{ onRestored: () => void }> = ({
                 ))}
               </CommandList>
             </Command>
-          )}
+          </div>
+          <div className="flex min-w-0 flex-1 flex-col bg-card">
+            {!selected ? (
+              <PanelEmptyState description="Select a version to preview it." />
+            ) : (
+              <>
+                <div className="flex items-center justify-between gap-2 border-b px-3 py-2">
+                  <span className="truncate text-[12.5px] text-muted-foreground">
+                    {selected.message}
+                  </span>
+                  <Button
+                    size="xs"
+                    variant="outline"
+                    disabled={isRestoring}
+                    onClick={() => handleRestore(selected)}
+                  >
+                    <RotateCcwIcon strokeWidth={1.5} className="mr-1.5 h-3.5 w-3.5" />
+                    Restore this version
+                  </Button>
+                </div>
+                <div className="min-h-0 flex-1 overflow-auto">
+                  {contentStatus === "success" && selectedContent && (
+                    <ReadonlyDiff
+                      original={selectedContent.original}
+                      modified={selectedContent.current}
+                    />
+                  )}
+                </div>
+              </>
+            )}
+          </div>
         </div>
-        <div className="flex min-w-0 flex-1 flex-col bg-card">
-          {!selected ? (
-            <PanelEmptyState description="Select a version to preview it." />
-          ) : (
-            <>
-              <div className="flex items-center justify-between gap-2 border-b px-3 py-2">
-                <span className="truncate text-[12.5px] text-muted-foreground">
-                  {selected.message}
-                </span>
-                <Button
-                  size="xs"
-                  variant="outline"
-                  disabled={isRestoring}
-                  onClick={() => handleRestore(selected)}
-                >
-                  <RotateCcwIcon strokeWidth={1.5} className="mr-1.5 h-3.5 w-3.5" />
-                  Restore this version
-                </Button>
-              </div>
-              <div className="min-h-0 flex-1 overflow-auto">
-                {contentStatus === "success" && selectedContent && (
-                  <ReadonlyDiff
-                    original={selectedContent.original}
-                    modified={selectedContent.current}
-                  />
-                )}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 };
