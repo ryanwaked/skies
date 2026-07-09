@@ -128,6 +128,7 @@ interface ApiKeyProps {
   testId: string;
   description?: React.ReactNode;
   onChange?: (value: string) => void;
+  label?: string;
 }
 
 export const ApiKey: React.FC<ApiKeyProps> = ({
@@ -137,6 +138,7 @@ export const ApiKey: React.FC<ApiKeyProps> = ({
   testId,
   description,
   onChange,
+  label = "API Key",
 }) => {
   return (
     <OverriddenFormField
@@ -145,7 +147,7 @@ export const ApiKey: React.FC<ApiKeyProps> = ({
       render={({ field, override }) => (
         <div className="flex flex-col space-y-1">
           <FormItem className={formItemClasses}>
-            <FormLabel>API Key</FormLabel>
+            <FormLabel>{label}</FormLabel>
             <FormControl>
               <Input
                 data-testid={testId}

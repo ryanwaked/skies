@@ -226,6 +226,15 @@ export const UserConfigSchema = z
       })
       .optional()
       .prefault({}),
+    version_control: z
+      .looseObject({
+        github: z
+          .looseObject({
+            token: z.string().optional(),
+          })
+          .optional(),
+      })
+      .optional(),
   })
   .partial()
   .prefault(() => ({
@@ -250,6 +259,7 @@ export type LSPConfig = UserConfig["language_servers"];
 export type DiagnosticsConfig = UserConfig["diagnostics"];
 export type DisplayConfig = UserConfig["display"];
 export type AiConfig = UserConfig["ai"];
+export type VersionControlConfig = UserConfig["version_control"];
 
 export const AppTitleSchema = z.string();
 export const SqlOutputSchema = z

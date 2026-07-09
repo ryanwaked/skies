@@ -389,6 +389,19 @@ export function createNetworkRequests(): EditRequests & RunRequests {
         })
         .then(handleResponse);
     },
+    verifyGitProvider: async () => {
+      return getClient()
+        .POST("/api/git_history/verify_provider", {})
+        .then(handleResponse);
+    },
+    sendGitCreateRemote: async (request) => {
+      await waitForConnectionOpen();
+      return getClient()
+        .POST("/api/git_history/create_remote", {
+          body: request,
+        })
+        .then(handleResponse);
+    },
     openTutorial: (request) => {
       return getClient()
         .POST("/api/home/tutorial/open", {

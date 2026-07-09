@@ -1,12 +1,13 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { HistoryIcon, RotateCcwIcon } from "lucide-react";
-import { useState } from "react";
+import { ExternalLinkIcon, Github, HistoryIcon, RotateCcwIcon } from "lucide-react";
+import { useId, useState } from "react";
 import { useLocale, VisuallyHidden } from "react-aria";
 import { Button as EditorButton } from "@/components/editor/inputs/Inputs";
 import { ReadonlyDiff } from "@/components/editor/code/readonly-diff";
 import { AlertDialogDestructiveAction } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Command, CommandItem, CommandList } from "@/components/ui/command";
 import {
   Dialog,
@@ -18,10 +19,12 @@ import { Input } from "@/components/ui/input";
 import { Tooltip } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/use-toast";
 import { useImperativeModal } from "@/components/modal/ImperativeModal";
+import { useFilename } from "@/core/saving/filename";
 import { useRequestClient } from "@/core/network/requests";
 import type { GitCommitInfo } from "@/core/network/types";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { timeAgo } from "@/utils/dates";
+import { Paths } from "@/utils/paths";
 import { cn } from "@/utils/cn";
 import { PanelEmptyState } from "../chrome/panels/empty-state";
 
@@ -69,17 +72,41 @@ export const VersionHistoryButton: React.FC<Props> = ({
   );
 };
 
+/** Slugify a notebook filename into a reasonable default GitHub repo name. */
+function defaultRepoName(filename: string | null): string {
+  if (!filename) {
+    return "my-notebook";
+  }
+  const base = Paths.basename(filename).replace(/\.(py|md)$/, "");
+  const slug = base
+    .toLowerCase()
+    .replaceAll(/[^a-z0-9._-]+/g, "-")
+    .replaceAll(/^-+|-+$/g, "");
+  return slug || "my-notebook";
+}
+
 const VersionHistoryPanel: React.FC<{ onRestored: () => void }> = ({
   onRestored,
 }) => {
   const { locale } = useLocale();
-  const { getGitLog, getGitShow, sendGitCommit, sendGitRestore } =
-    useRequestClient();
+  const filename = useFilename();
+  const privateCheckboxId = useId();
+  const {
+    getGitLog,
+    getGitShow,
+    sendGitCommit,
+    sendGitRestore,
+    sendGitCreateRemote,
+  } = useRequestClient();
   const { openConfirm } = useImperativeModal();
   const [selectedHash, setSelectedHash] = useState<string>();
   const [commitMessage, setCommitMessage] = useState("");
   const [isCommitting, setIsCommitting] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
+  const [showCreateRepoForm, setShowCreateRepoForm] = useState(false);
+  const [repoName, setRepoName] = useState(() => defaultRepoName(filename));
+  const [repoIsPrivate, setRepoIsPrivate] = useState(true);
+  const [isCreatingRepo, setIsCreatingRepo] = useState(false);
 
   const {
     data: log,
@@ -123,7 +150,11 @@ const VersionHistoryPanel: React.FC<{ onRestored: () => void }> = ({
         message: commitMessage.trim() || "Manual save point",
       });
       if (response.success) {
-        toast({ description: "Saved a new version." });
+        toast({
+          description: response.pushed
+            ? "Saved a new version and pushed to GitHub."
+            : "Saved a new version.",
+        });
         setCommitMessage("");
         refetchLog();
       } else {
@@ -131,6 +162,32 @@ const VersionHistoryPanel: React.FC<{ onRestored: () => void }> = ({
       }
     } finally {
       setIsCommitting(false);
+    }
+  };
+
+  const handleCreateRemote = async () => {
+    const name = repoName.trim();
+    if (!name) {
+      return;
+    }
+    setIsCreatingRepo(true);
+    try {
+      const response = await sendGitCreateRemote({
+        name,
+        private: repoIsPrivate,
+      });
+      if (response.success) {
+        toast({ description: `Created and linked ${name} on GitHub.` });
+        setShowCreateRepoForm(false);
+        refetchLog();
+      } else {
+        toast({
+          variant: "danger",
+          description: response.message ?? "Could not create that repo.",
+        });
+      }
+    } finally {
+      setIsCreatingRepo(false);
     }
   };
 
@@ -189,9 +246,61 @@ const VersionHistoryPanel: React.FC<{ onRestored: () => void }> = ({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b px-4 py-3">
+      <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
         <h2 className="text-[13px] font-medium">Version history</h2>
+        {log.hasRemote ? (
+          <a
+            href={log.remoteUrl ?? undefined}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground"
+          >
+            <Github className="h-3.5 w-3.5" />
+            View on GitHub
+            <ExternalLinkIcon className="h-3 w-3" />
+          </a>
+        ) : (
+          <Button
+            size="xs"
+            variant="outline"
+            data-testid="create-github-repo-button"
+            onClick={() => setShowCreateRepoForm((prev) => !prev)}
+          >
+            <Github className="mr-1.5 h-3.5 w-3.5" />
+            Create repo on GitHub
+          </Button>
+        )}
       </div>
+      {showCreateRepoForm && !log.hasRemote && (
+        <div className="flex items-center gap-3 border-b bg-muted/40 px-4 py-2.5">
+          <Input
+            value={repoName}
+            onChange={(e) => setRepoName(e.target.value)}
+            placeholder="repo-name"
+            className="h-7 w-56 text-[12px]"
+            data-testid="github-repo-name-input"
+          />
+          <label
+            htmlFor={privateCheckboxId}
+            className="flex items-center gap-1.5 text-[12px] text-muted-foreground"
+          >
+            <Checkbox
+              id={privateCheckboxId}
+              checked={repoIsPrivate}
+              onCheckedChange={(checked) => setRepoIsPrivate(checked === true)}
+            />
+            Private
+          </label>
+          <Button
+            size="xs"
+            variant="outline"
+            disabled={isCreatingRepo || !repoName.trim()}
+            onClick={handleCreateRemote}
+          >
+            {isCreatingRepo ? "Creating…" : "Create"}
+          </Button>
+        </div>
+      )}
       <div className="flex min-h-0 flex-1">
         <div className="flex w-[280px] shrink-0 flex-col border-r">
           <div className="flex items-center gap-1.5 border-b p-2">

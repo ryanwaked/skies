@@ -20,6 +20,8 @@ class GitLogResponse(msgspec.Struct, rename="camel"):
     # isn't available here" from "no commits yet".
     available: bool
     commits: list[GitCommitInfo]
+    has_remote: bool = False
+    remote_url: str | None = None
 
 
 class GitShowRequest(msgspec.Struct, rename="camel"):
@@ -37,6 +39,8 @@ class GitCommitRequest(msgspec.Struct, rename="camel"):
 class GitCommitResponse(BaseResponse):
     commit: GitCommitInfo | None = None
     message: str | None = None
+    # True if a remote is linked and the commit was successfully pushed.
+    pushed: bool = False
 
 
 class GitRestoreRequest(msgspec.Struct, rename="camel"):
@@ -44,4 +48,19 @@ class GitRestoreRequest(msgspec.Struct, rename="camel"):
 
 
 class GitRestoreResponse(BaseResponse):
+    message: str | None = None
+
+
+class GitVerifyProviderResponse(BaseResponse):
+    username: str | None = None
+    message: str | None = None
+
+
+class GitCreateRemoteRequest(msgspec.Struct, rename="camel"):
+    name: str
+    private: bool = True
+
+
+class GitCreateRemoteResponse(BaseResponse):
+    html_url: str | None = None
     message: str | None = None

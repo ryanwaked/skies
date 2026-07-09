@@ -1480,6 +1480,47 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/git_history/create_remote": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header: {
+          "Marimo-Session-Id": string;
+        };
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["GitCreateRemoteRequest"];
+        };
+      };
+      responses: {
+        /** @description Create a GitHub repo for this notebook and push its history */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["GitCreateRemoteResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/git_history/log": {
     parameters: {
       query?: never;
@@ -1589,6 +1630,41 @@ export interface paths {
           };
           content: {
             "application/json": components["schemas"]["GitShowResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/git_history/verify_provider": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Verify the connected GitHub account (app-level config) */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["GitVerifyProviderResponse"];
           };
         };
       };
@@ -4902,6 +4978,22 @@ export interface components {
       commit?: null | components["schemas"]["GitCommitInfo"];
       /** @default null */
       message?: string | null;
+      /** @default false */
+      pushed?: boolean;
+      success: boolean;
+    };
+    /** GitCreateRemoteRequest */
+    GitCreateRemoteRequest: {
+      name: string;
+      /** @default true */
+      private?: boolean;
+    };
+    /** GitCreateRemoteResponse */
+    GitCreateRemoteResponse: {
+      /** @default null */
+      htmlUrl?: string | null;
+      /** @default null */
+      message?: string | null;
       success: boolean;
     };
     /**
@@ -4921,10 +5013,28 @@ export interface components {
       base_url?: string;
       copilot_settings?: Record<string, any>;
     };
+    /**
+     * GitHubProviderConfig
+     * @description Configuration for a connected GitHub account, used by the per-notebook
+     *     version history feature to create repositories and push saved versions.
+     *
+     *     **Keys.**
+     *
+     *     - `token`: a GitHub personal access token (classic or fine-grained) with
+     *       `repo` scope. Unrelated to `ai.github.api_key`, which is used for
+     *       GitHub Copilot completions.
+     */
+    GitHubProviderConfig: {
+      token?: string;
+    };
     /** GitLogResponse */
     GitLogResponse: {
       available: boolean;
       commits: components["schemas"]["GitCommitInfo"][];
+      /** @default false */
+      hasRemote?: boolean;
+      /** @default null */
+      remoteUrl?: string | null;
     };
     /** GitRestoreRequest */
     GitRestoreRequest: {
@@ -4944,6 +5054,14 @@ export interface components {
     GitShowResponse: {
       /** @default null */
       content?: string | null;
+    };
+    /** GitVerifyProviderResponse */
+    GitVerifyProviderResponse: {
+      /** @default null */
+      message?: string | null;
+      success: boolean;
+      /** @default null */
+      username?: string | null;
     };
     /**
      * GoogleAiConfig
@@ -5617,6 +5735,7 @@ export interface components {
       sharing?: components["schemas"]["SharingConfig"];
       snippets?: components["schemas"]["SnippetsConfig"];
       venv?: components["schemas"]["VenvConfig"];
+      version_control?: components["schemas"]["VersionControlConfig"];
     };
     /** MarimoExceptionRaisedError */
     MarimoExceptionRaisedError: {
@@ -7205,6 +7324,17 @@ export interface components {
     VenvConfig: {
       path?: string;
       writable?: boolean;
+    };
+    /**
+     * VersionControlConfig
+     * @description Configuration for connected git provider accounts.
+     *
+     *     **Keys.**
+     *
+     *     - `github`: connected GitHub account configuration
+     */
+    VersionControlConfig: {
+      github?: components["schemas"]["GitHubProviderConfig"];
     };
     /** Format: widget-model-id */
     WidgetModelId: TypedString<"WidgetModelId">;

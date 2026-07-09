@@ -102,6 +102,9 @@ const ACTIONS: Record<keyof AllRequests, Action> = {
   getGitShow: "waitForConnectionOpen",
   sendGitCommit: "waitForConnectionOpen",
   sendGitRestore: "waitForConnectionOpen",
+  // App-level (no specific notebook session needed), like saveUserConfig.
+  verifyGitProvider: "throwError",
+  sendGitCreateRemote: "waitForConnectionOpen",
 
   // Home operations throw errors
   getRecentFiles: "startConnection",

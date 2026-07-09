@@ -11,6 +11,7 @@ user's project itself to be a git repo, and without polluting it with a
 
 from __future__ import annotations
 
+import base64
 import dataclasses
 import hashlib
 import shutil
@@ -213,6 +214,90 @@ class NotebookGitHistory:
             )
             return None
         return result.stdout
+
+    def has_remote(self, name: str = "origin") -> bool:
+        return self.remote_url(name) is not None
+
+    def remote_url(self, name: str = "origin") -> str | None:
+        if not self.is_available or not self._repo_exists():
+            return None
+        try:
+            result = self._run_git("remote", "get-url", name, check=False)
+        except subprocess.SubprocessError:
+            return None
+        if result.returncode != 0:
+            return None
+        return result.stdout.strip() or None
+
+    def add_remote(self, url: str, name: str = "origin") -> None:
+        """Add (or repoint) a remote. Does not touch any credentials — the
+        URL itself must not embed a token; `push` authenticates per-call."""
+        if not self.is_available:
+            return
+        try:
+            self._ensure_repo()
+            if self.has_remote(name):
+                self._run_git("remote", "set-url", name, url)
+            else:
+                self._run_git("remote", "add", name, url)
+        except (OSError, subprocess.SubprocessError) as e:
+            LOGGER.warning(
+                "Failed to set remote for %s: %s", self.notebook_path, e
+            )
+
+    def _current_branch(self) -> str:
+        result = self._run_git("branch", "--show-current")
+        return result.stdout.strip()
+
+    def push(self, token: str, *, name: str = "origin") -> bool:
+        """Push the current branch to `name`, authenticating with `token`
+        for this invocation only (via a per-call HTTP header) so it is never
+        written to `.git/config` or the remote URL on disk.
+
+        Returns whether the push succeeded (git is available, there's a
+        commit to push, and the remote accepted it).
+        """
+        if not self.is_available or not self._repo_exists():
+            return False
+        try:
+            branch = self._current_branch()
+            if not branch:
+                # No commits yet (e.g. remote linked before any save) —
+                # nothing to push.
+                return False
+            auth_header = _basic_auth_header(token)
+            result = self._run_git(
+                "-c",
+                f"http.extraheader={auth_header}",
+                "push",
+                "-u",
+                name,
+                f"HEAD:{branch}",
+                check=False,
+            )
+            if result.returncode != 0:
+                LOGGER.warning(
+                    "Failed to push notebook history for %s: %s",
+                    self.notebook_path,
+                    result.stderr,
+                )
+            return result.returncode == 0
+        except (OSError, subprocess.SubprocessError) as e:
+            LOGGER.warning(
+                "Failed to push notebook history for %s: %s",
+                self.notebook_path,
+                e,
+            )
+            return False
+
+
+def _basic_auth_header(token: str) -> str:
+    # GitHub (and most providers) accept a bearer-style PAT as the password
+    # in HTTP Basic auth over HTTPS; git's `http.extraHeader` lets us pass
+    # that per-invocation instead of persisting it in a credential store or
+    # embedding it in the remote URL.
+    encoded = base64.b64encode(f"x-access-token:{token}".encode()).decode()
+    return f"Authorization: Basic {encoded}"
 
 
 def _parse_log_line(line: str) -> GitCommitRecord:

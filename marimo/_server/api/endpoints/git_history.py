@@ -13,14 +13,22 @@ from marimo._server.models.git_history import (
     GitCommitInfo,
     GitCommitRequest,
     GitCommitResponse,
+    GitCreateRemoteRequest,
+    GitCreateRemoteResponse,
     GitLogResponse,
     GitRestoreRequest,
     GitRestoreResponse,
     GitShowRequest,
     GitShowResponse,
+    GitVerifyProviderResponse,
 )
 from marimo._server.router import APIRouter
 from marimo._session.file_change_handler import create_reload_strategy
+from marimo._utils.git_providers import (
+    GitHubClient,
+    GitProviderError,
+    get_github_token,
+)
 from marimo._utils.notebook_git_history import (
     GitCommitRecord,
     NotebookGitHistory,
@@ -79,7 +87,12 @@ async def git_log(request: Request) -> GitLogResponse:
     if history is None or not history.is_available:
         return GitLogResponse(available=False, commits=[])
     commits = [_record_to_info(r) for r in history.log()]
-    return GitLogResponse(available=True, commits=commits)
+    return GitLogResponse(
+        available=True,
+        commits=commits,
+        has_remote=history.has_remote(),
+        remote_url=history.remote_url(),
+    )
 
 
 @router.post("/show")
@@ -155,7 +168,17 @@ async def git_commit(request: Request) -> GitCommitResponse:
             success=False,
             message="Nothing to commit — the notebook hasn't changed since the last version.",
         )
-    return GitCommitResponse(success=True, commit=_record_to_info(record))
+
+    pushed = False
+    if history.has_remote():
+        token = get_github_token(
+            app_state.config_manager.get_config(hide_secrets=False)
+        )
+        if token:
+            pushed = history.push(token)
+    return GitCommitResponse(
+        success=True, commit=_record_to_info(record), pushed=pushed
+    )
 
 
 @router.post("/restore")
@@ -218,3 +241,109 @@ async def git_restore(request: Request) -> GitRestoreResponse:
         session, transaction=transaction, changed_cell_ids=changed_cell_ids
     )
     return GitRestoreResponse(success=True)
+
+
+@router.post("/verify_provider")
+@requires("edit")
+async def git_verify_provider(request: Request) -> GitVerifyProviderResponse:
+    """
+    responses:
+        200:
+            description: Verify the connected GitHub account (app-level config)
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/GitVerifyProviderResponse"
+    """
+    app_state = AppState(request)
+    token = get_github_token(
+        app_state.config_manager.get_config(hide_secrets=False)
+    )
+    if not token:
+        return GitVerifyProviderResponse(
+            success=False, message="No GitHub account connected."
+        )
+    try:
+        username = await GitHubClient(token).whoami()
+    except GitProviderError as e:
+        return GitVerifyProviderResponse(success=False, message=str(e))
+    return GitVerifyProviderResponse(success=True, username=username)
+
+
+@router.post("/create_remote")
+@requires("edit")
+async def git_create_remote(request: Request) -> GitCreateRemoteResponse:
+    """
+    parameters:
+        - in: header
+          name: Marimo-Session-Id
+          schema:
+            type: string
+          required: true
+    requestBody:
+        required: true
+        content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/GitCreateRemoteRequest"
+    responses:
+        200:
+            description: Create a GitHub repo for this notebook and push its history
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/GitCreateRemoteResponse"
+    """
+    body = await parse_request(request, cls=GitCreateRemoteRequest)
+    history, error = _history_for_current_session(request)
+    if history is None:
+        return GitCreateRemoteResponse(success=False, message=error)
+    if not history.is_available:
+        return GitCreateRemoteResponse(
+            success=False, message="git is not installed on this machine."
+        )
+
+    app_state = AppState(request)
+    token = get_github_token(
+        app_state.config_manager.get_config(hide_secrets=False)
+    )
+    if not token:
+        return GitCreateRemoteResponse(
+            success=False,
+            message="Connect a GitHub account in Settings first.",
+        )
+
+    name = body.name.strip()
+    if not name:
+        return GitCreateRemoteResponse(
+            success=False, message="Repo name can't be empty."
+        )
+
+    try:
+        repo = await GitHubClient(token).create_repo(
+            name, private=body.private
+        )
+    except GitProviderError as e:
+        return GitCreateRemoteResponse(success=False, message=str(e))
+
+    history.add_remote(repo.clone_url)
+
+    # Make sure there's at least one commit to push (a brand-new notebook
+    # may already have an "Autosave" commit from opening it, but don't rely
+    # on that).
+    if not history.log():
+        session = app_state.require_current_session()
+        content = session.app_file_manager.read_file()
+        history.commit(content, "Initial commit")
+
+    pushed = history.push(token)
+    if not pushed:
+        return GitCreateRemoteResponse(
+            success=False,
+            html_url=repo.html_url,
+            message=(
+                f"Created {repo.full_name}, but the initial push failed. "
+                "Try saving a version again."
+            ),
+        )
+    return GitCreateRemoteResponse(success=True, html_url=repo.html_url)

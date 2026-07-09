@@ -436,6 +436,33 @@ class GitHubConfig(TypedDict, total=False):
 
 
 @dataclass
+class GitHubProviderConfig(TypedDict, total=False):
+    """Configuration for a connected GitHub account, used by the per-notebook
+    version history feature to create repositories and push saved versions.
+
+    **Keys.**
+
+    - `token`: a GitHub personal access token (classic or fine-grained) with
+      `repo` scope. Unrelated to `ai.github.api_key`, which is used for
+      GitHub Copilot completions.
+    """
+
+    token: str
+
+
+@dataclass
+class VersionControlConfig(TypedDict, total=False):
+    """Configuration for connected git provider accounts.
+
+    **Keys.**
+
+    - `github`: connected GitHub account configuration
+    """
+
+    github: GitHubProviderConfig
+
+
+@dataclass
 class PythonLanguageServerConfig(TypedDict, total=False):
     """
     Configuration options for Python Language Server.
@@ -641,6 +668,7 @@ class MarimoConfig(TypedDict):
     sharing: NotRequired[SharingConfig]
     mcp: NotRequired[MCPConfig]
     venv: NotRequired[VenvConfig]
+    version_control: NotRequired[VersionControlConfig]
 
 
 @mddoc
@@ -708,6 +736,7 @@ class PartialMarimoConfig(TypedDict, total=False):
     datasources: NotRequired[DatasourcesConfig]
     sharing: NotRequired[SharingConfig]
     venv: NotRequired[VenvConfig]
+    version_control: NotRequired[VersionControlConfig]
 
 
 DEFAULT_CONFIG: MarimoConfig = {

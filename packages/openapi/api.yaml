@@ -2315,11 +2315,43 @@ components:
           - type: string
           - type: 'null'
           default: null
+        pushed:
+          default: false
+          type: boolean
         success:
           type: boolean
       required:
       - success
       title: GitCommitResponse
+      type: object
+    GitCreateRemoteRequest:
+      properties:
+        name:
+          type: string
+        private:
+          default: true
+          type: boolean
+      required:
+      - name
+      title: GitCreateRemoteRequest
+      type: object
+    GitCreateRemoteResponse:
+      properties:
+        htmlUrl:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+        success:
+          type: boolean
+      required:
+      - success
+      title: GitCreateRemoteResponse
       type: object
     GitHubConfig:
       description: "Configuration options for GitHub.\n\n**Keys.**\n\n- `api_key`:\
@@ -2337,6 +2369,18 @@ components:
       required: []
       title: GitHubConfig
       type: object
+    GitHubProviderConfig:
+      description: "Configuration for a connected GitHub account, used by the per-notebook\n\
+        version history feature to create repositories and push saved versions.\n\n\
+        **Keys.**\n\n- `token`: a GitHub personal access token (classic or fine-grained)\
+        \ with\n  `repo` scope. Unrelated to `ai.github.api_key`, which is used for\n\
+        \  GitHub Copilot completions."
+      properties:
+        token:
+          type: string
+      required: []
+      title: GitHubProviderConfig
+      type: object
     GitLogResponse:
       properties:
         available:
@@ -2345,6 +2389,14 @@ components:
           items:
             $ref: '#/components/schemas/GitCommitInfo'
           type: array
+        hasRemote:
+          default: false
+          type: boolean
+        remoteUrl:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
       required:
       - available
       - commits
@@ -2388,6 +2440,24 @@ components:
           default: null
       required: []
       title: GitShowResponse
+      type: object
+    GitVerifyProviderResponse:
+      properties:
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+        success:
+          type: boolean
+        username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+      required:
+      - success
+      title: GitVerifyProviderResponse
       type: object
     GoogleAiConfig:
       description: 'Configuration options for Google AI.
@@ -3504,6 +3574,8 @@ components:
           $ref: '#/components/schemas/SnippetsConfig'
         venv:
           $ref: '#/components/schemas/VenvConfig'
+        version_control:
+          $ref: '#/components/schemas/VersionControlConfig'
       required:
       - completion
       - display
@@ -6069,6 +6141,20 @@ components:
       required: []
       title: VenvConfig
       type: object
+    VersionControlConfig:
+      description: 'Configuration for connected git provider accounts.
+
+
+        **Keys.**
+
+
+        - `github`: connected GitHub account configuration'
+      properties:
+        github:
+          $ref: '#/components/schemas/GitHubProviderConfig'
+      required: []
+      title: VersionControlConfig
+      type: object
     WidgetModelId:
       format: widget-model-id
       type: string
@@ -6804,6 +6890,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/GitCommitResponse'
           description: Commit the notebook's current saved content with a message
+  /api/git_history/create_remote:
+    post:
+      parameters:
+      - in: header
+        name: Marimo-Session-Id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GitCreateRemoteRequest'
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GitCreateRemoteResponse'
+          description: Create a GitHub repo for this notebook and push its history
   /api/git_history/log:
     post:
       parameters:
@@ -6861,6 +6968,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/GitShowResponse'
           description: Get the notebook source as of a given commit
+  /api/git_history/verify_provider:
+    post:
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GitVerifyProviderResponse'
+          description: Verify the connected GitHub account (app-level config)
   /api/home/notebook_preview:
     post:
       requestBody:

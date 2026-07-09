@@ -59,6 +59,8 @@ export const MockRequestClient = {
       getGitShow: vi.fn().mockResolvedValue({ content: null }),
       sendGitCommit: vi.fn().mockResolvedValue({ success: false }),
       sendGitRestore: vi.fn().mockResolvedValue({ success: false }),
+      verifyGitProvider: vi.fn().mockResolvedValue({ success: false }),
+      sendGitCreateRemote: vi.fn().mockResolvedValue({ success: false }),
       openTutorial: vi.fn().mockResolvedValue({}),
       getRecentFiles: vi.fn().mockResolvedValue({ files: [] }),
       getWorkspaceFiles: vi.fn().mockResolvedValue({ files: [] }),

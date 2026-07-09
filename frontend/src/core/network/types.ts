@@ -48,6 +48,9 @@ export type GitCommitRequest = schemas["GitCommitRequest"];
 export type GitCommitResponse = schemas["GitCommitResponse"];
 export type GitRestoreRequest = schemas["GitRestoreRequest"];
 export type GitRestoreResponse = schemas["GitRestoreResponse"];
+export type GitVerifyProviderResponse = schemas["GitVerifyProviderResponse"];
+export type GitCreateRemoteRequest = schemas["GitCreateRemoteRequest"];
+export type GitCreateRemoteResponse = schemas["GitCreateRemoteResponse"];
 export type FormatCellsRequest = schemas["FormatCellsRequest"];
 export type FormatResponse = schemas["FormatResponse"];
 export type InvokeFunctionRequest = schemas["InvokeFunctionRequest"];
@@ -229,6 +232,10 @@ export interface EditRequests {
   getGitShow: (request: GitShowRequest) => Promise<GitShowResponse>;
   sendGitCommit: (request: GitCommitRequest) => Promise<GitCommitResponse>;
   sendGitRestore: (request: GitRestoreRequest) => Promise<GitRestoreResponse>;
+  verifyGitProvider: () => Promise<GitVerifyProviderResponse>;
+  sendGitCreateRemote: (
+    request: GitCreateRemoteRequest,
+  ) => Promise<GitCreateRemoteResponse>;
   // Homepage requests
   openTutorial: (request: OpenTutorialRequest) => Promise<MarimoFile>;
   getRecentFiles: () => Promise<RecentFilesResponse>;
