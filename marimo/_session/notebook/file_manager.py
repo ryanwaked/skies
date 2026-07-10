@@ -29,6 +29,7 @@ from marimo._session.notebook.storage import (
 from marimo._types.ids import CellId_t
 from marimo._utils.http import HTTPException, HTTPStatus
 from marimo._utils.marimo_path import MarimoPath
+from marimo._utils.notebook_git_history import NotebookGitHistory
 from marimo._utils.scripts import with_python_version_requirement
 
 LOGGER = _loggers.marimo_logger()
@@ -48,6 +49,16 @@ def canonicalize_filename(filename: str) -> str:
     if not MarimoPath.is_valid_path(filename):
         filename += ".py"
     return os.path.expanduser(filename)
+
+
+def _commit_to_history(path: Path, contents: str) -> None:
+    """Best-effort snapshot of a just-persisted save into the notebook's
+    hidden git history. Never raises — a missing/broken `git` must not
+    fail the actual save."""
+    try:
+        NotebookGitHistory(path).commit(contents, message="Autosave")
+    except Exception as e:
+        LOGGER.debug("Skipping notebook history commit for %s: %s", path, e)
 
 
 class AppFileManager:
@@ -247,6 +258,10 @@ class AppFileManager:
                 self.storage.write(path, contents)
                 # Record the last saved content to avoid reloading our own writes
                 self._last_saved_content = contents.strip()
+                # Skies: snapshot every save (manual or autosave) into the
+                # notebook's hidden per-file git history. Best-effort — a
+                # missing/broken git must never fail the actual save.
+                _commit_to_history(path, contents)
 
             # If this is a new unnamed notebook, update the filename
             if self._is_unnamed():

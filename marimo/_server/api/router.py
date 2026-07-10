@@ -21,6 +21,9 @@ from marimo._server.api.endpoints.file_explorer import (
     router as file_explorer_router,
 )
 from marimo._server.api.endpoints.files import router as files_router
+from marimo._server.api.endpoints.git_history import (
+    router as git_history_router,
+)
 from marimo._server.api.endpoints.health import router as health_router
 from marimo._server.api.endpoints.home import router as home_router
 from marimo._server.api.endpoints.login import router as login_router
@@ -55,6 +58,9 @@ def build_routes(base_url: str = "") -> list[BaseRoute]:
     )
     app_router.include_router(
         secrets_router, prefix="/api/secrets", name="secrets"
+    )
+    app_router.include_router(
+        git_history_router, prefix="/api/git_history", name="git_history"
     )
     app_router.include_router(cache_router, prefix="/api/cache", name="cache")
     app_router.include_router(

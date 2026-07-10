@@ -267,6 +267,22 @@ def _save_and_restore_main(
 
 
 @pytest.fixture(autouse=True)
+def _isolate_marimo_state_dir(
+    monkeypatch: pytest.MonkeyPatch, tmp_path_factory: pytest.TempPathFactory
+) -> None:
+    """Redirect `marimo_state_dir()` to a per-test tmp dir.
+
+    Without this, any code path that writes under `marimo_state_dir()` (e.g.
+    the per-notebook git history repos in `_utils/notebook_git_history.py`,
+    keyed by a hash of a test's `tmp_path` notebook) would create real,
+    never-cleaned-up directories under the developer's actual
+    `~/.local/state/marimo` on every test run.
+    """
+    state_dir = tmp_path_factory.mktemp("marimo_state_home")
+    monkeypatch.setenv("XDG_STATE_HOME", str(state_dir))
+
+
+@pytest.fixture(autouse=True)
 def patch_random_seed(monkeypatch: pytest.MonkeyPatch) -> None:
     """Patch UIElement._random_seed to use a fixed seed for testing"""
     import random

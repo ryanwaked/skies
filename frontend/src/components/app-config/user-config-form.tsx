@@ -9,6 +9,7 @@ import {
   EditIcon,
   FlaskConicalIcon,
   FolderCog2,
+  GitBranchIcon,
   LayersIcon,
   MonitorIcon,
 } from "lucide-react";
@@ -65,6 +66,7 @@ import {
   useConfigOverride,
 } from "./is-overridden";
 import { OptionalFeatures } from "./optional-features";
+import { VersionControlConfig } from "./version-control-config";
 
 const categories = [
   {
@@ -89,6 +91,12 @@ const categories = [
     id: "runtime",
     label: "Runtime",
     Icon: CpuIcon,
+    className: "",
+  },
+  {
+    id: "versionControl",
+    label: "Version Control",
+    Icon: GitBranchIcon,
     className: "",
   },
   {
@@ -1236,6 +1244,14 @@ export const UserConfigForm: React.FC = () => {
               .
             </FormDescription>
           </SettingGroup>
+        );
+      case "versionControl":
+        return (
+          <VersionControlConfig
+            form={form}
+            config={config}
+            onSubmit={onSubmit}
+          />
         );
       case "optionalDeps":
         return <OptionalFeatures />;

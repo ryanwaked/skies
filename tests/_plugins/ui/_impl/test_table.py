@@ -873,6 +873,7 @@ def test_table_with_too_many_rows_column_summaries_disabled() -> None:
 
     summaries_disabled = table._get_column_summaries(ColumnSummariesArgs())
     assert summaries_disabled.is_disabled is True
+    assert summaries_disabled.disabled_reason == "rows"
 
     # search results are 2 and 12
     table._search(
@@ -1369,13 +1370,30 @@ def test_show_column_summaries_explicit():
 
 
 def test_show_column_summaries_disabled():
-    # Test when show_column_summaries is explicitly set to False
+    # Test when show_column_summaries is explicitly set to False: this is a
+    # deliberate opt-out, not a limit being hit, so no banner should show.
     table = ui.table(
         {"a": [1, 2, 3], "b": [4, 5, 6]}, show_column_summaries=False
     )
 
     summaries = table._get_column_summaries(EmptyArgs())
     assert summaries.is_disabled is False
+    assert summaries.disabled_reason is None
+    assert len(summaries.stats) == 0
+
+
+def test_show_column_summaries_disabled_reason_columns():
+    # Regression test: auto-detection turning summaries off because a table
+    # has more columns than DEFAULT_SUMMARY_CHARTS_COLUMN_LIMIT (40) must be
+    # distinguishable from the row-limit case, so the frontend can show an
+    # accurate banner instead of silently hiding charts with no explanation.
+    wide_data = {"col" + str(i): range(5) for i in range(41)}
+    table = ui.table(wide_data)
+    assert table._show_column_summaries is False
+
+    summaries = table._get_column_summaries(EmptyArgs())
+    assert summaries.is_disabled is True
+    assert summaries.disabled_reason == "columns"
     assert len(summaries.stats) == 0
 
 

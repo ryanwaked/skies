@@ -51,6 +51,7 @@ def mask_secrets(config: MarimoConfig) -> MarimoConfig:
         ("ai", "bedrock", "aws_access_key_id"),
         ("ai", "bedrock", "aws_secret_access_key"),
         ("runtime", "dotenv"),
+        ("version_control", "github", "token"),
     )
 
     new_config = deep_copy(config)

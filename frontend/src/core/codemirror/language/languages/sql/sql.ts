@@ -96,7 +96,7 @@ export class SQLLanguageAdapter implements LanguageAdapter<SQLLanguageAdapterMet
   get defaultCode(): string {
     const engine = getLatestEngine();
     if (engine && engine !== DUCKDB_ENGINE) {
-      return `_df = mo.sql(f"""SELECT * FROM """, engine=${engine})`;
+      return `_df = mo.sql(f"""\n""", engine=${engine})`;
     }
     return this.parser.defaultCode;
   }

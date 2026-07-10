@@ -359,6 +359,49 @@ export function createNetworkRequests(): EditRequests & RunRequests {
         })
         .then(handleResponse);
     },
+    getGitLog: async () => {
+      await waitForConnectionOpen();
+      return getClient()
+        .POST("/api/git_history/log", {})
+        .then(handleResponse);
+    },
+    getGitShow: async (request) => {
+      await waitForConnectionOpen();
+      return getClient()
+        .POST("/api/git_history/show", {
+          body: request,
+        })
+        .then(handleResponse);
+    },
+    sendGitCommit: async (request) => {
+      await waitForConnectionOpen();
+      return getClient()
+        .POST("/api/git_history/commit", {
+          body: request,
+        })
+        .then(handleResponse);
+    },
+    sendGitRestore: async (request) => {
+      await waitForConnectionOpen();
+      return getClient()
+        .POST("/api/git_history/restore", {
+          body: request,
+        })
+        .then(handleResponse);
+    },
+    verifyGitProvider: async () => {
+      return getClient()
+        .POST("/api/git_history/verify_provider", {})
+        .then(handleResponse);
+    },
+    sendGitCreateRemote: async (request) => {
+      await waitForConnectionOpen();
+      return getClient()
+        .POST("/api/git_history/create_remote", {
+          body: request,
+        })
+        .then(handleResponse);
+    },
     openTutorial: (request) => {
       return getClient()
         .POST("/api/home/tutorial/open", {
