@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from marimo._ast.cell import CellImpl
+    from marimo._ast.visitor import Name
     from marimo._types.ids import CellId_t
 
 
@@ -34,6 +35,9 @@ class GraphTopology(Protocol):
 
     @property
     def parents(self) -> Mapping[CellId_t, set[CellId_t]]: ...
+
+    @property
+    def refs_index(self) -> Mapping[Name, set[CellId_t]]: ...
 
     def get_path(self, source: CellId_t, dst: CellId_t) -> list[Edge]: ...
 
@@ -62,6 +66,13 @@ class MutableGraphTopology(GraphTopology):
     # Reversed edges (parent pointers) for convenience
     _parents: dict[CellId_t, set[CellId_t]] = field(default_factory=dict)
 
+    # Reverse reference index: ref name -> set of cell ids that reference it.
+    # Maintained incrementally in add_node / remove_node so that the Python
+    # branch of `get_referring_cells` is an O(1) lookup instead of a scan over
+    # every cell — a scan that runs once per defined name on every cell
+    # registration, i.e. O(defs x cells) per edit.
+    _refs_index: dict[Name, set[CellId_t]] = field(default_factory=dict)
+
     @property
     def cells(self) -> Mapping[CellId_t, CellImpl]:
         return self._cells
@@ -73,6 +84,10 @@ class MutableGraphTopology(GraphTopology):
     @property
     def parents(self) -> Mapping[CellId_t, set[CellId_t]]:
         return self._parents
+
+    @property
+    def refs_index(self) -> Mapping[Name, set[CellId_t]]:
+        return self._refs_index
 
     def ancestors(self, cell_id: CellId_t) -> set[CellId_t]:
         """Get all ancestors of a cell."""
@@ -94,6 +109,8 @@ class MutableGraphTopology(GraphTopology):
         self._cells[cell_id] = cell
         self._children[cell_id] = set()
         self._parents[cell_id] = set()
+        for ref in cell.refs:
+            self._refs_index.setdefault(ref, set()).add(cell_id)
 
     def remove_node(self, cell_id: CellId_t) -> None:
         """Remove a cell from the graph topology.
@@ -109,6 +126,14 @@ class MutableGraphTopology(GraphTopology):
         # Remove this node from its children's parent lists
         for child_id in self._children[cell_id]:
             self._parents[child_id].discard(cell_id)
+
+        # Remove this cell from the reverse reference index
+        for ref in self._cells[cell_id].refs:
+            referrers = self._refs_index.get(ref)
+            if referrers is not None:
+                referrers.discard(cell_id)
+                if not referrers:
+                    del self._refs_index[ref]
 
         del self._cells[cell_id]
         del self._children[cell_id]

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import uuid
+from unittest.mock import patch
 
 from marimo._runtime.commands import DeleteCellCommand
 from marimo._runtime.context import get_context
@@ -447,3 +448,32 @@ def test_create_and_register_preserves_extension(
     for ext in ("pdf", "png", "csv"):
         vfile = VirtualFile.create_and_register(b"content", ext)
         assert vfile.filename.endswith(f".{ext}")
+
+
+def test_large_data_url_buffer_warns() -> None:
+    from marimo._runtime.virtual_file import virtual_file as vf_mod
+
+    buffer = b"\x00" * vf_mod._DATA_URL_WARNING_THRESHOLD_BYTES
+    with patch.object(vf_mod.LOGGER, "warning") as mock_warning:
+        vfile = VirtualFile("big.bin", buffer, as_data_url=True)
+    assert vfile.url.startswith("data:")
+    mock_warning.assert_called_once()
+
+
+def test_small_data_url_buffer_does_not_warn() -> None:
+    from marimo._runtime.virtual_file import virtual_file as vf_mod
+
+    with patch.object(vf_mod.LOGGER, "warning") as mock_warning:
+        VirtualFile("small.bin", b"tiny", as_data_url=True)
+    mock_warning.assert_not_called()
+
+
+def test_serve_by_reference_never_warns() -> None:
+    # The warning only concerns inlined data URLs; the serve-by-reference path
+    # never inlines, so it must not warn regardless of buffer size.
+    from marimo._runtime.virtual_file import virtual_file as vf_mod
+
+    buffer = b"\x00" * vf_mod._DATA_URL_WARNING_THRESHOLD_BYTES
+    with patch.object(vf_mod.LOGGER, "warning") as mock_warning:
+        VirtualFile("big.bin", buffer, as_data_url=False)
+    mock_warning.assert_not_called()

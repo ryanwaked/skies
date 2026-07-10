@@ -63,10 +63,11 @@ def get_referring_cells(
 
         return cells
     else:
-        # For Python, return all cells that reference the name
-        return {
-            cid for cid, cell in topology.cells.items() if name in cell.refs
-        }
+        # For Python, return all cells that reference the name. Backed by the
+        # topology's reverse reference index for an O(1) lookup. Return a copy
+        # so callers can freely mutate the result without corrupting the index.
+        referrers = topology.refs_index.get(name)
+        return set(referrers) if referrers else set()
 
 
 def _is_valid_cell_reference(

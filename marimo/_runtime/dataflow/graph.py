@@ -61,6 +61,14 @@ class DirectedGraph(GraphTopology):
     # completion service. It should almost always be uncontended.
     lock: threading.Lock = field(default_factory=threading.Lock)
 
+    # Memoizes `get_transitive_references` for calls without a predicate. The
+    # closure is a pure function of the graph's definitions and variable data,
+    # which change only in `register_cell` / `delete_cell` — both clear this.
+    # Keyed by (refs, inclusive). Predicate calls bypass it (see that method).
+    _transitive_ref_cache: dict[
+        tuple[frozenset[Name], bool], frozenset[Name]
+    ] = field(default_factory=dict)
+
     def is_cell_cached(self, cell_id: CellId_t, code: str) -> bool:
         """Whether a cell with id `cell_id` and code `code` is in the graph."""
         return (
@@ -100,6 +108,9 @@ class DirectedGraph(GraphTopology):
         with self.lock:
             LOGGER.debug("Acquired graph lock.")
             assert cell_id not in self.topology.cells
+
+            # A structural change invalidates the transitive-reference cache.
+            self._transitive_ref_cache.clear()
 
             # Add the cell to topology
             self.topology.add_node(cell_id, cell)
@@ -214,6 +225,9 @@ class DirectedGraph(GraphTopology):
             if cell_id not in self.topology.cells:
                 raise ValueError(f"Cell {cell_id} not found")
 
+            # A structural change invalidates the transitive-reference cache.
+            self._transitive_ref_cache.clear()
+
             # Grab a reference to children before we remove it
             children = self.topology.children[cell_id].copy()
 
@@ -327,8 +341,17 @@ class DirectedGraph(GraphTopology):
 
         If predicate, only references satisfying predicate(ref) are included
         """
-        # TODO: Consider caching on the graph level and updating on register /
-        # delete
+        # A predicate can depend on runtime state beyond the graph (e.g. live
+        # globals), and is sometimes invoked purely for its side effects, so
+        # only predicate-free calls — a pure function of the graph — are cached.
+        should_cache = predicate is None
+        if should_cache:
+            cache_key = (frozenset(refs), inclusive)
+            cached = self._transitive_ref_cache.get(cache_key)
+            if cached is not None:
+                # Copy so callers can freely mutate the returned set.
+                return set(cached)
+
         processed: set[Name] = set()
         queue: set[Name] = refs & self.definition_registry.definitions.keys()
         predicate = predicate or (lambda *_: True)
@@ -370,9 +393,10 @@ class DirectedGraph(GraphTopology):
                                 if is_mangled_local(maybe_private, cell_id)
                             )
 
-        if inclusive:
-            return processed | refs
-        return processed - refs
+        result = processed | refs if inclusive else processed - refs
+        if should_cache:
+            self._transitive_ref_cache[cache_key] = frozenset(result)
+        return result
 
     def copy(self, filename: None | str = None) -> DirectedGraph:
         """Return a deep copy of the graph by recompiling all cells.
@@ -409,6 +433,11 @@ class DirectedGraph(GraphTopology):
     def parents(self) -> Mapping[CellId_t, set[CellId_t]]:
         """Get the parents dictionary."""
         return self.topology.parents
+
+    @property
+    def refs_index(self) -> Mapping[Name, set[CellId_t]]:
+        """Get the reverse reference index (ref name -> referring cells)."""
+        return self.topology.refs_index
 
     @property
     def children(self) -> Mapping[CellId_t, set[CellId_t]]:

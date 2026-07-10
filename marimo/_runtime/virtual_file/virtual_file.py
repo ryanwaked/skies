@@ -32,6 +32,12 @@ LOGGER = _loggers.marimo_logger()
 
 _ALPHABET = string.ascii_letters + string.digits
 
+# Inlining a buffer this large or larger as a base64 data URL is worth a
+# warning. Data URLs are only used where files can't be served by reference
+# (WASM/embedded/Pyodide), so the inlining itself can't be avoided there, but a
+# large inline buffer bloats every message carrying it (base64 adds ~33%).
+_DATA_URL_WARNING_THRESHOLD_BYTES = 5_000_000
+
 
 def random_filename(ext: str) -> str:
     # adapted from: https://stackoverflow.com/questions/13484726/safe-enough-8-character-short-unique-random-string
@@ -68,6 +74,16 @@ class VirtualFile:
         if not as_data_url:
             self.url = url or f"./@file/{len(buffer)}-{filename}"
         else:
+            if not url and len(buffer) >= _DATA_URL_WARNING_THRESHOLD_BYTES:
+                LOGGER.warning(
+                    "Inlining a %d-byte file (%s) as a base64 data URL "
+                    "because this environment can't serve virtual files by "
+                    "reference (e.g. WASM/embedded). This enlarges the "
+                    "notebook message carrying it; prefer smaller media where "
+                    "possible.",
+                    len(buffer),
+                    filename,
+                )
             mimetype = mimetypes.guess_type(self.filename)[0] or "text/plain"
             self.url = url or build_data_url(
                 mimetype=cast(KnownMimeType, mimetype),

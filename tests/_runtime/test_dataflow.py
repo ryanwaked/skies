@@ -1712,3 +1712,79 @@ def test_is_any_ancestor_errored_marimo_error() -> None:
     # Fix cell 0
     graph.cells["0"].set_run_result_status("success")
     assert not graph.is_any_ancestor_errored("1")
+
+
+def test_reverse_reference_index() -> None:
+    graph = dataflow.DirectedGraph()
+    graph.register_cell("0", compiler.compile_cell("x = 0", cell_id="0"))
+    graph.register_cell("1", compiler.compile_cell("y = x", cell_id="1"))
+    graph.register_cell("2", compiler.compile_cell("z = x", cell_id="2"))
+
+    # Cells 1 and 2 reference x; the defining cell (0) does not.
+    assert graph.get_referring_cells("x", language="python") == {"1", "2"}
+    assert set(graph.refs_index.get("x", set())) == {"1", "2"}
+
+    # Deleting a referrer updates the index incrementally.
+    graph.delete_cell("1")
+    assert graph.get_referring_cells("x", language="python") == {"2"}
+    assert set(graph.refs_index.get("x", set())) == {"2"}
+
+    # Deleting the last referrer drops the key entirely.
+    graph.delete_cell("2")
+    assert graph.get_referring_cells("x", language="python") == set()
+    assert "x" not in graph.refs_index
+
+
+def test_reverse_reference_index_returns_copy() -> None:
+    # Callers must be free to mutate the result without corrupting the index.
+    graph = dataflow.DirectedGraph()
+    graph.register_cell("0", compiler.compile_cell("x = 0", cell_id="0"))
+    graph.register_cell("1", compiler.compile_cell("y = x", cell_id="1"))
+    referrers = graph.get_referring_cells("x", language="python")
+    referrers.add("bogus")
+    assert graph.get_referring_cells("x", language="python") == {"1"}
+
+
+def test_transitive_reference_cache_invalidated_on_register() -> None:
+    graph = dataflow.DirectedGraph()
+    graph.register_cell("0", compiler.compile_cell("x = y", cell_id="0"))
+    # y is undefined, so the closure of {x} is just {x}. This populates
+    # the predicate-free cache.
+    assert graph.get_transitive_references({"x"}) == {"x"}
+
+    # Defining y extends the closure; the cache must not serve the stale value.
+    graph.register_cell("1", compiler.compile_cell("y = 1", cell_id="1"))
+    assert graph.get_transitive_references({"x"}) == {"x", "y"}
+
+
+def test_transitive_reference_cache_invalidated_on_delete() -> None:
+    graph = dataflow.DirectedGraph()
+    graph.register_cell("0", compiler.compile_cell("x = y", cell_id="0"))
+    graph.register_cell("1", compiler.compile_cell("y = 1", cell_id="1"))
+    assert graph.get_transitive_references({"x"}) == {"x", "y"}
+
+    graph.delete_cell("1")
+    assert graph.get_transitive_references({"x"}) == {"x"}
+
+
+def test_transitive_reference_predicate_bypasses_cache() -> None:
+    graph = dataflow.DirectedGraph()
+    graph.register_cell("0", compiler.compile_cell("x = y", cell_id="0"))
+    graph.register_cell("1", compiler.compile_cell("y = 1", cell_id="1"))
+
+    calls: list[Name] = []
+
+    def predicate(name: Name, _data: VariableData) -> bool:
+        calls.append(name)
+        return True
+
+    graph.get_transitive_references({"x"}, predicate=predicate)
+    first = len(calls)
+    graph.get_transitive_references({"x"}, predicate=predicate)
+
+    # A predicate can depend on state outside the graph, so predicate calls are
+    # never cached: the predicate is re-evaluated on every call, and the
+    # predicate-free cache is left untouched.
+    assert first > 0
+    assert len(calls) == 2 * first
+    assert (frozenset({"x"}), True) not in graph._transitive_ref_cache

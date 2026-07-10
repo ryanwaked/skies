@@ -1720,43 +1720,54 @@ export const undoLabelAtom = atom((get) => getUndoLabel(get(notebookAtom)));
 
 export const needsRunAtom = atom((get) => notebookNeedsRun(get(notebookAtom)));
 
-export const cellErrorsAtom = atom((get) => {
-  const { cellIds, cellRuntime, cellData } = get(notebookAtom);
-  const errors = cellIds.inOrderIds
-    .map((cellId) => {
-      const cell = cellRuntime[cellId];
-      const { name } = cellData[cellId];
-      if (isErrorMime(cell.output?.mimetype)) {
-        // Filter out ancestor-stopped errors
-        // These are errors that are caused by a cell that was stopped,
-        // but nothing the user can take action on.
-        invariant(Array.isArray(cell.output.data), "Expected array data");
-        const nonAncestorErrors = cell.output.data.filter(
-          (error) => !error.type.includes("ancestor"),
-        );
+// Wrapped in `createDeepEqualAtom` so it only emits a new reference when the
+// set of errors actually changes, not on every unrelated `notebookAtom` update
+// (e.g. a keystroke in any cell). Its consumers (`cellErrorCount`, the AI error
+// provider) are always mounted.
+export const cellErrorsAtom = createDeepEqualAtom(
+  atom((get) => {
+    const { cellIds, cellRuntime, cellData } = get(notebookAtom);
+    const errors = cellIds.inOrderIds
+      .map((cellId) => {
+        const cell = cellRuntime[cellId];
+        const { name } = cellData[cellId];
+        if (isErrorMime(cell.output?.mimetype)) {
+          // Filter out ancestor-stopped errors
+          // These are errors that are caused by a cell that was stopped,
+          // but nothing the user can take action on.
+          invariant(Array.isArray(cell.output.data), "Expected array data");
+          const nonAncestorErrors = cell.output.data.filter(
+            (error) => !error.type.includes("ancestor"),
+          );
 
-        if (nonAncestorErrors.length > 0) {
-          return {
-            output: { ...cell.output, data: nonAncestorErrors },
-            cellId: cellId,
-            cellName: name,
-          };
+          if (nonAncestorErrors.length > 0) {
+            return {
+              output: { ...cell.output, data: nonAncestorErrors },
+              cellId: cellId,
+              cellName: name,
+            };
+          }
         }
-      }
 
-      return null;
-    })
-    .filter(Boolean);
-  return errors;
-});
+        return null;
+      })
+      .filter(Boolean);
+    return errors;
+  }),
+);
 
-export const notebookOutline = atom((get) => {
-  const { cellIds, cellRuntime } = get(notebookAtom);
-  const outlines = cellIds.inOrderIds.map(
-    (cellId) => cellRuntime[cellId].outline,
-  );
-  return mergeOutlines(outlines);
-});
+// Wrapped in `createDeepEqualAtom` so the always-mounted outline panels
+// (`FloatingOutline`, the outline panel, `OutlinePlugin`) don't re-render on
+// keystrokes that leave the merged outline unchanged.
+export const notebookOutline = createDeepEqualAtom(
+  atom((get) => {
+    const { cellIds, cellRuntime } = get(notebookAtom);
+    const outlines = cellIds.inOrderIds.map(
+      (cellId) => cellRuntime[cellId].outline,
+    );
+    return mergeOutlines(outlines);
+  }),
+);
 
 export const cellErrorCount = atom((get) => get(cellErrorsAtom).length);
 
