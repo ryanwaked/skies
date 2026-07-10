@@ -124,6 +124,14 @@ function useCellFocusProps(
         return;
       }
 
+      // Right-clicking a cell (or opening its actions menu) mounts a Radix
+      // menu portaled outside the cell's DOM subtree and moves focus into it,
+      // which blurs the cell. Don't collapse a temporarily-shown hidden cell
+      // in that case — focus returns to the cell when the menu closes.
+      if (isInMenu(e.relatedTarget)) {
+        return;
+      }
+
       // On blur, hide the code if it was temporarily shown.
       temporarilyShownCodeActions.remove(cellId);
       actions.markTouched({ cellId });
@@ -144,6 +152,22 @@ function isInVimPanel(element: Element | null): boolean {
   }
   if (element instanceof HTMLElement) {
     return element.closest(".cm-vim-panel") !== null;
+  }
+  return false;
+}
+
+// Whether focus is leaving the cell because an open menu (context menu, cell
+// actions dropdown, submenu, ...) took it. Radix renders menu content with
+// `role="menu"`.
+function isInMenu(relatedTarget: Element | null): boolean {
+  // Common case: focus lands on the menu content or one of its items.
+  if (relatedTarget?.closest('[role="menu"]')) {
+    return true;
+  }
+  // Right-clicking can report a null relatedTarget: focus passes through
+  // <body> as the menu mounts. Fall back to detecting a menu open in the DOM.
+  if (relatedTarget === null && document.querySelector('[role="menu"]')) {
+    return true;
   }
   return false;
 }
