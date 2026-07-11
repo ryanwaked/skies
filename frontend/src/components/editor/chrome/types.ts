@@ -12,7 +12,6 @@ import {
   FileTextIcon,
   FolderIcon,
   KeyRoundIcon,
-  ListTreeIcon,
   NetworkIcon,
   PenLineIcon,
   SearchIcon,
@@ -108,14 +107,11 @@ export const PANELS: PanelDescriptor[] = [
   // The "ai" panel is intentionally absent: AI features are removed in this
   // fork (see aiEnabledAtom). The PanelType union keeps "ai" so persisted
   // layouts referencing it still parse; PANEL_MAP lookups simply miss.
-  {
-    type: "outline",
-    Icon: ListTreeIcon,
-    label: "Outline",
-    tooltip: "View outline",
-    defaultSection: "sidebar",
-    additionalKeywords: ["toc", "structure", "headings"],
-  },
+  //
+  // The "outline" panel is likewise absent from the rail: it's redundant with
+  // the always-available floating outline/minimap that tracks the notebook's
+  // structure at the right edge (see FloatingOutline). The PanelType union
+  // keeps "outline" so persisted layouts referencing it still parse.
   {
     type: "documentation",
     Icon: BookOpenIcon,

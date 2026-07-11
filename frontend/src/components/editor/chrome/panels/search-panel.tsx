@@ -12,10 +12,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/utils/cn";
 import { raf2 } from "../../navigation/focus-utils";
 import { PanelEmptyState } from "./empty-state";
-import {
-  PANEL_SEARCH_INPUT_ROOT,
-  PANEL_SEARCH_ROW,
-} from "./panel-styles";
+import { PANEL_SEARCH_INPUT_ROOT, PANEL_SEARCH_ROW } from "./panel-styles";
 
 /** Cap total matches so pathological queries (e.g. "a") stay responsive. */
 const MAX_MATCHES = 500;
@@ -203,7 +200,9 @@ const SearchPanel: React.FC = () => {
     <div className="flex flex-col h-full overflow-hidden">
       {/* Data-browser search row: a flat bordered pill + a case-sensitivity toggle */}
       <div className={PANEL_SEARCH_ROW}>
-        <div className={cn(PANEL_SEARCH_INPUT_ROOT, "flex items-center gap-1.5")}>
+        <div
+          className={cn(PANEL_SEARCH_INPUT_ROOT, "flex items-center gap-1.5")}
+        >
           <SearchIcon
             strokeWidth={1.5}
             className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
@@ -255,7 +254,7 @@ const SearchPanel: React.FC = () => {
 
       {hasQuery && results.matchCount > 0 && (
         <>
-          <div className="px-3 py-1.5 text-[12px] text-muted-foreground border-b border-border shrink-0">
+          <div className="px-3 py-1.5 text-[11px] text-muted-foreground border-b border-border shrink-0">
             {results.truncated ? `${MAX_MATCHES}+` : results.matchCount} result
             {results.matchCount === 1 ? "" : "s"} in {cellCount} cell
             {cellCount === 1 ? "" : "s"}
@@ -263,7 +262,7 @@ const SearchPanel: React.FC = () => {
           <div className="flex-1 overflow-y-auto py-1">
             {results.cells.map((cell) => (
               <div key={cell.cellId} className="pb-1">
-                <div className="px-3 h-[26px] flex items-center font-code text-[11px] text-muted-foreground truncate">
+                <div className="px-3 h-7 flex items-center font-code text-[11px] text-muted-foreground truncate">
                   {cell.name}
                 </div>
                 {cell.lines.map((line) => {
@@ -278,10 +277,10 @@ const SearchPanel: React.FC = () => {
                       // which causes a focus flicker (same trick as the minimap).
                       onMouseDown={(e) => e.preventDefault()}
                       className={cn(
-                        "w-full h-[26px] flex items-center px-3 pl-5 text-[13px] text-left rounded-[3px] cursor-pointer",
+                        "w-full h-7 flex items-center px-3 pl-5 text-[13px] text-left rounded-[3px] cursor-pointer",
                         isActive
                           ? "bg-primary/[0.07] text-primary"
-                          : "text-foreground hover:bg-[rgba(63,66,87,0.2)]",
+                          : "text-foreground hover:bg-[var(--hover-wash)]",
                       )}
                     >
                       <span className="truncate font-code text-xs">

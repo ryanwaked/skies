@@ -137,9 +137,12 @@ export const ComponentsPanel: React.FC = () => {
           </div>
         </Panel>
         <PanelResizeHandle
+          // A 1px hairline so the list/viewer split reads like every other
+          // panel's border-b divider, not a heavy bar. The resize hit area is
+          // wider than the visible line (react-resizable-panels' hitAreaMargins).
           className={cn(
-            "bg-border hover:bg-primary/30 transition-colors",
-            isVertical ? "h-1" : "w-1",
+            "bg-border hover:bg-primary/30 data-[resize-handle-state=drag]:bg-primary/30 transition-colors",
+            isVertical ? "h-px" : "w-px",
           )}
         />
         <Panel defaultSize={60} minSize={20} className="bg-card">

@@ -15,6 +15,7 @@ import { cn } from "@/utils/cn";
 import { formatBytes, formatTime } from "@/utils/formatting";
 import { prettyNumber } from "@/utils/numbers";
 import { PanelEmptyState } from "./empty-state";
+import { PANEL_EYEBROW } from "./panel-styles";
 
 const CachePanel = () => {
   const { clearCache, getCacheInfo } = useRequestClient();
@@ -122,9 +123,7 @@ const CachePanel = () => {
 
         {/* Statistics Section */}
         <div className="space-y-3">
-          <h3 className="text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-muted-foreground">
-            Statistics
-          </h3>
+          <h3 className={PANEL_EYEBROW}>Statistics</h3>
           <div className="grid grid-cols-2 gap-3">
             <StatCard
               label="Time saved"
@@ -154,9 +153,7 @@ const CachePanel = () => {
         {/* Storage Section */}
         {diskTotal > 0 && (
           <div className="space-y-3 pt-2 border-t">
-            <h3 className="text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-muted-foreground">
-              Storage
-            </h3>
+            <h3 className={PANEL_EYEBROW}>Storage</h3>
             <div className="grid grid-cols-1 gap-3">
               <StatCard
                 label="Disk usage"
@@ -209,9 +206,7 @@ const StatCard: React.FC<{
 }> = ({ label, value, description }) => {
   return (
     <div className="flex flex-col gap-1 p-3 rounded-[3px] border bg-card">
-      <span className="text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-muted-foreground">
-        {label}
-      </span>
+      <span className={PANEL_EYEBROW}>{label}</span>
       <span className="text-[13px] font-medium font-code">{value}</span>
       {description && (
         <span className="text-xs text-muted-foreground">{description}</span>
