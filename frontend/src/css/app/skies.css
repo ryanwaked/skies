@@ -14,11 +14,13 @@
 /* stylelint-disable unit-allowed-list */
 
 /* ---------------- THE DESK (grid + grain canvas) ----------------
-   Painted as stacked fixed-attachment background layers so panels simply
-   cover it and scrolling never swims. Apply `.skies-desk` to any inner
-   container that would otherwise paint a flat --background over it. */
-body,
-.skies-desk {
+   The desk is painted ONCE on the non-scrolling `body`, viewport-aligned, so
+   the cell "papers" scroll over a grid that holds still. It is deliberately
+   NOT painted on the scroll container (`#App`/`.skies-desk`) — a
+   `background-attachment: fixed` layer on the scroller forces the browser to
+   repaint the full-viewport grain + grid every scroll frame (major jank).
+   Instead `.skies-desk` is a transparent window onto this body desk. */
+body {
   background-color: var(--background);
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.022'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
@@ -29,6 +31,14 @@ body,
     50px 50px,
     50px 50px;
   background-attachment: fixed;
+}
+
+/* Transparent so the body desk above shows through the gutters between cell
+   papers. Every ancestor from here up to <body> is transparent, and the desk
+   is viewport-aligned on both, so the grid lines up exactly as before — just
+   without the per-frame repaint the scroller's own fixed background caused. */
+.skies-desk {
+  background: transparent;
 }
 
 /* ---------------- KICKERS & LABELS ----------------
@@ -172,11 +182,7 @@ body,
     #f2e5d2 93%,
     rgb(242 229 210 / 0%) 100%
   );
-  mask-image: linear-gradient(
-    180deg,
-    #000 calc(100% - 70px),
-    transparent 100%
-  );
+  mask-image: linear-gradient(180deg, #000 calc(100% - 70px), transparent 100%);
   mask-image: linear-gradient(180deg, #000 calc(100% - 70px), transparent 100%);
 }
 

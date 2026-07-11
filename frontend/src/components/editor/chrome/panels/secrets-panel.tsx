@@ -37,6 +37,12 @@ import { copyToClipboard } from "@/utils/copy";
 import { useInsertCode } from "../../connections/components";
 import { HideInKioskMode } from "../../kiosk-mode";
 import { PanelEmptyState } from "./empty-state";
+import {
+  PANEL_SEGMENTED_ITEM,
+  PANEL_SEGMENTED_ITEM_ACTIVE,
+  PANEL_SEGMENTED_ITEM_INACTIVE,
+  PANEL_TOOLBAR_ROW,
+} from "./panel-styles";
 import { sortProviders, WriteSecretModal } from "./write-secret-modal";
 
 interface SecretRow {
@@ -93,7 +99,14 @@ const SecretsPanel: React.FC = () => {
   const marimoRows = toRows((provider) => provider !== "env");
   const envRows = toRows((provider) => provider === "env");
 
-  return <SecretsTabs marimoRows={marimoRows} envRows={envRows} providerNames={providerNames} refetch={refetch} />;
+  return (
+    <SecretsTabs
+      marimoRows={marimoRows}
+      envRows={envRows}
+      providerNames={providerNames}
+      refetch={refetch}
+    />
+  );
 };
 
 type SecretsTabValue = "marimo" | "env";
@@ -110,8 +123,11 @@ const SecretsTabs: React.FC<{
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="mx-3 mt-2 flex w-fit shrink-0 gap-0.5 rounded-[3px] border border-border p-0.5">
-        <SecretsTabButton active={tab === "marimo"} onClick={() => setTab("marimo")}>
+      <div className={cn(PANEL_TOOLBAR_ROW, "gap-0.5")}>
+        <SecretsTabButton
+          active={tab === "marimo"}
+          onClick={() => setTab("marimo")}
+        >
           Skies secrets
         </SecretsTabButton>
         <SecretsTabButton active={tab === "env"} onClick={() => setTab("env")}>
@@ -150,10 +166,8 @@ const SecretsTabButton: React.FC<
     type="button"
     onClick={onClick}
     className={cn(
-      "rounded-[2px] px-2.5 py-1 text-xs font-medium transition-colors",
-      active
-        ? "bg-accent text-accent-foreground"
-        : "text-muted-foreground hover:text-foreground",
+      PANEL_SEGMENTED_ITEM,
+      active ? PANEL_SEGMENTED_ITEM_ACTIVE : PANEL_SEGMENTED_ITEM_INACTIVE,
     )}
   >
     {children}
@@ -332,7 +346,10 @@ const SecretRowActions: React.FC<{ row: SecretRow }> = ({ row }) => {
           Copy accessor
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => insertCode(snippet)}>
-          <BetweenHorizontalStartIcon className="mr-2 size-3.5" strokeWidth={1.5} />
+          <BetweenHorizontalStartIcon
+            className="mr-2 size-3.5"
+            strokeWidth={1.5}
+          />
           Insert into cell
         </DropdownMenuItem>
       </DropdownMenuContent>

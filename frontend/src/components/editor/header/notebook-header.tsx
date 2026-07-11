@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { useAtomValue } from "jotai";
-import { Undo2Icon } from "lucide-react";
+import { LoaderCircleIcon, Undo2Icon } from "lucide-react";
 import type { JSX } from "react";
 import { ConfigButton } from "@/components/app-config/app-config-button";
 import { RunAllSplitButton } from "@/components/editor/controls/run-all-button";
@@ -14,6 +14,7 @@ import { notebookScrollToRunning } from "@/core/cells/actions";
 import {
   canUndoDeletesAtom,
   notebookIsRunningAtom,
+  notebookQueuedOrRunningCountAtom,
   undoLabelAtom,
   useCellActions,
 } from "@/core/cells/cells";
@@ -87,6 +88,7 @@ export const NotebookHeader = (): JSX.Element => {
         {mode === "present" && <LayoutSelect />}
 
         {!closed && <TopBarUndo />}
+        {!closed && <QueuedCellsIndicator />}
         {!closed && <RunAllSplitButton />}
 
         <div className="mx-1 h-[18px] w-px bg-border" />
@@ -177,7 +179,9 @@ const HeaderStatusIndicator = ({
             !isOpen && !isClosed && "bg-(--muted-foreground)",
           )}
           style={
-            running ? { ["--ping-color" as string]: "var(--action-foreground)" } : undefined
+            running
+              ? { ["--ping-color" as string]: "var(--action-foreground)" }
+              : undefined
           }
         />
       </button>
@@ -243,7 +247,9 @@ const ModeTab = ({
     onClick={onSelect}
     className={cn(
       "skies-mode-tab flex items-center px-[10px] text-[13.5px] font-normal transition-colors",
-      active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+      active
+        ? "text-foreground"
+        : "text-muted-foreground hover:text-foreground",
     )}
   >
     {label}
@@ -273,6 +279,36 @@ const TopBarUndo = () => {
       >
         <Undo2Icon className="h-[16px] w-[16px]" strokeWidth={1.5} />
       </button>
+    </Tooltip>
+  );
+};
+
+/**
+ * Live count of queued/running cells, shown left of Run all. Mirrors the
+ * split button's tinted-pill geometry but in the amber `action-foreground`
+ * token so in-progress work reads distinct from the sky-blue run control.
+ * Renders nothing when the kernel is idle (the Run all button carries the
+ * running spinner on its own).
+ */
+const QueuedCellsIndicator = () => {
+  const count = useAtomValue(notebookQueuedOrRunningCountAtom);
+  if (count === 0) {
+    return null;
+  }
+  return (
+    <Tooltip content={`${count} cell${count > 1 ? "s" : ""} queued or running`}>
+      <div
+        data-testid="header-queued-cells-indicator"
+        aria-label={`${count} cells queued or running`}
+        className="flex h-[28px] items-center gap-1.5 rounded-[3px] bg-action-foreground/[0.14] px-[8px] text-[12px] font-medium tabular-nums text-action-foreground"
+      >
+        <LoaderCircleIcon
+          className="h-[14px] w-[14px] animate-spin"
+          strokeWidth={1.5}
+          aria-hidden="true"
+        />
+        {count}
+      </div>
     </Tooltip>
   );
 };

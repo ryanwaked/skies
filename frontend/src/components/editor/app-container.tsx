@@ -52,8 +52,10 @@ export const AppContainer: React.FC<PropsWithChildren<Props>> = ({
             className={cn(
               "mathjax_ignore",
               isAppClosed(connectionState) && "disconnected",
-              // skies-desk: the grid-and-grain desk shows behind the cell
-              // "papers" (fixed-attachment, so it holds still while they scroll)
+              // skies-desk: a transparent window onto the body desk, which
+              // holds still behind the scrolling cell "papers" (see skies.css —
+              // the desk is painted on body, not this scroller, to avoid a
+              // per-frame background repaint).
               "skies-desk w-full h-full text-textColor",
               "flex flex-col overflow-y-auto",
               width === "full" && "config-width-full",

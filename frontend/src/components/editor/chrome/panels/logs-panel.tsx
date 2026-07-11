@@ -8,6 +8,7 @@ import { type CellLog, formatLogTimestamp } from "@/core/cells/logs";
 import { cn } from "@/utils/cn";
 import { CellLink } from "../../links/cell-link";
 import { PanelEmptyState } from "./empty-state";
+import { PANEL_TOOLBAR_ROW } from "./panel-styles";
 
 interface Props {
   className?: string;
@@ -37,10 +38,10 @@ const LogsPanel: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full overflow-y-auto overflow-x-hidden">
-      <div className="flex flex-row justify-start px-2 py-1">
+      <div className={PANEL_TOOLBAR_ROW}>
         <ClearButton dataTestId="clear-logs-button" onClick={clearLogs} />
       </div>
-      <LogViewer logs={logs}  />
+      <LogViewer logs={logs} />
     </div>
   );
 };
@@ -49,7 +50,7 @@ export default LogsPanel;
 
 export const LogViewer: React.FC<Props> = ({ logs, className }) => {
   const hover =
-    "opacity-70 group-hover:bg-[rgba(63,66,87,0.2)] group-hover:opacity-100";
+    "opacity-70 group-hover:bg-[var(--hover-wash)] group-hover:opacity-100";
   return (
     <div className={cn("flex flex-col", className)}>
       <pre className="grid text-xs font-code gap-1 whitespace-break-spaces align-left">

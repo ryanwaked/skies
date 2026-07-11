@@ -1,8 +1,11 @@
 /* Copyright 2026 Marimo. All rights reserved. */
+import { python } from "@codemirror/lang-python";
 import { unifiedMergeView } from "@codemirror/merge";
 import { EditorView } from "@codemirror/view";
 import CodeMirror from "@uiw/react-codemirror";
 import { memo, useMemo } from "react";
+import { darkTheme } from "@/core/codemirror/theme/dark";
+import { lightTheme } from "@/core/codemirror/theme/light";
 import { useTheme } from "@/theme/useTheme";
 
 export const ReadonlyDiff = memo(
@@ -11,6 +14,10 @@ export const ReadonlyDiff = memo(
 
     const extensions = useMemo(() => {
       return [
+        // Read like an actual cell: Python highlighting + the Skies editor
+        // theme (same as core/codemirror/cm.ts), not CodeMirror's generic
+        // light/dark. The diff gutter layers on top.
+        python(),
         EditorView.lineWrapping,
         unifiedMergeView({
           original: props.original,
@@ -20,17 +27,15 @@ export const ReadonlyDiff = memo(
             minSize: 4,
           },
         }),
+        theme === "dark" ? darkTheme : lightTheme,
       ];
-    }, [props.original, props.modified, theme]);
+    }, [props.original, theme]);
 
     return (
       <CodeMirror
-        className="cm font-mono"
-        style={
-          {
-            "--marimo-code-editor-font-size": "10px",
-          } as React.CSSProperties
-        }
+        // `.cm` gives the notebook's code font + default editor font size, so
+        // the preview matches cells rather than shrinking to a tiny mono.
+        className="cm"
         extensions={extensions}
         readOnly={true}
         basicSetup={{
@@ -44,7 +49,9 @@ export const ReadonlyDiff = memo(
           closeBrackets: false,
           autocompletion: false,
         }}
-        theme={theme === "dark" ? "dark" : "light"}
+        // The Skies theme is supplied via extensions above; keep CodeMirror's
+        // own theme out of the way.
+        theme="none"
         value={props.modified}
       />
     );

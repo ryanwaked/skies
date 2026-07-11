@@ -1,11 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { CommandList } from "cmdk";
-import {
-  BetweenHorizontalStartIcon,
-  PlusIcon,
-  XIcon,
-} from "lucide-react";
+import { BetweenHorizontalStartIcon, PlusIcon, XIcon } from "lucide-react";
 import React from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import {
@@ -73,7 +69,7 @@ const SnippetsPanel: React.FC = () => {
         {/* Snippet list panel */}
         <Panel defaultSize={40} minSize={20} maxSize={70}>
           <div className="flex h-full flex-col">
-            <Command className="flex-1 min-h-0 rounded-none">
+            <Command className="flex-1 min-h-0 rounded-none bg-card">
               <div className={PANEL_SEARCH_ROW}>
                 <CommandInput
                   placeholder="Search snippets..."
@@ -87,7 +83,12 @@ const SnippetsPanel: React.FC = () => {
                 </ContributeSnippetButton>
               </div>
 
-              <CommandEmpty>No results</CommandEmpty>
+              <CommandEmpty>
+                <PanelEmptyState
+                  title="No results"
+                  description="No snippets match your search."
+                />
+              </CommandEmpty>
               <SnippetList
                 onSelect={(snippet) => setSelectedSnippet(snippet)}
                 snippets={snippets.snippets}
@@ -96,9 +97,12 @@ const SnippetsPanel: React.FC = () => {
           </div>
         </Panel>
         <PanelResizeHandle
+          // A 1px hairline so the list/viewer split reads like every other
+          // panel's border-b divider, not a heavy bar. The resize hit area is
+          // wider than the visible line (react-resizable-panels' hitAreaMargins).
           className={cn(
-            "bg-border hover:bg-primary/30 transition-colors",
-            isVertical ? "h-1" : "w-1",
+            "bg-border hover:bg-primary/30 data-[resize-handle-state=drag]:bg-primary/30 transition-colors",
+            isVertical ? "h-px" : "w-px",
           )}
         />
         {/* Snippet viewer panel */}
@@ -166,7 +170,7 @@ const SnippetViewer: React.FC<{ snippet: Snippet; onClose: () => void }> = ({
           size="sm"
           variant="ghost"
           onClick={onClose}
-          className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]"
+          className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground hover:bg-[var(--hover-wash)]"
         >
           <XIcon strokeWidth={1.5} className="h-3.5 w-3.5" />
         </Button>

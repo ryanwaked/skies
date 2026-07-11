@@ -16,10 +16,7 @@ import { commandPaletteAtom } from "@/components/editor/controls/state";
 import { renderShortcut } from "@/components/shortcuts/renderShortcut";
 import { ReorderableList } from "@/components/ui/reorderable-list";
 import { Tooltip } from "@/components/ui/tooltip";
-import {
-  cellErrorCount,
-  notebookQueuedOrRunningCountAtom,
-} from "@/core/cells/cells";
+import { cellErrorCount } from "@/core/cells/cells";
 import { capabilitiesAtom } from "@/core/config/capabilities";
 import { aiEnabledAtom } from "@/core/config/config";
 import { connectionAtom } from "@/core/network/connection";
@@ -191,7 +188,6 @@ export const Sidebar: React.FC = () => {
         )}
       />
       <div className="flex-1" />
-      <QueuedOrRunningStack />
       <RailDeveloperPanelToggle />
       <RailUtilityButtons />
       <RailResourceBars />
@@ -208,41 +204,6 @@ const ErrorPanelIcon: React.FC<{ Icon: PanelDescriptor["Icon"] }> = ({
       strokeWidth={1.5}
       className={cn("h-[16px] w-[16px]", errorCount > 0 && "text-destructive")}
     />
-  );
-};
-
-const QueuedOrRunningStack = () => {
-  const count = useAtomValue(notebookQueuedOrRunningCountAtom);
-  // Skies rail status: a tiny dot (faint when idle, warn token while
-  // cells are queued/running) with a quiet count beneath it.
-  return (
-    <Tooltip
-      content={
-        count > 0 ? (
-          <span>
-            {count} cell{count > 1 ? "s" : ""} queued or running
-          </span>
-        ) : (
-          "No cells queued or running"
-        )
-      }
-      side="right"
-      delayDuration={200}
-    >
-      <div className="flex h-[36px] w-[36px] flex-col items-center justify-center gap-1">
-        <span
-          className={cn(
-            "h-1.5 w-1.5 shrink-0 rounded-full",
-            count > 0 ? "bg-action-foreground" : "bg-muted-foreground/40",
-          )}
-        />
-        {count > 0 && (
-          <span className="text-[10px] font-medium leading-none tabular-nums text-action-foreground">
-            {count}
-          </span>
-        )}
-      </div>
-    </Tooltip>
   );
 };
 
@@ -395,7 +356,9 @@ const RailResourceBars: React.FC = () => {
     <div className="flex flex-col items-center gap-2 pt-1.5 pb-1.5">
       <RailBar
         percent={memPct}
-        icon={<MemoryStickIcon className="h-[16px] w-[16px]" strokeWidth={1.5} />}
+        icon={
+          <MemoryStickIcon className="h-[16px] w-[16px]" strokeWidth={1.5} />
+        }
         tooltip={
           <span>
             <b>Memory:</b> {gb(data.memory.total - data.memory.available)} /{" "}

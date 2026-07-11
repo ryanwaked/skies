@@ -20,6 +20,7 @@ import {
   PanelAccordionTrigger,
   PanelBadge,
 } from "./components";
+import { PanelEmptyState } from "./empty-state";
 
 type OpenSections = "variables" | "datasources";
 
@@ -87,9 +88,11 @@ const SessionPanel: React.FC = () => {
         </PanelAccordionTrigger>
         <PanelAccordionContent>
           {Object.keys(variables).length === 0 ? (
-            <div className="px-3 py-4 text-xs leading-4 text-muted-foreground">
-              No variables defined
-            </div>
+            <PanelEmptyState
+              title="No variables"
+              description="Variables defined in your notebook appear here."
+              icon={<VariableIcon />}
+            />
           ) : (
             <VariableTable cellIds={cellIds.inOrderIds} variables={variables} />
           )}

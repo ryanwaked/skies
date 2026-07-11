@@ -5,14 +5,20 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   HelpCircleIcon,
+  PlusIcon,
 } from "lucide-react";
 import React from "react";
 import { useOpenSettingsToTab } from "@/components/app-config/state";
 import { Spinner } from "@/components/icons/spinner";
 import { SearchInput } from "@/components/ui/input";
 import {
+  PANEL_SEARCH_ACTION,
   PANEL_SEARCH_INPUT_ROOT,
   PANEL_SEARCH_ROW,
+  PANEL_SEGMENTED_ITEM,
+  PANEL_SEGMENTED_ITEM_ACTIVE,
+  PANEL_SEGMENTED_ITEM_INACTIVE,
+  PANEL_TOOLBAR_ROW,
 } from "./panel-styles";
 import {
   Table,
@@ -110,15 +116,15 @@ const PackagesPanel: React.FC = () => {
     <div className="flex-1 flex flex-col overflow-hidden">
       <InstallPackageForm packageManager={packageManager} onSuccess={refetch} />
       {isTreeSupported && (
-        <div className="flex items-center justify-between px-2 py-1 border-b">
-          <div className="flex gap-1">
+        <div className={cn(PANEL_TOOLBAR_ROW, "justify-between")}>
+          <div className="flex gap-0.5">
             <button
               type="button"
               className={cn(
-                "px-2 py-0.5 text-xs font-medium rounded-[3px]",
+                PANEL_SEGMENTED_ITEM,
                 viewMode === "list"
-                  ? "bg-primary/[0.07] text-primary"
-                  : "text-muted-foreground hover:text-foreground hover:bg-[var(--hover-wash)]",
+                  ? PANEL_SEGMENTED_ITEM_ACTIVE
+                  : PANEL_SEGMENTED_ITEM_INACTIVE,
               )}
               onClick={() => setUserViewMode("list")}
             >
@@ -127,10 +133,10 @@ const PackagesPanel: React.FC = () => {
             <button
               type="button"
               className={cn(
-                "px-2 py-0.5 text-xs font-medium rounded-[3px]",
+                PANEL_SEGMENTED_ITEM,
                 viewMode === "tree"
-                  ? "bg-primary/[0.07] text-primary"
-                  : "text-muted-foreground hover:text-foreground hover:bg-[var(--hover-wash)]",
+                  ? PANEL_SEGMENTED_ITEM_ACTIVE
+                  : PANEL_SEGMENTED_ITEM_INACTIVE,
               )}
               onClick={() => setUserViewMode("tree")}
             >
@@ -284,25 +290,28 @@ const InstallPackageForm: React.FC<{
           </div>
         }
       >
-        <HelpCircleIcon
-          strokeWidth={1.5}
-          className={
-            "h-4 w-4 cursor-help text-muted-foreground hover:text-foreground bg-transparent"
-          }
-        />
+        <button
+          type="button"
+          aria-label="Package format help"
+          className={cn(PANEL_SEARCH_ACTION, "cursor-help")}
+        >
+          <HelpCircleIcon strokeWidth={1.5} className="h-4 w-4" />
+        </button>
       </Tooltip>
-      <button
-        type="button"
-        className={cn(
-          "float-right px-2 m-0 h-full text-xs font-medium text-muted-foreground ml-2 hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground",
-          input && "bg-primary/[0.07] text-primary hover:text-primary",
-          "disabled:cursor-not-allowed disabled:opacity-50",
-        )}
-        onClick={installPackages}
-        disabled={!input}
-      >
-        Add
-      </button>
+      <Tooltip content="Install">
+        <button
+          type="button"
+          aria-label="Install packages"
+          className={cn(
+            PANEL_SEARCH_ACTION,
+            input && PANEL_SEGMENTED_ITEM_ACTIVE,
+          )}
+          onClick={installPackages}
+          disabled={!input}
+        >
+          <PlusIcon strokeWidth={1.5} className="h-4 w-4" />
+        </button>
+      </Tooltip>
     </div>
   );
 };
@@ -547,7 +556,7 @@ const DependencyTreeNode: React.FC<{
       <div
         className={cn(
           "flex items-center group cursor-pointer text-[13px] whitespace-nowrap min-h-[26px] rounded-[3px]",
-          "hover:bg-[rgba(63,66,87,0.2)] focus:bg-[rgba(63,66,87,0.2)] focus:outline-hidden",
+          "hover:bg-[var(--hover-wash)] focus:bg-[var(--hover-wash)] focus:outline-hidden",
           hasChildren && "select-none",
           isTopLevel ? "px-2 py-0.5" : "",
         )}
