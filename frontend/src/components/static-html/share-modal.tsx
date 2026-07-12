@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/use-toast";
+import { API } from "@/core/network/api";
 import { Constants } from "@/core/constants";
 import { useRequestClient } from "@/core/network/requests";
 import { VirtualFileTracker } from "@/core/static/virtual-file-tracker";
@@ -114,6 +115,28 @@ export const ShareStaticNotebookModal: React.FC<{
     }
   };
 
+  const unpublish = async () => {
+    if (!share) {
+      return;
+    }
+    setBusy(true);
+    const prevToast = toast({ title: "Deleting share…" });
+    try {
+      await API.post("/export/unpublish", { path: share.path });
+      storage.remove(SHARE_STORAGE_KEY);
+      setShare(null);
+      setCreatingNew(true);
+      setSlug("");
+      prevToast.dismiss();
+      toast({ title: "Share deleted" });
+    } catch {
+      prevToast.dismiss();
+      toast({ variant: "danger", title: "Failed to delete share" });
+    } finally {
+      setBusy(false);
+    }
+  };
+
   // ---- View: this notebook already has a link ----
   if (share && !creatingNew) {
     return (
@@ -140,6 +163,15 @@ export const ShareStaticNotebookModal: React.FC<{
           </div>
         </div>
         <DialogFooter>
+          <Button
+            data-testid="delete-static-notebook-button"
+            variant="destructive"
+            className="mr-auto"
+            disabled={busy}
+            onClick={unpublish}
+          >
+            Delete share
+          </Button>
           <Button variant="secondary" onClick={onClose}>
             Close
           </Button>

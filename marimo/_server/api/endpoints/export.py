@@ -54,6 +54,10 @@ from marimo._utils.http import HTTPStatus
 # before we ever call out to the network.
 _PUBLISH_PATH_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
+_HIDE_BANNER_STYLE = (
+    "<style>[data-testid='static-notebook-banner']{display:none!important}</style>"
+)
+
 if TYPE_CHECKING:
     from starlette.requests import Request
 
@@ -234,6 +238,10 @@ async def publish_notebook(
         ),
     )
 
+    # Hide the "Static notebook — run or edit" banner for hosted shares: it's a
+    # first-class page on the site, not a bare file export.
+    html = html.replace("</head>", f"{_HIDE_BANNER_STYLE}</head>", 1)
+
     def _upload() -> marimo_requests.Response:
         return marimo_requests.post(
             endpoint,
@@ -259,6 +267,66 @@ async def publish_notebook(
         url = None
 
     return JSONResponse({"url": url})
+
+
+@router.post("/unpublish")
+@requires("edit")
+async def unpublish_notebook(
+    *,
+    request: Request,
+) -> JSONResponse:
+    """Unpublish a previously shared notebook from the configured host.
+
+    responses:
+        200:
+            description: The notebook was unpublished
+        400:
+            description: Invalid path
+        503:
+            description: Publishing is not configured on the server
+    """
+    endpoint = os.environ.get("MARIMO_SHARE_ENDPOINT")
+    token = os.environ.get("MARIMO_SHARE_TOKEN")
+    if not endpoint or not token:
+        raise HTTPException(
+            status_code=HTTPStatus.SERVICE_UNAVAILABLE,
+            detail="Publishing is not configured.",
+        )
+
+    try:
+        data = await request.json()
+    except Exception as e:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST, detail="Invalid body"
+        ) from e
+
+    path = data.get("path") if isinstance(data, dict) else None
+    if not isinstance(path, str) or not _PUBLISH_PATH_RE.match(path):
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST, detail="Invalid path"
+        )
+
+    def _delete() -> marimo_requests.Response:
+        # the host reads the path from a JSON body on DELETE
+        return marimo_requests._make_request(
+            "DELETE",
+            endpoint,
+            json_data={"path": path},
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=30,
+        )
+
+    try:
+        response = await run_in_threadpool(_delete)
+        response.raise_for_status()
+    except Exception as e:
+        LOGGER.error("Failed to unpublish notebook: %s", e)
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_GATEWAY,
+            detail="Failed to unpublish notebook from the host.",
+        ) from e
+
+    return JSONResponse({"ok": True})
 
 
 @router.post("/auto_export/html")
