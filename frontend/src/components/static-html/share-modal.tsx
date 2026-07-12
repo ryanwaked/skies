@@ -1,7 +1,8 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { CopyIcon } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   DialogContent,
@@ -16,8 +17,19 @@ import { useRequestClient } from "@/core/network/requests";
 import { VirtualFileTracker } from "@/core/static/virtual-file-tracker";
 import { copyToClipboard } from "@/utils/copy";
 import { Events } from "@/utils/events";
+import { NotebookScopedLocalStorage } from "@/utils/storage/typed";
 import { Input } from "../ui/input";
 import { Tooltip } from "../ui/tooltip";
+
+/* The last publish for a notebook, remembered per-notebook so re-opening the
+   dialog shows the existing link (and can update it in place) instead of always
+   asking for a fresh slug. `path` is the host path (`<slug>-<hash>`), reused on
+   update so the same URL is overwritten. */
+const SHARE_STORAGE_KEY = "marimo:sharedNotebook";
+const shareSchema = z
+  .object({ path: z.string(), url: z.string() })
+  .nullable();
+type Share = z.infer<typeof shareSchema>;
 
 /* Publish a static notebook to the host configured on the marimo server
    (MARIMO_SHARE_ENDPOINT). The notebook HTML is generated and uploaded by the
@@ -26,16 +38,30 @@ import { Tooltip } from "../ui/tooltip";
 export const ShareStaticNotebookModal: React.FC<{
   onClose: () => void;
 }> = ({ onClose }) => {
-  const [slug, setSlug] = useState("");
-  const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
   const { publishNotebook } = useRequestClient();
-  // 4 character random string, so re-using a slug still yields a unique path
+
+  const storage = useMemo(
+    () =>
+      new NotebookScopedLocalStorage<Share>(
+        SHARE_STORAGE_KEY,
+        shareSchema,
+        () => null,
+      ),
+    [],
+  );
+  useEffect(() => () => storage.dispose(), [storage]);
+
+  // the existing (or just-published) share for this notebook
+  const [share, setShare] = useState<Share>(() => storage.get(SHARE_STORAGE_KEY));
+  // whether we're entering a slug for a brand-new link (vs. showing the existing one)
+  const [creatingNew, setCreatingNew] = useState(() => share == null);
+  const [slug, setSlug] = useState("");
+  const [busy, setBusy] = useState(false);
+  // 4 character random suffix so re-using a slug still yields a unique path
   const randomHash = useMemo(() => Math.random().toString(36).slice(2, 6), []);
 
-  // Globally unique path
-  const path = `${slug}-${randomHash}`;
-
-  const publish = async () => {
+  const publish = async (path: string) => {
+    setBusy(true);
     const prevToast = toast({
       title: "Publishing notebook…",
       description: "Please wait.",
@@ -51,21 +77,20 @@ export const ShareStaticNotebookModal: React.FC<{
 
       if (url) {
         await copyToClipboard(url);
-        setPublishedUrl(url);
+        const next: Share = { path, url };
+        setShare(next);
+        storage.set(SHARE_STORAGE_KEY, next);
+        setCreatingNew(false);
       }
       toast({
         title: "Notebook published!",
-        description: (
+        description: url ? (
           <div>
-            {url ? (
-              <>
-                The URL has been copied to your clipboard. You can share it with
-                anyone.
-              </>
-            ) : (
-              <>Your notebook was published.</>
-            )}
+            The link has been copied to your clipboard. You can share it with
+            anyone.
           </div>
+        ) : (
+          <div>Your notebook was published.</div>
         ),
       });
     } catch {
@@ -84,16 +109,71 @@ export const ShareStaticNotebookModal: React.FC<{
           </div>
         ),
       });
+    } finally {
+      setBusy(false);
     }
   };
 
+  // ---- View: this notebook already has a link ----
+  if (share && !creatingNew) {
+    return (
+      <DialogContent className="w-fit">
+        <DialogHeader>
+          <DialogTitle>Share notebook</DialogTitle>
+          <DialogDescription>
+            This notebook is published. Anyone with the link can view a static,
+            non-interactive copy.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col gap-2 py-4 font-semibold text-sm text-muted-foreground">
+          Your notebook is live at:
+          <div className="flex items-center gap-2">
+            <CopyButton text={share.url} />
+            <a
+              href={share.url}
+              target="_blank"
+              rel="noreferrer"
+              className="text-link"
+            >
+              {share.url}
+            </a>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="secondary" onClick={onClose}>
+            Close
+          </Button>
+          <Button
+            variant="secondary"
+            disabled={busy}
+            onClick={() => {
+              setSlug("");
+              setCreatingNew(true);
+            }}
+          >
+            Create new link
+          </Button>
+          <Button
+            data-testid="update-static-notebook-button"
+            variant="default"
+            disabled={busy}
+            // republish to the same path so the existing link is updated in place
+            onClick={() => publish(share.path)}
+          >
+            Update link
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    );
+  }
+
+  // ---- Create: ask for a slug and publish a new link ----
   return (
     <DialogContent className="w-fit">
       <form
         onSubmit={async (e) => {
           e.preventDefault();
-          // keep the dialog open on success so the live URL is shown
-          await publish();
+          await publish(`${slug}-${randomHash}`);
         }}
       >
         <DialogHeader>
@@ -120,37 +200,22 @@ export const ShareStaticNotebookModal: React.FC<{
             required={true}
             autoComplete="off"
           />
-
-          {publishedUrl && (
-            <div className="font-semibold text-sm text-muted-foreground gap-2 flex flex-col">
-              Your notebook is live at:
-              <div className="flex items-center gap-2">
-                <CopyButton text={publishedUrl} />
-                <a
-                  href={publishedUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-link"
-                >
-                  {publishedUrl}
-                </a>
-              </div>
-            </div>
-          )}
         </div>
         <DialogFooter>
           <Button
             data-testid="cancel-share-static-notebook-button"
             variant="secondary"
-            onClick={onClose}
+            type="button"
+            onClick={() => (share ? setCreatingNew(false) : onClose())}
           >
-            {publishedUrl ? "Close" : "Cancel"}
+            {share ? "Back" : "Cancel"}
           </Button>
           <Button
             data-testid="share-static-notebook-button"
             aria-label="Publish"
             variant="default"
             type="submit"
+            disabled={busy}
           >
             Publish
           </Button>
