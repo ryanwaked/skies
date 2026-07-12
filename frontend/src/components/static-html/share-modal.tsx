@@ -19,90 +19,88 @@ import { Events } from "@/utils/events";
 import { Input } from "../ui/input";
 import { Tooltip } from "../ui/tooltip";
 
-const BASE_URL = "https://static.marimo.app";
-
+/* Publish a static notebook to the host configured on the marimo server
+   (MARIMO_SHARE_ENDPOINT). The notebook HTML is generated and uploaded by the
+   server, which holds the shared secret — nothing sensitive lives here. The
+   canonical URL is returned by the host, not fabricated client-side. */
 export const ShareStaticNotebookModal: React.FC<{
   onClose: () => void;
 }> = ({ onClose }) => {
   const [slug, setSlug] = useState("");
-  const { exportAsHTML } = useRequestClient();
-  // 4 character random string
+  const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
+  const { publishNotebook } = useRequestClient();
+  // 4 character random string, so re-using a slug still yields a unique path
   const randomHash = useMemo(() => Math.random().toString(36).slice(2, 6), []);
 
   // Globally unique path
   const path = `${slug}-${randomHash}`;
-  const url = `${BASE_URL}/static/${path}`;
+
+  const publish = async () => {
+    const prevToast = toast({
+      title: "Publishing notebook…",
+      description: "Please wait.",
+    });
+
+    try {
+      const { url } = await publishNotebook({
+        path,
+        includeCode: true,
+        files: VirtualFileTracker.INSTANCE.filenames(),
+      });
+      prevToast.dismiss();
+
+      if (url) {
+        await copyToClipboard(url);
+        setPublishedUrl(url);
+      }
+      toast({
+        title: "Notebook published!",
+        description: (
+          <div>
+            {url ? (
+              <>
+                The URL has been copied to your clipboard. You can share it with
+                anyone.
+              </>
+            ) : (
+              <>Your notebook was published.</>
+            )}
+          </div>
+        ),
+      });
+    } catch {
+      prevToast.dismiss();
+      toast({
+        variant: "danger",
+        title: "Error publishing notebook",
+        description: (
+          <div>
+            Please try again later. If the problem persists, please file a bug
+            report on{" "}
+            <a href={Constants.issuesPage} target="_blank" className="underline">
+              GitHub
+            </a>
+            .
+          </div>
+        ),
+      });
+    }
+  };
 
   return (
     <DialogContent className="w-fit">
       <form
         onSubmit={async (e) => {
           e.preventDefault();
-
-          onClose();
-          const html = await exportAsHTML({
-            download: false,
-            includeCode: true,
-            files: VirtualFileTracker.INSTANCE.filenames(),
-          });
-
-          const prevToast = toast({
-            title: "Uploading static notebook...",
-            description: "Please wait.",
-          });
-
-          await fetch(`${BASE_URL}/api/static`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              html: html,
-              path: path,
-            }),
-          }).catch(() => {
-            prevToast.dismiss();
-            toast({
-              title: "Error uploading static page",
-              description: (
-                <div>
-                  Please try again later. If the problem persists, please file a
-                  bug report on{" "}
-                  <a
-                    href={Constants.issuesPage}
-                    target="_blank"
-                    className="underline"
-                  >
-                    GitHub
-                  </a>
-                  .
-                </div>
-              ),
-            });
-          });
-
-          prevToast.dismiss();
-          toast({
-            title: "Static page uploaded!",
-            description: (
-              <div>
-                The URL has been copied to your clipboard.
-                <br />
-                You can share it with anyone.
-              </div>
-            ),
-          });
+          // keep the dialog open on success so the live URL is shown
+          await publish();
         }}
       >
         <DialogHeader>
-          <DialogTitle>Share static notebook</DialogTitle>
+          <DialogTitle>Publish notebook</DialogTitle>
           <DialogDescription>
-            You can publish a static, non-interactive version of this notebook
-            to the public web. We will create a link for you that lives on{" "}
-            <a href={BASE_URL} target="_blank">
-              {BASE_URL}
-            </a>
-            .
+            Publish a static, non-interactive version of this notebook to the
+            web. We&apos;ll create a shareable link for you.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-6 py-4">
@@ -123,13 +121,22 @@ export const ShareStaticNotebookModal: React.FC<{
             autoComplete="off"
           />
 
-          <div className="font-semibold text-sm text-muted-foreground gap-2 flex flex-col">
-            Anyone will be able to access your notebook at this URL:
-            <div className="flex items-center gap-2">
-              <CopyButton text={url} />
-              <span className="text-link">{url}</span>
+          {publishedUrl && (
+            <div className="font-semibold text-sm text-muted-foreground gap-2 flex flex-col">
+              Your notebook is live at:
+              <div className="flex items-center gap-2">
+                <CopyButton text={publishedUrl} />
+                <a
+                  href={publishedUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-link"
+                >
+                  {publishedUrl}
+                </a>
+              </div>
             </div>
-          </div>
+          )}
         </div>
         <DialogFooter>
           <Button
@@ -137,18 +144,15 @@ export const ShareStaticNotebookModal: React.FC<{
             variant="secondary"
             onClick={onClose}
           >
-            Cancel
+            {publishedUrl ? "Close" : "Cancel"}
           </Button>
           <Button
             data-testid="share-static-notebook-button"
-            aria-label="Save"
+            aria-label="Publish"
             variant="default"
             type="submit"
-            onClick={async () => {
-              await copyToClipboard(url);
-            }}
           >
-            Create
+            Publish
           </Button>
         </DialogFooter>
       </form>

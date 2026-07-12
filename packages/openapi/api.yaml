@@ -4396,6 +4396,22 @@ components:
       - tableName
       title: PreviewSQLTableRequest
       type: object
+    PublishNotebookRequest:
+      properties:
+        files:
+          items:
+            type: string
+          type: array
+        includeCode:
+          default: true
+          type: boolean
+        path:
+          type: string
+      required:
+      - path
+      - files
+      title: PublishNotebookRequest
+      type: object
     PyreflyLanguageServerConfig:
       description: 'Configuration options for Pyrefly Language Server.
 
@@ -6699,6 +6715,36 @@ paths:
           description: File must be saved before downloading
         500:
           description: Export failed or dependencies missing
+  /api/export/publish:
+    post:
+      parameters:
+      - in: header
+        name: Marimo-Session-Id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublishNotebookRequest'
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  url:
+                    nullable: true
+                    type: string
+                required:
+                - url
+                type: object
+          description: Publish the notebook to the configured host
+        400:
+          description: File must be saved before publishing
+        503:
+          description: Publishing is not configured on the server
   /api/export/script:
     post:
       parameters:

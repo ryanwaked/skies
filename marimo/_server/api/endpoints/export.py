@@ -1,10 +1,13 @@
 # Copyright 2026 Marimo. All rights reserved.
 from __future__ import annotations
 
+import os
+import re
 from typing import TYPE_CHECKING
 
 from starlette.authentication import requires
 from starlette.background import BackgroundTask
+from starlette.concurrency import run_in_threadpool
 from starlette.exceptions import HTTPException
 from starlette.responses import (
     HTMLResponse,
@@ -38,11 +41,18 @@ from marimo._server.models.export import (
     ExportAsMarkdownRequest,
     ExportAsPDFRequest,
     ExportAsScriptRequest,
+    PublishNotebookRequest,
     UpdateCellOutputsRequest,
 )
 from marimo._server.models.models import SuccessResponse
 from marimo._server.router import APIRouter
+from marimo._utils import requests as marimo_requests
 from marimo._utils.http import HTTPStatus
+
+# A publish path is `<slug>-<hash>`: lowercase alphanumerics joined by single
+# hyphens. Mirrors the validation on the hosting side so a bad slug is rejected
+# before we ever call out to the network.
+_PUBLISH_PATH_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 if TYPE_CHECKING:
     from starlette.requests import Request
@@ -136,6 +146,112 @@ async def export_as_html(
         content=html,
         headers=headers,
     )
+
+
+@router.post("/publish")
+@requires("edit")
+async def publish_notebook(
+    *,
+    request: Request,
+) -> JSONResponse:
+    """
+    parameters:
+        - in: header
+          name: Marimo-Session-Id
+          schema:
+            type: string
+          required: true
+    requestBody:
+        content:
+            application/json:
+                schema:
+                    $ref: "#/components/schemas/PublishNotebookRequest"
+    responses:
+        200:
+            description: Publish the notebook to the configured host
+            content:
+                application/json:
+                    schema:
+                        type: object
+        400:
+            description: File must be saved before publishing
+        503:
+            description: Publishing is not configured on the server
+    """
+    # The host endpoint and shared secret live only in the server environment,
+    # never in the (open-source) frontend bundle. The browser calls this local
+    # route; we add the credential and proxy the upload to the host.
+    endpoint = os.environ.get("MARIMO_SHARE_ENDPOINT")
+    token = os.environ.get("MARIMO_SHARE_TOKEN")
+    if not endpoint or not token:
+        raise HTTPException(
+            status_code=HTTPStatus.SERVICE_UNAVAILABLE,
+            detail=(
+                "Publishing is not configured. Set MARIMO_SHARE_ENDPOINT and "
+                "MARIMO_SHARE_TOKEN in the server environment."
+            ),
+        )
+
+    app_state = AppState(request)
+    body = await parse_request(request, cls=PublishNotebookRequest)
+    session = app_state.require_current_session()
+
+    if not _PUBLISH_PATH_RE.match(body.path):
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail="Invalid publish path",
+        )
+
+    # Check if the file is named
+    if not session.app_file_manager.is_notebook_named:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail="File must have a name before publishing",
+        )
+
+    include_code = body.include_code
+    if not app_state.session_manager.should_send_code_to_frontend():
+        include_code = False
+
+    resolved_config = session.config_manager.get_config()
+    html, _filename = Exporter().export_as_html(
+        app=session.app_file_manager.app,
+        filename=session.app_file_manager.filename,
+        session_view=session.session_view,
+        display_config=resolved_config["display"],
+        sharing_config=resolved_config.get("sharing"),
+        request=ExportAsHTMLRequest(
+            download=False,
+            files=body.files,
+            include_code=include_code,
+        ),
+    )
+
+    def _upload() -> marimo_requests.Response:
+        return marimo_requests.post(
+            endpoint,
+            json_data={"html": html, "path": body.path},
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=30,
+        )
+
+    try:
+        response = await run_in_threadpool(_upload)
+        response.raise_for_status()
+    except Exception as e:
+        LOGGER.error("Failed to publish notebook: %s", e)
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_GATEWAY,
+            detail="Failed to publish notebook to the host.",
+        ) from e
+
+    try:
+        data = response.json()
+        url = data.get("url") if isinstance(data, dict) else None
+    except Exception:
+        url = None
+
+    return JSONResponse({"url": url})
 
 
 @router.post("/auto_export/html")

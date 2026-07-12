@@ -992,6 +992,63 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/export/publish": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header: {
+          "Marimo-Session-Id": string;
+        };
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["PublishNotebookRequest"];
+        };
+      };
+      responses: {
+        /** @description Publish the notebook to the configured host */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": {
+              url: string | null;
+            };
+          };
+        };
+        /** @description File must be saved before publishing */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Publishing is not configured on the server */
+        503: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/export/script": {
     parameters: {
       query?: never;
@@ -6188,6 +6245,13 @@ export interface components {
       /** @default [] */
       schemaPath?: string[];
       tableName: string;
+    };
+    /** PublishNotebookRequest */
+    PublishNotebookRequest: {
+      files: string[];
+      /** @default true */
+      includeCode?: boolean;
+      path: string;
     };
     /**
      * PyreflyLanguageServerConfig

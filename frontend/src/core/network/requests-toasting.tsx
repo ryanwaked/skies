@@ -66,6 +66,7 @@ export function createErrorToastingRequests(
     exportAsIPYNB: "Failed to export ipynb",
     exportAsMarkdown: "Failed to export Markdown",
     exportAsPDF: "Failed to export PDF",
+    publishNotebook: "Failed to publish notebook",
     autoExportAsHTML: "", // No toast
     autoExportAsMarkdown: "", // No toast
     autoExportAsIPYNB: "", // No toast

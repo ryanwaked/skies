@@ -479,6 +479,14 @@ export function createNetworkRequests(): EditRequests & RunRequests {
         })
         .then(handleResponse);
     },
+    publishNotebook: async (request) => {
+      return getClient()
+        .POST("/api/export/publish", {
+          body: request,
+          params: getParams(),
+        })
+        .then(handleResponse);
+    },
     autoExportAsHTML: async (request) => {
       return getClient()
         .POST("/api/export/auto_export/html", {

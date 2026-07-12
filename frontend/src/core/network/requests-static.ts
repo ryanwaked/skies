@@ -85,6 +85,7 @@ export function createStaticRequests(): EditRequests & RunRequests {
     exportAsIPYNB: throwNotInEditMode,
     exportAsMarkdown: throwNotInEditMode,
     exportAsPDF: throwNotInEditMode,
+    publishNotebook: throwNotInEditMode,
     autoExportAsHTML: throwNotInEditMode,
     autoExportAsMarkdown: throwNotInEditMode,
     autoExportAsIPYNB: throwNotInEditMode,

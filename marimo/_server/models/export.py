@@ -16,6 +16,13 @@ class ExportAsHTMLRequest(msgspec.Struct, rename="camel"):
     asset_url: str | None = None
 
 
+class PublishNotebookRequest(msgspec.Struct, rename="camel"):
+    # url-safe path the notebook will be published at (`<slug>-<hash>`)
+    path: str
+    files: list[str]
+    include_code: bool = True
+
+
 class ExportAsScriptRequest(msgspec.Struct, rename="camel"):
     download: bool
 

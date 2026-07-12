@@ -22,6 +22,7 @@ export type ExportAsMarkdownRequest = schemas["ExportAsMarkdownRequest"];
 export type ExportAsIPYNBRequest = schemas["ExportAsIPYNBRequest"];
 export type ExportAsScriptRequest = schemas["ExportAsScriptRequest"];
 export type ExportAsPDFRequest = schemas["ExportAsPDFRequest"];
+export type PublishNotebookRequest = schemas["PublishNotebookRequest"];
 export type UpdateCellOutputsRequest = schemas["UpdateCellOutputsRequest"];
 export type FileCopyRequest = schemas["FileCopyRequest"];
 export type FileCopyResponse = schemas["FileCopyResponse"];
@@ -254,6 +255,9 @@ export interface EditRequests {
   exportAsIPYNB: (request: ExportAsIPYNBRequest) => Promise<string>;
   exportAsMarkdown: (request: ExportAsMarkdownRequest) => Promise<string>;
   exportAsPDF: (request: ExportAsPDFRequest) => Promise<Blob>;
+  publishNotebook: (
+    request: PublishNotebookRequest,
+  ) => Promise<{ url: string | null }>;
   autoExportAsHTML: (request: ExportAsHTMLRequest) => Promise<null>;
   autoExportAsMarkdown: (request: ExportAsMarkdownRequest) => Promise<null>;
   autoExportAsIPYNB: (request: ExportAsIPYNBRequest) => Promise<null>;

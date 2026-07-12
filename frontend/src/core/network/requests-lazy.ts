@@ -52,6 +52,7 @@ const ACTIONS: Record<keyof AllRequests, Action> = {
   exportAsIPYNB: "startConnection",
   exportAsMarkdown: "startConnection",
   exportAsPDF: "startConnection",
+  publishNotebook: "startConnection",
   readCode: "startConnection",
   sendCopy: "throwError",
 
