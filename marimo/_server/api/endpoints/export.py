@@ -213,6 +213,12 @@ async def publish_notebook(
     if not app_state.session_manager.should_send_code_to_frontend():
         include_code = False
 
+    # Point the export at the host serving this fork's frontend build. Without
+    # it, the export references the upstream CDN, whose asset hashes don't match
+    # a fork build, and the published notebook renders blank. Falls back to the
+    # default (upstream CDN) when unset.
+    asset_url = os.environ.get("MARIMO_SHARE_ASSET_URL")
+
     resolved_config = session.config_manager.get_config()
     html, _filename = Exporter().export_as_html(
         app=session.app_file_manager.app,
@@ -224,6 +230,7 @@ async def publish_notebook(
             download=False,
             files=body.files,
             include_code=include_code,
+            asset_url=asset_url,
         ),
     )
 
