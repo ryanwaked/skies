@@ -19,10 +19,16 @@ from marimo._session.managers.ipc import (
 )
 from marimo._session.managers.kernel import KernelManagerImpl
 from marimo._session.managers.queue import QueueManagerImpl
+from marimo._session.managers.ssh import (
+    RemoteComputeTarget,
+    SSHKernelManagerImpl,
+)
 
 __all__ = [
     "IPCKernelManagerImpl",
     "IPCQueueManagerImpl",
     "KernelManagerImpl",
     "QueueManagerImpl",
+    "RemoteComputeTarget",
+    "SSHKernelManagerImpl",
 ]

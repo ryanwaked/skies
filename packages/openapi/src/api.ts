@@ -3195,6 +3195,87 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/remote_compute/set_target": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header: {
+          "Marimo-Session-Id": string;
+        };
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["SetRemoteComputeTargetRequest"];
+        };
+      };
+      responses: {
+        /** @description Set (or clear) the remote-compute target this notebook's kernel should run on, restarting its session so the change takes effect.
+         *      */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SetRemoteComputeTargetResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/remote_compute/verify_target": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["VerifyRemoteComputeTargetRequest"];
+        };
+      };
+      responses: {
+        /** @description Check that an SSH destination is reachable */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["VerifyRemoteComputeTargetResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/secrets/create": {
     parameters: {
       query?: never;
@@ -5786,6 +5867,7 @@ export interface components {
       lint?: components["schemas"]["LintConfig"];
       mcp?: components["schemas"]["MCPConfig"];
       package_management: components["schemas"]["PackageManagementConfig"];
+      remote_compute?: components["schemas"]["RemoteComputeConfig"];
       runtime: components["schemas"]["RuntimeConfig"];
       save: components["schemas"]["SaveConfig"];
       server: components["schemas"]["ServerConfig"];
@@ -6361,6 +6443,42 @@ export interface components {
       /** @enum {unknown} */
       op: "reload";
     };
+    /**
+     * RemoteComputeConfig
+     * @description Configuration for running notebook kernels on remote machines over SSH.
+     *
+     *     **Keys.**
+     *
+     *     - `targets`: the list of configured remote compute targets.
+     */
+    RemoteComputeConfig: {
+      targets?: components["schemas"]["RemoteComputeTargetConfig"][];
+    };
+    /**
+     * RemoteComputeTargetConfig
+     * @description A named remote machine that a notebook's kernel can run on over SSH.
+     *
+     *     **Keys.**
+     *
+     *     - `name`: a display name for this target, unique among the user's
+     *       configured targets.
+     *     - `ssh_destination`: an SSH destination string (e.g. `user@host`, or a
+     *       `Host` alias from `~/.ssh/config`). marimo shells out to the system
+     *       `ssh`/`scp` binaries, so all of ssh's own config (keys, agent
+     *       forwarding, `ProxyJump`, 2FA) is respected automatically.
+     *     - `remote_python`: path to (or name of) the Python interpreter to use
+     *       on the remote host. It must already have marimo and its IPC
+     *       dependencies (`pyzmq`) installed.
+     *     - `remote_workdir`: directory on the remote host to copy the notebook
+     *       into and run it from. Defaults to a per-notebook directory under
+     *       `~/.marimo/remote_compute` on the remote host.
+     */
+    RemoteComputeTargetConfig: {
+      name?: string;
+      remote_python?: string;
+      remote_workdir?: string;
+      ssh_destination?: string;
+    };
     /** RemovePackageRequest */
     RemovePackageRequest: {
       /** @default null */
@@ -6735,6 +6853,17 @@ export interface components {
       name: string;
       /** @enum {unknown} */
       type: "set-name";
+    };
+    /** SetRemoteComputeTargetRequest */
+    SetRemoteComputeTargetRequest: {
+      /** @default null */
+      targetName?: string | null;
+    };
+    /** SetRemoteComputeTargetResponse */
+    SetRemoteComputeTargetResponse: {
+      /** @default null */
+      message?: string | null;
+      success: boolean;
     };
     /** SetupRootError */
     SetupRootError: {
@@ -7388,6 +7517,16 @@ export interface components {
     VenvConfig: {
       path?: string;
       writable?: boolean;
+    };
+    /** VerifyRemoteComputeTargetRequest */
+    VerifyRemoteComputeTargetRequest: {
+      sshDestination: string;
+    };
+    /** VerifyRemoteComputeTargetResponse */
+    VerifyRemoteComputeTargetResponse: {
+      /** @default null */
+      message?: string | null;
+      success: boolean;
     };
     /**
      * VersionControlConfig

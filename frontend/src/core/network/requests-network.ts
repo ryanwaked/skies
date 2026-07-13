@@ -402,6 +402,21 @@ export function createNetworkRequests(): EditRequests & RunRequests {
         })
         .then(handleResponse);
     },
+    verifyRemoteComputeTarget: async (request) => {
+      return getClient()
+        .POST("/api/remote_compute/verify_target", {
+          body: request,
+        })
+        .then(handleResponse);
+    },
+    setRemoteComputeTarget: async (request) => {
+      await waitForConnectionOpen();
+      return getClient()
+        .POST("/api/remote_compute/set_target", {
+          body: request,
+        })
+        .then(handleResponse);
+    },
     openTutorial: (request) => {
       return getClient()
         .POST("/api/home/tutorial/open", {

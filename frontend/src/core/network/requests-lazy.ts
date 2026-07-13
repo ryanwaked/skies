@@ -107,6 +107,11 @@ const ACTIONS: Record<keyof AllRequests, Action> = {
   verifyGitProvider: "throwError",
   sendGitCreateRemote: "waitForConnectionOpen",
 
+  // Remote compute (SSH): verifying a destination is app-level, like
+  // verifyGitProvider; setting a notebook's target needs its session.
+  verifyRemoteComputeTarget: "throwError",
+  setRemoteComputeTarget: "waitForConnectionOpen",
+
   // Home operations throw errors
   getRecentFiles: "startConnection",
   getWorkspaceFiles: "startConnection",

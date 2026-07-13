@@ -135,6 +135,31 @@ def classify_kernel_exit(exitcode: int | None) -> KernelExitInfo:
     )
 
 
+def classify_ssh_kernel_exit(
+    exitcode: int | None, target_name: str
+) -> KernelExitInfo:
+    """Like `classify_kernel_exit`, but for remote-compute (SSH) kernels.
+
+    `exitcode` here is the *local* `ssh` client's exit code, not the remote
+    kernel process's. OpenSSH exits 255 for its own connection-level
+    failures (unreachable host, dropped connection, refused port
+    forwarding) -- special-case it so a lost SSH connection doesn't read as
+    a kernel crash. Any other exitcode falls back to the generic
+    classifier, since it did come from a real process exit.
+    """
+    if exitcode == 255:
+        return KernelExitInfo(
+            exitcode=exitcode,
+            cause="ssh_connection_lost",
+            message=(
+                f"Lost the SSH connection to '{target_name}'. Check that "
+                f"the host is reachable and that the connection wasn't "
+                f"dropped. {_RESTART_HINT}"
+            ),
+        )
+    return classify_kernel_exit(exitcode)
+
+
 def _was_oom_killed() -> bool:
     failcnt = _read_int(_CGROUP_V1_FAILCNT)
     if failcnt is not None:
