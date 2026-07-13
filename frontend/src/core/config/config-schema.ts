@@ -276,10 +276,8 @@ export type AiConfig = UserConfig["ai"];
 export type VersionControlConfig = UserConfig["version_control"];
 export type RemoteComputeConfig = UserConfig["remote_compute"];
 export type RemoteComputeTargetConfig = NonNullable<
-  RemoteComputeConfig
->["targets"] extends (infer T)[] | undefined
-  ? T
-  : never;
+  NonNullable<RemoteComputeConfig>["targets"]
+>[number];
 
 export const AppTitleSchema = z.string();
 export const SqlOutputSchema = z

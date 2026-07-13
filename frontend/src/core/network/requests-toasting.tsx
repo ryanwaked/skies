@@ -82,6 +82,14 @@ export function createErrorToastingRequests(
     getCacheInfo: "", // No toast
     listStorageEntries: "Failed to list storage entries",
     downloadStorage: "Failed to download storage entry",
+    getGitLog: "Failed to load version history",
+    getGitShow: "Failed to load version diff",
+    sendGitCommit: "Failed to save version",
+    sendGitRestore: "Failed to restore version",
+    verifyGitProvider: "", // No toast — surfaced inline in settings
+    sendGitCreateRemote: "Failed to create remote repository",
+    verifyRemoteComputeTarget: "", // No toast — surfaced inline in settings
+    setRemoteComputeTarget: "", // No toast — surfaced inline via the menu
   };
 
   const handlers = {} as EditRequests & RunRequests;

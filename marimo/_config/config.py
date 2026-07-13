@@ -9,9 +9,9 @@ from marimo._config.packages import infer_package_manager
 from marimo._config.utils import deep_copy
 
 if sys.version_info < (3, 11):
-    from typing_extensions import NotRequired
+    from typing_extensions import NotRequired, Required
 else:
-    from typing import NotRequired
+    from typing import NotRequired, Required
 
 from typing import (
     TYPE_CHECKING,
@@ -482,9 +482,9 @@ class RemoteComputeTargetConfig(TypedDict, total=False):
       `~/.marimo/remote_compute` on the remote host.
     """
 
-    name: str
-    ssh_destination: str
-    remote_python: str
+    name: Required[str]
+    ssh_destination: Required[str]
+    remote_python: Required[str]
     remote_workdir: NotRequired[str]
 
 

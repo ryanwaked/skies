@@ -6474,10 +6474,10 @@ export interface components {
      *       `~/.marimo/remote_compute` on the remote host.
      */
     RemoteComputeTargetConfig: {
-      name?: string;
-      remote_python?: string;
+      name: string;
+      remote_python: string;
       remote_workdir?: string;
-      ssh_destination?: string;
+      ssh_destination: string;
     };
     /** RemovePackageRequest */
     RemovePackageRequest: {

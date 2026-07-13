@@ -66,6 +66,7 @@ import {
   useConfigOverride,
 } from "./is-overridden";
 import { OptionalFeatures } from "./optional-features";
+import { RemoteComputeConfig } from "./remote-compute-config";
 import { VersionControlConfig } from "./version-control-config";
 
 const categories = [
@@ -1104,6 +1105,7 @@ export const UserConfigForm: React.FC = () => {
         );
       case "runtime":
         return (
+          <>
           <SettingGroup title="Runtime configuration">
             <OverriddenFormField
               control={form.control}
@@ -1244,6 +1246,8 @@ export const UserConfigForm: React.FC = () => {
               .
             </FormDescription>
           </SettingGroup>
+          <RemoteComputeConfig form={form} config={config} onSubmit={onSubmit} />
+          </>
         );
       case "versionControl":
         return (

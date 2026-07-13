@@ -4605,7 +4605,10 @@ components:
           type: string
         ssh_destination:
           type: string
-      required: []
+      required:
+      - name
+      - remote_python
+      - ssh_destination
       title: RemoteComputeTargetConfig
       type: object
     RemovePackageRequest:

@@ -362,7 +362,9 @@ export function createNetworkRequests(): EditRequests & RunRequests {
     getGitLog: async () => {
       await waitForConnectionOpen();
       return getClient()
-        .POST("/api/git_history/log", {})
+        .POST("/api/git_history/log", {
+          params: getParams(),
+        })
         .then(handleResponse);
     },
     getGitShow: async (request) => {
@@ -370,6 +372,7 @@ export function createNetworkRequests(): EditRequests & RunRequests {
       return getClient()
         .POST("/api/git_history/show", {
           body: request,
+          params: getParams(),
         })
         .then(handleResponse);
     },
@@ -378,6 +381,7 @@ export function createNetworkRequests(): EditRequests & RunRequests {
       return getClient()
         .POST("/api/git_history/commit", {
           body: request,
+          params: getParams(),
         })
         .then(handleResponse);
     },
@@ -386,6 +390,7 @@ export function createNetworkRequests(): EditRequests & RunRequests {
       return getClient()
         .POST("/api/git_history/restore", {
           body: request,
+          params: getParams(),
         })
         .then(handleResponse);
     },
@@ -399,6 +404,7 @@ export function createNetworkRequests(): EditRequests & RunRequests {
       return getClient()
         .POST("/api/git_history/create_remote", {
           body: request,
+          params: getParams(),
         })
         .then(handleResponse);
     },
@@ -414,6 +420,7 @@ export function createNetworkRequests(): EditRequests & RunRequests {
       return getClient()
         .POST("/api/remote_compute/set_target", {
           body: request,
+          params: getParams(),
         })
         .then(handleResponse);
     },

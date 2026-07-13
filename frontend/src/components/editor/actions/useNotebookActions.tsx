@@ -34,6 +34,7 @@ import {
   PanelLeftIcon,
   PowerSquareIcon,
   PresentationIcon,
+  ServerIcon,
   SettingsIcon,
   Share2Icon,
   Undo2Icon,
@@ -69,6 +70,7 @@ import {
 import { useLayoutActions, useLayoutState } from "@/core/layout/layout";
 import { useTogglePresenting } from "@/core/layout/useTogglePresenting";
 import { kioskModeAtom, viewStateAtom } from "@/core/mode";
+import { remoteComputeTargetAtom } from "@/core/network/remote-compute-state";
 import { useRequestClient } from "@/core/network/requests";
 import { useFilename } from "@/core/saving/filename";
 import { downloadAsHTML } from "@/core/static/download-html";
@@ -138,9 +140,39 @@ export function useNotebookActions() {
     exportAsMarkdown,
     readCode,
     saveCellConfig,
+    setRemoteComputeTarget,
     updateCellOutputs,
   } = useRequestClient();
   const takeScreenshots = useEnrichCellOutputs();
+
+  const remoteComputeTargets = resolvedConfig.remote_compute?.targets ?? [];
+  const [remoteComputeTarget, setRemoteComputeTargetState] = useAtom(
+    remoteComputeTargetAtom,
+  );
+
+  const selectRemoteComputeTarget = async (targetName: string | null) => {
+    if (targetName === remoteComputeTarget) {
+      return;
+    }
+    const previous = remoteComputeTarget;
+    // Optimistically reflect the choice; roll back if the server rejects it.
+    setRemoteComputeTargetState(targetName);
+    const result = await setRemoteComputeTarget({ targetName });
+    if (!result.success) {
+      setRemoteComputeTargetState(previous);
+      toast({
+        title: "Couldn't switch where this notebook runs",
+        description: result.message ?? "Please try again.",
+        variant: "danger",
+      });
+      return;
+    }
+    toast({
+      title:
+        targetName === null ? "Running locally" : `Running on ${targetName}`,
+      description: "Restarting the kernel to apply the change.",
+    });
+  };
 
   const hasDisabledCells = useAtomValue(hasDisabledCellsAtom);
   const canUndoDeletes = useAtomValue(canUndoDeletesAtom);
@@ -543,6 +575,31 @@ export function useNotebookActions() {
       handle: () => {
         undoDeleteCell();
       },
+    },
+    {
+      divider: true,
+      icon: <ServerIcon size={14} strokeWidth={1.5} />,
+      label: "Run on",
+      handle: NOOP_HANDLER,
+      // Only surface the selector once at least one target is configured.
+      hidden: isWasm() || !filename || remoteComputeTargets.length === 0,
+      dropdown: [
+        {
+          icon: <HardDrive size={14} strokeWidth={1.5} />,
+          label: "This machine (local)",
+          rightElement: renderCheckboxElement(remoteComputeTarget === null),
+          handle: () => selectRemoteComputeTarget(null),
+        },
+        ...remoteComputeTargets.map((target, idx) => ({
+          divider: idx === 0,
+          icon: <ServerIcon size={14} strokeWidth={1.5} />,
+          label: target.name,
+          rightElement: renderCheckboxElement(
+            remoteComputeTarget === target.name,
+          ),
+          handle: () => selectRemoteComputeTarget(target.name),
+        })),
+      ],
     },
     {
       icon: <PowerSquareIcon size={14} strokeWidth={1.5} />,
