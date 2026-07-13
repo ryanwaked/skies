@@ -236,6 +236,8 @@ async def publish_notebook(
             include_code=include_code,
             asset_url=asset_url,
         ),
+        # shared notebooks read best full-width
+        width="full",
     )
 
     # Hide the "Static notebook — run or edit" banner for hosted shares: it's a

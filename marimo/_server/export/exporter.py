@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import dataclasses
 import mimetypes
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -16,6 +17,7 @@ from marimo._config.config import (
     DisplayConfig,
     MarimoConfig,
     SharingConfig,
+    WidthType,
 )
 from marimo._config.settings import GLOBAL_SETTINGS
 from marimo._config.utils import deep_copy
@@ -104,9 +106,16 @@ class Exporter:
         display_config: DisplayConfig,
         request: ExportAsHTMLRequest,
         sharing_config: SharingConfig | None = None,
+        width: WidthType | None = None,
     ) -> tuple[str, str]:
         index_html = get_html_contents()
         filename = get_filename(filename)
+
+        # Optionally override the notebook's layout width for this export (e.g.
+        # published shares default to full-width) without mutating the session.
+        app_config = (
+            dataclasses.replace(app.config, width=width) if width else app.config
+        )
 
         # Configure notebook with display and sharing settings
         config = self._prepare_display_config(display_config, sharing_config)
@@ -152,7 +161,7 @@ class Exporter:
             user_config=config,
             config_overrides={},
             server_token=SkewProtectionToken("static"),
-            app_config=app.config,
+            app_config=app_config,
             filepath=filename,
             code=code,
             code_hash=code_hash,
