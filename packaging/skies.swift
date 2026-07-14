@@ -45,7 +45,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     menu.addItem(makeItem("Quit Skies", #selector(quitApp), "q"))
     statusItem.menu = menu
 
-    startServer(openWhenReady: true)
+    runUpdate { self.startServer(openWhenReady: true) }
+  }
+
+  /// Pull any new version of `main` and rebuild the frontend if needed, then
+  /// continue. Delegated to `scripts/skies-update.sh`, which is a fast no-op
+  /// when already up to date and never blocks startup on failure. Runs off the
+  /// main thread; `done` is always called back on the main thread.
+  private func runUpdate(_ done: @escaping () -> Void) {
+    setStatus("Checking for updates…")
+    DispatchQueue.global().async {
+      let script = "\(REPO)/scripts/skies-update.sh"
+      if FileManager.default.fileExists(atPath: script) {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/bin/sh")
+        p.arguments = [script]
+        p.currentDirectoryURL = URL(fileURLWithPath: REPO)
+        p.standardOutput = FileHandle.nullDevice
+        p.standardError = FileHandle.nullDevice
+        try? p.run()
+        p.waitUntilExit()
+      }
+      DispatchQueue.main.async { done() }
+    }
   }
 
   private func makeItem(_ title: String, _ sel: Selector, _ key: String) -> NSMenuItem {
@@ -151,7 +173,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
   @objc func restartServer() {
     setStatus("Restarting…")
-    stopServer { self.startServer(openWhenReady: false) }
+    stopServer { self.runUpdate { self.startServer(openWhenReady: false) } }
   }
 
   @objc func quitApp() {
