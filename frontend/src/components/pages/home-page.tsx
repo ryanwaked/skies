@@ -407,6 +407,10 @@ const ImportNotebookButton: React.FC = () => {
       return;
     }
     setBusy(true);
+    // Open the destination tab synchronously, inside the click gesture, so the
+    // browser doesn't block it as a popup after the async upload resolves. We
+    // point it at the notebook once we know its path (or close it on failure).
+    const pending = window.open("", "_blank");
     try {
       const res = await sendCreateFileOrFolder({
         path: "",
@@ -419,8 +423,17 @@ const ImportNotebookButton: React.FC = () => {
         // Re-query the workspace so the imported notebook appears in the list
         // (the list is otherwise only fetched once on mount).
         refreshWorkspace();
-        openNotebook(res.info.path);
+        const url = asURL(
+          `?file=${encodeURIComponent(res.info.path)}`,
+        ).toString();
+        if (pending && !pending.closed) {
+          pending.location.href = url;
+        } else {
+          // Popup was blocked; fall back (still imported and shown in the list).
+          openNotebook(res.info.path);
+        }
       } else {
+        pending?.close();
         toast({
           variant: "danger",
           title: "Import failed",
@@ -428,6 +441,7 @@ const ImportNotebookButton: React.FC = () => {
         });
       }
     } catch (error) {
+      pending?.close();
       toast({
         variant: "danger",
         title: "Import failed",
@@ -444,7 +458,7 @@ const ImportNotebookButton: React.FC = () => {
         type="button"
         disabled={busy}
         onClick={() => inputRef.current?.click()}
-        className="mt-2 flex h-8 w-full items-center justify-center gap-2 rounded-[var(--radius)] text-[12px] font-medium text-[var(--foreground-dim)] transition-colors hover:bg-[var(--hover-wash)] hover:text-foreground disabled:opacity-50"
+        className="mt-2 flex h-9 w-full items-center justify-start gap-2 rounded-[var(--radius)] border border-[var(--input)] bg-[var(--secondary)] px-[15px] font-[var(--monospace-font)] text-[12.5px] text-[var(--foreground-dim)] transition-colors hover:border-[var(--foreground-dim)] hover:text-foreground disabled:opacity-50"
       >
         <UploadIcon size={14} strokeWidth={1.8} />
         Import notebook
@@ -497,7 +511,7 @@ const HomeSidebar: React.FC<{
 
       <div className="px-3">
         <a
-          className="skies-cta h-9 w-full justify-center"
+          className="skies-cta skies-ticks relative h-9 w-full justify-start"
           href={newNotebookURL().toString()}
           target="_blank"
           rel="noreferrer"

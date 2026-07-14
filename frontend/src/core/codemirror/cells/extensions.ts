@@ -389,6 +389,11 @@ function shouldAutorunMarkdownUpdate({
   });
 }
 
+// Markdown cells re-render by re-running in the kernel. Debounce that so a
+// burst of typing settles into a single run once the user pauses, instead of
+// firing a run on every keystroke (distracting flicker + wasted kernel work).
+const MARKDOWN_AUTORUN_DEBOUNCE_MS = 300;
+
 /**
  * Extension for auto-running markdown cells
  */
@@ -397,6 +402,7 @@ export function markdownAutoRunExtension({
 }: {
   predicate: () => boolean;
 }): Extension {
+  let timer: ReturnType<typeof setTimeout> | undefined;
   return EditorView.updateListener.of((update) => {
     if (
       !shouldAutorunMarkdownUpdate({
@@ -408,8 +414,14 @@ export function markdownAutoRunExtension({
     ) {
       return;
     }
-    const actions = update.view.state.facet(cellActionsState);
-    actions.onRun();
+    const { view } = update;
+    if (timer !== undefined) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      timer = undefined;
+      view.state.facet(cellActionsState).onRun();
+    }, MARKDOWN_AUTORUN_DEBOUNCE_MS);
   });
 }
 
