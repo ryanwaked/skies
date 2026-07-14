@@ -36,6 +36,7 @@ import {
   collectionsAtom,
   deleteCollection,
   type NotebookCollection,
+  removePathFromCollections,
   renameCollection,
 } from "@/core/home/collections";
 import { isSessionId } from "@/core/kernel/session";
@@ -341,11 +342,26 @@ const Workspace: React.FC<{
   );
   const recentCards = useMemo(() => recents.map(marimoFileToCard), [recents]);
 
+  // Paths of notebooks that still exist on disk. Collections store paths in
+  // localStorage and are never reconciled against the filesystem, so their
+  // badge counts must be derived against this set rather than the raw stored
+  // length — otherwise deleted notebooks keep inflating the count.
+  const existingPaths = useMemo(
+    () =>
+      new Set(
+        workspaceCards
+          .map((c) => c.fileInfo?.path)
+          .filter((p): p is string => p != null),
+      ),
+    [workspaceCards],
+  );
+
   return (
     <WorkspaceContext value={workspaceContextValue}>
       <HomeSidebar
         filter={filter}
         setFilter={setFilter}
+        existingPaths={existingPaths}
         counts={{
           all: workspaceCards.length,
           recent: recentCards.length,
@@ -382,6 +398,7 @@ const Workspace: React.FC<{
  */
 const ImportNotebookButton: React.FC = () => {
   const { sendCreateFileOrFolder } = useRequestClient();
+  const { refreshWorkspace } = use(WorkspaceContext);
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
 
@@ -399,6 +416,9 @@ const ImportNotebookButton: React.FC = () => {
       });
       if (res.success && res.info) {
         toast({ description: `Imported "${file.name}"` });
+        // Re-query the workspace so the imported notebook appears in the list
+        // (the list is otherwise only fetched once on mount).
+        refreshWorkspace();
         openNotebook(res.info.path);
       } else {
         toast({
@@ -447,8 +467,9 @@ const ImportNotebookButton: React.FC = () => {
 const HomeSidebar: React.FC<{
   filter: HomeFilter;
   setFilter: (f: HomeFilter) => void;
+  existingPaths: Set<string>;
   counts: { all: number; recent: number; running: number };
-}> = ({ filter, setFilter, counts }) => {
+}> = ({ filter, setFilter, existingPaths, counts }) => {
   const [{ collections }, setCollections] = useAtom(collectionsAtom);
   // Which collection is being renamed, tracked by identity (not by name) so a
   // freshly-created collection opens in edit mode without every other
@@ -540,6 +561,7 @@ const HomeSidebar: React.FC<{
           <CollectionRow
             key={collection.id}
             collection={collection}
+            existingPaths={existingPaths}
             active={
               filter.kind === "collection" && filter.id === collection.id
             }
@@ -609,6 +631,7 @@ const NavRow: React.FC<{
 
 const CollectionRow: React.FC<{
   collection: NotebookCollection;
+  existingPaths: Set<string>;
   active: boolean;
   isEditing: boolean;
   onStartEditing: () => void;
@@ -618,6 +641,7 @@ const CollectionRow: React.FC<{
   onDelete: () => void;
 }> = ({
   collection,
+  existingPaths,
   active,
   isEditing,
   onStartEditing,
@@ -627,6 +651,11 @@ const CollectionRow: React.FC<{
   onDelete,
 }) => {
   const [draft, setDraft] = useState(collection.name);
+  // Count only notebooks that still exist on disk, matching the main pane
+  // which filters the collection against the live workspace.
+  const count = collection.filePaths.filter((p) =>
+    existingPaths.has(p),
+  ).length;
 
   if (isEditing) {
     return (
@@ -668,7 +697,7 @@ const CollectionRow: React.FC<{
         <FolderIcon size={15} strokeWidth={1.5} className="shrink-0" />
         <span className="flex-1 truncate">{collection.name}</span>
         <span className="font-mono text-[11px] text-[var(--foreground-dim)]">
-          {collection.filePaths.length}
+          {count}
         </span>
       </button>
       <DropdownMenu>
@@ -1443,6 +1472,7 @@ const CardMenu: React.FC<{
   onCover: boolean;
 }> = ({ item, isPinned, onCover }) => {
   const setPinned = useSetAtom(pinnedNotebooksAtom);
+  const setCollections = useSetAtom(collectionsAtom);
   const { root, refreshWorkspace } = use(WorkspaceContext);
   const { duplicateFile, deleteFile } = useFileOperations({ root });
   const confirmDelete = useConfirmDeleteFile();
@@ -1500,7 +1530,14 @@ const CardMenu: React.FC<{
               onSelect={() =>
                 confirmDelete(fileInfo, async () => {
                   const ok = await deleteFile(fileInfo);
-                  if (ok) {refreshWorkspace();}
+                  if (ok) {
+                    // Drop the deleted notebook from any collection so its
+                    // stored membership doesn't go stale.
+                    setCollections((s) =>
+                      removePathFromCollections(s, fileInfo.path),
+                    );
+                    refreshWorkspace();
+                  }
                 })
               }
             >

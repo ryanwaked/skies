@@ -1,6 +1,7 @@
 # Copyright 2026 Marimo. All rights reserved.
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING
 
 from starlette.authentication import requires
@@ -48,6 +49,23 @@ LOGGER = _loggers.marimo_logger()
 router = APIRouter()
 
 file_system = OSFileSystem()
+
+
+def _resolve_in_workspace(app_state: AppState, path: str) -> str:
+    """Resolve a workspace-relative path against the workspace directory.
+
+    The directory scanner reports paths relative to the workspace root, but
+    the filesystem operations below act relative to the server's cwd. When the
+    two differ — e.g. `marimo edit` with no path opens the configured default
+    directory rather than cwd — a bare relative path would resolve to the wrong
+    place (a failed delete/move, or a file created where the home page never
+    looks). Joining with the workspace directory fixes that; `os.path.join`
+    leaves already-absolute paths (single-file mode) untouched.
+    """
+    directory = app_state.session_manager.workspace.directory
+    if directory and path:
+        return os.path.join(directory, path)
+    return path
 
 
 @router.post("/list_files")
@@ -123,20 +141,32 @@ async def create_file_or_directory(
                     schema:
                         $ref: "#/components/schemas/FileCreateResponse"
     """
+    app_state = AppState(request)
     try:
         async with parse_multipart_request(
             request, FileCreateMultipartRequest
         ) as parsed:
             upload = parsed.files.get("file")
+            # An empty path means "the workspace root" — e.g. importing a
+            # notebook from the home page. Resolve it to the directory the
+            # home page actually scans (mirroring `list_files`), otherwise
+            # the file lands in the server's cwd and never appears in the
+            # listing when those differ (`marimo edit` with no path opens the
+            # configured default directory, not cwd).
+            if parsed.body.path:
+                path = _resolve_in_workspace(app_state, parsed.body.path)
+            else:
+                directory = app_state.session_manager.workspace.directory
+                path = directory or file_system.get_root()
             # Directories and the default-template notebook take the
             # in-memory path; only real file content streams.
             if upload is not None and parsed.body.type in ("file", "notebook"):
                 info = await file_system.stream_create_file(
-                    parsed.body.path, parsed.body.name, upload
+                    path, parsed.body.name, upload
                 )
             else:
                 info = file_system.create_file_or_directory(
-                    parsed.body.path, parsed.body.type, parsed.body.name, None
+                    path, parsed.body.type, parsed.body.name, None
                 )
         return FileCreateResponse(success=True, info=info)
     except UploadTooLargeError as e:
@@ -167,11 +197,13 @@ async def delete_file_or_directory(
                     schema:
                         $ref: "#/components/schemas/FileDeleteResponse"
     """
+    app_state = AppState(request)
     body = await parse_request(request, cls=FileDeleteRequest)
+    path = _resolve_in_workspace(app_state, body.path)
     try:
         # TODO: Refactor this side-effect based validation to a dedicated validation.
-        file_system.get_details(body.path)
-        success = file_system.delete_file_or_directory(body.path)
+        file_system.get_details(path)
+        success = file_system.delete_file_or_directory(path)
         return FileDeleteResponse(success=success)
     except Exception as e:
         LOGGER.error(f"Error deleting file or directory: {e}")
@@ -198,11 +230,14 @@ async def copy_file_or_directory(
                     schema:
                         $ref: "#/components/schemas/FileCopyResponse"
     """
+    app_state = AppState(request)
     body = await parse_request(request, cls=FileCopyRequest)
+    path = _resolve_in_workspace(app_state, body.path)
+    new_path = _resolve_in_workspace(app_state, body.new_path)
     try:
         # TODO: Refactor this side-effect based validation to a dedicated validation.
-        file_system.get_details(body.path)
-        info = file_system.copy_file_or_directory(body.path, body.new_path)
+        file_system.get_details(path)
+        info = file_system.copy_file_or_directory(path, new_path)
         return FileCopyResponse(success=True, info=info)
     except Exception as e:
         LOGGER.error(f"Error copying file or directory: {e}")
@@ -229,11 +264,14 @@ async def move_file_or_directory(
                     schema:
                         $ref: "#/components/schemas/FileMoveResponse"
     """
+    app_state = AppState(request)
     body = await parse_request(request, cls=FileMoveRequest)
+    path = _resolve_in_workspace(app_state, body.path)
+    new_path = _resolve_in_workspace(app_state, body.new_path)
     try:
         # TODO: Refactor this side-effect based validation to a dedicated validation.
-        file_system.get_details(body.path)
-        info = file_system.move_file_or_directory(body.path, body.new_path)
+        file_system.get_details(path)
+        info = file_system.move_file_or_directory(path, new_path)
         return FileMoveResponse(success=True, info=info)
     except Exception as e:
         LOGGER.error(f"Error moving file or directory: {e}")
@@ -262,14 +300,15 @@ async def update_file(
     """
     app_state = AppState(request)
     body = await parse_request(request, cls=FileUpdateRequest)
+    path = _resolve_in_workspace(app_state, body.path)
     try:
         # TODO: Refactor this side-effect based validation to a dedicated validation.
-        file_system.get_details(body.path)
-        info = file_system.update_file(body.path, body.contents)
+        file_system.get_details(path)
+        info = file_system.update_file(path, body.contents)
 
         # Handle marimo notebook reload if there's an active session
         session_manager = app_state.session_manager
-        await session_manager.trigger_file_change(body.path)
+        await session_manager.trigger_file_change(path)
 
         return FileUpdateResponse(success=True, info=info)
     except Exception as e:
