@@ -361,9 +361,7 @@ export function createNetworkRequests(): EditRequests & RunRequests {
     },
     getGitLog: async () => {
       await waitForConnectionOpen();
-      return getClient()
-        .POST("/api/git_history/log", {})
-        .then(handleResponse);
+      return getClient().POST("/api/git_history/log", {}).then(handleResponse);
     },
     getGitShow: async (request) => {
       await waitForConnectionOpen();
@@ -388,6 +386,10 @@ export function createNetworkRequests(): EditRequests & RunRequests {
           body: request,
         })
         .then(handleResponse);
+    },
+    sendGitPull: async () => {
+      await waitForConnectionOpen();
+      return getClient().POST("/api/git_history/pull", {}).then(handleResponse);
     },
     verifyGitProvider: async () => {
       return getClient()

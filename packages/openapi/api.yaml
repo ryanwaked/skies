@@ -2402,6 +2402,22 @@ components:
       - commits
       title: GitLogResponse
       type: object
+    GitPullResponse:
+      properties:
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: null
+        newCommits:
+          default: 0
+          type: integer
+        success:
+          type: boolean
+      required:
+      - success
+      title: GitPullResponse
+      type: object
     GitRestoreRequest:
       properties:
         commitHash:
@@ -6972,6 +6988,21 @@ paths:
               schema:
                 $ref: '#/components/schemas/GitLogResponse'
           description: List the notebook's version history, most recent first
+  /api/git_history/pull:
+    post:
+      parameters:
+      - in: header
+        name: Marimo-Session-Id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GitPullResponse'
+          description: Pull versions from the notebook's linked remote
   /api/git_history/restore:
     post:
       parameters:

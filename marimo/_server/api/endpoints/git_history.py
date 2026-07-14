@@ -16,6 +16,7 @@ from marimo._server.models.git_history import (
     GitCreateRemoteRequest,
     GitCreateRemoteResponse,
     GitLogResponse,
+    GitPullResponse,
     GitRestoreRequest,
     GitRestoreResponse,
     GitShowRequest,
@@ -45,7 +46,9 @@ router = APIRouter()
 
 def _record_to_info(record: GitCommitRecord) -> GitCommitInfo:
     return GitCommitInfo(
-        commit_hash=record.commit_hash, date=record.date, message=record.message
+        commit_hash=record.commit_hash,
+        date=record.date,
+        message=record.message,
     )
 
 
@@ -229,7 +232,9 @@ async def git_restore(request: Request) -> GitRestoreResponse:
     try:
         transaction, changed_cell_ids = session.app_file_manager.reload()
     except Exception as e:
-        LOGGER.error("Failed to reload after restoring notebook history: %s", e)
+        LOGGER.error(
+            "Failed to reload after restoring notebook history: %s", e
+        )
         return GitRestoreResponse(
             success=False, message=f"Failed to restore: {e}"
         )
@@ -241,6 +246,48 @@ async def git_restore(request: Request) -> GitRestoreResponse:
         session, transaction=transaction, changed_cell_ids=changed_cell_ids
     )
     return GitRestoreResponse(success=True)
+
+
+@router.post("/pull")
+@requires("edit")
+async def git_pull(request: Request) -> GitPullResponse:
+    """
+    parameters:
+        - in: header
+          name: Marimo-Session-Id
+          schema:
+            type: string
+          required: true
+    responses:
+        200:
+            description: Pull versions from the notebook's linked remote
+            content:
+                application/json:
+                    schema:
+                        $ref: "#/components/schemas/GitPullResponse"
+    """
+    history, error = _history_for_current_session(request)
+    if history is None:
+        return GitPullResponse(success=False, message=error)
+    if not history.is_available:
+        return GitPullResponse(
+            success=False, message="git is not installed on this machine."
+        )
+    if not history.has_remote():
+        return GitPullResponse(
+            success=False,
+            message="No GitHub repo is linked to this notebook yet.",
+        )
+
+    app_state = AppState(request)
+    # Optional: public repos are fetchable without a connected account.
+    token = get_github_token(
+        app_state.config_manager.get_config(hide_secrets=False)
+    )
+    result = history.pull(token)
+    if not result.success:
+        return GitPullResponse(success=False, message=result.error)
+    return GitPullResponse(success=True, new_commits=result.new_commits)
 
 
 @router.post("/verify_provider")

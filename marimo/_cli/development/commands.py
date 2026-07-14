@@ -301,6 +301,7 @@ def _generate_server_api_schema() -> dict[str, Any]:
         git_history.GitShowResponse,
         git_history.GitCommitRequest,
         git_history.GitCommitResponse,
+        git_history.GitPullResponse,
         git_history.GitRestoreRequest,
         git_history.GitRestoreResponse,
         git_history.GitVerifyProviderResponse,

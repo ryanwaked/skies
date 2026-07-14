@@ -1,6 +1,7 @@
 # Copyright 2026 Marimo. All rights reserved.
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -278,6 +279,97 @@ def test_create_remote_and_push(
         client.post("/api/kernel/shutdown", headers=_headers())
 
 
+def test_pull_without_remote_fails(
+    client: TestClient, temp_marimo_file: str
+) -> None:
+    with client.websocket_connect(_ws_url(temp_marimo_file)) as websocket:
+        assert websocket.receive_json()
+        response = client.post(
+            "/api/git_history/pull", headers=_headers(), json={}
+        )
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["success"] is False
+        assert "No GitHub repo is linked" in body["message"]
+        client.post("/api/kernel/shutdown", headers=_headers())
+
+
+def test_pull_from_linked_remote(
+    client: TestClient, temp_marimo_file: str, tmp_path: Path
+) -> None:
+    """End-to-end against a local bare repo standing in for GitHub: link the
+    remote via create_remote (create_repo mocked), then verify /pull reports
+    up-to-date, and picks up a commit pushed to the remote out-of-band."""
+    _save_github_token(client, "fake-pat")
+    remote_dir = str(tmp_path / "remote.git")
+    subprocess.run(["git", "init", "--bare", "-q", remote_dir], check=True)
+
+    fake_repo = GitHubRepo(
+        full_name="octocat/my-notebook",
+        html_url="https://github.com/octocat/my-notebook",
+        clone_url=remote_dir,
+    )
+    with client.websocket_connect(_ws_url(temp_marimo_file)) as websocket:
+        assert websocket.receive_json()
+
+        with patch(
+            "marimo._server.api.endpoints.git_history.GitHubClient.create_repo",
+            new=AsyncMock(return_value=fake_repo),
+        ):
+            response = client.post(
+                "/api/git_history/create_remote",
+                headers=_headers(),
+                json={"name": "my-notebook", "private": True},
+            )
+        assert response.json()["success"] is True
+
+        # Nothing new on the remote yet.
+        pull_response = client.post(
+            "/api/git_history/pull", headers=_headers(), json={}
+        )
+        assert pull_response.status_code == 200, pull_response.text
+        pull_body = pull_response.json()
+        assert pull_body["success"] is True, pull_body
+        assert pull_body["newCommits"] == 0
+
+        # Simulate another machine pushing a new version to the remote.
+        clone_dir = tmp_path / "other-machine"
+        subprocess.run(
+            ["git", "clone", "-q", remote_dir, str(clone_dir)], check=True
+        )
+        tracked = next(p for p in clone_dir.iterdir() if p.name != ".git")
+        tracked.write_text(tracked.read_text() + "\n# from elsewhere\n")
+        subprocess.run(
+            ["git", "commit", "-aqm", "Edit from another machine"],
+            cwd=clone_dir,
+            check=True,
+            env={
+                **os.environ,
+                "GIT_AUTHOR_NAME": "Other",
+                "GIT_AUTHOR_EMAIL": "other@localhost",
+                "GIT_COMMITTER_NAME": "Other",
+                "GIT_COMMITTER_EMAIL": "other@localhost",
+            },
+        )
+        subprocess.run(["git", "push", "-q"], cwd=clone_dir, check=True)
+
+        pull_response = client.post(
+            "/api/git_history/pull", headers=_headers(), json={}
+        )
+        pull_body = pull_response.json()
+        assert pull_body["success"] is True, pull_body
+        assert pull_body["newCommits"] == 1
+
+        # The pulled version now shows up in the notebook's history.
+        log_body = client.post(
+            "/api/git_history/log", headers=_headers(), json={}
+        ).json()
+        messages = [c["message"] for c in log_body["commits"]]
+        assert "Edit from another machine" in messages
+
+        client.post("/api/kernel/shutdown", headers=_headers())
+
+
 def test_log_unavailable_without_a_file_path() -> None:
     """A notebook with no on-disk path yet has no history to show.
 
@@ -297,9 +389,7 @@ def test_log_unavailable_without_a_file_path() -> None:
     with patch(
         "marimo._server.api.endpoints.git_history.AppState"
     ) as mock_app_state_cls:
-        mock_app_state_cls.return_value.require_current_session.return_value = (
-            fake_session
-        )
+        mock_app_state_cls.return_value.require_current_session.return_value = fake_session
         history, error = _history_for_current_session(fake_request)
 
     assert history is None
