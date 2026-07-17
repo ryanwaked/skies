@@ -1,10 +1,24 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import { once } from "@/utils/once";
+import { getInitialAppMode } from "../mode";
 import { getRuntimeManager } from "../runtime/config";
 import { API, createClientWithRuntimeManager } from "./api";
 import { waitForConnectionOpen } from "./connection";
 import type { EditRequests, RunRequests } from "./types";
+
+/**
+ * Wait for the kernel websocket before hitting file APIs, so we don't race
+ * kernel startup in a notebook. The home and gallery pages never open a
+ * kernel connection, so waiting there would hang forever.
+ */
+function waitForKernelIfPresent(): Promise<unknown> {
+  const mode = getInitialAppMode();
+  if (mode === "home" || mode === "gallery") {
+    return Promise.resolve();
+  }
+  return waitForConnectionOpen();
+}
 
 /**
  * Options for POSTing FormData via openapi-fetch. openapi-fetch types
@@ -310,7 +324,7 @@ export function createNetworkRequests(): EditRequests & RunRequests {
         .then(handleResponse);
     },
     sendCreateFileOrFolder: async (request) => {
-      await waitForConnectionOpen();
+      await waitForKernelIfPresent();
       const formData = new FormData();
       formData.append("path", request.path);
       formData.append("type", request.type);
@@ -361,9 +375,7 @@ export function createNetworkRequests(): EditRequests & RunRequests {
     },
     getGitLog: async () => {
       await waitForConnectionOpen();
-      return getClient()
-        .POST("/api/git_history/log", {})
-        .then(handleResponse);
+      return getClient().POST("/api/git_history/log", {}).then(handleResponse);
     },
     getGitShow: async (request) => {
       await waitForConnectionOpen();
