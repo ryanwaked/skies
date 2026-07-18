@@ -128,6 +128,37 @@
   padding-left: 1rem;
 }
 
+/* Sidebar docs panel: scale the whole document down to the rail's voice
+   (13px body, base-size headings) instead of inheriting page-size text. */
+.docs-documentation {
+  /* stylelint-disable-next-line unit-allowed-list */
+  font-size: 13px;
+  line-height: 1.5;
+
+  h1,
+  h2 {
+    @apply text-base;
+  }
+
+  h3,
+  h4 {
+    @apply text-sm font-semibold;
+  }
+
+  code,
+  .doctest-block,
+  .literal-block,
+  .docutils.literal,
+  pre > code,
+  .codehilite code {
+    @apply text-xs;
+  }
+
+  table {
+    @apply text-xs;
+  }
+}
+
 /* Custom overrides when in a tooltip */
 .cm-tooltip .documentation,
 .cm-tooltip .docs-documentation {
@@ -164,17 +195,37 @@
     font-weight: 500;
   }
   .tok-string,
-  .tok-string2 { color: light-dark(#a11, #98c379); }
-  .tok-number { color: light-dark(#164, #d19a66); }
+  .tok-string2 {
+    color: light-dark(#a11, #98c379);
+  }
+  .tok-number {
+    color: light-dark(#164, #d19a66);
+  }
   .tok-bool,
-  .tok-atom { color: light-dark(#219, #d19a66); }
-  .tok-comment { color: var(--cm-comment); }
-  .tok-className { color: light-dark(#00f, #61afef); }
+  .tok-atom {
+    color: light-dark(#219, #d19a66);
+  }
+  .tok-comment {
+    color: var(--cm-comment);
+  }
+  .tok-className {
+    color: light-dark(#00f, #61afef);
+  }
   .tok-typeName,
-  .tok-namespace { color: light-dark(#085, #56b6c2); }
-  .tok-operator { color: light-dark(#a2f, #56b6c2); }
-  .tok-propertyName { color: light-dark(#05a, #e5c07b); }
-  .tok-variableName { color: light-dark(#000, #abb2bf); }
-  .tok-punctuation { color: light-dark(#000, #abb2bf); }
+  .tok-namespace {
+    color: light-dark(#085, #56b6c2);
+  }
+  .tok-operator {
+    color: light-dark(#a2f, #56b6c2);
+  }
+  .tok-propertyName {
+    color: light-dark(#05a, #e5c07b);
+  }
+  .tok-variableName {
+    color: light-dark(#000, #abb2bf);
+  }
+  .tok-punctuation {
+    color: light-dark(#000, #abb2bf);
+  }
 }
 /* stylelint-enable no-duplicate-selectors */

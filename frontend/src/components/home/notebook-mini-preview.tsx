@@ -69,7 +69,9 @@ const VisualBlock: React.FC<{ visual: NotebookPreviewCell["visual"] }> = ({
 }) => (
   <div
     className="relative mt-[3px] flex h-[26px] items-center justify-center overflow-hidden rounded-[2px] border border-border"
-    style={{ background: "color-mix(in srgb, var(--nb-edge) 12%, var(--card))" }}
+    style={{
+      background: "color-mix(in srgb, var(--nb-edge) 12%, var(--card))",
+    }}
   >
     {visual === "chart" && <ChartGlyph />}
     {visual === "table" && <TableGlyph />}
@@ -115,7 +117,9 @@ const CodeSilhouette: React.FC<{ cell: NotebookPreviewCell }> = ({ cell }) => {
           <div
             key={i}
             className="truncate whitespace-pre font-mono text-[7px] leading-[1.6]"
-            style={{ color: "color-mix(in srgb, var(--foreground) 55%, transparent)" }}
+            style={{
+              color: "color-mix(in srgb, var(--foreground) 55%, transparent)",
+            }}
           >
             {line || " "}
           </div>
@@ -127,13 +131,16 @@ const CodeSilhouette: React.FC<{ cell: NotebookPreviewCell }> = ({ cell }) => {
 
 /** Strip inline markdown tokens so the shrunk prose reads as clean text. */
 function cleanMarkdown(text: string): string {
-  return text.replace(/[*`_>]/g, "").replace(/^[-+]\s+/, "").trim();
+  return text
+    .replace(/[*`_>]/g, "")
+    .replace(/^[-+]\s+/, "")
+    .trim();
 }
 
-const MarkdownBlock: React.FC<{ text: string; omitHeading?: string | null }> = ({
-  text,
-  omitHeading,
-}) => {
+const MarkdownBlock: React.FC<{
+  text: string;
+  omitHeading?: string | null;
+}> = ({ text, omitHeading }) => {
   const rawLines = text
     .split("\n")
     .map((l) => l.trim())
@@ -161,7 +168,7 @@ const MarkdownBlock: React.FC<{ text: string; omitHeading?: string | null }> = (
       {heading && (
         <span
           className={cn(
-            "line-clamp-1 font-[var(--heading-font)] tracking-[-0.012em] text-foreground",
+            "line-clamp-1 font-[family-name:var(--heading-font)] tracking-[-0.012em] text-foreground",
             heading[1] === "#" && "font-bold text-[10px]",
             heading[1] === "##" && "font-semibold text-[9px]",
             heading[1] === "###" && "font-medium text-[8.5px]",
@@ -215,7 +222,7 @@ const NoPreview: React.FC<{ name: string }> = ({ name }) => {
   const initial = (name.trim()[0] ?? "•").toUpperCase();
   return (
     <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-      <span className="absolute select-none font-[var(--heading-font)] font-bold text-[64px] text-foreground leading-none opacity-[0.06]">
+      <span className="absolute select-none font-[family-name:var(--heading-font)] font-bold text-[64px] text-foreground leading-none opacity-[0.06]">
         {initial}
       </span>
       <span className="relative font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--foreground-dim)]">
@@ -280,7 +287,7 @@ export const NotebookMiniPreview: React.FC<{
             <>
               {preview.title && (
                 <div className="flex flex-col">
-                  <span className="line-clamp-2 font-[var(--heading-font)] font-bold text-[11px] leading-tight tracking-[-0.012em] text-foreground">
+                  <span className="line-clamp-2 font-[family-name:var(--heading-font)] font-bold text-[11px] leading-tight tracking-[-0.012em] text-foreground">
                     {cleanMarkdown(preview.title)}
                   </span>
                   <span className="my-[3px] h-px bg-border" />
@@ -296,7 +303,9 @@ export const NotebookMiniPreview: React.FC<{
       {/* Bottom scrim: fades the last partial cell into the same tinted paper. */}
       <div
         className="pointer-events-none absolute inset-x-0 bottom-0 h-8"
-        style={{ background: "linear-gradient(to top, var(--nb-paper), transparent)" }}
+        style={{
+          background: "linear-gradient(to top, var(--nb-paper), transparent)",
+        }}
       />
     </div>
   );

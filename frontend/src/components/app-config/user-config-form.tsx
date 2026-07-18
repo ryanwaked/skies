@@ -247,10 +247,10 @@ export const UserConfigForm: React.FC = () => {
                       <IsOverridden override={override} />
                     </FormItem>
                     <FormDescription>
-                      The folder marimo opens when you launch it without a
-                      file. Leave blank to use your Desktop if it exists,
-                      otherwise the current working directory. Applies the next
-                      time the server starts.
+                      The folder marimo opens when you launch it without a file.
+                      Leave blank to use your Desktop if it exists, otherwise
+                      the current working directory. Applies the next time the
+                      server starts.
                     </FormDescription>
                   </div>
                 )}
@@ -1324,7 +1324,7 @@ export const UserConfigForm: React.FC = () => {
   };
 
   const configMessage = (
-    <p className="text-muted-secondary">
+    <p className="text-xs leading-relaxed text-muted-secondary">
       User configuration is stored in <Kbd className="inline">marimo.toml</Kbd>
       <br />
       Run <Kbd className="inline">marimo config show</Kbd> in your terminal to
