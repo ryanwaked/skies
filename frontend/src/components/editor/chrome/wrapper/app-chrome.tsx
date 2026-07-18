@@ -4,6 +4,7 @@ import React, {
   Suspense,
   useEffect,
   useMemo,
+  useState,
 } from "react";
 import {
   type ImperativePanelHandle,
@@ -77,6 +78,39 @@ const PANEL_TITLE_OVERRIDES: Partial<Record<PanelType, string>> = {
   variables: "Data browser",
 };
 
+// Sidebar panel width bounds, in pixels. react-resizable-panels only takes
+// percentages, so these are converted against the space next to the 44px
+// icon rail and recomputed on window resize. The minimum keeps panel
+// content (search pills, tree rows) from crumpling when dragged narrow;
+// the maximum keeps the notebook from being squeezed out entirely.
+const SIDEBAR_MIN_PX = 220;
+const SIDEBAR_MAX_PX = 640;
+const SIDEBAR_DEFAULT_PX = 293;
+const ICON_RAIL_PX = 44;
+
+function sidebarPctOf(px: number): number {
+  const available = Math.max(window.innerWidth - ICON_RAIL_PX, 1);
+  return Math.min(90, Math.max(0, (px / available) * 100));
+}
+
+function useSidebarSizeConstraints(): { minSize: number; maxSize: number } {
+  const [constraints, setConstraints] = useState({ minSize: 10, maxSize: 75 });
+  useEffect(() => {
+    const compute = () => {
+      const minSize = Math.max(10, sidebarPctOf(SIDEBAR_MIN_PX));
+      const maxSize = Math.min(
+        75,
+        Math.max(minSize + 5, sidebarPctOf(SIDEBAR_MAX_PX)),
+      );
+      setConstraints({ minSize, maxSize });
+    };
+    compute();
+    window.addEventListener("resize", compute);
+    return () => window.removeEventListener("resize", compute);
+  }, []);
+  return constraints;
+}
+
 function panelTitle(panel: PanelType | undefined): string {
   if (!panel) {
     return "";
@@ -114,6 +148,7 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
   const { setIsSidebarOpen, setIsDeveloperPanelOpen, openApplication } =
     useChromeActions();
   const sidebarRef = React.useRef<ImperativePanelHandle>(null);
+  const sidebarConstraints = useSidebarSizeConstraints();
   const developerPanelRef = React.useRef<ImperativePanelHandle>(null);
   const { aiPanelTab, setAiPanelTab } = useAiPanelTab();
   const errorCount = useAtomValue(cellErrorCount);
@@ -215,6 +250,11 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
     });
   });
 
+  // Applied only around programmatic open/close so the panel eases in and
+  // out (see .sidebar-panel-animating in app-chrome.css) without making
+  // drag-resizing feel laggy.
+  const [isSidebarAnimating, setIsSidebarAnimating] = useState(false);
+
   // sync sidebar
   useEffect(() => {
     if (!sidebarRef.current) {
@@ -222,6 +262,14 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
     }
 
     const isCurrentlyCollapsed = sidebarRef.current.isCollapsed();
+    let animationTimer: number | undefined;
+    if (isSidebarOpen !== !isCurrentlyCollapsed) {
+      setIsSidebarAnimating(true);
+      animationTimer = window.setTimeout(
+        () => setIsSidebarAnimating(false),
+        300,
+      );
+    }
     if (isSidebarOpen && isCurrentlyCollapsed) {
       sidebarRef.current.expand();
     }
@@ -231,6 +279,7 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
 
     // Dispatch a resize event so widgets know to resize
     emitResizeEvent();
+    return () => window.clearTimeout(animationTimer);
   }, [isSidebarOpen]);
 
   // sync panel
@@ -420,23 +469,25 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
       className={cn(
         "bg-card print:hidden hide-on-fullscreen",
         isSidebarOpen && "border-r border-border",
+        isSidebarAnimating && "sidebar-panel-animating",
       )}
-      minSize={10}
+      minSize={sidebarConstraints.minSize}
       // We can't make the default size greater than 0, otherwise it will start open
       defaultSize={0}
-      maxSize={75}
+      maxSize={sidebarConstraints.maxSize}
       onResize={(size, prevSize) => {
-        // This means it started closed and is opening for the first time
-        if (prevSize === 0 && size === 10) {
-          // Skies opens its sidebar panel at 293px. react-resizable-panels only
-          // takes percentages, so convert against the horizontal space next to
-          // the 44px icon rail.
-          const availableWidth = Math.max(window.innerWidth - 44, 1);
-          const hexDefaultPct = Math.min(
-            75,
-            Math.max(10, (293 / availableWidth) * 100),
+        // This means it started closed and is opening for the first time:
+        // expand() lands on minSize, so bump to the Skies default width.
+        if (prevSize === 0 && size === sidebarConstraints.minSize) {
+          sidebarRef.current?.resize(
+            Math.min(
+              sidebarConstraints.maxSize,
+              Math.max(
+                sidebarConstraints.minSize,
+                sidebarPctOf(SIDEBAR_DEFAULT_PX),
+              ),
+            ),
           );
-          sidebarRef.current?.resize(hexDefaultPct);
         }
       }}
       onCollapse={() => setIsSidebarOpen(false)}
