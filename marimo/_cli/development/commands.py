@@ -347,6 +347,7 @@ def _generate_server_api_schema() -> dict[str, Any]:
         notifications.QueryParamsDeleteNotification,
         notifications.QueryParamsClearNotification,
         notifications.FocusCellNotification,
+        notifications.ActiveLineNotification,
         notifications.ConsumerCapabilitiesNotification,
         notifications.NotificationMessage,
         # ai
@@ -464,6 +465,7 @@ def _generate_server_api_schema() -> dict[str, Any]:
         models.MCPStatusResponse,
         models.PreviewDatasetColumnRequest,
         models.PreviewSQLTableRequest,
+        models.SetBreakpointsRequest,
         models.StorageListEntriesRequest,
         models.StorageDownloadRequest,
         models.ReadCodeResponse,

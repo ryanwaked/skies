@@ -86,6 +86,7 @@ export type ListDataSourceConnectionRequest =
   schemas["ListDataSourceConnectionRequest"];
 export type ValidateSQLRequest = schemas["ValidateSQLRequest"];
 export type DebugCellRequest = schemas["DebugCellRequest"];
+export type SetBreakpointsRequest = schemas["SetBreakpointsRequest"];
 export type ReadCodeResponse = schemas["ReadCodeResponse"];
 export type RecentFilesResponse = schemas["RecentFilesResponse"];
 export type RenameNotebookRequest = schemas["RenameNotebookRequest"];
@@ -221,6 +222,7 @@ export interface EditRequests {
   getUsageStats: () => Promise<UsageResponse>;
   // Debugger
   sendPdb: (request: DebugCellRequest) => Promise<null>;
+  sendSetBreakpoints: (request: SetBreakpointsRequest) => Promise<null>;
   // File explorer requests
   sendListFiles: (request: FileListRequest) => Promise<FileListResponse>;
   sendSearchFiles: (request: FileSearchRequest) => Promise<FileSearchResponse>;

@@ -205,6 +205,7 @@ export const UserConfigSchema = z
       .looseObject({
         disable_file_downloads: z.boolean().optional(),
         default_notebook_directory: z.string().optional(),
+        transport: z.enum(["websocket", "sse"]).optional(),
       })
       .prefault(() => ({})),
     diagnostics: z

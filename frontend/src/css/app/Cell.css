@@ -299,6 +299,12 @@
     border: none;
     box-shadow: none;
 
+    /* No dividers between sections. Tailwind v4's divide-y is structural
+     * (`> :not(:last-child)`), so hidden-but-mounted children (e.g. the tray
+     * while presenting) still count as siblings and would otherwise draw a
+     * stray rule under the output. */
+    @apply divide-y-0;
+
     .output-area {
       /* flow-root interferes with margin collapsing, but appears to be unneeded
             * when cell outlines are hidden; clear:both is sufficient.
@@ -591,6 +597,11 @@
 
   /* Hover background tint for gutter affordances. */
   --cell-hover-tint: var(--hover-wash);
+
+  /* Vertical gap between notebook cells (Skies uses gap-4's tighter 1rem).
+   * Overridable via custom css; zeroed while presenting, when published
+   * cells flow together. */
+  --notebook-cell-gap: 1rem;
 }
 
 /* ------------------------ CodeMirror Editor ----------------------------- */

@@ -27,6 +27,9 @@ from marimo._session.notebook.storage import (
     StorageInterface,
 )
 from marimo._types.ids import CellId_t
+from marimo._utils.generated_with import (
+    contents_differ_excluding_generated_with,
+)
 from marimo._utils.http import HTTPException, HTTPStatus
 from marimo._utils.marimo_path import MarimoPath
 from marimo._utils.notebook_git_history import NotebookGitHistory
@@ -166,6 +169,15 @@ class AppFileManager:
 
         return transaction, changed_cell_ids
 
+    def reload_and_mark_content_as_last_save(
+        self, content: str | None
+    ) -> tuple[Transaction, set[CellId_t]]:
+        with self._save_lock:
+            result = self.reload()
+            if content is not None:
+                self._mark_content_as_last_save(content)
+            return result
+
     def _is_same_path(self, path: Path) -> bool:
         """Check if the given path is the same as the current filename.
 
@@ -255,9 +267,11 @@ class AppFileManager:
             contents = handler.serialize(notebook)
 
             if persist:
+                if self.content_matches_last_save(contents):
+                    return self._last_saved_content or contents
                 self.storage.write(path, contents)
                 # Record the last saved content to avoid reloading our own writes
-                self._last_saved_content = contents.strip()
+                self._mark_content_as_last_save(contents)
                 # Skies: snapshot every save (manual or autosave) into the
                 # notebook's hidden per-file git history. Best-effort — a
                 # missing/broken git must never fail the actual save.
@@ -610,6 +624,9 @@ class AppFileManager:
             )
         return self.storage.read(self._filename)
 
+    def _mark_content_as_last_save(self, content: str) -> None:
+        self._last_saved_content = content.strip()
+
     def content_matches_last_save(self, content: str) -> bool:
         """Check if the given content matches the last save.
 
@@ -619,7 +636,11 @@ class AppFileManager:
         """
         if self._last_saved_content is None:
             return False
-        return content.strip() == self._last_saved_content
+        if content.strip() == self._last_saved_content:
+            return True
+        return not contents_differ_excluding_generated_with(
+            content, self._last_saved_content
+        )
 
     def file_content_matches_last_save(self) -> bool:
         """Check if current file content matches the last save.

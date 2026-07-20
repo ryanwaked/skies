@@ -254,12 +254,21 @@ class ServerConfig(TypedDict):
         default when no file or directory is given. Empty means "use the
         built-in default" (the user's Desktop, falling back to the current
         working directory).
+    - `transport`: experimental. The transport used to stream kernel
+        messages to the frontend, typically set with the
+        `MARIMO_SERVER_TRANSPORT` environment variable. `"websocket"`
+        (default) uses the `/ws` WebSocket endpoint; `"sse"` uses
+        server-sent events over HTTP, for deployments behind proxies or
+        services that do not support WebSockets. Terminal, LSP, and
+        real-time collaboration still require WebSockets; RTC is disabled
+        when using `"sse"`.
     """
 
     browser: Literal["default"] | str
     follow_symlink: bool
     disable_file_downloads: NotRequired[bool]
     default_notebook_directory: NotRequired[str]
+    transport: NotRequired[Literal["websocket", "sse"]]
 
 
 @dataclass
@@ -672,6 +681,8 @@ class ExperimentalConfig(TypedDict, total=False):
     wasm_layouts: bool  # Used in playground (community cloud)
     rtc_v2: bool
     isolate_apps: bool
+    debugger: bool  # Live frame-watching debugger (gutter breakpoints + pdb)
+    line_timing: bool  # Active-line highlight + per-line timer (sys.settrace)
 
     # Internal features
     cache: CacheConfig

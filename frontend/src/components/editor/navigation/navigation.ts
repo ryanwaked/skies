@@ -23,6 +23,10 @@ import {
 import { usePendingDeleteService } from "@/core/cells/pending-delete-service";
 import { scrollCellIntoView } from "@/core/cells/scrollCellIntoView";
 import {
+  closeSignatureHint,
+  signatureHintField,
+} from "@/core/codemirror/completion/signature-hint";
+import {
   hotkeysAtom,
   isAiFeatureEnabled,
   keymapPresetAtom,
@@ -737,7 +741,9 @@ export function useCellEditorNavigationProps(
       return;
     }
 
-    const hasSignatureHelp = state.field(signatureHelpTooltipField, false);
+    const hasSignatureHelp =
+      Boolean(state.field(signatureHelpTooltipField, false)) ||
+      Boolean(state.field(signatureHintField, false));
     const hasAutocompletePopup = completionStatus(state) !== null;
     if (hasSignatureHelp) {
       closeSignatureHelp(view);
@@ -808,4 +814,5 @@ export function closeSignatureHelp(view: EditorView) {
   if (view.state.field(signatureHelpTooltipField, false)) {
     view.dispatch({ effects: setSignatureHelpTooltip.of(null) });
   }
+  closeSignatureHint(view);
 }

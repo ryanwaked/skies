@@ -208,7 +208,7 @@ export const DebuggerControls: React.FC<{
         </Button>
       </Tooltip>
       {onClear && (
-        <Tooltip content="Clear">
+        <Tooltip content="Quit and clear">
           <Button
             variant="text"
             size="icon"
@@ -217,7 +217,12 @@ export const DebuggerControls: React.FC<{
               buttonClasses,
               "text-error hover:text-error hover:bg-error/10 hover:border-error/40",
             )}
-            onClick={onClear}
+            onClick={() => {
+              // Quit the debugger (`q`) before tearing down the console, so
+              // the stdin response targets the still-present pdb prompt.
+              onSubmit("q");
+              onClear();
+            }}
           >
             <TrashIcon fontSize={36} className={iconClasses} />
           </Button>

@@ -136,6 +136,9 @@ async def workspace_files(
                             base_url=base_url,
                             mode=mode,
                         ),
+                        execute_generator=(
+                            session_manager.execute_opengraph_generators
+                        ),
                     )
                 result.append(
                     FileInfo(
