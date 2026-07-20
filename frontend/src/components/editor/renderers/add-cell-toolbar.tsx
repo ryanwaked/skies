@@ -134,161 +134,168 @@ export const AddCellToolbar: React.FC<{
 
   return (
     <div className="flex flex-col items-center mt-4 pt-6 pb-32 w-full px-4 print:hidden">
-      <div className="skies-kicker mb-2">add cell</div>
-      <div
-        className={cn(
-          // flex-wrap so narrow panels never clip the outer items. Soft
-          // elevation (shadow-md) lifts the toolbar off the desk; hairline
-          // border + rounded corners for the Skies paper-panel language.
-          "flex flex-wrap justify-center items-stretch max-w-full rounded-[4px] bg-card p-[6px] border border-input shadow-md",
-          className,
-        )}
-      >
-        <ToolbarItem
-          icon={DatabaseIcon}
-          label="SQL Query"
-          disabled={!canInteractWithApp}
-          onClick={() => insertCell(LanguageAdapters.sql.defaultCode)}
-        />
-        <ToolbarItem
-          icon={SquareCodeIcon}
-          label="Python"
-          disabled={!canInteractWithApp}
-          onClick={() => insertCell()}
-        />
-        <ToolbarItem
-          icon={SquareMIcon}
-          label="Markdown"
-          disabled={!canInteractWithApp}
-          onClick={() =>
-            insertCell(LanguageAdapters.markdown.defaultCode, {
-              hideCode: MARKDOWN_INITIAL_HIDE_CODE,
-            })
-          }
-        />
-        <ToolbarItem
-          icon={ChartColumnIcon}
-          label="Chart"
-          disabled={!canInteractWithApp}
-          onClick={() => insertCell(CHART_TEMPLATE, { needsAltair: true })}
-        />
-        <ToolbarItem
-          icon={TablePropertiesIcon}
-          label="Dataframe"
-          disabled={!canInteractWithApp}
-          onClick={() => insertCell(DATAFRAME_TEMPLATE)}
-        />
-        <ToolbarItem
-          icon={HashIcon}
-          label="Single value"
-          disabled={!canInteractWithApp}
-          onClick={() => insertCell(SINGLE_VALUE_TEMPLATE)}
-        />
-        <ToolbarItem
-          icon={TableIcon}
-          label="Table"
-          disabled={!canInteractWithApp}
-          onClick={() => insertCell(TABLE_TEMPLATE)}
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild={true} disabled={!canInteractWithApp}>
-            <ToolbarItem
-              icon={SlidersHorizontalIcon}
-              label="Inputs"
-              disabled={!canInteractWithApp}
-              withChevron={true}
-            />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="center">
-            {INPUT_TEMPLATES.map((input) => (
-              <DropdownMenuItem
-                key={input.label}
-                onSelect={() => insertCell(input.code)}
-              >
-                {input.label}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild={true} disabled={!canInteractWithApp}>
-            <ToolbarItem
-              icon={BlocksIcon}
-              label="Components"
-              disabled={!canInteractWithApp}
-              withChevron={true}
-            />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="center">
-            {components.length === 0 ? (
-              <DropdownMenuItem disabled={true}>
-                No components yet — save a cell from its ··· menu
-              </DropdownMenuItem>
-            ) : (
-              components.map((component) => (
+      {/* items-start pins the kicker to the toolbar's left edge while the
+          pair stays centered in the pane as a unit. */}
+      <div className="flex max-w-full flex-col items-start">
+        <div className="skies-kicker mb-2">add cell</div>
+        <div
+          className={cn(
+            // flex-wrap so narrow panels never clip the outer items. Soft
+            // elevation (shadow-md) lifts the toolbar off the desk; hairline
+            // border + rounded corners for the Skies paper-panel language.
+            "flex flex-wrap justify-center items-stretch max-w-full rounded-[4px] bg-card p-[6px] border border-input shadow-md",
+            className,
+          )}
+        >
+          <ToolbarItem
+            icon={DatabaseIcon}
+            label="SQL Query"
+            disabled={!canInteractWithApp}
+            onClick={() => insertCell(LanguageAdapters.sql.defaultCode)}
+          />
+          <ToolbarItem
+            icon={SquareCodeIcon}
+            label="Python"
+            disabled={!canInteractWithApp}
+            onClick={() => insertCell()}
+          />
+          <ToolbarItem
+            icon={SquareMIcon}
+            label="Markdown"
+            disabled={!canInteractWithApp}
+            onClick={() =>
+              insertCell(LanguageAdapters.markdown.defaultCode, {
+                hideCode: MARKDOWN_INITIAL_HIDE_CODE,
+              })
+            }
+          />
+          <ToolbarItem
+            icon={ChartColumnIcon}
+            label="Chart"
+            disabled={!canInteractWithApp}
+            onClick={() => insertCell(CHART_TEMPLATE, { needsAltair: true })}
+          />
+          <ToolbarItem
+            icon={TablePropertiesIcon}
+            label="Dataframe"
+            disabled={!canInteractWithApp}
+            onClick={() => insertCell(DATAFRAME_TEMPLATE)}
+          />
+          <ToolbarItem
+            icon={HashIcon}
+            label="Single value"
+            disabled={!canInteractWithApp}
+            onClick={() => insertCell(SINGLE_VALUE_TEMPLATE)}
+          />
+          <ToolbarItem
+            icon={TableIcon}
+            label="Table"
+            disabled={!canInteractWithApp}
+            onClick={() => insertCell(TABLE_TEMPLATE)}
+          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild={true} disabled={!canInteractWithApp}>
+              <ToolbarItem
+                icon={SlidersHorizontalIcon}
+                label="Inputs"
+                disabled={!canInteractWithApp}
+                withChevron={true}
+              />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center">
+              {INPUT_TEMPLATES.map((input) => (
                 <DropdownMenuItem
-                  key={component.id}
-                  onSelect={() => insertCell(component.code)}
+                  key={input.label}
+                  onSelect={() => insertCell(input.code)}
                 >
-                  <BlocksIcon className="mr-2 size-3.5" strokeWidth={1.5} />
-                  {component.name}
+                  {input.label}
                 </DropdownMenuItem>
-              ))
-            )}
-            <DropdownMenuItem onSelect={() => openApplication("components")}>
-              Manage components…
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild={true} disabled={!canInteractWithApp}>
-            <ToolbarItem
-              icon={DatabaseZapIcon}
-              label="Data"
-              disabled={!canInteractWithApp}
-              withChevron={true}
-            />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="center">
-            <DropdownMenuItem
-              onSelect={() =>
-                openModal(<AddConnectionDialogContent onClose={closeModal} />)
-              }
-            >
-              <DatabaseIcon className="mr-2 size-3.5" strokeWidth={1.5} />
-              Add database connection
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => openApplication("variables")}>
-              <DatabaseZapIcon className="mr-2 size-3.5" strokeWidth={1.5} />
-              Browse data sources
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild={true} disabled={!canInteractWithApp}>
-            <ToolbarItem
-              icon={EllipsisIcon}
-              label="More"
-              disabled={!canInteractWithApp}
-            />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="center">
-            <DropdownMenuItem
-              onSelect={() =>
-                insertCell(SECTION_TEMPLATE, {
-                  hideCode: MARKDOWN_INITIAL_HIDE_CODE,
-                })
-              }
-            >
-              <LayoutTemplateIcon className="mr-2 size-3.5" strokeWidth={1.5} />
-              Section
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => insertCell(FILTER_TEMPLATE)}>
-              <ListFilterIcon className="mr-2 size-3.5" strokeWidth={1.5} />
-              Filter
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild={true} disabled={!canInteractWithApp}>
+              <ToolbarItem
+                icon={BlocksIcon}
+                label="Components"
+                disabled={!canInteractWithApp}
+                withChevron={true}
+              />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center">
+              {components.length === 0 ? (
+                <DropdownMenuItem disabled={true}>
+                  No components yet — save a cell from its ··· menu
+                </DropdownMenuItem>
+              ) : (
+                components.map((component) => (
+                  <DropdownMenuItem
+                    key={component.id}
+                    onSelect={() => insertCell(component.code)}
+                  >
+                    <BlocksIcon className="mr-2 size-3.5" strokeWidth={1.5} />
+                    {component.name}
+                  </DropdownMenuItem>
+                ))
+              )}
+              <DropdownMenuItem onSelect={() => openApplication("components")}>
+                Manage components…
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild={true} disabled={!canInteractWithApp}>
+              <ToolbarItem
+                icon={DatabaseZapIcon}
+                label="Data"
+                disabled={!canInteractWithApp}
+                withChevron={true}
+              />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center">
+              <DropdownMenuItem
+                onSelect={() =>
+                  openModal(<AddConnectionDialogContent onClose={closeModal} />)
+                }
+              >
+                <DatabaseIcon className="mr-2 size-3.5" strokeWidth={1.5} />
+                Add database connection
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => openApplication("variables")}>
+                <DatabaseZapIcon className="mr-2 size-3.5" strokeWidth={1.5} />
+                Browse data sources
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild={true} disabled={!canInteractWithApp}>
+              <ToolbarItem
+                icon={EllipsisIcon}
+                label="More"
+                disabled={!canInteractWithApp}
+              />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center">
+              <DropdownMenuItem
+                onSelect={() =>
+                  insertCell(SECTION_TEMPLATE, {
+                    hideCode: MARKDOWN_INITIAL_HIDE_CODE,
+                  })
+                }
+              >
+                <LayoutTemplateIcon
+                  className="mr-2 size-3.5"
+                  strokeWidth={1.5}
+                />
+                Section
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => insertCell(FILTER_TEMPLATE)}>
+                <ListFilterIcon className="mr-2 size-3.5" strokeWidth={1.5} />
+                Filter
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </div>
   );

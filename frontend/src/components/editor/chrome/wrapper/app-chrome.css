@@ -1,3 +1,17 @@
+/* Applied only while the sidebar panel is opening/closing programmatically
+   (toggled from the icon rail); react-resizable-panels drives width via the
+   inline flex-grow, so easing that property animates the slide. Removed
+   right after so drag-resizing stays immediate. */
+.sidebar-panel-animating {
+  transition: flex-grow 250ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-panel-animating {
+    transition: none;
+  }
+}
+
 .resize-handle,
 .resize-handle-collapsed {
   transition: 250ms linear background-color;

@@ -19,7 +19,14 @@ import {
   UploadIcon,
 } from "lucide-react";
 import type React from "react";
-import { createContext, use, useEffect, useMemo, useRef, useState } from "react";
+import {
+  createContext,
+  use,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useLocale } from "react-aria";
 import useEvent from "react-use-event-hook";
 import { PageSky } from "@/components/skies/page-sky";
@@ -66,10 +73,7 @@ import {
 import { Header, OpenTutorialDropDown } from "../home/components";
 import { NotebookMiniPreview } from "../home/notebook-mini-preview";
 import { useNotebookPreview } from "../home/use-notebook-preview";
-import {
-  type PaneWidth,
-  useContainerWidth,
-} from "../home/use-container-width";
+import { type PaneWidth, useContainerWidth } from "../home/use-container-width";
 import { CollectionMenuItems } from "../home/collections";
 import {
   type HomeSort,
@@ -109,9 +113,15 @@ interface CardItem {
 
 function greeting(): string {
   const hour = new Date().getHours();
-  if (hour < 5) {return "Working late";}
-  if (hour < 12) {return "Good morning";}
-  if (hour < 18) {return "Good afternoon";}
+  if (hour < 5) {
+    return "Working late";
+  }
+  if (hour < 12) {
+    return "Good morning";
+  }
+  if (hour < 18) {
+    return "Good afternoon";
+  }
   return "Good evening";
 }
 
@@ -150,7 +160,9 @@ function hrefFor(item: CardItem): string {
 }
 
 function matchesSearch(item: CardItem, q: string): boolean {
-  if (!q) {return true;}
+  if (!q) {
+    return true;
+  }
   const lower = q.toLowerCase();
   return (
     item.name.toLowerCase().includes(lower) ||
@@ -160,7 +172,9 @@ function matchesSearch(item: CardItem, q: string): boolean {
 
 function sortItems(items: CardItem[], sort: HomeSort): CardItem[] {
   return [...items].toSorted((a, b) => {
-    if (sort === "name") {return a.name.localeCompare(b.name);}
+    if (sort === "name") {
+      return a.name.localeCompare(b.name);
+    }
     return (b.lastModified ?? 0) - (a.lastModified ?? 0);
   });
 }
@@ -177,10 +191,18 @@ function deriveChips(preview: NotebookPreviewResponse | null): ChipKind[] {
     return [];
   }
   const chips: ChipKind[] = [];
-  if (preview.cells.some((c) => c.cellType === "python")) {chips.push("py");}
-  if (preview.cells.some((c) => c.cellType === "sql")) {chips.push("sql");}
-  if (preview.cells.some((c) => c.cellType === "markdown")) {chips.push("md");}
-  if (preview.cells.some((c) => c.visual !== "none")) {chips.push("viz");}
+  if (preview.cells.some((c) => c.cellType === "python")) {
+    chips.push("py");
+  }
+  if (preview.cells.some((c) => c.cellType === "sql")) {
+    chips.push("sql");
+  }
+  if (preview.cells.some((c) => c.cellType === "markdown")) {
+    chips.push("md");
+  }
+  if (preview.cells.some((c) => c.visual !== "none")) {
+    chips.push("viz");
+  }
   return chips;
 }
 
@@ -202,6 +224,41 @@ const TypeChips: React.FC<{ chips: ChipKind[]; max?: number }> = ({
           {chip}
         </span>
       ))}
+    </div>
+  );
+
+/** Names of the collections a workspace notebook belongs to. */
+function useCollectionNames(path: string | undefined): string[] {
+  const { collections } = useAtomValue(collectionsAtom);
+  return useMemo(() => {
+    if (!path) {
+      return [];
+    }
+    return collections
+      .filter((c) => c.filePaths.includes(path))
+      .map((c) => c.name);
+  }, [collections, path]);
+}
+
+const CollectionTags: React.FC<{ names: string[]; max?: number }> = ({
+  names,
+  max = 2,
+}) =>
+  names.length === 0 ? null : (
+    <div className="flex min-w-0 items-center gap-1">
+      {names.slice(0, max).map((name) => (
+        <span
+          key={name}
+          title={name}
+          className="skies-type-chip max-w-28 gap-1 truncate normal-case"
+        >
+          <FolderIcon size={9} strokeWidth={1.5} className="shrink-0" />
+          {name}
+        </span>
+      ))}
+      {names.length > max && (
+        <span className="skies-type-chip">+{names.length - max}</span>
+      )}
     </div>
   );
 
@@ -328,7 +385,9 @@ const Workspace: React.FC<{
   }, []);
 
   const workspaceCards = useMemo<CardItem[]>(() => {
-    if (!workspace) {return [];}
+    if (!workspace) {
+      return [];
+    }
     return flattenNotebooks(workspace.files).map((fi) => ({
       path: relativeToRoot(fi.path, root),
       name: fi.name,
@@ -504,7 +563,7 @@ const HomeSidebar: React.FC<{
     <aside className="relative z-10 flex h-full w-60 shrink-0 flex-col border-r border-border bg-[var(--nav-solid)]/95 backdrop-blur-sm">
       <div className="px-4 pt-5 pb-3">
         <p className="skies-kicker">skies</p>
-        <h1 className="mt-1 font-[var(--heading-font)] text-2xl font-bold tracking-[-0.012em] text-foreground">
+        <h1 className="mt-1 font-[family-name:var(--heading-font)] text-2xl font-bold tracking-[-0.012em] text-foreground">
           Notebooks
         </h1>
       </div>
@@ -576,9 +635,7 @@ const HomeSidebar: React.FC<{
             key={collection.id}
             collection={collection}
             existingPaths={existingPaths}
-            active={
-              filter.kind === "collection" && filter.id === collection.id
-            }
+            active={filter.kind === "collection" && filter.id === collection.id}
             isEditing={editingId === collection.id}
             onStartEditing={() => setEditingId(collection.id)}
             onStopEditing={() => setEditingId(null)}
@@ -680,10 +737,14 @@ const CollectionRow: React.FC<{
         onChange={(e) => setDraft(e.target.value)}
         onBlur={() => {
           onStopEditing();
-          if (draft.trim()) {onRename(draft.trim());}
+          if (draft.trim()) {
+            onRename(draft.trim());
+          }
         }}
         onKeyDown={(e) => {
-          if (e.key === "Enter") {e.currentTarget.blur();}
+          if (e.key === "Enter") {
+            e.currentTarget.blur();
+          }
           if (e.key === "Escape") {
             setDraft(collection.name);
             onStopEditing();
@@ -733,10 +794,7 @@ const CollectionRow: React.FC<{
           >
             Rename
           </DropdownMenuItem>
-          <DropdownMenuItem
-            variant="danger"
-            onSelect={onDelete}
-          >
+          <DropdownMenuItem variant="danger" onSelect={onDelete}>
             Delete collection
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -809,10 +867,10 @@ const MainPane: React.FC<{
       case "running":
         base = runningCards;
         break;
-      case "pinned": 
+      case "pinned":
         base = [];
         break; // resolved in the Grid/List via the pinned set
-      
+
       case "collection": {
         const paths = new Set(activeCollection?.filePaths ?? []);
         // collection filePaths are workspace tree paths; match by fileInfo path
@@ -860,7 +918,7 @@ const MainPane: React.FC<{
         </div>
         {/* Row 2 — title + controls */}
         <div className="mt-1 flex items-end gap-3">
-          <h2 className="font-[var(--heading-font)] text-[2.25rem] font-bold leading-[1.2] tracking-[-0.012em] text-foreground">
+          <h2 className="font-[family-name:var(--heading-font)] text-[2.25rem] font-bold leading-[1.2] tracking-[-0.012em] text-foreground">
             {title}
           </h2>
           <span className="mb-1 font-mono text-[15px] tabular-nums text-[var(--foreground-dim)]">
@@ -1007,7 +1065,9 @@ const ZoneRouter: React.FC<{
       )}
       <section>
         {(pinnedItems.length > 0 || runningCards.length > 0) && (
-          <Header>{filter.kind === "recent" ? "all recent" : "all notebooks"}</Header>
+          <Header>
+            {filter.kind === "recent" ? "all recent" : "all notebooks"}
+          </Header>
         )}
         <div
           className={
@@ -1123,7 +1183,7 @@ const EmptyState: React.FC<{ title: string; showNew?: boolean }> = ({
 }) => (
   <div className="skies-paper skies-ticks mx-auto mt-6 flex max-w-md flex-col items-center gap-3 px-8 py-10 text-center">
     <p className="skies-kicker">empty index</p>
-    <p className="font-[var(--heading-font)] text-[15px] text-foreground">
+    <p className="font-[family-name:var(--heading-font)] text-[15px] text-foreground">
       {title}
     </p>
     {showNew && (
@@ -1270,7 +1330,11 @@ const PinnedView: React.FC<{ view: "grid" | "list"; search: string }> = ({
   return view === "grid" ? (
     <CardGrid items={items} pinned={pinned} />
   ) : (
-    <CardList items={items} runningNotebooks={runningNotebooks} pinned={pinned} />
+    <CardList
+      items={items}
+      runningNotebooks={runningNotebooks}
+      pinned={pinned}
+    />
   );
 };
 
@@ -1286,6 +1350,7 @@ const NotebookCard: React.FC<{
   const previewRef = useRef<HTMLDivElement>(null);
   const { preview, status } = useNotebookPreview(item.path, previewRef);
   const chips = deriveChips(preview);
+  const collectionNames = useCollectionNames(item.fileInfo?.path);
 
   return (
     // The anchor is an inset click-target so the pin/menu buttons can sit
@@ -1342,10 +1407,11 @@ const NotebookCard: React.FC<{
             </span>
           )}
         </div>
-        {/* Line C — type chips */}
-        {chips.length > 0 && (
-          <div className="mt-0.5">
+        {/* Line C — type chips + collection tags */}
+        {(chips.length > 0 || collectionNames.length > 0) && (
+          <div className="mt-0.5 flex flex-wrap items-center gap-1">
             <TypeChips chips={chips} max={4} />
+            <CollectionTags names={collectionNames} />
           </div>
         )}
       </div>
@@ -1365,6 +1431,7 @@ const NotebookListItem: React.FC<{
   const rowRef = useRef<HTMLDivElement>(null);
   const { preview, status } = useNotebookPreview(item.path, rowRef);
   const chips = deriveChips(preview);
+  const collectionNames = useCollectionNames(item.fileInfo?.path);
 
   return (
     <div
@@ -1384,7 +1451,11 @@ const NotebookListItem: React.FC<{
       {/* NAME */}
       <div className="pointer-events-none relative flex min-w-0 items-center gap-2">
         <div className="relative h-5 w-5 shrink-0 overflow-hidden rounded-[3px] border border-border">
-          <NotebookMiniPreview path={item.path} name={item.name} compact={true} />
+          <NotebookMiniPreview
+            path={item.path}
+            name={item.name}
+            compact={true}
+          />
         </div>
         <span className="truncate text-[13px] font-medium text-foreground">
           {item.name}
@@ -1402,6 +1473,7 @@ const NotebookListItem: React.FC<{
             live
           </span>
         )}
+        <CollectionTags names={collectionNames} max={1} />
       </div>
       {/* PATH */}
       {showPath && (
@@ -1510,14 +1582,13 @@ const CardMenu: React.FC<{
           <MoreHorizontalIcon size={14} />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
         <DropdownMenuItem
           onSelect={() =>
             setPinned((prev) =>
-              isPinned ? prev.filter((p) => p !== item.path) : [...prev, item.path],
+              isPinned
+                ? prev.filter((p) => p !== item.path)
+                : [...prev, item.path],
             )
           }
         >
@@ -1533,7 +1604,9 @@ const CardMenu: React.FC<{
             <DropdownMenuItem
               onSelect={async () => {
                 const ok = await duplicateFile(fileInfo);
-                if (ok) {refreshWorkspace();}
+                if (ok) {
+                  refreshWorkspace();
+                }
               }}
             >
               <CopyIcon className="mr-2 size-3.5" strokeWidth={1.5} />
