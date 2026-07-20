@@ -6954,7 +6954,7 @@ export interface components {
      * ServerConfig
      * @description Configuration for the server.
      *
-     *     **Keys.**
+     *         **Keys.**
      *
      *         - `browser`: the web browser to use. `"default"` or a browser registered
      *             with Python's webbrowser module (eg, `"firefox"` or `"chrome"`)
