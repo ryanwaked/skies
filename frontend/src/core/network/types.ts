@@ -49,6 +49,7 @@ export type GitCommitRequest = schemas["GitCommitRequest"];
 export type GitCommitResponse = schemas["GitCommitResponse"];
 export type GitRestoreRequest = schemas["GitRestoreRequest"];
 export type GitRestoreResponse = schemas["GitRestoreResponse"];
+export type GitPullResponse = schemas["GitPullResponse"];
 export type GitVerifyProviderResponse = schemas["GitVerifyProviderResponse"];
 export type GitCreateRemoteRequest = schemas["GitCreateRemoteRequest"];
 export type GitCreateRemoteResponse = schemas["GitCreateRemoteResponse"];
@@ -243,6 +244,7 @@ export interface EditRequests {
   getGitShow: (request: GitShowRequest) => Promise<GitShowResponse>;
   sendGitCommit: (request: GitCommitRequest) => Promise<GitCommitResponse>;
   sendGitRestore: (request: GitRestoreRequest) => Promise<GitRestoreResponse>;
+  sendGitPull: () => Promise<GitPullResponse>;
   verifyGitProvider: () => Promise<GitVerifyProviderResponse>;
   sendGitCreateRemote: (
     request: GitCreateRemoteRequest,

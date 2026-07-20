@@ -60,6 +60,7 @@ export const MockRequestClient = {
       getGitShow: vi.fn().mockResolvedValue({ content: null }),
       sendGitCommit: vi.fn().mockResolvedValue({ success: false }),
       sendGitRestore: vi.fn().mockResolvedValue({ success: false }),
+      sendGitPull: vi.fn().mockResolvedValue({ success: false }),
       verifyGitProvider: vi.fn().mockResolvedValue({ success: false }),
       sendGitCreateRemote: vi.fn().mockResolvedValue({ success: false }),
       verifyRemoteComputeTarget: vi.fn().mockResolvedValue({ success: false }),

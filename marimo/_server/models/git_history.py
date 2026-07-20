@@ -51,6 +51,12 @@ class GitRestoreResponse(BaseResponse):
     message: str | None = None
 
 
+class GitPullResponse(BaseResponse):
+    # Number of new versions fetched from the remote (0 = up to date).
+    new_commits: int = 0
+    message: str | None = None
+
+
 class GitVerifyProviderResponse(BaseResponse):
     username: str | None = None
     message: str | None = None

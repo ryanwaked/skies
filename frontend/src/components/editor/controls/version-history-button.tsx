@@ -1,6 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import {
+  DownloadIcon,
   ExternalLinkIcon,
   Github,
   HistoryIcon,
@@ -143,6 +144,7 @@ const VersionHistoryPanel: React.FC<{ onRestored: () => void }> = ({
     getGitShow,
     sendGitCommit,
     sendGitRestore,
+    sendGitPull,
     sendGitCreateRemote,
   } = useRequestClient();
   const { openConfirm } = useImperativeModal();
@@ -155,6 +157,7 @@ const VersionHistoryPanel: React.FC<{ onRestored: () => void }> = ({
   const [repoName, setRepoName] = useState(() => defaultRepoName(filename));
   const [repoIsPrivate, setRepoIsPrivate] = useState(true);
   const [isCreatingRepo, setIsCreatingRepo] = useState(false);
+  const [isPulling, setIsPulling] = useState(false);
 
   const {
     data: log,
@@ -248,6 +251,32 @@ const VersionHistoryPanel: React.FC<{ onRestored: () => void }> = ({
     }
   };
 
+  const handlePull = async () => {
+    setIsPulling(true);
+    try {
+      const response = await sendGitPull();
+      if (response.success) {
+        const count = response.newCommits ?? 0;
+        toast({
+          description:
+            count === 0
+              ? "Already up to date with GitHub."
+              : `Pulled ${count} new ${count === 1 ? "version" : "versions"} from GitHub.`,
+        });
+        if (count > 0) {
+          refetchLog();
+        }
+      } else {
+        toast({
+          variant: "danger",
+          description: response.message ?? "Could not pull from GitHub.",
+        });
+      }
+    } finally {
+      setIsPulling(false);
+    }
+  };
+
   const handleRestore = (commit: GitCommitInfo) => {
     openConfirm({
       title: "Restore this version?",
@@ -309,16 +338,33 @@ const VersionHistoryPanel: React.FC<{ onRestored: () => void }> = ({
       <div className="flex items-center justify-between gap-3 border-b py-3 pr-12 pl-4">
         <h2 className="text-[13px] font-medium">Version history</h2>
         {log.hasRemote ? (
-          <a
-            href={log.remoteUrl ?? undefined}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground"
-          >
-            <Github className="h-3.5 w-3.5" />
-            View on GitHub
-            <ExternalLinkIcon className="h-3 w-3" />
-          </a>
+          <div className="flex items-center gap-3">
+            <Tooltip content="Fetch versions pushed from other machines into this notebook's history">
+              <Button
+                size="xs"
+                variant="outline"
+                data-testid="git-pull-button"
+                disabled={isPulling}
+                onClick={handlePull}
+              >
+                <DownloadIcon
+                  strokeWidth={1.5}
+                  className="mr-1.5 h-3.5 w-3.5"
+                />
+                {isPulling ? "Pulling…" : "Pull from GitHub"}
+              </Button>
+            </Tooltip>
+            <a
+              href={log.remoteUrl ?? undefined}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground"
+            >
+              <Github className="h-3.5 w-3.5" />
+              View on GitHub
+              <ExternalLinkIcon className="h-3 w-3" />
+            </a>
+          </div>
         ) : (
           <Button
             size="xs"

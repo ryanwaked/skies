@@ -43,7 +43,7 @@ def explanation(mo):
     stored in the [www.ryanwaked.com/data](https://www.ryanwaked.com/data) data warehouse, where details
     including provenance, governance, schemas, and more can be found.
 
-    The dataset, hereby refered to as `us_gov_db`, contains the following information:
+    The dataset, hereby referred to as `us_gov_db`, contains the following information:
     """)
     return
 

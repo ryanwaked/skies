@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import shutil
+import subprocess
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
@@ -20,6 +21,14 @@ pytestmark = pytest.mark.skipif(
 @pytest.fixture
 def notebook_path(tmp_path: Path) -> Path:
     return tmp_path / "my_notebook.py"
+
+
+def _machine(tmp_path: Path, name: str) -> Path:
+    """The same notebook (same basename) as it would exist on a different
+    machine — a distinct directory, and hence a distinct history repo."""
+    directory = tmp_path / name
+    directory.mkdir(exist_ok=True)
+    return directory / "my_notebook.py"
 
 
 def test_is_available(notebook_path: Path) -> None:
@@ -138,8 +147,8 @@ def test_diff_of_first_commit_uses_empty_tree(notebook_path: Path) -> None:
 
 
 def test_each_notebook_path_gets_its_own_repo(tmp_path: Path) -> None:
-    a = NotebookGitHistory(tmp_path / "a.py")
-    b = NotebookGitHistory(tmp_path / "b.py")
+    a = NotebookGitHistory(_machine(tmp_path, "machine_a"))
+    b = NotebookGitHistory(_machine(tmp_path, "machine_b"))
     assert a.repo_dir != b.repo_dir
 
     a.commit("a content\n", "a")
@@ -153,6 +162,106 @@ def test_repo_dir_is_outside_the_notebook_directory(
     history = NotebookGitHistory(notebook_path)
     history.commit("content\n", "first")
     assert not history.repo_dir.is_relative_to(tmp_path)
+
+
+@pytest.fixture
+def bare_remote(tmp_path: Path) -> Path:
+    """A bare repo acting as the notebook's remote (file transport)."""
+    remote = tmp_path / "remote.git"
+    subprocess.run(
+        ["git", "init", "--bare", "-q", str(remote)],
+        check=True,
+        capture_output=True,
+    )
+    return remote
+
+
+def test_pull_without_remote_fails(notebook_path: Path) -> None:
+    history = NotebookGitHistory(notebook_path)
+    history.commit("v1\n", "first")
+
+    result = history.pull()
+    assert result.success is False
+    assert result.error is not None
+
+
+def test_pull_into_empty_history(tmp_path: Path, bare_remote: Path) -> None:
+    # Machine A commits and pushes; machine B (empty history) pulls.
+    a = NotebookGitHistory(_machine(tmp_path, "machine_a"))
+    a.commit("v1\n", "first")
+    a.commit("v2\n", "second")
+    a.add_remote(str(bare_remote))
+    assert a.push("unused-token") is True
+
+    b = NotebookGitHistory(_machine(tmp_path, "machine_b"))
+    b.add_remote(str(bare_remote))
+    result = b.pull()
+    assert result.success is True
+    assert result.new_commits == 2
+    assert [c.message for c in b.log()] == ["second", "first"]
+
+
+def test_pull_is_a_noop_when_up_to_date(
+    tmp_path: Path, bare_remote: Path
+) -> None:
+    a = NotebookGitHistory(_machine(tmp_path, "machine_a"))
+    a.commit("v1\n", "first")
+    a.add_remote(str(bare_remote))
+    assert a.push("unused-token") is True
+
+    result = a.pull()
+    assert result.success is True
+    assert result.new_commits == 0
+
+
+def test_pull_fast_forwards_new_remote_commits(
+    tmp_path: Path, bare_remote: Path
+) -> None:
+    a = NotebookGitHistory(_machine(tmp_path, "machine_a"))
+    a.commit("v1\n", "first")
+    a.add_remote(str(bare_remote))
+    assert a.push("unused-token") is True
+
+    b = NotebookGitHistory(_machine(tmp_path, "machine_b"))
+    b.add_remote(str(bare_remote))
+    assert b.pull().success is True
+
+    a.commit("v2\n", "second")
+    assert a.push("unused-token") is True
+
+    result = b.pull()
+    assert result.success is True
+    assert result.new_commits == 1
+    assert [c.message for c in b.log()] == ["second", "first"]
+
+
+def test_pull_merges_diverged_histories_keeping_both_sides(
+    tmp_path: Path, bare_remote: Path
+) -> None:
+    a = NotebookGitHistory(_machine(tmp_path, "machine_a"))
+    a.commit("base\n", "base")
+    a.add_remote(str(bare_remote))
+    assert a.push("unused-token") is True
+
+    b = NotebookGitHistory(_machine(tmp_path, "machine_b"))
+    b.add_remote(str(bare_remote))
+    assert b.pull().success is True
+
+    # Diverge: both sides edit the same line.
+    a.commit("remote edit\n", "remote change")
+    assert a.push("unused-token") is True
+    b.commit("local edit\n", "local autosave")
+
+    result = b.pull()
+    assert result.success is True
+    assert result.new_commits == 1
+
+    messages = [c.message for c in b.log()]
+    assert "remote change" in messages
+    assert "local autosave" in messages
+    # The remote side wins the content conflict at the merged HEAD.
+    head_hash = b.log()[0].commit_hash
+    assert b.show(head_hash) == "remote edit\n"
 
 
 def test_commit_survives_missing_git_binary_gracefully(

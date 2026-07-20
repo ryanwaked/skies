@@ -39,6 +39,16 @@ class GitCommitRecord:
     message: str
 
 
+@dataclasses.dataclass(frozen=True)
+class GitPullResult:
+    """Outcome of pulling versions from the notebook's remote."""
+
+    success: bool
+    # Number of commits fetched that weren't already in the local history.
+    new_commits: int = 0
+    error: str | None = None
+
+
 def _git_available() -> bool:
     return shutil.which("git") is not None
 
@@ -130,7 +140,10 @@ class NotebookGitHistory:
 
     def _head_record(self) -> GitCommitRecord:
         result = self._run_git(
-            "log", "-n1", "--date=iso-strict", "--pretty=format:%H%x1f%ad%x1f%s"
+            "log",
+            "-n1",
+            "--date=iso-strict",
+            "--pretty=format:%H%x1f%ad%x1f%s",
         )
         return _parse_log_line(result.stdout)
 
@@ -289,6 +302,108 @@ class NotebookGitHistory:
                 e,
             )
             return False
+
+    def pull(
+        self, token: str | None = None, *, name: str = "origin"
+    ) -> GitPullResult:
+        """Fetch versions from `name` and integrate them into local history.
+
+        Fast-forwards when possible. When local and remote histories have
+        diverged (e.g. autosaves happened here while another machine pushed
+        newer versions), the histories are merged with the remote side
+        winning any content conflict — no commit from either side is lost,
+        and the merged HEAD reflects the remote's latest content, which the
+        user can then restore explicitly from the history panel.
+
+        `token` is optional (public repos are fetchable without auth) and,
+        as with `push`, is passed per-invocation and never written to disk.
+        """
+        if not self.is_available or not self._repo_exists():
+            return GitPullResult(
+                success=False, error="No version history repo yet."
+            )
+        if not self.has_remote(name):
+            return GitPullResult(
+                success=False, error="No remote is linked to this notebook."
+            )
+        try:
+            auth_args: list[str] = (
+                ["-c", f"http.extraheader={_basic_auth_header(token)}"]
+                if token
+                else []
+            )
+            branch = self._current_branch()
+            # Fetch the branch we track; a repo with no commits yet has an
+            # unborn branch, so fall back to the remote's default (HEAD).
+            fetch = self._run_git(
+                *auth_args, "fetch", name, branch or "HEAD", check=False
+            )
+            if fetch.returncode != 0:
+                LOGGER.warning(
+                    "Failed to fetch notebook history for %s: %s",
+                    self.notebook_path,
+                    fetch.stderr,
+                )
+                return GitPullResult(
+                    success=False,
+                    error="Could not fetch from the remote. If the repo is "
+                    "private, connect a GitHub account in Settings.",
+                )
+
+            has_head = (
+                self._run_git(
+                    "rev-parse", "--verify", "HEAD", check=False
+                ).returncode
+                == 0
+            )
+            count_range = "HEAD..FETCH_HEAD" if has_head else "FETCH_HEAD"
+            new_commits = int(
+                self._run_git(
+                    "rev-list", "--count", count_range
+                ).stdout.strip()
+            )
+            if new_commits == 0:
+                return GitPullResult(success=True, new_commits=0)
+
+            if not has_head:
+                # Unborn branch (remote linked before any local save):
+                # adopt the remote history wholesale.
+                self._run_git("reset", "--hard", "FETCH_HEAD")
+                return GitPullResult(success=True, new_commits=new_commits)
+
+            ff = self._run_git("merge", "--ff-only", "FETCH_HEAD", check=False)
+            if ff.returncode != 0:
+                merge = self._run_git(
+                    "merge",
+                    "-X",
+                    "theirs",
+                    "-m",
+                    "Merge remote versions",
+                    "FETCH_HEAD",
+                    check=False,
+                )
+                if merge.returncode != 0:
+                    self._run_git("merge", "--abort", check=False)
+                    LOGGER.warning(
+                        "Failed to merge pulled notebook history for %s: %s",
+                        self.notebook_path,
+                        merge.stderr,
+                    )
+                    return GitPullResult(
+                        success=False,
+                        error="Could not merge the remote versions into the "
+                        "local history.",
+                    )
+            return GitPullResult(success=True, new_commits=new_commits)
+        except (OSError, subprocess.SubprocessError, ValueError) as e:
+            LOGGER.warning(
+                "Failed to pull notebook history for %s: %s",
+                self.notebook_path,
+                e,
+            )
+            return GitPullResult(
+                success=False, error="Pulling from the remote failed."
+            )
 
 
 def _basic_auth_header(token: str) -> str:

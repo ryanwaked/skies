@@ -1615,6 +1615,43 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/git_history/pull": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header: {
+          "Marimo-Session-Id": string;
+        };
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Pull versions from the notebook's linked remote */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["GitPullResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/git_history/restore": {
     parameters: {
       query?: never;
@@ -5254,6 +5291,14 @@ export interface components {
       hasRemote?: boolean;
       /** @default null */
       remoteUrl?: string | null;
+    };
+    /** GitPullResponse */
+    GitPullResponse: {
+      /** @default null */
+      message?: string | null;
+      /** @default 0 */
+      newCommits?: number;
+      success: boolean;
     };
     /** GitRestoreRequest */
     GitRestoreRequest: {

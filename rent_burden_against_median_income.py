@@ -73,7 +73,7 @@ def _(mo):
     mo.md(r"""
     This paper relies on the American Community Survey (ACS) database, published by the United States Census Bureau. It is a comprehensive annual survey containing thousands of datasets for every year ranging from 2000-2024. (ACS, 2026) The datasets pertaining to this study have been pre-fetched and stored in the www.ryanwaked.com/data data warehouse, where details including provenance, governance, schemas, and more can be found.
 
-    The dataset, hereby refered to as "us_gov_db", contains the following information:
+    The dataset, hereby referred to as "us_gov_db", contains the following information:
     """)
     return
 
