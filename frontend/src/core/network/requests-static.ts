@@ -102,5 +102,16 @@ export function createStaticRequests(): EditRequests & RunRequests {
     getCacheInfo: throwNotInEditMode,
     listStorageEntries: throwNotInEditMode,
     downloadStorage: throwNotInEditMode,
+    // Notebook git version history
+    getGitLog: throwNotInEditMode,
+    getGitShow: throwNotInEditMode,
+    sendGitCommit: throwNotInEditMode,
+    sendGitRestore: throwNotInEditMode,
+    sendGitPull: throwNotInEditMode,
+    verifyGitProvider: throwNotInEditMode,
+    sendGitCreateRemote: throwNotInEditMode,
+    // Remote compute (SSH)
+    verifyRemoteComputeTarget: throwNotInEditMode,
+    setRemoteComputeTarget: throwNotInEditMode,
   };
 }

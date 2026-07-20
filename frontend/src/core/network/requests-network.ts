@@ -418,7 +418,11 @@ export function createNetworkRequests(): EditRequests & RunRequests {
     },
     sendGitPull: async () => {
       await waitForConnectionOpen();
-      return getClient().POST("/api/git_history/pull", {}).then(handleResponse);
+      return getClient()
+        .POST("/api/git_history/pull", {
+          params: getParams(),
+        })
+        .then(handleResponse);
     },
     verifyGitProvider: async () => {
       return getClient()

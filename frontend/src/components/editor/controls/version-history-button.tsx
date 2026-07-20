@@ -490,7 +490,7 @@ const VersionHistoryPanel: React.FC<{ onRestored: () => void }> = ({
           </div>
           <div className="flex min-w-0 flex-1 flex-col bg-card">
             {!selected ? (
-              <PanelEmptyState description="Select a version to preview it." />
+              <PanelEmptyState title="Select a version to preview it." />
             ) : (
               <>
                 <div className="flex items-center justify-between gap-2 border-b px-3 py-2">

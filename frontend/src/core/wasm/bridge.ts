@@ -648,6 +648,17 @@ export class PyodideBridge implements RunRequests, EditRequests {
   getCacheInfo = throwNotImplemented;
   listStorageEntries = throwNotImplemented;
   downloadStorage = throwNotImplemented;
+  // Notebook git version history
+  getGitLog = throwNotImplemented;
+  getGitShow = throwNotImplemented;
+  sendGitCommit = throwNotImplemented;
+  sendGitRestore = throwNotImplemented;
+  sendGitPull = throwNotImplemented;
+  verifyGitProvider = throwNotImplemented;
+  sendGitCreateRemote = throwNotImplemented;
+  // Remote compute (SSH)
+  verifyRemoteComputeTarget = throwNotImplemented;
+  setRemoteComputeTarget = throwNotImplemented;
 
   private async putControlRequest(operation: CommandMessage) {
     await this.rpc.proxy.request.bridge({

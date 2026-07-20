@@ -335,6 +335,7 @@ export class IslandsPyodideBridge implements RunRequests, EditRequests {
   exportAsIPYNB = throwNotImplemented;
   exportAsMarkdown = throwNotImplemented;
   exportAsPDF = throwNotImplemented;
+  publishNotebook = throwNotImplemented;
   autoExportAsHTML = throwNotImplemented;
   autoExportAsMarkdown = throwNotImplemented;
   autoExportAsIPYNB = throwNotImplemented;
@@ -355,6 +356,17 @@ export class IslandsPyodideBridge implements RunRequests, EditRequests {
   getCacheInfo = throwNotImplemented;
   listStorageEntries = throwNotImplemented;
   downloadStorage = throwNotImplemented;
+  // Notebook git version history
+  getGitLog = throwNotImplemented;
+  getGitShow = throwNotImplemented;
+  sendGitCommit = throwNotImplemented;
+  sendGitRestore = throwNotImplemented;
+  sendGitPull = throwNotImplemented;
+  verifyGitProvider = throwNotImplemented;
+  sendGitCreateRemote = throwNotImplemented;
+  // Remote compute (SSH)
+  verifyRemoteComputeTarget = throwNotImplemented;
+  setRemoteComputeTarget = throwNotImplemented;
 
   // The kernel uses msgspec to parse control requests, which requires a 'type'
   // field for discriminated union deserialization.

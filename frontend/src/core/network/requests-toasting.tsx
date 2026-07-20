@@ -87,6 +87,7 @@ export function createErrorToastingRequests(
     getGitShow: "Failed to load version diff",
     sendGitCommit: "Failed to save version",
     sendGitRestore: "Failed to restore version",
+    sendGitPull: "Failed to pull latest version",
     verifyGitProvider: "", // No toast — surfaced inline in settings
     sendGitCreateRemote: "Failed to create remote repository",
     verifyRemoteComputeTarget: "", // No toast — surfaced inline in settings
