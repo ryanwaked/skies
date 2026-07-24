@@ -46,6 +46,7 @@ import {
   LazyErrorsPanel,
   LazyFileExplorerPanel,
   LazyLogsPanel,
+  LazyNotebookSwitcherPanel,
   LazyOutlinePanel,
   LazyPackagesPanel,
   LazyScratchpadPanel,
@@ -365,6 +366,7 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
 
   const SIDEBAR_PANELS: Record<PanelType, React.ReactNode> = {
     search: <LazySearchPanel.Component />,
+    notebooks: <LazyNotebookSwitcherPanel.Component />,
     files: <LazyFileExplorerPanel.Component />,
     variables: <LazySessionPanel.Component />,
     dependencies: <LazyDependencyGraphPanel.Component />,

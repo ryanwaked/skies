@@ -13,6 +13,7 @@ import {
   FolderIcon,
   KeyRoundIcon,
   NetworkIcon,
+  NotebookTextIcon,
   PenLineIcon,
   SearchIcon,
   SquareTerminalIcon,
@@ -28,6 +29,7 @@ import { isWasm } from "@/core/wasm/utils";
 export type PanelType =
   // Sidebar defaults
   | "search"
+  | "notebooks"
   | "files"
   | "variables"
   | "outline"
@@ -79,6 +81,14 @@ export const PANELS: PanelDescriptor[] = [
     tooltip: "Search cells",
     defaultSection: "sidebar",
     additionalKeywords: ["find", "grep", "text"],
+  },
+  {
+    type: "notebooks",
+    Icon: NotebookTextIcon,
+    label: "Notebooks",
+    tooltip: "Switch notebooks",
+    defaultSection: "sidebar",
+    additionalKeywords: ["project", "switcher", "workspace"],
   },
   {
     type: "files",
