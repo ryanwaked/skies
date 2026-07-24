@@ -182,6 +182,16 @@
     }
   }
 
+  html {
+    /* Theme the document canvas: the browser's inter-document paint gap
+       during full-page navigations (notebook switches) shows the ROOT
+       element's background. Without this the gap flashes default white —
+       and, paired with the pre-paint theme bootstrap in index.html, this
+       is what keeps the gap dark in dark mode. The Skies desk (grid +
+       grain) still paints on body (skies.css) above this flat base. */
+    background-color: var(--background);
+  }
+
   body {
     @apply bg-background text-foreground;
 

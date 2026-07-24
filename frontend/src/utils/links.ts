@@ -1,5 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { getSessionId } from "@/core/kernel/session";
+import { KnownQueryParams } from "@/core/constants";
 import { asURL } from "./url";
 
 /**
@@ -76,8 +77,9 @@ export function openNotebook(path: string, sessionId?: string) {
  * Open a notebook in the current tab.
  *
  * Used when switching between notebooks within the same project. The current
- * `mode` query param (if present) is preserved so a notebook opened in run
- * mode keeps switching in run mode.
+ * `mode` and `theme` query params (if present) are preserved so a notebook
+ * opened in run mode keeps switching in run mode, and an explicit theme
+ * override does not silently revert mid-switch (a theme flip is a flash).
  *
  * Unsaved-changes safety: there is no synchronous "flush" hook outside of the
  * React save machinery (`useSaveNotebook`), so we rely on the existing
@@ -98,6 +100,10 @@ export function openNotebookInCurrentTab(path: string, sessionId?: string) {
   const mode = currentParams.get("mode");
   if (mode) {
     url.searchParams.set("mode", mode);
+  }
+  const theme = currentParams.get(KnownQueryParams.theme);
+  if (theme) {
+    url.searchParams.set(KnownQueryParams.theme, theme);
   }
   if (sessionId) {
     url.searchParams.set("session_id", sessionId);

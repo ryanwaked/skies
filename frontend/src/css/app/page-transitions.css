@@ -2,23 +2,29 @@
 
 /* ---------------- PAGE TRANSITIONS ----------------
    Notebook-to-notebook switches are full document navigations
-   (`location.assign` in `utils/links.ts`). These rules make that read as a
-   fast content morph instead of a hard cut:
+   (`location.assign` in `utils/links.ts`). The switch must read as ONE
+   continuous dissolve, never a white flash or a double dip:
 
-   1. `@view-transition { navigation: auto }` opts same-origin navigations
-      into cross-document View Transitions; the keyframes below give the
-      outgoing snapshot a quick fade with a slight rise and the incoming
-      snapshot a gentle settle. Browsers without support ignore all of it.
+   1. `html` carries the themed `--background` (globals.css) and the theme
+      class is applied to `<html>` by a blocking bootstrap script in
+      index.html before first paint, so the browser's inter-document gap
+      paints the theme's canvas color instead of default white.
    2. `html.marimo-page-exit` is added by `openNotebookInCurrentTab` right
       before `location.assign`, dimming the live page during the server
-      round trip so the user never sees a flash — and feeding the View
-      Transition a softened outgoing snapshot.
-   3. `#root` gets a short entrance fade on fresh mount so the incoming
-      page materializes instead of popping in.
+      round trip — the single luminance event of the whole switch.
+   3. The incoming page deliberately has NO entrance animation: its first
+      paint already lands on the themed canvas, so content simply
+      materializes. (A `opacity: 0 → 1` entrance on top of the exit dim is
+      a second luminance dip — that was the double flash.)
+   4. `@view-transition { navigation: auto }` opts same-origin navigations
+      into cross-document View Transitions where the browser allows them
+      (marimo's `beforeunload` save guard suppresses them on edit pages, so
+      these keyframes mostly serve guard-free pages such as run mode).
+      Because the incoming page has no entrance animation, there is nothing
+      for these snapshots to stack with.
 
-   Everything is gated behind `prefers-reduced-motion: no-preference` and
-   uses theme variables for color, so dark mode and reduced-motion users
-   are unaffected. */
+   Everything is gated behind `prefers-reduced-motion: no-preference`, so
+   reduced-motion users get an instant, inert switch. */
 
 @media (prefers-reduced-motion: no-preference) {
   /* Opt same-origin cross-document navigations into View Transitions.
@@ -41,7 +47,8 @@
   /* Keep body opacity interpolable in both directions: adding
      `.marimo-page-exit` dims over 140ms, and removing it (navigation
      cancelled by the beforeunload unsaved-changes guard) fades back over
-     the same curve instead of snapping. */
+     the same curve instead of snapping. Only the exit class ever mutates
+     body opacity, so this transition cannot tween anything else. */
   body {
     transition: opacity 140ms ease-out;
   }
@@ -51,12 +58,6 @@
      morph from. */
   html.marimo-page-exit body {
     opacity: 0.55;
-  }
-
-  /* Entrance: subtle fade on fresh mount. Opacity-only and under 200ms
-     so the notebook never feels slow. */
-  body > #root {
-    animation: marimo-page-enter 160ms ease-out;
   }
 }
 
@@ -81,15 +82,5 @@
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes marimo-page-enter {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
   }
 }

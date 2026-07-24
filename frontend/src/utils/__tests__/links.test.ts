@@ -72,6 +72,20 @@ describe("openNotebookInCurrentTab", () => {
     expect(url.searchParams.get("mode")).toBe("edit");
   });
 
+  it("preserves an explicit theme override across the switch", () => {
+    mockLocation("?file=old.py&theme=dark");
+    openNotebookInCurrentTab("new.py");
+    const url = assignedUrl();
+    expect(url.searchParams.get("theme")).toBe("dark");
+  });
+
+  it("does not add a theme param when absent", () => {
+    mockLocation("?file=old.py");
+    openNotebookInCurrentTab("new.py");
+    const url = assignedUrl();
+    expect(url.searchParams.has("theme")).toBe(false);
+  });
+
   it("does not add a mode param when absent", () => {
     mockLocation("?file=old.py");
     openNotebookInCurrentTab("new.py");
