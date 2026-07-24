@@ -246,9 +246,13 @@ export const NotebookSwitcherPanel: React.FC = () => {
 };
 
 const LoadingSkeleton: React.FC = () => (
-  <div className="flex flex-col gap-2 p-3" data-testid="notebook-switcher-loading">
-    {Array.from({ length: 5 }, (_, i) => (
-      <Skeleton key={i} className="h-5 w-full" />
+  <div
+    className="flex flex-col gap-1.5 px-1.5 py-3"
+    data-testid="notebook-switcher-loading"
+  >
+    <Skeleton className="h-3 w-16 mx-1.5 mb-1" />
+    {Array.from({ length: 4 }, (_, i) => (
+      <Skeleton key={i} className="h-6 w-full rounded-[3px]" />
     ))}
   </div>
 );
@@ -311,6 +315,7 @@ const SwitcherSections: React.FC<{
             <NotebookRow
               key={`running-${item.path}`}
               item={item}
+              hideRunningDot={true}
               onSwitch={onSwitch}
               onTogglePin={onTogglePin}
               onShutdown={onShutdown}
@@ -349,7 +354,7 @@ const SwitcherSections: React.FC<{
 };
 
 const SECTION_HEADER_CLASS =
-  "px-3 py-1.5 text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-muted-foreground";
+  "px-3 py-1.5 text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-muted-foreground select-none";
 
 const Section: React.FC<{
   title: string;
@@ -393,6 +398,7 @@ const GroupedRows: React.FC<{
       <NotebookRow
         key={item.path}
         item={item}
+        indent={item.directory !== ""}
         onSwitch={onSwitch}
         onTogglePin={onTogglePin}
         onShutdown={onShutdown}
@@ -405,35 +411,49 @@ const GroupedRows: React.FC<{
 
 const NotebookRow: React.FC<{
   item: NotebookItem;
+  /** Suppress the running dot (redundant inside the Running section). */
+  hideRunningDot?: boolean;
+  /** Indent under a directory group header. */
+  indent?: boolean;
   onSwitch: (item: NotebookItem) => void;
   onTogglePin: (item: NotebookItem) => void;
   onShutdown: (item: NotebookItem) => void;
   onReveal: () => void;
-}> = ({ item, onSwitch, onTogglePin, onShutdown, onReveal }) => {
+}> = ({
+  item,
+  hideRunningDot,
+  indent,
+  onSwitch,
+  onTogglePin,
+  onShutdown,
+  onReveal,
+}) => {
   return (
     <div
       className={cn(
-        "group flex items-center gap-1.5 h-6 pl-3 pr-1 text-xs cursor-pointer",
-        "hover:bg-accent/50 hover:text-accent-foreground",
-        item.isCurrent && "bg-muted/70",
+        "group flex items-center gap-1.5 h-6 mx-1.5 pr-1 rounded-[3px] text-xs cursor-pointer select-none",
+        indent ? "pl-3.5" : "pl-1.5",
+        item.isCurrent
+          ? "bg-primary/[0.07] text-primary"
+          : "hover:bg-[rgba(63,66,87,0.2)]",
       )}
       aria-current={item.isCurrent ? "true" : undefined}
       data-testid={`notebook-switcher-row-${item.path}`}
       onClick={() => onSwitch(item)}
     >
       <NotebookTextIcon
-        className="w-3.5 h-3.5 shrink-0 text-muted-foreground"
+        className={cn(
+          "w-3.5 h-3.5 shrink-0",
+          item.isCurrent ? "text-primary" : "text-muted-foreground",
+        )}
         strokeWidth={1.5}
       />
-      <span
-        className={cn("flex-1 truncate", item.isCurrent && "font-medium")}
-        title={item.path}
-      >
+      <span className="flex-1 truncate" title={item.path}>
         {item.name}
       </span>
-      {item.isRunning && (
+      {item.isRunning && !hideRunningDot && (
         <span
-          className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shrink-0"
+          className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mr-1"
           title="Running"
           data-testid={`notebook-switcher-running-${item.path}`}
         />

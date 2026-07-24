@@ -157,7 +157,9 @@ export function buildNotebookSections(opts: {
 
   // Running notebooks are keyed by path; include unsaved ones (whose path
   // is a session id) even though they never appear in the workspace tree.
+  // Sort by path so the section order is stable across polls.
   const runningItems = [...running.values()]
+    .toSorted((a, b) => a.path.localeCompare(b.path))
     .map(itemForMarimoFile)
     .filter((item) => matchesSearch(item, query));
 
