@@ -42,7 +42,7 @@ export const LayoutSelect: React.FC = () => {
       <SelectTrigger
         // Compact flat select sized to the h-7 header chrome, with the same
         // neutral hover wash as the other top-bar controls.
-        className="h-7 min-w-[110px] bg-background transition-colors hover:bg-[rgba(63,66,87,0.2)]"
+        className="h-7 min-w-[110px] bg-background transition-colors hover:bg-[var(--hover-wash)]"
         data-testid="layout-select"
       >
         <SelectValue placeholder="Select a view" />

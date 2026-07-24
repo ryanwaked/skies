@@ -74,7 +74,7 @@ export const CollapsedCellBanner: React.FC<{
           className={cn(
             "text-[10px] uppercase tracking-wider leading-none",
             "text-muted-foreground bg-muted rounded-[3px] px-1.5 py-1",
-            "cursor-pointer hover:bg-[rgba(63,66,87,0.2)] transition-colors",
+            "cursor-pointer hover:bg-[var(--hover-wash)] transition-colors",
           )}
         >
           {count} {count === 1 ? "cell" : "cells"}

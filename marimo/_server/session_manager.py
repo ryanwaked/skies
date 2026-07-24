@@ -349,7 +349,31 @@ class SessionManager:
         self, file_key: MarimoFileKey
     ) -> Session | None:
         """Get a session by file key."""
-        return self._repository.get_by_file_key(file_key)
+        session = self._repository.get_by_file_key(file_key)
+        if session is None:
+            # Retry with the workspace-resolved key: sessions are tracked by
+            # absolute path, but keys from directory workspaces are relative.
+            session = self._repository.get_by_file_key(
+                self._resolve_file_key(file_key)
+            )
+        return session
+
+    def _resolve_file_key(self, file_key: MarimoFileKey) -> MarimoFileKey:
+        """Resolve a file key to an absolute path via the workspace.
+
+        Session lookups compare against absolute on-disk paths, so relative
+        keys (the norm for directory workspaces, e.g. `marimo edit dir/`)
+        must be resolved against the workspace directory — not the process
+        CWD. Falls back to the raw key for new (`__new__`) or unresolvable
+        keys.
+        """
+        from marimo._utils.http import HTTPException
+
+        try:
+            resolved = self.workspace.resolve(file_key)
+        except HTTPException:
+            return file_key
+        return resolved if resolved is not None else file_key
 
     def maybe_resume_session(
         self, new_session_id: SessionId, file_key: MarimoFileKey
@@ -361,9 +385,11 @@ class SessionManager:
         # Cleanup sessions with dead kernels first
         self._cleanup_dead_sessions()
 
-        # Try to resume using the strategy
+        # Try to resume using the strategy. Resolve the key first so an
+        # orphaned session is found even when the client sends a relative
+        # key (e.g. when switching notebooks in a directory workspace).
         resumed_session = self._resume_strategy.try_resume(
-            new_session_id, file_key
+            new_session_id, self._resolve_file_key(file_key)
         )
 
         if resumed_session:

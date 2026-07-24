@@ -136,7 +136,7 @@ export const SearchInput = React.forwardRef<
           id={inputId}
           ref={ref}
           className={cn(
-            "placeholder:text-foreground-muted flex h-7 m-1 w-full rounded-md bg-transparent py-3 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
+            "placeholder:text-muted-foreground flex h-7 m-1 w-full rounded-md bg-transparent py-3 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
             className,
           )}
           {...props}

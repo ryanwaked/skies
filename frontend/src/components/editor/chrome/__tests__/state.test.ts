@@ -40,6 +40,7 @@ describe("mergePanelLayout", () => {
         "documentation",
         "dependencies",
         "search",
+        "notebooks",
         "components",
       ],
       developerPanel: [
@@ -72,6 +73,7 @@ describe("mergePanelLayout", () => {
         "files",
         "variables",
         "search",
+        "notebooks",
         "packages",
         "documentation",
         "dependencies",
@@ -112,6 +114,7 @@ describe("mergePanelLayout", () => {
         "documentation",
         "dependencies",
         "search",
+        "notebooks",
         "components",
       ],
       developerPanel: [
@@ -160,6 +163,7 @@ describe("mergePanelLayout", () => {
         "documentation",
         "dependencies",
         "components",
+        "notebooks",
       ],
       developerPanel: [
         "errors",
@@ -182,6 +186,7 @@ describe("mergePanelLayout", () => {
       sidebar: [
         "files",
         "search",
+        "notebooks",
         "packages",
         "documentation",
         "dependencies",
@@ -208,6 +213,7 @@ describe("mergePanelLayout", () => {
     expect(mergePanelLayout(saved)).toEqual({
       sidebar: [
         "search",
+        "notebooks",
         "files",
         "variables",
         "packages",
@@ -289,6 +295,7 @@ describe("panelLayoutStorage integration", () => {
         "documentation",
         "dependencies",
         "search",
+        "notebooks",
         "components",
       ],
       developerPanel: [

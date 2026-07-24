@@ -1,5 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
+import type React from "react";
 import { reactLazyWithPreload } from "@/utils/lazy";
 import { Logger } from "@/utils/Logger";
 import type { PanelType } from "../types";
@@ -41,6 +42,12 @@ export const LazyErrorsPanel = reactLazyWithPreload(
 export const LazyFileExplorerPanel = reactLazyWithPreload(
   () => import("../panels/file-explorer-panel"),
 );
+export const LazyNotebookSwitcherPanel = reactLazyWithPreload(
+  (): Promise<{ default: React.ComponentType }> =>
+    import("../panels/notebook-switcher/notebook-switcher-panel").then(
+      (module) => ({ default: module.NotebookSwitcherPanel }),
+    ),
+);
 export const LazyLogsPanel = reactLazyWithPreload(
   () => import("../panels/logs-panel"),
 );
@@ -77,6 +84,7 @@ export const LazyCachePanel = reactLazyWithPreload(
 // so we preload both.
 export const PANEL_PRELOADERS: Record<PanelType, () => void> = {
   search: safePreload(LazySearchPanel),
+  notebooks: safePreload(LazyNotebookSwitcherPanel),
   files: safePreload(LazyFileExplorerPanel),
   variables: safePreload(LazySessionPanel),
   dependencies: safePreload(LazyDependencyGraphPanel),

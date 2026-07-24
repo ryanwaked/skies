@@ -77,7 +77,7 @@ export const DataTablePagination = <TData,>({
           <DropdownMenuTrigger asChild={true}>
             <button
               type="button"
-              className="border border-border rounded-sm justify-between pl-1.5 pr-0.5 h-6 text-xs text-muted-foreground items-center hover:text-foreground hover:bg-[rgba(63,66,87,0.2)] inline-flex gap-0.5 transition-colors"
+              className="border border-border rounded-sm justify-between pl-1.5 pr-0.5 h-6 text-xs text-muted-foreground items-center hover:text-foreground hover:bg-[var(--hover-wash)] inline-flex gap-0.5 transition-colors"
             >
               {pageSize} / page
               <ChevronDown
@@ -120,7 +120,7 @@ export const DataTablePagination = <TData,>({
             size="xs"
             variant="text"
             data-testid="first-page-button"
-            className="hidden h-6 w-6 p-0 lg:flex rounded-[3px] text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]"
+            className="hidden h-6 w-6 p-0 lg:flex rounded-[3px] text-muted-foreground hover:text-foreground hover:bg-[var(--hover-wash)]"
             onClick={() => handlePageChange(() => table.setPageIndex(0))}
             onMouseDown={Events.preventFocus}
             disabled={!table.getCanPreviousPage()}
@@ -133,7 +133,7 @@ export const DataTablePagination = <TData,>({
             size="xs"
             variant="text"
             data-testid="previous-page-button"
-            className="h-6 w-6 p-0 rounded-[3px] text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]"
+            className="h-6 w-6 p-0 rounded-[3px] text-muted-foreground hover:text-foreground hover:bg-[var(--hover-wash)]"
             onClick={() => handlePageChange(() => table.previousPage())}
             onMouseDown={Events.preventFocus}
             disabled={!table.getCanPreviousPage()}
@@ -159,7 +159,7 @@ export const DataTablePagination = <TData,>({
             size="xs"
             variant="text"
             data-testid="next-page-button"
-            className="h-6 w-6 p-0 rounded-[3px] text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]"
+            className="h-6 w-6 p-0 rounded-[3px] text-muted-foreground hover:text-foreground hover:bg-[var(--hover-wash)]"
             onClick={() => handlePageChange(() => table.nextPage())}
             onMouseDown={Events.preventFocus}
             disabled={!table.getCanNextPage()}
@@ -172,7 +172,7 @@ export const DataTablePagination = <TData,>({
             size="xs"
             variant="text"
             data-testid="last-page-button"
-            className="hidden h-6 w-6 p-0 lg:flex rounded-[3px] text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]"
+            className="hidden h-6 w-6 p-0 lg:flex rounded-[3px] text-muted-foreground hover:text-foreground hover:bg-[var(--hover-wash)]"
             onClick={() =>
               handlePageChange(() =>
                 table.setPageIndex(table.getPageCount() - 1),
@@ -305,7 +305,7 @@ export const PageSelector = ({
           className={cn(
             "border border-border rounded-sm justify-between pl-1.5 pr-0.5 h-6 min-w-9 text-xs items-center inline-flex gap-0.5 transition-colors",
             totalPages > 1
-              ? "hover:text-foreground hover:bg-[rgba(63,66,87,0.2)] cursor-pointer"
+              ? "hover:text-foreground hover:bg-[var(--hover-wash)] cursor-pointer"
               : "opacity-50 cursor-default",
           )}
           data-testid="page-select"

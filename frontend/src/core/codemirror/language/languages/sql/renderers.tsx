@@ -355,7 +355,7 @@ export const renderDatabaseInfo = (database: Database): React.ReactNode => {
   const schemaItems = database.schemas.map((schema) => (
     <div
       key={schema.name}
-      className="flex items-center justify-between text-xs rounded hover:bg-[rgba(63,66,87,0.2)]"
+      className="flex items-center justify-between text-xs rounded hover:bg-[var(--hover-wash)]"
     >
       <div className="flex items-center gap-2">
         <SchemaIcon className="w-3 h-3 text-muted-foreground" />
@@ -427,7 +427,7 @@ export const renderSchemaInfo = (schema: DatabaseSchema): React.ReactNode => {
   const tableItems = schema.tables.map((table) => (
     <div
       key={table.name}
-      className="flex items-center justify-between text-xs rounded hover:bg-[rgba(63,66,87,0.2)]"
+      className="flex items-center justify-between text-xs rounded hover:bg-[var(--hover-wash)]"
     >
       <div className="flex items-center gap-2">
         {table.type === "view" ? (
@@ -520,7 +520,7 @@ export const renderDatasourceInfo = (
 
     return (
       <div key={schema.name}>
-        <div className="flex items-center gap-2 text-xs rounded hover:bg-[rgba(63,66,87,0.2)] ml-2">
+        <div className="flex items-center gap-2 text-xs rounded hover:bg-[var(--hover-wash)] ml-2">
           <SchemaIcon className="w-3 h-3 text-muted-foreground" />
           <span>{schema.name}</span>
           {isDefaultSchema && DefaultBadge}

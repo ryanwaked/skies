@@ -305,7 +305,10 @@ class SessionHandler(SessionConsumer, abc.ABC):
         # during intermittent network issues.
         # In RUN mode, this always applies (sessions always have a default
         # TTL even if the manager's ttl_seconds is None).
-        # In EDIT mode, this only applies when --session-ttl is explicitly set.
+        # In EDIT mode, this only applies when --session-ttl is explicitly
+        # set; otherwise the session stays alive (orphaned) and resumable,
+        # which keeps kernels warm when switching between notebooks in a
+        # project.
         should_ttl_close = (
             self.manager.ttl_seconds is not None
             or self.mode == SessionMode.RUN

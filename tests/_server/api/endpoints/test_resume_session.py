@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import os
+import tempfile
 import time
 from contextlib import contextmanager
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from marimo._config.manager import UserConfigManager
@@ -11,7 +13,9 @@ from marimo._messaging.notification import (
     CellNotification,
     KernelReadyNotification,
 )
+from marimo._server.workspace import DirectoryWorkspace
 from marimo._session import Session
+from marimo._session.model import ConnectionState
 from marimo._types.ids import SessionId
 from marimo._utils.parse_dataclass import parse_raw
 from tests._server.api.endpoints.ws_helpers import (
@@ -315,3 +319,113 @@ def without_autorun_on_save(config: UserConfigManager):
         yield
     finally:
         config.save_config(prev_config)
+
+
+_SWITCH_NOTEBOOK = """
+import marimo
+
+__generated_with = "0.0.1"
+app = marimo.App(width="full")
+
+
+@app.cell
+def __():
+    import marimo as mo
+    return mo,
+
+
+if __name__ == "__main__":
+    app.run()
+"""
+
+
+def _create_file_ws_url(session_id: str, file_key: str) -> str:
+    return (
+        f"/ws?session_id={session_id}&file={file_key}&access_token=fake-token"
+    )
+
+
+def test_sessions_keep_warm_when_switching_notebooks(
+    client: TestClient,
+) -> None:
+    """Switching between notebooks in a project must not tear down kernels.
+
+    Regression test for multi-notebook projects (`marimo edit dir/`):
+    navigating away from a notebook disconnects its websocket, but its
+    session must stay orphaned (kernel warm) and resumable — both via its
+    session id and via its workspace-relative file key. Relative keys must
+    resolve against the workspace directory, not the process CWD (which
+    differs when the server is started as `marimo edit path/to/dir`).
+    """
+    session_manager = get_session_manager(client)
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        for name in ("notebook_a.py", "notebook_b.py"):
+            (Path(temp_dir) / name).write_text(_SWITCH_NOTEBOOK)
+
+        workspace = DirectoryWorkspace(temp_dir, include_markdown=False)
+        original_workspace = session_manager.workspace
+        session_manager.workspace = workspace
+
+        try:
+            # Open notebook A.
+            with client.websocket_connect(
+                _create_file_ws_url("session-a", "notebook_a.py")
+            ) as websocket:
+                data = websocket.receive_json()
+                assert data["op"] == "kernel-ready"
+
+            # Switching away (websocket closed) orphans the session but
+            # does not close it — the kernel stays warm.
+            session_a = get_session(client, SessionId("session-a"))
+            assert session_a is not None
+            assert session_a.connection_state() == ConnectionState.ORPHANED
+
+            # Open notebook B in the same tab: a separate session is created.
+            with client.websocket_connect(
+                _create_file_ws_url("session-b", "notebook_b.py")
+            ) as websocket:
+                data = websocket.receive_json()
+                assert data["op"] == "kernel-ready"
+
+            assert get_session(client, SessionId("session-b")) is not None
+            # Notebook A's kernel is still warm.
+            assert session_a.connection_state() == ConnectionState.ORPHANED
+
+            # Both notebooks show up as running, addressed by their
+            # workspace-relative file keys.
+            response = client.post(
+                "/api/home/running_notebooks",
+                headers=headers("session-b"),
+            )
+            assert response.status_code == 200
+            files = {f["path"]: f for f in response.json()["files"]}
+            assert set(files) == {"notebook_a.py", "notebook_b.py"}
+            assert files["notebook_a.py"]["sessionId"] == "session-a"
+            assert files["notebook_b.py"]["sessionId"] == "session-b"
+            assert files["notebook_a.py"]["initializationId"]
+            assert files["notebook_b.py"]["initializationId"]
+
+            # Switch back to notebook A with a fresh session id (the client
+            # generates a new id when it doesn't know the running one): the
+            # orphaned session is resumed via its relative file key.
+            with client.websocket_connect(
+                _create_file_ws_url("session-a2", "notebook_a.py")
+            ) as websocket:
+                data = websocket.receive_json()
+                assert data == {
+                    "op": "reconnected",
+                    "data": {"op": "reconnected"},
+                }
+                data = websocket.receive_json()
+                kernel_ready = parse_raw(data["data"], KernelReadyNotification)
+                assert kernel_ready.resumed
+
+            # The resumed session took over the new id; notebook B's
+            # session is untouched.
+            assert get_session(client, SessionId("session-a")) is None
+            assert get_session(client, SessionId("session-a2")) is not None
+            assert get_session(client, SessionId("session-b")) is not None
+        finally:
+            session_manager.workspace = original_workspace
+            session_manager.close_all_sessions()

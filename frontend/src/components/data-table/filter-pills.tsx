@@ -114,7 +114,7 @@ export const FilterPills = <TData,>({
         <button
           type="button"
           onClick={() => setOverflowOpen(true)}
-          className="shrink-0 inline-flex items-center gap-0.5 rounded-sm border border-border bg-muted px-2 py-0.5 text-xs text-muted-foreground hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground transition-colors"
+          className="shrink-0 inline-flex items-center gap-0.5 rounded-sm border border-border bg-muted px-2 py-0.5 text-xs text-muted-foreground hover:bg-[var(--hover-wash)] hover:text-foreground transition-colors"
           aria-label="See all filters"
         >
           <MoreHorizontalIcon
@@ -270,7 +270,7 @@ const FilterPill = <TData,>({
         variant="outline"
         className={cn(
           "rounded-sm bg-muted border-border text-foreground font-normal",
-          "hover:bg-[rgba(63,66,87,0.2)]",
+          "hover:bg-[var(--hover-wash)]",
           "has-data-[state=open]:bg-primary/[0.07] has-data-[state=open]:border-primary/50",
           "transition-colors",
         )}

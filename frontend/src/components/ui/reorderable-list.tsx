@@ -1,7 +1,7 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
 import type React from "react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   type DropItem,
   ListBox,
@@ -258,6 +258,103 @@ export const ReorderableList = <T extends object>({
     () => new Set(value.map((item) => getKey(item))),
     [value, getKey],
   );
+
+  // Keep latest callbacks/values in refs for the misclassification guard below.
+  const valueRef = useRef(value);
+  valueRef.current = value;
+  const getKeyRef = useRef(getKey);
+  getKeyRef.current = getKey;
+  const onActionRef = useRef(onAction);
+  onActionRef.current = onAction;
+
+  /*
+   * Guard against react-aria's TalkBack heuristic misfiring on genuine mouse
+   * clicks. `@react-aria/dnd`'s `useDrag` classifies any pointerdown landing
+   * within 0.5px of an item's exact geometric center as an Android TalkBack
+   * gesture ("virtual" modality). The click then starts a *virtual drag
+   * session* instead of activating the item: the click is swallowed, and
+   * `ariaHideOutside` applies `inert` to the entire app while the session
+   * cancels every pointer event until Escape is pressed. Worse, `usePress`
+   * schedules an 80ms fallback `element.click()` after pointerup, and that
+   * untrusted click (detail = 0) is *always* treated as virtual, starting the
+   * session even if the trusted click was intercepted first.
+   *
+   * Real mouse users essentially never hit a 0.5px center target (verified
+   * with trusted CDP input: off-center clicks activate normally), but
+   * synthetic/automation clicks land on the exact center by default and are
+   * always misclassified. A genuine mouse press (pointerdown with pressure
+   * > 0) can never be a TalkBack gesture, so when one lands on the exact
+   * center we hide the press from react-aria entirely and activate the item
+   * ourselves on click. `preventDefault` is deliberately avoided on
+   * pointerdown so focus and native HTML5 drag initiation keep working.
+   * Intended keyboard/screen-reader drag sessions have no genuine mouse
+   * pointerdown and are left untouched.
+   */
+  useEffect(() => {
+    let intercepted: { itemKey: string | null } | null = null;
+
+    const onPointerDown = (e: PointerEvent) => {
+      intercepted = null;
+      if (!(e.isTrusted && e.pointerType === "mouse" && e.pressure > 0)) {
+        return;
+      }
+      const itemEl = (e.target as Element | null)?.closest?.(
+        "[data-allows-dragging='true'][data-key]",
+      );
+      if (!itemEl) {
+        return;
+      }
+      const rect = itemEl.getBoundingClientRect();
+      const nearCenter =
+        Math.abs(e.clientX - (rect.x + rect.width / 2)) <= 0.5 &&
+        Math.abs(e.clientY - (rect.y + rect.height / 2)) <= 0.5;
+      if (!nearCenter) {
+        return;
+      }
+      intercepted = { itemKey: itemEl.getAttribute("data-key") };
+      // Hide the press from react-aria: `useDrag` never records the "virtual"
+      // modality, and `usePress` never press-starts, so it can't schedule its
+      // synthetic fallback click.
+      e.stopImmediatePropagation();
+    };
+
+    const onClick = (e: MouseEvent) => {
+      const press = intercepted;
+      intercepted = null;
+      if (!press || press.itemKey == null) {
+        return;
+      }
+      // Only intercept the click that belongs to the intercepted press. A
+      // native drag suppresses the click after pointerup, so without this
+      // check a stale press could swallow an unrelated later click.
+      const itemEl = (e.target as Element | null)?.closest?.(
+        "[data-allows-dragging='true'][data-key]",
+      );
+      if (!itemEl || itemEl.getAttribute("data-key") !== press.itemKey) {
+        return;
+      }
+      const item = valueRef.current.find(
+        (i) => getKeyRef.current(i) === press.itemKey,
+      );
+      // Not this list's item — the owning list's listener will handle it.
+      if (!item) {
+        return;
+      }
+      // Capture runs before react-aria's handlers: swallow the click so it
+      // can't double-activate via `usePress`, and perform the activation
+      // ourselves.
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      onActionRef.current?.(item);
+    };
+
+    document.addEventListener("pointerdown", onPointerDown, true);
+    document.addEventListener("click", onClick, true);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown, true);
+      document.removeEventListener("click", onClick, true);
+    };
+  }, []);
 
   const handleToggleItem = (item: T, isChecked: boolean) => {
     if (isChecked) {

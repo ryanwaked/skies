@@ -1,7 +1,13 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { describe, expect, it } from "vitest";
 import type { FileInfo } from "@/core/network/types";
-import { filterHiddenTree, isDirectoryOrFileHidden } from "../file-explorer";
+import type { FilePath } from "@/utils/paths";
+import {
+  filterHiddenTree,
+  findRunningSession,
+  isDirectoryOrFileHidden,
+} from "../file-explorer";
+import type { RequestingTree } from "../requesting-tree";
 
 // Helpers to build FileInfo objects for tests
 const file = (name: string, path: string): FileInfo => ({
@@ -146,7 +152,6 @@ describe("filterHiddenTree", () => {
     const result = filterHiddenTree([], false);
     expect(result).toEqual([]);
   });
-
   it("should handle empty children arrays", () => {
     const list: FileInfo[] = [dir("empty-dir", "/empty-dir", [])];
 
@@ -175,5 +180,38 @@ describe("filterHiddenTree", () => {
     expect(result[0].children?.[0].children?.[0].children?.[0].name).toBe(
       "file.ts",
     );
+  });
+});
+
+describe("findRunningSession", () => {
+  // Explorer nodes carry absolute paths; the running-notebooks endpoint keys
+  // sessions by workspace-relative "pretty" paths.
+  const tree = {
+    relativeFromRoot: (path: FilePath) =>
+      path.replace(/^\/workspace\//, "") as FilePath,
+  } as RequestingTree;
+
+  it("matches an absolute explorer path against a relative session key", () => {
+    const running = new Map([["notebooks/foo.py", "s1"]]);
+    expect(
+      findRunningSession(running, tree, "/workspace/notebooks/foo.py"),
+    ).toBe("s1");
+  });
+
+  it("falls back to the raw path for sessions outside the workspace", () => {
+    const running = new Map([["/elsewhere/bar.py", "s2"]]);
+    expect(findRunningSession(running, tree, "/elsewhere/bar.py")).toBe("s2");
+  });
+
+  it("returns undefined when the notebook has no running session", () => {
+    const running = new Map([["notebooks/foo.py", "s1"]]);
+    expect(
+      findRunningSession(running, tree, "/workspace/notebooks/other.py"),
+    ).toBeUndefined();
+  });
+
+  it("uses the raw path when there is no tree", () => {
+    const running = new Map([["/workspace/foo.py", "s3"]]);
+    expect(findRunningSession(running, null, "/workspace/foo.py")).toBe("s3");
   });
 });

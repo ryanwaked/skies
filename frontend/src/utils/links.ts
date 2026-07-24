@@ -1,11 +1,113 @@
 /* Copyright 2026 Marimo. All rights reserved. */
+import { getSessionId } from "@/core/kernel/session";
+import { KnownQueryParams } from "@/core/constants";
 import { asURL } from "./url";
 
 /**
- * Open a notebook in a new tab.
- * @param path - The path to the notebook.
+ * Class applied to `<html>` while a same-tab notebook navigation is in
+ * flight. Paired with `css/app/page-transitions.css`, which dims the live
+ * page and animates the cross-document View Transition snapshots.
  */
-export function openNotebook(path: string) {
+export const PAGE_EXIT_CLASS = "marimo-page-exit";
+
+/**
+ * Fallback lifetime of {@link PAGE_EXIT_CLASS}. If navigation is cancelled
+ * by the `beforeunload` unsaved-changes guard, the dim is removed so the
+ * page is not stuck half-transparent. On a successful navigation the page
+ * unloads long before this fires and the timer dies with it.
+ */
+const PAGE_EXIT_FALLBACK_MS = 1500;
+
+function prefersReducedMotion(): boolean {
+  // `matchMedia` is not implemented in every environment (e.g. jsdom);
+  // treat its absence as "no preference" — the CSS is media-gated anyway.
+  return (
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false
+  );
+}
+
+/**
+ * Visually dim the app before a hard in-tab navigation so the switch reads
+ * as a content morph rather than a white flash.
+ *
+ * Browsers with cross-document View Transitions (opted in via
+ * `@view-transition { navigation: auto }` in `page-transitions.css`)
+ * capture this dimmed state into the outgoing snapshot and morph it into
+ * the incoming page; elsewhere the dim simply softens the cut. No-op when
+ * the user prefers reduced motion.
+ */
+export function preparePageExitTransition(): void {
+  if (prefersReducedMotion()) {
+    return;
+  }
+  const root = document.documentElement;
+  root.classList.add(PAGE_EXIT_CLASS);
+  window.setTimeout(
+    () => root.classList.remove(PAGE_EXIT_CLASS),
+    PAGE_EXIT_FALLBACK_MS,
+  );
+}
+
+/** Consistent tab target so we open in the same tab when clicking on the same notebook. */
+export function tabTarget(path: string) {
+  return `${getSessionId()}-${encodeURIComponent(path)}`;
+}
+
+/**
+ * Open a notebook in a new tab.
+ *
+ * Uses a named tab target (see {@link tabTarget}) so re-opening the same
+ * notebook reuses its tab instead of spawning duplicates. When `sessionId`
+ * is given, the URL carries `session_id` so the backend warm-resumes the
+ * existing kernel instead of silently starting a second one.
+ *
+ * @param path - The path to the notebook.
+ * @param sessionId - Optional session id of a running notebook.
+ */
+export function openNotebook(path: string, sessionId?: string) {
   // There is no leading `/` in the path in order to work when marimo is at a subpath.
-  window.open(asURL(`?file=${encodeURIComponent(path)}`).toString(), "_blank");
+  const url = asURL(`?file=${encodeURIComponent(path)}`);
+  if (sessionId) {
+    url.searchParams.set("session_id", sessionId);
+  }
+  window.open(url.toString(), tabTarget(path));
+}
+
+/**
+ * Open a notebook in the current tab.
+ *
+ * Used when switching between notebooks within the same project. The current
+ * `mode` and `theme` query params (if present) are preserved so a notebook
+ * opened in run mode keeps switching in run mode, and an explicit theme
+ * override does not silently revert mid-switch (a theme flip is a flash).
+ *
+ * Unsaved-changes safety: there is no synchronous "flush" hook outside of the
+ * React save machinery (`useSaveNotebook`), so we rely on the existing
+ * autosave loop and the `beforeunload` guard registered by the save
+ * component, which blocks navigation while the notebook has unsaved changes.
+ *
+ * @param path - The path to the notebook.
+ * @param sessionId - Optional session id of a running notebook, so the
+ *   backend can warm-resume the existing session instead of spawning a new
+ *   kernel.
+ */
+export function openNotebookInCurrentTab(path: string, sessionId?: string) {
+  // There is no leading `/` in the path in order to work when marimo is at a subpath.
+  const url = asURL(`?file=${encodeURIComponent(path)}`);
+  // Preserve benign params from the current URL that should survive a
+  // notebook switch.
+  const currentParams = new URLSearchParams(window.location.search);
+  const mode = currentParams.get("mode");
+  if (mode) {
+    url.searchParams.set("mode", mode);
+  }
+  const theme = currentParams.get(KnownQueryParams.theme);
+  if (theme) {
+    url.searchParams.set(KnownQueryParams.theme, theme);
+  }
+  if (sessionId) {
+    url.searchParams.set("session_id", sessionId);
+  }
+  preparePageExitTransition();
+  window.location.assign(url.toString());
 }

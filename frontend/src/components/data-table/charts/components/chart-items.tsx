@@ -160,7 +160,7 @@ export const ChartTypeSelect: React.FC<{
                   "flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-sm border transition-colors",
                   isSelected
                     ? "border-primary/40 bg-primary/[0.07] text-primary"
-                    : "border-transparent text-muted-foreground hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground",
+                    : "border-transparent text-muted-foreground hover:bg-[var(--hover-wash)] hover:text-foreground",
                 )}
               >
                 <Icon className="h-4 w-4" strokeWidth={1.5} />

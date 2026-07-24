@@ -8,18 +8,12 @@ import {
   connectionsAtom,
   DataSources,
 } from "@/components/datasources/datasources";
-import { Accordion } from "@/components/ui/accordion";
 import { VariableTable } from "@/components/variables/variables-table";
 import { useCellIds } from "@/core/cells/cells";
 import { datasetTablesAtom } from "@/core/datasets/state";
 import { useVariables } from "@/core/variables/state";
 import { jotaiJsonStorage } from "@/utils/storage/jotai";
-import {
-  PanelAccordionContent,
-  PanelAccordionItem,
-  PanelAccordionTrigger,
-  PanelBadge,
-} from "./components";
+import { PanelBadge, ResizablePanelSections } from "./components";
 import { PanelEmptyState } from "./empty-state";
 
 type OpenSections = "variables" | "datasources";
@@ -50,10 +44,10 @@ const SessionPanel: React.FC = () => {
       ? [...new Set([...state.openSections, "datasources"])]
       : state.openSections;
 
-  const handleValueChange = useCallback(
-    (value: OpenSections[]) => {
+  const handleOpenSectionsChange = useCallback(
+    (open: string[]) => {
       setState({
-        openSections: value,
+        openSections: open as OpenSections[],
         hasUserInteracted: true,
       });
     },
@@ -64,41 +58,55 @@ const SessionPanel: React.FC = () => {
   const showDatasourcesBadge = !isDatasourcesOpen && datasourcesCount > 0;
 
   return (
-    <Accordion
-      type="multiple"
-      value={openSections}
-      onValueChange={handleValueChange}
-      className="flex flex-col h-full overflow-y-auto overflow-x-hidden"
-    >
-      <PanelAccordionItem value="datasources">
-        <PanelAccordionTrigger>
-          <DatabaseIcon className="w-3 h-3" strokeWidth={1.5} />
-          Data sources
-          {showDatasourcesBadge && <PanelBadge>{datasourcesCount}</PanelBadge>}
-        </PanelAccordionTrigger>
-        <PanelAccordionContent>
-          <DataSources />
-        </PanelAccordionContent>
-      </PanelAccordionItem>
-
-      <PanelAccordionItem value="variables" lastItem={true}>
-        <PanelAccordionTrigger>
-          <VariableIcon className="w-3 h-3" strokeWidth={1.5} />
-          Variables
-        </PanelAccordionTrigger>
-        <PanelAccordionContent>
-          {Object.keys(variables).length === 0 ? (
-            <PanelEmptyState
-              title="No variables"
-              description="Variables defined in your notebook appear here."
-              icon={<VariableIcon />}
-            />
-          ) : (
-            <VariableTable cellIds={cellIds.inOrderIds} variables={variables} />
-          )}
-        </PanelAccordionContent>
-      </PanelAccordionItem>
-    </Accordion>
+    <ResizablePanelSections
+      storageKey="session"
+      sections={[
+        {
+          id: "datasources",
+          header: (
+            <>
+              <DatabaseIcon className="w-3 h-3" strokeWidth={1.5} />
+              Data sources
+              {showDatasourcesBadge && (
+                <PanelBadge>{datasourcesCount}</PanelBadge>
+              )}
+            </>
+          ),
+          content: (
+            <div className="h-full overflow-y-auto overflow-x-hidden">
+              <DataSources />
+            </div>
+          ),
+        },
+        {
+          id: "variables",
+          header: (
+            <>
+              <VariableIcon className="w-3 h-3" strokeWidth={1.5} />
+              Variables
+            </>
+          ),
+          content: (
+            <div className="h-full overflow-y-auto overflow-x-hidden">
+              {Object.keys(variables).length === 0 ? (
+                <PanelEmptyState
+                  title="No variables"
+                  description="Variables defined in your notebook appear here."
+                  icon={<VariableIcon />}
+                />
+              ) : (
+                <VariableTable
+                  cellIds={cellIds.inOrderIds}
+                  variables={variables}
+                />
+              )}
+            </div>
+          ),
+        },
+      ]}
+      openSections={openSections}
+      onOpenSectionsChange={handleOpenSectionsChange}
+    />
   );
 };
 

@@ -6,19 +6,13 @@ import { FileIcon, HardDrive } from "lucide-react";
 import React, { useCallback, useMemo } from "react";
 import useResizeObserver from "use-resize-observer";
 import { StorageInspector } from "@/components/storage/storage-inspector";
-import { Accordion } from "@/components/ui/accordion";
 import { storageNamespacesAtom } from "@/core/storage/state";
 import { cn } from "@/utils/cn";
 import { jotaiJsonStorage } from "@/utils/storage/jotai";
 import { TreeDndProvider } from "../../file-tree/dnd-wrapper";
 import { FileExplorer } from "../../file-tree/file-explorer";
 import { useFileExplorerUpload } from "../../file-tree/upload";
-import {
-  PanelAccordionContent,
-  PanelAccordionItem,
-  PanelAccordionTrigger,
-  PanelBadge,
-} from "./components";
+import { PanelBadge, ResizablePanelSections } from "./components";
 
 type OpenSections = "files" | "remote-storage";
 
@@ -33,38 +27,37 @@ const fileExplorerPanelAtom = atomWithStorage<FileExplorerPanelState>(
   jotaiJsonStorage,
 );
 
-const FileExplorerComponent: React.FC<{ height: number }> = ({ height }) => {
+const FileExplorerComponent: React.FC = () => {
+  const { ref, height = 0 } = useResizeObserver<HTMLDivElement>();
   const { getRootProps, getInputProps, isDragActive } = useFileExplorerUpload({
     noClick: true,
     noKeyboard: true,
   });
 
   return (
-    <TreeDndProvider>
-      <div
-        {...getRootProps()}
-        className={cn("flex flex-col overflow-hidden relative bg-card")}
-        style={{ height }}
-      >
-        <input {...getInputProps()} />
-        {isDragActive && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none rounded-[3px] border border-dashed border-primary/60 bg-card/90 text-xs font-semibold uppercase tracking-wide text-primary">
-            Drop files here
-          </div>
-        )}
+    <div ref={ref} className="h-full min-h-0">
+      <TreeDndProvider>
+        <div
+          {...getRootProps()}
+          className={cn(
+            "h-full flex flex-col overflow-hidden relative bg-card",
+          )}
+        >
+          <input {...getInputProps()} />
+          {isDragActive && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none rounded-[3px] border border-dashed border-primary/60 bg-card/90 text-xs font-semibold uppercase tracking-wide text-primary">
+              Drop files here
+            </div>
+          )}
 
-        <FileExplorer height={height} />
-      </div>
-    </TreeDndProvider>
+          {height > 0 && <FileExplorer height={height} />}
+        </div>
+      </TreeDndProvider>
+    </div>
   );
 };
 
-// Height of each accordion trigger (px-3 py-1.5 text-[10px] uppercase = ~28px)
-const TRIGGER_HEIGHT = 28;
-
 const FileExplorerPanel: React.FC = () => {
-  const { ref: panelRef, height: panelHeight = 500 } =
-    useResizeObserver<HTMLDivElement>();
   const [state, setState] = useAtom(fileExplorerPanelAtom);
 
   const storageNamespaces = useAtomValue(storageNamespacesAtom);
@@ -80,61 +73,53 @@ const FileExplorerPanel: React.FC = () => {
     return state.openSections;
   }, [state.hasUserInteracted, state.openSections, remoteStorageConnections]);
 
-  const handleValueChange = useCallback(
-    (value: OpenSections[]) => {
+  const handleOpenSectionsChange = useCallback(
+    (open: string[]) => {
       setState({
-        openSections: value,
+        openSections: open as OpenSections[],
         hasUserInteracted: true,
       });
     },
     [setState],
   );
 
-  const availableContent = panelHeight - TRIGGER_HEIGHT * 2;
-  const storageIsOpen = openSections.includes("remote-storage");
-  const bothOpen = storageIsOpen && openSections.includes("files");
-
-  const storageMaxHeight = bothOpen
-    ? Math.round(availableContent * 0.4)
-    : availableContent;
-  const fileTreeHeight = Math.max(
-    200,
-    bothOpen ? availableContent - storageMaxHeight : availableContent,
-  );
-
   return (
-    <div ref={panelRef} className="h-full overflow-y-auto overflow-x-hidden">
-      <Accordion
-        type="multiple"
-        value={openSections}
-        onValueChange={handleValueChange}
-      >
-        <PanelAccordionItem value="remote-storage">
-          <PanelAccordionTrigger>
-            <HardDrive className="w-3 h-3" strokeWidth={1.5} /> Remote storage
-            {remoteStorageConnections > 0 && (
-              <PanelBadge>{remoteStorageConnections}</PanelBadge>
-            )}
-          </PanelAccordionTrigger>
-          <PanelAccordionContent
-            className="overflow-y-auto overflow-x-hidden"
-            style={{ maxHeight: storageMaxHeight }}
-          >
-            <StorageInspector />
-          </PanelAccordionContent>
-        </PanelAccordionItem>
-
-        <PanelAccordionItem value="files">
-          <PanelAccordionTrigger>
-            <FileIcon className="w-3 h-3" strokeWidth={1.5} />
-            Files
-          </PanelAccordionTrigger>
-          <PanelAccordionContent>
-            <FileExplorerComponent height={fileTreeHeight} />
-          </PanelAccordionContent>
-        </PanelAccordionItem>
-      </Accordion>
-    </div>
+    <ResizablePanelSections
+      storageKey="file-explorer"
+      sections={[
+        {
+          id: "remote-storage",
+          header: (
+            <>
+              <HardDrive className="w-3 h-3" strokeWidth={1.5} /> Remote
+              storage
+              {remoteStorageConnections > 0 && (
+                <PanelBadge>{remoteStorageConnections}</PanelBadge>
+              )}
+            </>
+          ),
+          content: (
+            <div className="h-full overflow-y-auto overflow-x-hidden">
+              <StorageInspector />
+            </div>
+          ),
+          defaultSize: 40,
+        },
+        {
+          id: "files",
+          header: (
+            <>
+              <FileIcon className="w-3 h-3" strokeWidth={1.5} />
+              Files
+            </>
+          ),
+          content: <FileExplorerComponent />,
+          defaultSize: 60,
+        },
+      ]}
+      openSections={openSections}
+      onOpenSectionsChange={handleOpenSectionsChange}
+    />
   );
 };
 

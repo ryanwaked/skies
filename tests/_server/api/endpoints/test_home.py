@@ -16,7 +16,7 @@ from marimo._server.workspace import (
     DirectoryWorkspace,
     FixedFilesWorkspace,
 )
-from marimo._session.model import SessionMode
+from marimo._session.model import ConnectionState, SessionMode
 from tests._server.mocks import get_session_manager, token_header, with_session
 
 if TYPE_CHECKING:
@@ -696,3 +696,95 @@ def test_notebook_preview_non_directory_workspace(client: TestClient) -> None:
     body = response.json()
     assert body["cells"] == []
     assert body["totalCells"] == 0
+
+
+@with_session(SESSION_ID)
+def test_workspace_files_in_edit_mode_directory_workspace(
+    client: TestClient,
+) -> None:
+    """`marimo edit dir/` (edit mode): the notebook-switcher's file listing.
+
+    The panel calls this endpoint from an open notebook edit page, so it
+    must work in EDIT mode against a directory workspace, returning
+    workspace-relative file keys usable as `?file=` params.
+    """
+    session_manager = get_session_manager(client)
+    assert session_manager.mode == SessionMode.EDIT
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        (Path(temp_dir) / "one.py").write_text(
+            "import marimo\napp = marimo.App()"
+        )
+        subdir = Path(temp_dir) / "sub"
+        subdir.mkdir()
+        (subdir / "two.py").write_text("import marimo\napp = marimo.App()")
+        # Non-notebook files are excluded from the listing.
+        (Path(temp_dir) / "notes.txt").write_text("not a notebook")
+
+        session_manager.workspace = DirectoryWorkspace(
+            temp_dir, include_markdown=False
+        )
+
+        response = client.post(
+            "/api/home/workspace_files",
+            headers=HEADERS,
+            json={"include_markdown": False},
+        )
+        assert response.status_code == 200
+        body = response.json()
+
+        assert body["root"] == temp_dir
+        assert body["fileCount"] == 2
+        assert body["hasMore"] is False
+
+        by_path = {file["path"]: file for file in body["files"]}
+        assert set(by_path) == {"sub", "one.py"}
+        assert by_path["one.py"]["isMarimoFile"] is True
+        assert by_path["one.py"]["isDirectory"] is False
+        assert by_path["sub"]["isDirectory"] is True
+        children = by_path["sub"]["children"]
+        assert [child["path"] for child in children] == [
+            os.path.join("sub", "two.py")
+        ]
+        assert children[0]["isMarimoFile"] is True
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="Failing on Windows CI")
+def test_running_notebooks_includes_orphaned_sessions(
+    client: TestClient,
+) -> None:
+    """A notebook whose tab was closed still shows as running.
+
+    In edit mode without --session-ttl, websocket disconnect orphans the
+    session but keeps the kernel warm and resumable; the switcher panel
+    relies on these entries (with session ids) to render "running"
+    indicators and to reconnect instead of spawning new kernels.
+    """
+    session_manager = get_session_manager(client)
+    auth_headers = token_header(session_manager.auth_token)
+
+    with client.websocket_connect(
+        f"/ws?session_id={SESSION_ID}", headers=auth_headers
+    ) as websocket:
+        data = websocket.receive_text()
+        assert data
+
+    # Websocket closed: session is orphaned, not shut down.
+    session = session_manager.get_session(SESSION_ID)
+    assert session is not None
+    assert session.connection_state() == ConnectionState.ORPHANED
+
+    response = client.post(
+        "/api/home/running_notebooks",
+        headers=HEADERS,
+    )
+    assert response.status_code == 200
+    files = response.json()["files"]
+    assert len(files) == 1
+    assert files[0]["sessionId"] == SESSION_ID
+    assert files[0]["initializationId"]
+    assert files[0]["name"]
+    assert files[0]["path"]
+
+    # Cleanup: shut the kernel down.
+    client.post("/api/kernel/shutdown", headers=auth_headers)

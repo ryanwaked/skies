@@ -1,11 +1,13 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { useAtomValue, useSetAtom } from "jotai";
 import {
+  ArrowUpCircleIcon,
   BoxIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   HelpCircleIcon,
   PlusIcon,
+  Trash2Icon,
 } from "lucide-react";
 import React from "react";
 import { useOpenSettingsToTab } from "@/components/app-config/state";
@@ -13,6 +15,7 @@ import { Spinner } from "@/components/icons/spinner";
 import { SearchInput } from "@/components/ui/input";
 import {
   PANEL_SEARCH_ACTION,
+  PANEL_SEARCH_INPUT,
   PANEL_SEARCH_INPUT_ROOT,
   PANEL_SEARCH_ROW,
   PANEL_SEGMENTED_ITEM,
@@ -50,28 +53,31 @@ import { PACKAGES_INPUT_ID, packagesToInstallAtom } from "./packages-utils";
 
 type ViewMode = "tree" | "list";
 
+/** Compact icon action (upgrade/remove) revealed on row hover. */
 const PackageActionButton: React.FC<{
   onClick: () => void;
   loading: boolean;
-  children: React.ReactNode;
-  className?: string;
-}> = ({ onClick, loading, children, className }) => {
-  if (loading) {
-    return <Spinner size="small" className="h-4 w-4 shrink-0 opacity-50" />;
-  }
-
+  label: string;
+  icon: React.ReactNode;
+}> = ({ onClick, loading, label, icon }) => {
   return (
-    <button
-      type="button"
-      className={cn(
-        "px-2 h-full text-xs text-muted-foreground hover:text-foreground",
-        "invisible group-hover:visible",
-        className,
-      )}
-      onClick={Events.stopPropagation(onClick)}
-    >
-      {children}
-    </button>
+    <Tooltip content={label}>
+      <button
+        type="button"
+        aria-label={label}
+        className={cn(
+          "flex items-center justify-center h-6 w-6 shrink-0 rounded-[3px]",
+          "text-muted-foreground hover:text-foreground hover:bg-[var(--hover-wash)]",
+        )}
+        onClick={Events.stopPropagation(onClick)}
+      >
+        {loading ? (
+          <Spinner size="small" className="h-3.5 w-3.5 opacity-50" />
+        ) : (
+          icon
+        )}
+      </button>
+    </Tooltip>
   );
 };
 
@@ -116,8 +122,8 @@ const PackagesPanel: React.FC = () => {
     <div className="flex-1 flex flex-col overflow-hidden">
       <InstallPackageForm packageManager={packageManager} onSuccess={refetch} />
       {isTreeSupported && (
-        <div className={cn(PANEL_TOOLBAR_ROW, "justify-between")}>
-          <div className="flex gap-0.5">
+        <div className={cn(PANEL_TOOLBAR_ROW, "justify-between gap-2")}>
+          <div className="flex gap-0.5 shrink-0">
             <button
               type="button"
               className={cn(
@@ -143,19 +149,20 @@ const PackagesPanel: React.FC = () => {
               Tree
             </button>
           </div>
-          <div className="flex items-center gap-2">
-            <div
-              className="items-center border border-border px-1.5 py-0 text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-muted-foreground rounded-[3px] text-ellipsis block overflow-hidden max-w-fit"
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span
+              className="shrink-0 border border-border px-1.5 py-0 text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-muted-foreground rounded-[3px]"
               title={isSandbox ? "sandbox" : "project"}
             >
               {isSandbox ? "sandbox" : "project"}
-            </div>
+            </span>
             {name && !isSandbox && (
-              <span className="text-xs text-muted-foreground truncate min-w-0">
+              <span
+                className="text-xs text-muted-foreground truncate min-w-0"
+                title={version ? `${name} v${version}` : name}
+              >
                 {name}
-                {version && (
-                  <span className="font-code text-xs"> v{version}</span>
-                )}
+                {version && <span className="font-code"> v{version}</span>}
               </span>
             )}
           </div>
@@ -232,6 +239,7 @@ const InstallPackageForm: React.FC<{
           )
         }
         rootClassName={PANEL_SEARCH_INPUT_ROOT}
+        className={PANEL_SEARCH_INPUT}
         value={input}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
@@ -341,18 +349,22 @@ const PackagesList: React.FC<{
   }
 
   return (
-    <Table className="table-fixed overflow-y-auto overflow-x-hidden flex-1">
+    <Table className="table-fixed">
       <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead className="w-20 text-right">Version</TableHead>
+        <TableRow className="hover:bg-transparent">
+          <TableHead className="h-8 px-2 text-[10px] font-mono font-medium uppercase tracking-[0.12em]">
+            Name
+          </TableHead>
+          <TableHead className="h-8 w-22 px-2 text-right text-[10px] font-mono font-medium uppercase tracking-[0.12em]">
+            Version
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {sortedPackages.map((item) => (
           <TableRow
             key={item.name}
-            className="group"
+            className="group cursor-pointer hover:bg-[var(--hover-wash)]"
             onClick={async () => {
               await copyToClipboard(`${item.name}==${item.version}`);
               toast({
@@ -360,19 +372,22 @@ const PackagesList: React.FC<{
               });
             }}
           >
-            <TableCell className="text-[13px] truncate" title={item.name}>
+            <TableCell
+              className="px-2 py-1.5 text-[13px] truncate"
+              title={item.name}
+            >
               {item.name}
             </TableCell>
             {/* Version and the hover-revealed actions share one right-aligned
                 column, so there's no empty gutter reserved for the actions. */}
-            <TableCell className="w-20 text-right align-middle">
+            <TableCell className="w-22 px-2 py-1.5 text-right align-middle">
               <span
                 className="block truncate font-code text-xs text-muted-foreground group-hover:hidden"
                 title={item.version}
               >
                 {item.version}
               </span>
-              <span className="hidden items-center justify-end gap-0.5 group-hover:flex">
+              <span className="hidden items-center justify-end group-hover:flex">
                 <UpgradeButton packageName={item.name} onSuccess={onSuccess} />
                 <RemoveButton packageName={item.name} onSuccess={onSuccess} />
               </span>
@@ -418,9 +433,12 @@ const UpgradeButton: React.FC<{
   };
 
   return (
-    <PackageActionButton onClick={handleUpgradePackage} loading={loading}>
-      Upgrade
-    </PackageActionButton>
+    <PackageActionButton
+      onClick={handleUpgradePackage}
+      loading={loading}
+      label="Upgrade"
+      icon={<ArrowUpCircleIcon strokeWidth={1.5} className="h-3.5 w-3.5" />}
+    />
   );
 };
 
@@ -452,9 +470,12 @@ const RemoveButton: React.FC<{
   };
 
   return (
-    <PackageActionButton onClick={handleRemovePackage} loading={loading}>
-      Remove
-    </PackageActionButton>
+    <PackageActionButton
+      onClick={handleRemovePackage}
+      loading={loading}
+      label="Remove"
+      icon={<Trash2Icon strokeWidth={1.5} className="h-3.5 w-3.5" />}
+    />
   );
 };
 
@@ -467,9 +488,26 @@ const DependencyTree: React.FC<{
     new Set(),
   );
 
-  // Reset tree to collapsed state when tree data changes (including refetches)
+  // Node ids are name paths (e.g. "root-pandas-numpy"), so expansion state
+  // survives refetches. When tree data changes, prune only the ids that no
+  // longer exist instead of collapsing everything.
   React.useEffect(() => {
-    setExpandedNodes(new Set());
+    setExpandedNodes((prev) => {
+      if (prev.size === 0 || !tree) {
+        return prev;
+      }
+      const valid = new Set<string>();
+      const walk = (nodes: DependencyTreeNode[], prefix: string) => {
+        for (const node of nodes) {
+          const id = `${prefix}-${node.name}`;
+          valid.add(id);
+          walk(node.dependencies, id);
+        }
+      };
+      walk(tree.dependencies, "root");
+      const next = new Set([...prev].filter((id) => valid.has(id)));
+      return next.size === prev.size ? prev : next;
+    });
   }, [tree]);
 
   if (error) {
@@ -508,7 +546,7 @@ const DependencyTree: React.FC<{
         {tree.dependencies.map((dep, index) => (
           <div key={`${dep.name}-${index}`} className="border-b">
             <DependencyTreeNode
-              nodeId={`root-${index}`}
+              nodeId={`root-${dep.name}`}
               node={dep}
               level={0}
               isTopLevel={true}
@@ -565,10 +603,10 @@ const DependencyTreeNode: React.FC<{
     <div>
       <div
         className={cn(
-          "flex items-center group cursor-pointer text-[13px] whitespace-nowrap min-h-[26px] rounded-[3px]",
+          "flex items-center gap-1.5 group cursor-pointer text-[13px] whitespace-nowrap min-h-7 rounded-[3px]",
           "hover:bg-[var(--hover-wash)] focus:bg-[var(--hover-wash)] focus:outline-hidden",
           hasChildren && "select-none",
-          isTopLevel ? "px-2 py-0.5" : "",
+          isTopLevel ? "px-2" : "pr-2",
         )}
         style={isTopLevel ? {} : { paddingLeft: `${indent}px` }}
         onClick={handleClick}
@@ -583,76 +621,80 @@ const DependencyTreeNode: React.FC<{
           isExpanded ? (
             <ChevronDownIcon
               strokeWidth={1.5}
-              className="w-3.5 h-3.5 mr-2 shrink-0 text-muted-foreground"
+              className="w-3.5 h-3.5 shrink-0 text-muted-foreground"
             />
           ) : (
             <ChevronRightIcon
               strokeWidth={1.5}
-              className="w-3.5 h-3.5 mr-2 shrink-0 text-muted-foreground"
+              className="w-3.5 h-3.5 shrink-0 text-muted-foreground"
             />
           )
         ) : (
-          <div className="w-3.5 mr-2 shrink-0" />
+          <div className="w-3.5 shrink-0" />
         )}
 
-        {/* Package info */}
-        <div className="flex items-center gap-2 flex-1 min-w-0 py-0.5">
-          <span className="font-medium truncate">{node.name}</span>
-          {node.version && (
-            <span className="font-code text-xs text-muted-foreground">
-              v{node.version}
-            </span>
-          )}
-        </div>
+        {/* Package info: the name claims all free space and truncates;
+            everything after it is intrinsic-width and never shrinks. */}
+        <span className="font-medium truncate flex-1 min-w-0" title={node.name}>
+          {node.name}
+        </span>
+        {node.version && (
+          <span className="font-code text-xs text-muted-foreground shrink-0">
+            v{node.version}
+          </span>
+        )}
 
         {/* Tags */}
-        <div className="flex items-center gap-1 ml-2">
-          {node.tags.map((tag, index) => {
-            const tagClassName =
-              "items-center border px-1.5 py-0 text-[10px] font-medium rounded-[3px] text-ellipsis block overflow-hidden max-w-fit";
-            if (tag.kind === "cycle") {
-              return (
-                <div
-                  key={index}
-                  className={cn(
-                    tagClassName,
-                    "border-action-foreground/40 text-action-foreground",
-                  )}
-                  title="cycle"
-                >
-                  cycle
-                </div>
-              );
-            }
-            if (tag.kind === "extra") {
-              return (
-                <div
-                  key={index}
-                  className={cn(tagClassName, "border-link/40 text-link")}
-                  title={tag.value}
-                >
-                  {tag.value}
-                </div>
-              );
-            }
-            if (tag.kind === "group") {
-              return (
-                <div
-                  key={index}
-                  className={cn(tagClassName, "border-success/40 text-success")}
-                  title={tag.value}
-                >
-                  {tag.value}
-                </div>
-              );
-            }
-            return null;
-          })}
-        </div>
+        {node.tags.length > 0 && (
+          <div className="flex items-center gap-1 shrink-0">
+            {node.tags.map((tag, index) => {
+              const tagClassName =
+                "shrink-0 border px-1.5 py-0 text-[10px] font-medium rounded-[3px] truncate max-w-[72px]";
+              if (tag.kind === "cycle") {
+                return (
+                  <div
+                    key={index}
+                    className={cn(
+                      tagClassName,
+                      "border-action-foreground/40 text-action-foreground",
+                    )}
+                    title="cycle"
+                  >
+                    cycle
+                  </div>
+                );
+              }
+              if (tag.kind === "extra") {
+                return (
+                  <div
+                    key={index}
+                    className={cn(tagClassName, "border-link/40 text-link")}
+                    title={tag.value}
+                  >
+                    {tag.value}
+                  </div>
+                );
+              }
+              if (tag.kind === "group") {
+                return (
+                  <div
+                    key={index}
+                    className={cn(tagClassName, "border-success/40 text-success")}
+                    title={tag.value}
+                  >
+                    {tag.value}
+                  </div>
+                );
+              }
+              return null;
+            })}
+          </div>
+        )}
 
-        {/* Actions for top-level packages */}
+        {/* Actions for top-level packages; hidden (not just invisible) so
+            they never steal width from the package name. */}
         {isTopLevel && (
-          <div className="flex gap-1 invisible group-hover:visible">
+          <div className="hidden items-center group-hover:flex shrink-0">
             <UpgradeButton
               packageName={node.name}
               tags={node.tags}
@@ -674,7 +716,7 @@ const DependencyTreeNode: React.FC<{
           {node.dependencies.map((child, index) => (
             <DependencyTreeNode
               key={`${child.name}-${index}`}
-              nodeId={`${nodeId}-${index}`}
+              nodeId={`${nodeId}-${child.name}`}
               node={child}
               level={level + 1}
               isTopLevel={false}
@@ -689,7 +731,7 @@ const DependencyTreeNode: React.FC<{
   );
 };
 
-function resolveViewMode(
+export function resolveViewMode(
   userViewMode: ViewMode | null,
   isTreeSupported: boolean,
 ): ViewMode {

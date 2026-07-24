@@ -17,7 +17,7 @@ import {
   UploadIcon,
   ViewIcon,
 } from "lucide-react";
-import React, { Suspense, use, useRef, useState } from "react";
+import React, { Suspense, use, useEffect, useRef, useState } from "react";
 import {
   type NodeApi,
   type NodeRendererProps,
@@ -58,7 +58,7 @@ import { useCellActions } from "@/core/cells/cells";
 import { useLastFocusedCellId } from "@/core/cells/focus";
 import { disableFileDownloadsAtom } from "@/core/config/config";
 import { useRequestClient } from "@/core/network/requests";
-import type { FileInfo } from "@/core/network/types";
+import type { FileInfo, MarimoFile } from "@/core/network/types";
 import { isWasm } from "@/core/wasm/utils";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { ErrorBanner } from "@/plugins/impl/common/error-banner";
@@ -67,14 +67,14 @@ import { cn } from "@/utils/cn";
 import { copyToClipboard } from "@/utils/copy";
 import { downloadBlob } from "@/utils/download";
 import { type Base64String, base64ToDataURL } from "@/utils/json/base64";
-import { openNotebook } from "@/utils/links";
-import type { FilePath } from "@/utils/paths";
+import { openNotebook, openNotebookInCurrentTab } from "@/utils/links";
+import { type FilePath, PathBuilder } from "@/utils/paths";
 import { makeDuplicateName } from "@/utils/pathUtils";
 import { jotaiJsonStorage } from "@/utils/storage/jotai";
 import { useTreeDndManager } from "./dnd-wrapper";
 import { FileViewer } from "./file-viewer";
 import type { RequestingTree } from "./requesting-tree";
-import { openStateAtom, treeAtom } from "./state";
+import { openStateAtom, revealPathAtom, treeAtom } from "./state";
 import { PYTHON_CODE_FOR_FILE_TYPE } from "./types";
 import { useFileExplorerUpload } from "./upload";
 
@@ -89,6 +89,15 @@ const hiddenFilesState = atomWithStorage(
 
 const RequestingTreeContext = React.createContext<RequestingTree | null>(null);
 
+/**
+ * Map of absolute file path -> session id for notebooks with a live kernel
+ * session, so clicking a running notebook in the explorer warm-resumes its
+ * existing session instead of spawning a new kernel.
+ */
+const RunningNotebookSessionsContext = React.createContext<
+  ReadonlyMap<string, string>
+>(new Map());
+
 export const FileExplorer: React.FC<{
   height: number;
 }> = ({ height }) => {
@@ -101,6 +110,26 @@ export const FileExplorer: React.FC<{
     useAtom<boolean>(hiddenFilesState);
 
   const { openPrompt } = useImperativeModal();
+  const { getRunningNotebooks } = useRequestClient();
+  // Track running notebooks so clicks on a running notebook can warm-resume
+  // its existing session (same-tab switch with `session_id`). Not supported
+  // in WASM; a failure here is non-fatal and just skips warm-resume.
+  const { data: runningNotebooks } = useAsyncData(
+    () =>
+      isWasm()
+        ? Promise.resolve({ files: [] as MarimoFile[] })
+        : getRunningNotebooks(),
+    [],
+  );
+  const runningSessions = React.useMemo(() => {
+    const map = new Map<string, string>();
+    for (const file of runningNotebooks?.files ?? []) {
+      if (file.sessionId) {
+        map.set(file.path, file.sessionId);
+      }
+    }
+    return map;
+  }, [runningNotebooks]);
   // Keep external state to remember which folders are open
   // when this component is unmounted
   const [openState, setOpenState] = useAtom(openStateAtom);
@@ -150,6 +179,65 @@ export const FileExplorer: React.FC<{
     setOpenState({});
   });
 
+  // Reveal a file requested from another panel (e.g. the notebook switcher):
+  // expand its ancestor folders (fetching children as needed), then scroll
+  // the row into view and focus it. The atom is cleared once consumed.
+  const [revealPath, setRevealPath] = useAtom(revealPathAtom);
+  useEffect(() => {
+    if (!revealPath || isPending) {
+      return;
+    }
+    let cancelled = false;
+    const reveal = async () => {
+      // Leave the file viewer (if open) so the tree is visible.
+      setOpenFile(null);
+      const builder = PathBuilder.guessDeliminator(revealPath);
+      const relative = tree.relativeFromRoot(revealPath as FilePath);
+      const depth = relative
+        .split(builder.deliminator)
+        .filter(Boolean).length;
+      // Ancestor directories, topmost first, so each expand can fetch the
+      // children the next one needs.
+      const ancestors: string[] = [];
+      let cursor = revealPath;
+      for (let i = 0; i < depth - 1; i++) {
+        cursor = builder.dirname(cursor as FilePath);
+        ancestors.unshift(cursor);
+      }
+      const opened: Record<string, boolean> = {};
+      for (const id of ancestors) {
+        if (cancelled) {
+          return;
+        }
+        await tree.expand(id);
+        treeRef.current?.open(id);
+        opened[id] = true;
+      }
+      if (cancelled) {
+        return;
+      }
+      if (Object.keys(opened).length > 0) {
+        setOpenState((prev) => ({ ...prev, ...opened }));
+      }
+      // Wait for the expanded rows to render before scrolling.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (cancelled) {
+            return;
+          }
+          treeRef.current?.scrollTo(revealPath);
+          treeRef.current?.focus(revealPath);
+        });
+      });
+      setRevealPath(null);
+    };
+    void reveal();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [revealPath, isPending, tree]);
+
   const visibleData = React.useMemo(
     () => filterHiddenTree(data, showHiddenFiles),
     [data, showHiddenFiles],
@@ -183,10 +271,15 @@ export const FileExplorer: React.FC<{
         <Suspense>
           <FileViewer
             onOpenNotebook={(evt) =>
-              openMarimoNotebook(
-                evt,
-                tree.relativeFromRoot(openFile.path as FilePath),
-              )
+              openMarimoNotebook({
+                event: evt,
+                path: tree.relativeFromRoot(openFile.path as FilePath),
+                sessionId: findRunningSession(
+                  runningSessions,
+                  tree,
+                  openFile.path,
+                ),
+              })
             }
             file={openFile}
           />
@@ -208,56 +301,58 @@ export const FileExplorer: React.FC<{
         tree={tree}
       />
       <RequestingTreeContext value={tree}>
-        <Tree<FileInfo>
-          width="100%"
-          ref={treeRef}
-          height={height - 33}
-          className="h-full"
-          data={visibleData}
-          initialOpenState={openState}
-          openByDefault={false}
-          // Use shared DnD manager to prevent "Cannot have two HTML5 backends" error
-          dndManager={dndManager}
-          // Hide the drop cursor
-          renderCursor={() => null}
-          // Disable dropping files into files
-          disableDrop={({ parentNode }) => !parentNode.data.isDirectory}
-          onDelete={async ({ ids }) => {
-            for (const id of ids) {
-              await tree.delete(id);
-            }
-          }}
-          onRename={async ({ id, name }) => {
-            await tree.rename(id, name);
-          }}
-          onMove={async ({ dragIds, parentId }) => {
-            await tree.move(dragIds, parentId);
-          }}
-          onSelect={(nodes) => {
-            const first = nodes[0];
-            if (!first) {
-              return;
-            }
-            if (!first.data.isDirectory) {
-              setOpenFile(first.data);
-            }
-          }}
-          onToggle={async (id) => {
-            const result = await tree.expand(id);
-            if (result) {
-              const prevOpen = openState[id] ?? false;
-              setOpenState({ ...openState, [id]: !prevOpen });
-            }
-          }}
-          padding={15}
-          rowHeight={26}
-          indent={INDENT_STEP}
-          overscanCount={1000}
-          // Disable multi-selection
-          disableMultiSelection={true}
-        >
-          {Node}
-        </Tree>
+        <RunningNotebookSessionsContext value={runningSessions}>
+          <Tree<FileInfo>
+            width="100%"
+            ref={treeRef}
+            height={height - 33}
+            className="h-full"
+            data={visibleData}
+            initialOpenState={openState}
+            openByDefault={false}
+            // Use shared DnD manager to prevent "Cannot have two HTML5 backends" error
+            dndManager={dndManager}
+            // Hide the drop cursor
+            renderCursor={() => null}
+            // Disable dropping files into files
+            disableDrop={({ parentNode }) => !parentNode.data.isDirectory}
+            onDelete={async ({ ids }) => {
+              for (const id of ids) {
+                await tree.delete(id);
+              }
+            }}
+            onRename={async ({ id, name }) => {
+              await tree.rename(id, name);
+            }}
+            onMove={async ({ dragIds, parentId }) => {
+              await tree.move(dragIds, parentId);
+            }}
+            onSelect={(nodes) => {
+              const first = nodes[0];
+              if (!first) {
+                return;
+              }
+              if (!first.data.isDirectory) {
+                setOpenFile(first.data);
+              }
+            }}
+            onToggle={async (id) => {
+              const result = await tree.expand(id);
+              if (result) {
+                const prevOpen = openState[id] ?? false;
+                setOpenState({ ...openState, [id]: !prevOpen });
+              }
+            }}
+            padding={15}
+            rowHeight={26}
+            indent={INDENT_STEP}
+            overscanCount={1000}
+            // Disable multi-selection
+            disableMultiSelection={true}
+          >
+            {Node}
+          </Tree>
+        </RunningNotebookSessionsContext>
       </RequestingTreeContext>
     </>
   );
@@ -398,7 +493,7 @@ const Show = ({
           className="shrink-0 ml-2 text-xs text-primary hidden group-hover:inline hover:underline"
           onClick={onOpenMarimoFile}
         >
-          open <ExternalLinkIcon className="inline ml-1" size={12} />
+          open
         </span>
       )}
     </span>
@@ -427,6 +522,7 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
   };
 
   const tree = use(RequestingTreeContext);
+  const runningSessions = use(RunningNotebookSessionsContext);
 
   const handleOpenMarimoFile = async (
     evt: Pick<Event, "stopPropagation" | "preventDefault">,
@@ -434,7 +530,23 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
     const path = tree
       ? tree.relativeFromRoot(node.data.path as FilePath)
       : node.data.path;
-    openMarimoNotebook(evt, path);
+    // Warm-resume the existing kernel session when this notebook is running.
+    openMarimoNotebook({
+      event: evt,
+      path,
+      sessionId: findRunningSession(runningSessions, tree, node.data.path),
+    });
+  };
+
+  const handleOpenMarimoFileInNewTab = (
+    evt: Pick<Event, "stopPropagation" | "preventDefault">,
+  ) => {
+    evt.stopPropagation();
+    evt.preventDefault();
+    const path = tree
+      ? tree.relativeFromRoot(node.data.path as FilePath)
+      : node.data.path;
+    openNotebook(path);
   };
 
   const handleDeleteFile = async (evt: Event) => {
@@ -515,7 +627,7 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
           "flex items-center pl-1 py-0.5 cursor-pointer text-[13px] rounded-[3px] flex-1 overflow-hidden group",
           node.isSelected
             ? "bg-primary/[0.07] text-primary"
-            : "hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground",
+            : "hover:bg-[var(--hover-wash)] hover:text-foreground",
           node.willReceiveDrop &&
             node.data.isDirectory &&
             "bg-primary/[0.07] hover:bg-primary/[0.07] text-primary hover:text-primary",
@@ -660,6 +772,13 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
                 <PlaySquareIcon className={MENU_ITEM_ICON_CLASS} />
                 Open notebook
               </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={handleOpenMarimoFileInNewTab}
+                data-testid="file-explorer-open-notebook-new-tab-menu-item"
+              >
+                <ExternalLinkIcon className={MENU_ITEM_ICON_CLASS} />
+                Open notebook in new tab
+              </DropdownMenuItem>
             </>
           )}
           <DropdownMenuSeparator />
@@ -711,13 +830,38 @@ const FolderArrow = ({ node }: { node: NodeApi<FileInfo> }) => {
   return <TreeChevron isExpanded={node.isOpen} className="w-3.5 h-3.5" />;
 };
 
-function openMarimoNotebook(
-  event: Pick<Event, "stopPropagation" | "preventDefault">,
-  path: string,
-) {
+function openMarimoNotebook(opts: {
+  event: Pick<Event, "stopPropagation" | "preventDefault">;
+  path: string;
+  sessionId?: string;
+}) {
+  const { event, path, sessionId } = opts;
   event.stopPropagation();
   event.preventDefault();
-  openNotebook(path);
+  // Switch notebooks in the same tab; pass the session id of a running
+  // notebook so its kernel session is warm-resumed.
+  openNotebookInCurrentTab(path, sessionId);
+}
+
+/**
+ * Look up the running session for an explorer file. The running-notebooks
+ * endpoint keys files by workspace-relative "pretty" paths, while explorer
+ * nodes carry absolute paths, so try the root-relative form first and fall
+ * back to the raw path (absolute when the file lives outside the workspace).
+ */
+export function findRunningSession(
+  runningSessions: ReadonlyMap<string, string>,
+  tree: RequestingTree | null,
+  path: string,
+): string | undefined {
+  if (tree) {
+    const relative = tree.relativeFromRoot(path as FilePath);
+    const sessionId = runningSessions.get(relative);
+    if (sessionId) {
+      return sessionId;
+    }
+  }
+  return runningSessions.get(path);
 }
 
 export function filterHiddenTree(

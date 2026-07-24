@@ -60,6 +60,52 @@
     <marimo-user-config data-config="{{ user_config }}" hidden></marimo-user-config>
     <marimo-server-token data-token="{{ server_token }}" hidden></marimo-server-token>
     <!-- /TODO -->
+    <!-- Apply the resolved theme to <html> BEFORE first paint. ThemeProvider
+         only adds the theme class after React mounts, so without this the
+         first paint — and the inter-document gap during notebook switches —
+         renders with the wrong (light) color-scheme: a bright flash in dark
+         mode. Mirrors the resolution order in src/theme/useTheme.ts:
+         ?theme= query param > saved display.theme > system preference. -->
+    <script data-marimo="true">
+      (function () {
+        try {
+          var theme = new URLSearchParams(window.location.search).get("theme");
+          if (theme !== "light" && theme !== "dark" && theme !== "system") {
+            theme = null;
+            var configEl = document.querySelector("marimo-user-config");
+            if (configEl) {
+              var config = JSON.parse(configEl.getAttribute("data-config") || "{}");
+              var saved = config.display && config.display.theme;
+              if (saved === "light" || saved === "dark" || saved === "system") {
+                theme = saved;
+              }
+            }
+          }
+          var resolved = theme;
+          if (resolved !== "light" && resolved !== "dark") {
+            resolved =
+              window.matchMedia &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light";
+          }
+          var root = document.documentElement;
+          root.classList.add(resolved, resolved + "-theme");
+          root.dataset.theme = resolved;
+          // Pre-CSS bridge: this script runs BEFORE the stylesheet links
+          // below are fetched, so set a literal canvas color inline. Without
+          // it, an early first paint of the new document (before the CSS
+          // bundle arrives) flashes default white. ThemeProvider clears this
+          // once React boots; globals.css then drives the canvas from
+          // --background so live theme changes keep working.
+          root.style.backgroundColor =
+            resolved === "dark" ? "#15131d" : "#faf7f7";
+        } catch (error) {
+          // Never block first paint on theme bootstrapping; React applies
+          // the theme after mount regardless.
+        }
+      })();
+    </script>
     <title>{{ title }}</title>
   </head>
   <body>

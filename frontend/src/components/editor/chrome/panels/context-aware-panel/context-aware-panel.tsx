@@ -67,7 +67,7 @@ export const ContextAwarePanel: React.FC = () => {
             isCellAware ? (
               <div className="flex flex-col gap-1">
                 <span>Follow focused table</span>
-                <span className="text-xs text-muted-foreground w-64">
+                <span className="text-xs text-muted-foreground w-64 max-w-[calc(100vw-64px)]">
                   The panel updates as cells that output tables are focused.
                   Click to fix to the current cell.
                 </span>
@@ -75,7 +75,7 @@ export const ContextAwarePanel: React.FC = () => {
             ) : (
               <div className="flex flex-col gap-1">
                 <span>Focus on current table</span>
-                <span className="text-xs text-muted-foreground w-64">
+                <span className="text-xs text-muted-foreground w-64 max-w-[calc(100vw-64px)]">
                   The panel is focused on the current table. Click to update
                   based on which cell is focused.
                 </span>
@@ -111,7 +111,7 @@ export const ContextAwarePanel: React.FC = () => {
             onClick={closePanel}
             aria-label="Close selection panel"
           >
-            <XIcon className="w-4 h-4 hover:text-destructive" />
+            <XIcon className="w-4 h-4 hover:text-foreground" />
           </Button>
         </div>
 

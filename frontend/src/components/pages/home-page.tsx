@@ -81,6 +81,7 @@ import {
   homeViewAtom,
   includeMarkdownAtom,
   pinnedNotebooksAtom,
+  RUNNING_NOTEBOOKS_POLL_INTERVAL_MS,
   RunningNotebooksContext,
   WorkspaceContext,
 } from "../home/state";
@@ -276,7 +277,7 @@ const HomePage: React.FC = () => {
   const recentsResponse = useAsyncData(() => getRecentFiles(), []);
 
   useInterval(() => setNonce((n) => n + 1), {
-    delayMs: 10_000,
+    delayMs: RUNNING_NOTEBOOKS_POLL_INTERVAL_MS,
     whenVisible: true,
   });
 
@@ -676,7 +677,7 @@ const NavRow: React.FC<{
     type="button"
     onClick={onClick}
     className={cn(
-      "flex items-center gap-2.5 rounded-[4px] px-2.5 py-1.5 text-[13px] transition-colors",
+      "flex items-center gap-2.5 rounded-[3px] px-2.5 py-1.5 text-[13px] transition-colors",
       active
         ? "bg-accent text-accent-foreground"
         : "text-muted-foreground hover:bg-[var(--hover-wash)] hover:text-foreground",
@@ -750,7 +751,7 @@ const CollectionRow: React.FC<{
             onStopEditing();
           }
         }}
-        className="mx-1 rounded-[4px] border border-input bg-card px-2 py-1 text-[13px] outline-none focus:border-primary"
+        className="mx-1 rounded-[3px] border border-input bg-card px-2 py-1 text-[13px] outline-none focus:border-primary"
       />
     );
   }
@@ -758,7 +759,7 @@ const CollectionRow: React.FC<{
   return (
     <div
       className={cn(
-        "group flex items-center gap-2.5 rounded-[4px] px-2.5 py-1.5 text-[13px] transition-colors",
+        "group flex items-center gap-2.5 rounded-[3px] px-2.5 py-1.5 text-[13px] transition-colors",
         active
           ? "bg-accent text-accent-foreground"
           : "text-muted-foreground hover:bg-[var(--hover-wash)] hover:text-foreground",
@@ -941,7 +942,7 @@ const MainPane: React.FC<{
                   }
                 }}
                 placeholder="filter index…"
-                className="mb-0 h-8 w-56 border-border pl-8 font-mono text-[12px] placeholder:text-[var(--foreground-dim)]"
+                className="mb-0 h-8 flex-1 min-w-0 max-w-56 border-border pl-8 font-mono text-[12px] placeholder:text-[var(--foreground-dim)]"
               />
             </div>
             <SortToggle sort={sort} onChange={setSort} />
@@ -950,7 +951,7 @@ const MainPane: React.FC<{
               type="button"
               aria-label="Refresh"
               onClick={onRefresh}
-              className="flex h-8 w-8 items-center justify-center rounded-[4px] text-[var(--foreground-dim)] hover:bg-[var(--hover-wash)] hover:text-foreground"
+              className="flex h-8 w-8 items-center justify-center rounded-[3px] text-[var(--foreground-dim)] hover:bg-[var(--hover-wash)] hover:text-foreground"
             >
               {isFetching ? (
                 <Spinner size="small" />

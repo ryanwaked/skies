@@ -92,12 +92,12 @@ const CopyButton: React.FC<DataItemProps<any>> = ({ value }) => {
     >
       {copied ? (
         <CheckIcon
-          className="w-5 h-5 absolute -top-0.5 p-1 hover:bg-[rgba(63,66,87,0.2)] rounded"
+          className="w-5 h-5 absolute -top-0.5 p-1 hover:bg-[var(--hover-wash)] rounded"
           strokeWidth={1.5}
         />
       ) : (
         <CopyIcon
-          className="w-5 h-5 absolute -top-0.5 p-1 hover:bg-[rgba(63,66,87,0.2)] rounded"
+          className="w-5 h-5 absolute -top-0.5 p-1 hover:bg-[var(--hover-wash)] rounded"
           strokeWidth={1.5}
         />
       )}

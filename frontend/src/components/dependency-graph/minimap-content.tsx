@@ -87,7 +87,7 @@ const MinimapCell: React.FC<MinimapCellProps> = (props) => {
       </span>
       <div
         className={cn(
-          "group-hover:bg-[rgba(63,66,87,0.2)] flex h-full w-full px-0.5 items-center rounded-sm",
+          "group-hover:bg-[var(--hover-wash)] flex h-full w-full px-0.5 items-center rounded-sm",
           isSelected && "bg-primary/7 group-hover:bg-primary/7",
         )}
       >

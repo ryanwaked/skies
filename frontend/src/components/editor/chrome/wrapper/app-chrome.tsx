@@ -46,6 +46,7 @@ import {
   LazyErrorsPanel,
   LazyFileExplorerPanel,
   LazyLogsPanel,
+  LazyNotebookSwitcherPanel,
   LazyOutlinePanel,
   LazyPackagesPanel,
   LazyScratchpadPanel,
@@ -134,7 +135,7 @@ const TerminalSkeleton: React.FC = () => {
       }}
     >
       <span className="opacity-70">Starting terminal</span>
-      <span className="ml-1 inline-block w-2 h-3.5 align-middle bg-current animate-pulse" />
+      <span className="ml-1 inline-block w-2 h-3.5 align-middle bg-current motion-safe:animate-pulse" />
     </div>
   );
 };
@@ -365,6 +366,7 @@ export const AppChrome: React.FC<PropsWithChildren> = ({ children }) => {
 
   const SIDEBAR_PANELS: Record<PanelType, React.ReactNode> = {
     search: <LazySearchPanel.Component />,
+    notebooks: <LazyNotebookSwitcherPanel.Component />,
     files: <LazyFileExplorerPanel.Component />,
     variables: <LazySessionPanel.Component />,
     dependencies: <LazyDependencyGraphPanel.Component />,

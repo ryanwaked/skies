@@ -1,0 +1,86 @@
+/* Copyright 2026 Marimo. All rights reserved. */
+
+/* ---------------- PAGE TRANSITIONS ----------------
+   Notebook-to-notebook switches are full document navigations
+   (`location.assign` in `utils/links.ts`). The switch must read as ONE
+   continuous dissolve, never a white flash or a double dip:
+
+   1. `html` carries the themed `--background` (globals.css) and the theme
+      class is applied to `<html>` by a blocking bootstrap script in
+      index.html before first paint, so the browser's inter-document gap
+      paints the theme's canvas color instead of default white.
+   2. `html.marimo-page-exit` is added by `openNotebookInCurrentTab` right
+      before `location.assign`, dimming the live page during the server
+      round trip — the single luminance event of the whole switch.
+   3. The incoming page deliberately has NO entrance animation: its first
+      paint already lands on the themed canvas, so content simply
+      materializes. (A `opacity: 0 → 1` entrance on top of the exit dim is
+      a second luminance dip — that was the double flash.)
+   4. `@view-transition { navigation: auto }` opts same-origin navigations
+      into cross-document View Transitions where the browser allows them
+      (marimo's `beforeunload` save guard suppresses them on edit pages, so
+      these keyframes mostly serve guard-free pages such as run mode).
+      Because the incoming page has no entrance animation, there is nothing
+      for these snapshots to stack with.
+
+   Everything is gated behind `prefers-reduced-motion: no-preference`, so
+   reduced-motion users get an instant, inert switch. */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Opt same-origin cross-document navigations into View Transitions.
+     No-op where unsupported. */
+  @view-transition {
+    navigation: auto;
+  }
+
+  /* Outgoing snapshot: quick fade with a slight rise. */
+  ::view-transition-old(root) {
+    animation: marimo-page-vt-exit 180ms ease-out both;
+  }
+
+  /* Incoming snapshot: fades in from a hair below, offset so the two
+     snapshots overlap into a single morph. */
+  ::view-transition-new(root) {
+    animation: marimo-page-vt-enter 200ms ease-out 40ms both;
+  }
+
+  /* Keep body opacity interpolable in both directions: adding
+     `.marimo-page-exit` dims over 140ms, and removing it (navigation
+     cancelled by the beforeunload unsaved-changes guard) fades back over
+     the same curve instead of snapping. Only the exit class ever mutates
+     body opacity, so this transition cannot tween anything else. */
+  body {
+    transition: opacity 140ms ease-out;
+  }
+
+  /* Live-page dim applied right before `location.assign`. Stays partial
+     (not 0) so a captured View Transition snapshot still has content to
+     morph from. */
+  html.marimo-page-exit body {
+    opacity: 0.55;
+  }
+}
+
+@keyframes marimo-page-vt-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+  }
+}
+
+@keyframes marimo-page-vt-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
