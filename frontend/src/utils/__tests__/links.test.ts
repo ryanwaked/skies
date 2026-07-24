@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { openNotebookInCurrentTab } from "../links";
+import { openNotebookInCurrentTab, PAGE_EXIT_CLASS } from "../links";
 
 describe("openNotebookInCurrentTab", () => {
   const originalLocation = window.location;
@@ -87,5 +87,96 @@ describe("openNotebookInCurrentTab", () => {
     expect(url.searchParams.get("session_id")).toBe("fresh-id");
     expect(url.searchParams.get("mode")).toBe("read");
     expect(url.searchParams.get("file")).toBe("new.py");
+  });
+});
+
+describe("openNotebookInCurrentTab page-exit transition", () => {
+  const originalLocation = window.location;
+  const originalMatchMedia = window.matchMedia;
+  const assignMock = vi.fn();
+
+  function mockLocation(search: string) {
+    Object.defineProperty(window, "location", {
+      value: {
+        assign: assignMock,
+        search,
+      },
+      writable: true,
+    });
+  }
+
+  function mockReducedMotion(reduced: boolean) {
+    Object.defineProperty(window, "matchMedia", {
+      value: (query: string) => ({
+        matches: reduced && query === "(prefers-reduced-motion: reduce)",
+        media: query,
+      }),
+      writable: true,
+    });
+  }
+
+  beforeEach(() => {
+    assignMock.mockClear();
+    document.documentElement.classList.remove(PAGE_EXIT_CLASS);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    document.documentElement.classList.remove(PAGE_EXIT_CLASS);
+    Object.defineProperty(window, "location", {
+      value: originalLocation,
+      writable: true,
+    });
+    Object.defineProperty(window, "matchMedia", {
+      value: originalMatchMedia,
+      writable: true,
+    });
+  });
+
+  it("dims the page before navigating", () => {
+    mockReducedMotion(false);
+    mockLocation("?file=old.py");
+    openNotebookInCurrentTab("new.py");
+    expect(document.documentElement.classList.contains(PAGE_EXIT_CLASS)).toBe(
+      true,
+    );
+    expect(assignMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("still dims when matchMedia is unavailable (jsdom)", () => {
+    Object.defineProperty(window, "matchMedia", {
+      value: undefined,
+      writable: true,
+    });
+    mockLocation("?file=old.py");
+    openNotebookInCurrentTab("new.py");
+    expect(document.documentElement.classList.contains(PAGE_EXIT_CLASS)).toBe(
+      true,
+    );
+    expect(assignMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not dim when the user prefers reduced motion, but still navigates", () => {
+    mockReducedMotion(true);
+    mockLocation("?file=old.py");
+    openNotebookInCurrentTab("new.py");
+    expect(document.documentElement.classList.contains(PAGE_EXIT_CLASS)).toBe(
+      false,
+    );
+    expect(assignMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("removes the dim after a fallback timeout if navigation is cancelled", () => {
+    vi.useFakeTimers();
+    mockReducedMotion(false);
+    mockLocation("?file=old.py");
+    openNotebookInCurrentTab("new.py");
+    expect(document.documentElement.classList.contains(PAGE_EXIT_CLASS)).toBe(
+      true,
+    );
+    vi.advanceTimersByTime(2000);
+    expect(document.documentElement.classList.contains(PAGE_EXIT_CLASS)).toBe(
+      false,
+    );
   });
 });

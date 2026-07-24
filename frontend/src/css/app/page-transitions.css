@@ -1,0 +1,95 @@
+/* Copyright 2026 Marimo. All rights reserved. */
+
+/* ---------------- PAGE TRANSITIONS ----------------
+   Notebook-to-notebook switches are full document navigations
+   (`location.assign` in `utils/links.ts`). These rules make that read as a
+   fast content morph instead of a hard cut:
+
+   1. `@view-transition { navigation: auto }` opts same-origin navigations
+      into cross-document View Transitions; the keyframes below give the
+      outgoing snapshot a quick fade with a slight rise and the incoming
+      snapshot a gentle settle. Browsers without support ignore all of it.
+   2. `html.marimo-page-exit` is added by `openNotebookInCurrentTab` right
+      before `location.assign`, dimming the live page during the server
+      round trip so the user never sees a flash — and feeding the View
+      Transition a softened outgoing snapshot.
+   3. `#root` gets a short entrance fade on fresh mount so the incoming
+      page materializes instead of popping in.
+
+   Everything is gated behind `prefers-reduced-motion: no-preference` and
+   uses theme variables for color, so dark mode and reduced-motion users
+   are unaffected. */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Opt same-origin cross-document navigations into View Transitions.
+     No-op where unsupported. */
+  @view-transition {
+    navigation: auto;
+  }
+
+  /* Outgoing snapshot: quick fade with a slight rise. */
+  ::view-transition-old(root) {
+    animation: marimo-page-vt-exit 180ms ease-out both;
+  }
+
+  /* Incoming snapshot: fades in from a hair below, offset so the two
+     snapshots overlap into a single morph. */
+  ::view-transition-new(root) {
+    animation: marimo-page-vt-enter 200ms ease-out 40ms both;
+  }
+
+  /* Keep body opacity interpolable in both directions: adding
+     `.marimo-page-exit` dims over 140ms, and removing it (navigation
+     cancelled by the beforeunload unsaved-changes guard) fades back over
+     the same curve instead of snapping. */
+  body {
+    transition: opacity 140ms ease-out;
+  }
+
+  /* Live-page dim applied right before `location.assign`. Stays partial
+     (not 0) so a captured View Transition snapshot still has content to
+     morph from. */
+  html.marimo-page-exit body {
+    opacity: 0.55;
+  }
+
+  /* Entrance: subtle fade on fresh mount. Opacity-only and under 200ms
+     so the notebook never feels slow. */
+  body > #root {
+    animation: marimo-page-enter 160ms ease-out;
+  }
+}
+
+@keyframes marimo-page-vt-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+  }
+}
+
+@keyframes marimo-page-vt-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes marimo-page-enter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

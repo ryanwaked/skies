@@ -13,7 +13,7 @@ import {
   FolderIcon,
   KeyRoundIcon,
   NetworkIcon,
-  NotebookTextIcon,
+  NotebookIcon,
   PenLineIcon,
   SearchIcon,
   SquareTerminalIcon,
@@ -84,7 +84,7 @@ export const PANELS: PanelDescriptor[] = [
   },
   {
     type: "notebooks",
-    Icon: NotebookTextIcon,
+    Icon: NotebookIcon,
     label: "Notebooks",
     tooltip: "Switch notebooks",
     defaultSection: "sidebar",

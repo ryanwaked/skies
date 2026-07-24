@@ -5,8 +5,8 @@ import {
   ExternalLinkIcon,
   FolderIcon,
   ListTreeIcon,
+  NotebookIcon,
   NotebookPenIcon,
-  NotebookTextIcon,
   PinIcon,
   PinOffIcon,
   PowerOffIcon,
@@ -28,7 +28,6 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/use-toast";
@@ -42,6 +41,12 @@ import { cn } from "@/utils/cn";
 import { openNotebook, openNotebookInCurrentTab } from "@/utils/links";
 import { Maps } from "@/utils/maps";
 import { useChromeActions } from "../../state";
+import {
+  PANEL_EYEBROW,
+  PANEL_SEARCH_INPUT,
+  PANEL_SEARCH_INPUT_ROOT,
+  PANEL_SEARCH_ROW,
+} from "../panel-styles";
 import {
   buildNotebookSections,
   type NotebookItem,
@@ -182,21 +187,31 @@ export const NotebookSwitcherPanel: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-card">
-      <div className="flex items-center gap-1 px-2 py-1.5 border-b border-border shrink-0">
-        <div className="relative flex-1">
-          <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground pointer-events-none" />
-          <Input
+      <div className={PANEL_SEARCH_ROW}>
+        <div
+          className={cn(PANEL_SEARCH_INPUT_ROOT, "flex items-center gap-1.5")}
+        >
+          <SearchIcon
+            strokeWidth={1.5}
+            className="h-3.5 w-3.5 shrink-0 text-muted-foreground pointer-events-none"
+          />
+          <input
+            type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Filter notebooks..."
-            className="h-6 pl-6 pr-5 text-xs shadow-none"
+            spellCheck={false}
+            className={cn(
+              PANEL_SEARCH_INPUT,
+              "flex-1 min-w-0 bg-transparent text-foreground outline-none",
+            )}
             data-testid="notebook-switcher-search"
           />
           {query && (
             <button
               type="button"
               aria-label="Clear filter"
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="shrink-0 text-muted-foreground hover:text-foreground"
               onClick={() => setQuery("")}
             >
               <XIcon className="w-3 h-3" />
@@ -252,7 +267,7 @@ const LoadingSkeleton: React.FC = () => (
   >
     <Skeleton className="h-3 w-16 mx-1.5 mb-1" />
     {Array.from({ length: 4 }, (_, i) => (
-      <Skeleton key={i} className="h-6 w-full rounded-[3px]" />
+      <Skeleton key={i} className="h-7 w-full rounded-[3px]" />
     ))}
   </div>
 );
@@ -278,7 +293,7 @@ const SwitcherSections: React.FC<{
 
   if (isEmpty) {
     return (
-      <div className="flex flex-col items-start gap-2 p-3 text-xs text-muted-foreground">
+      <div className="flex flex-col items-start gap-2 p-3 text-[13px] text-muted-foreground">
         {query ? (
           <span>No notebooks match &ldquo;{query}&rdquo;.</span>
         ) : (
@@ -353,8 +368,7 @@ const SwitcherSections: React.FC<{
   );
 };
 
-const SECTION_HEADER_CLASS =
-  "px-3 py-1.5 text-[10px] font-mono font-medium uppercase tracking-[0.12em] text-muted-foreground select-none";
+const SECTION_HEADER_CLASS = cn(PANEL_EYEBROW, "px-3 py-1.5 select-none");
 
 const Section: React.FC<{
   title: string;
@@ -386,9 +400,9 @@ const GroupedRows: React.FC<{
         rows.push(
           <div
             key={`dir-${item.directory}`}
-            className="flex items-center gap-1.5 px-3 pt-1.5 pb-0.5 text-[10px] text-muted-foreground/80"
+            className="flex items-center gap-1.5 px-3 pt-1.5 pb-0.5 text-xs text-muted-foreground/80"
           >
-            <FolderIcon className="w-3 h-3" strokeWidth={1.5} />
+            <FolderIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
             <span className="truncate">{item.directory}</span>
           </div>,
         );
@@ -431,7 +445,7 @@ const NotebookRow: React.FC<{
   return (
     <div
       className={cn(
-        "group flex items-center gap-1.5 h-6 mx-1.5 pr-1 rounded-[3px] text-xs cursor-pointer select-none",
+        "group flex items-center gap-1.5 h-7 mx-1.5 pr-1 rounded-[3px] text-[13px] cursor-pointer select-none",
         indent ? "pl-3.5" : "pl-1.5",
         item.isCurrent
           ? "bg-primary/[0.07] text-primary"
@@ -441,9 +455,9 @@ const NotebookRow: React.FC<{
       data-testid={`notebook-switcher-row-${item.path}`}
       onClick={() => onSwitch(item)}
     >
-      <NotebookTextIcon
+      <NotebookIcon
         className={cn(
-          "w-3.5 h-3.5 shrink-0",
+          "w-4 h-4 shrink-0",
           item.isCurrent ? "text-primary" : "text-muted-foreground",
         )}
         strokeWidth={1.5}
