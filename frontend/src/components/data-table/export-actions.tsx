@@ -136,7 +136,7 @@ export const ExportMenu: React.FC<ExportActionProps> = (props) => {
         "print:hidden h-7 text-xs gap-1.5 rounded-[3px] transition-colors",
         downloadMenuOpen
           ? "bg-primary/[0.07] text-primary hover:bg-primary/[0.07]"
-          : "text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]",
+          : "text-muted-foreground hover:text-foreground hover:bg-[var(--hover-wash)]",
       )}
     >
       <DownloadIcon className="w-3.5 h-3.5" strokeWidth={1.5} />

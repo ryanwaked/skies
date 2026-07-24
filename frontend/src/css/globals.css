@@ -165,6 +165,23 @@
     @apply border-border;
   }
 
+  /*
+   * Global reduced-motion backstop (convention §5.3): component-level
+   * `motion-safe:` guards remain the primary mechanism, but any animation or
+   * transition that forgets the guard is still neutralized here. State
+   * changes never depend on animation completing, so instant is safe.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
   body {
     @apply bg-background text-foreground;
 

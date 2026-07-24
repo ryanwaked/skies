@@ -115,7 +115,7 @@ const CachePanel = () => {
               strokeWidth={1.5}
               className={cn(
                 "h-4 w-4 text-muted-foreground hover:text-foreground",
-                isFetching && "animate-[spin_0.5s]",
+                isFetching && "motion-safe:animate-[spin_0.5s]",
               )}
             />
           </Button>

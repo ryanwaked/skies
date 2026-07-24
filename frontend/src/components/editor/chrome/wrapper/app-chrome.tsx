@@ -135,7 +135,7 @@ const TerminalSkeleton: React.FC = () => {
       }}
     >
       <span className="opacity-70">Starting terminal</span>
-      <span className="ml-1 inline-block w-2 h-3.5 align-middle bg-current animate-pulse" />
+      <span className="ml-1 inline-block w-2 h-3.5 align-middle bg-current motion-safe:animate-pulse" />
     </div>
   );
 };

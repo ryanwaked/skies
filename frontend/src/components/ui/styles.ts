@@ -53,6 +53,6 @@ export const overlayTitle = "text-base font-semibold tracking-[-0.04em]";
  * fades. Replaces the three slightly-different scrims the overlays used.
  */
 export const overlayScrim =
-  "fixed inset-0 z-50 bg-background/80 backdrop-blur-xs " +
+  "fixed inset-0 z-modal bg-background/80 backdrop-blur-xs " +
   "data-[state=open]:animate-in data-[state=open]:fade-in " +
   "data-[state=closed]:animate-out data-[state=closed]:fade-out";

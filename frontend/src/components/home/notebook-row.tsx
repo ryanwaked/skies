@@ -9,18 +9,16 @@ import { AlertDialogDestructiveAction } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Tooltip } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/use-toast";
-import { getSessionId } from "@/core/kernel/session";
 import { useRequestClient } from "@/core/network/requests";
 import { assertExists } from "@/utils/assertExists";
+import { tabTarget } from "@/utils/links";
 import { Maps } from "@/utils/maps";
 import { Paths } from "@/utils/paths";
 import { asURL } from "@/utils/url";
 import { RunningNotebooksContext } from "./state";
 
 /** Consistent tab target so we open in the same tab when clicking on the same notebook. */
-export function tabTarget(path: string) {
-  return `${getSessionId()}-${encodeURIComponent(path)}`;
-}
+export { tabTarget } from "@/utils/links";
 
 /** Convert a workspace tree path into a path relative to the workspace root. */
 export function relativeToRoot(path: string, root: string): string {
@@ -31,7 +29,7 @@ export function relativeToRoot(path: string, root: string): string {
 
 /** Shared inner-row styling for notebook rows (workspace tree + collections). */
 export const NOTEBOOK_ROW_ITEM_CLASS =
-  "flex items-center pl-1 text-[13px] cursor-pointer hover:bg-accent/50 hover:text-accent-foreground rounded-l flex-1 overflow-hidden h-full pr-3 gap-2";
+  "flex items-center pl-1 text-[13px] cursor-pointer hover:bg-[var(--hover-wash)] rounded-[3px] flex-1 overflow-hidden h-full pr-3 gap-2";
 
 /**
  * A single notebook row: file icon, name, an `actions` slot (dropdown menu),
@@ -71,8 +69,8 @@ export const NotebookRowLink: React.FC<{
         <SessionShutdownButton filePath={relativePath} />
       </div>
       <ExternalLinkIcon
-        size={20}
-        className="group-hover:opacity-100 opacity-0 text-primary shrink-0"
+        className="h-4 w-4 group-hover:opacity-100 opacity-0 text-primary shrink-0"
+        strokeWidth={1.5}
       />
     </a>
   );
@@ -129,7 +127,7 @@ export const SessionShutdownButton: React.FC<{ filePath: string }> = ({
           });
         }}
       >
-        <PowerOffIcon size={14} />
+        <PowerOffIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
       </Button>
     </Tooltip>
   );

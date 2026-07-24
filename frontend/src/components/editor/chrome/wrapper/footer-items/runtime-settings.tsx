@@ -118,7 +118,7 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
               aria-label="Runtime reactivity"
               data-testid="rail-runtime-settings"
               className={cn(
-                "flex h-[36px] w-[36px] items-center justify-center rounded-[3px] text-foreground hover:bg-[rgba(63,66,87,0.2)]",
+                "flex h-[36px] w-[36px] items-center justify-center rounded-[3px] text-foreground hover:bg-[var(--hover-wash)]",
                 className,
               )}
             >
@@ -307,7 +307,7 @@ export const RuntimeSettings: React.FC<RuntimeSettingsProps> = ({
                           )
                         }
                         className={cn(
-                          "w-full flex items-center px-2 py-1 text-[13px] rounded-sm hover:bg-[rgba(63,66,87,0.2)]",
+                          "w-full flex items-center px-2 py-1 text-[13px] rounded-sm hover:bg-[var(--hover-wash)]",
                           option === config.runtime.auto_reload &&
                             "bg-primary/[0.07] text-primary hover:bg-primary/[0.07]",
                         )}

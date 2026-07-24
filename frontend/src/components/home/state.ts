@@ -8,6 +8,12 @@ import { jotaiJsonStorage } from "@/utils/storage/jotai";
 
 export type RunningNotebooksMap = Map<string, MarimoFile>;
 
+/**
+ * Poll interval for running-session freshness, shared by the home page and
+ * the notebook switcher so both surfaces poll on the same cadence.
+ */
+export const RUNNING_NOTEBOOKS_POLL_INTERVAL_MS = 10_000;
+
 export const RunningNotebooksContext = React.createContext<{
   runningNotebooks: RunningNotebooksMap;
   setRunningNotebooks: (data: RunningNotebooksMap) => void;

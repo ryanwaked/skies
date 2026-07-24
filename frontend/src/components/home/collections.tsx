@@ -118,7 +118,7 @@ export const HomeCollections: React.FC<{
           variant="text"
           size="xs"
           data-testid="new-collection-button"
-          className="h-6 px-1.5 gap-1 text-xs font-normal text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-[3px]"
+          className="h-6 px-1.5 gap-1 text-xs font-normal text-muted-foreground hover:text-foreground hover:bg-[var(--hover-wash)] rounded-[3px]"
           onClick={handleNewCollection}
         >
           <PlusIcon strokeWidth={1.5} className="w-3.5 h-3.5" />
@@ -264,7 +264,7 @@ const CollectionNotebookRow: React.FC<{ file: FileInfo; root: string }> = ({
       <NotebookRowLink
         relativePath={relativeToRoot(file.path, root)}
         name={file.name}
-        icon={<Icon className="w-5 h-5 shrink-0" strokeWidth={1.5} />}
+        icon={<Icon className="h-4 w-4 shrink-0" strokeWidth={1.5} />}
         actions={
           <FileActionsDropdown
             testId="collection-notebook-more-button"

@@ -40,7 +40,7 @@ export const FloatingOutline: React.FC = () => {
     >
       <OutlineList
         className={cn(
-          "-top-4 max-h-[70vh] bg-background rounded-lg shadow-lg absolute overflow-auto transition-all duration-300 w-[300px] border",
+          "-top-4 max-h-[70vh] bg-background rounded-lg shadow-lg absolute overflow-auto transition-all duration-300 w-[300px] max-w-[calc(100vw-48px)] border z-overlay",
           // When hidden, the panel is non-interactive so it can't capture the
           // pointer as it slides back across the cursor — that re-entry was
           // what made the popup flicker in/out near the right edge.

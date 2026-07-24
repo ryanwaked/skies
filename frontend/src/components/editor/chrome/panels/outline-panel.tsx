@@ -10,6 +10,12 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/utils/cn";
 import { notebookOutline } from "../../../../core/cells/cells";
 import { PanelEmptyState } from "./empty-state";
+import {
+  PANEL_EYEBROW,
+  PANEL_SEGMENTED_ITEM,
+  PANEL_SEGMENTED_ITEM_ACTIVE,
+  PANEL_SEGMENTED_ITEM_INACTIVE,
+} from "./panel-styles";
 
 import "./outline-panel.css";
 import { outlineEntriesAtom } from "./outline/outline-entries";
@@ -51,22 +57,26 @@ const OutlinePanel: React.FC = () => {
       : entries;
 
   const modeToggle = (
-    <div className="flex items-center justify-end gap-0.5 px-2 pt-2 shrink-0">
-      {(["headings", "all"] as const).map((value) => (
-        <button
-          key={value}
-          type="button"
-          className={cn(
-            "px-1.5 h-[18px] text-[12px] leading-none rounded-[3px] cursor-pointer",
-            mode === value
-              ? "bg-primary/[0.07] text-primary"
-              : "text-muted-foreground hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground",
-          )}
-          onClick={() => setMode(value)}
-        >
-          {MODE_LABELS[value]}
-        </button>
-      ))}
+    <div className="flex items-center justify-between gap-0.5 px-3 py-1.5 shrink-0">
+      <span className={PANEL_EYEBROW}>View</span>
+      <div className="flex items-center gap-0.5">
+        {(["headings", "all"] as const).map((value) => (
+          <button
+            key={value}
+            type="button"
+            className={cn(
+              PANEL_SEGMENTED_ITEM,
+              "cursor-pointer",
+              mode === value
+                ? PANEL_SEGMENTED_ITEM_ACTIVE
+                : PANEL_SEGMENTED_ITEM_INACTIVE,
+            )}
+            onClick={() => setMode(value)}
+          >
+            {MODE_LABELS[value]}
+          </button>
+        ))}
+      </div>
     </div>
   );
 

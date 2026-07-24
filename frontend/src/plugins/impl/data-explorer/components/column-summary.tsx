@@ -66,7 +66,7 @@ export const ColumnSummary: React.FC<Props> = ({ schema }) => {
                 "self-start h-[26px] px-2 rounded-sm flex flex-row gap-1.5 items-center cursor-pointer lg:justify-center text-[13px] truncate shrink-0 overflow-hidden",
                 selectedField === field
                   ? "bg-primary/[0.07] text-primary"
-                  : "hover:bg-[rgba(63,66,87,0.2)]",
+                  : "hover:bg-[var(--hover-wash)]",
               )}
               onClick={() => {
                 if (selectedField === field) {

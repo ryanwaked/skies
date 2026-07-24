@@ -275,7 +275,7 @@ const TopBarUndo = () => {
         aria-label="Undo delete cell"
         data-testid="header-undo-button"
         onClick={undoDeleteCell}
-        className="flex h-[24px] w-[24px] items-center justify-center rounded-[3px] text-muted-foreground transition-colors hover:bg-[var(--hover-wash)] hover:text-foreground"
+        className="flex h-[28px] w-[28px] items-center justify-center rounded-[3px] text-muted-foreground transition-colors hover:bg-[var(--hover-wash)] hover:text-foreground"
       >
         <Undo2Icon className="h-[16px] w-[16px]" strokeWidth={1.5} />
       </button>
@@ -303,7 +303,7 @@ const QueuedCellsIndicator = () => {
         className="flex h-[28px] items-center gap-1.5 rounded-[3px] bg-action-foreground/[0.14] px-[8px] text-[12px] font-medium tabular-nums text-action-foreground"
       >
         <LoaderCircleIcon
-          className="h-[14px] w-[14px] animate-spin"
+          className="h-[14px] w-[14px] motion-safe:animate-spin"
           strokeWidth={1.5}
           aria-hidden="true"
         />

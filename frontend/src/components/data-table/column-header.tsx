@@ -126,7 +126,7 @@ export const DataTableColumnHeader = <TData, TValue>({
           <DropdownMenuTrigger asChild={true}>
             <button
               type="button"
-              className="inline-flex items-center justify-center h-5 w-5 rounded-sm hover:bg-[rgba(63,66,87,0.2)] text-muted-foreground opacity-0 group-hover:opacity-100 focus:opacity-100 group-focus-within:opacity-100 data-[state=open]:opacity-100 data-[state=open]:bg-primary/[0.07] data-[state=open]:text-primary"
+              className="inline-flex items-center justify-center h-5 w-5 rounded-sm hover:bg-[var(--hover-wash)] text-muted-foreground opacity-0 group-hover:opacity-100 focus:opacity-100 group-focus-within:opacity-100 data-[state=open]:opacity-100 data-[state=open]:bg-primary/[0.07] data-[state=open]:text-primary"
               aria-label="Column options"
               data-testid="data-table-column-menu-button"
             >
@@ -206,7 +206,7 @@ const SortButton = <TData, TValue>({
       type="button"
       onClick={handleClick}
       className={cn(
-        "inline-flex items-center justify-center h-5 w-5 rounded-sm hover:bg-[rgba(63,66,87,0.2)]",
+        "inline-flex items-center justify-center h-5 w-5 rounded-sm hover:bg-[var(--hover-wash)]",
         sortDirection
           ? "text-primary"
           : "text-muted-foreground opacity-0 group-hover:opacity-100 focus:opacity-100 group-focus-within:opacity-100",

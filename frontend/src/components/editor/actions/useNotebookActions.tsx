@@ -201,7 +201,7 @@ export function useNotebookActions() {
       return null;
     }
     return (
-      <span className="ml-3 shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
+      <span className="ml-3 shrink-0 rounded-full border border-success/40 bg-success/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-success">
         Recommended
       </span>
     );

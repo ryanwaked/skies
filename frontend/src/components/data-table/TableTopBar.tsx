@@ -93,7 +93,7 @@ export const TableTopBar = <TData,>({
             <Button
               variant="text"
               size="xs"
-              className="h-5 w-5 p-0 shrink-0 rounded-[3px] hover:bg-[rgba(63,66,87,0.2)]"
+              className="h-5 w-5 p-0 shrink-0 rounded-[3px] hover:bg-[var(--hover-wash)]"
               onClick={() => setInternalValue("")}
             >
               <XIcon
@@ -115,7 +115,7 @@ export const TableTopBar = <TData,>({
               "print:hidden h-7 text-xs gap-1.5 rounded-[3px] transition-colors",
               isChartBuilderOpen
                 ? "bg-primary/[0.07] text-primary hover:bg-primary/[0.07]"
-                : "text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]",
+                : "text-muted-foreground hover:text-foreground hover:bg-[var(--hover-wash)]",
             )}
             onClick={toggleDisplayHeader}
           >
@@ -131,7 +131,7 @@ export const TableTopBar = <TData,>({
               "print:hidden h-7 text-xs gap-1.5 rounded-[3px] transition-colors",
               isAnyPanelOpen
                 ? "bg-primary/[0.07] text-primary hover:bg-primary/[0.07]"
-                : "text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]",
+                : "text-muted-foreground hover:text-foreground hover:bg-[var(--hover-wash)]",
             )}
             onClick={() => togglePanel(PANEL_TYPES.ROW_VIEWER)}
           >

@@ -17,7 +17,7 @@ const AlertDialogPortal = withFullScreenAsRoot(
   ({ children, ...props }: AlertDialogPrimitive.AlertDialogPortalProps) => (
     <AlertDialogPrimitive.Portal {...props}>
       <StyleNamespace>
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-start sm:top-[15%]">
+        <div className="fixed inset-0 z-modal flex items-end justify-center sm:items-start sm:top-[15%]">
           {children}
         </div>
       </StyleNamespace>
@@ -32,7 +32,7 @@ const AlertDialogOverlay = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <AlertDialogPrimitive.Overlay
     className={cn(
-      "fixed inset-0 z-50 bg-background/80 backdrop-blur-xs transition-opacity animate-in fade-in",
+      "fixed inset-0 z-modal bg-background/80 backdrop-blur-xs transition-opacity animate-in fade-in",
       className,
     )}
     {...props}
@@ -54,7 +54,7 @@ const AlertDialogContent = React.forwardRef<
       <AlertDialogPrimitive.Content
         ref={ref}
         className={cn(
-          "fixed z-50 grid w-full max-w-2xl scale-100 gap-4 border bg-card p-6 opacity-100 shadow-lg animate-in fade-in-90 slide-in-from-bottom-10 sm:rounded-lg sm:zoom-in-90 sm:slide-in-from-bottom-0 md:w-full",
+          "fixed z-modal grid w-full max-w-2xl scale-100 gap-4 border bg-card p-6 opacity-100 shadow-lg animate-in fade-in-90 slide-in-from-bottom-10 sm:rounded-lg sm:zoom-in-90 sm:slide-in-from-bottom-0 md:w-full",
           className,
         )}
         {...restoreFocus}

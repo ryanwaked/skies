@@ -1,6 +1,6 @@
 /* Copyright 2026 Marimo. All rights reserved. */
 
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   ExternalLinkIcon,
   FolderIcon,
@@ -15,12 +15,13 @@ import {
   XIcon,
 } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import useEvent from "react-use-event-hook";
 import { FileActionsDropdown } from "@/components/editor/file-tree/file-operations";
 import { handleFileResponse } from "@/components/editor/file-tree/requesting-tree";
+import { revealPathAtom } from "@/components/editor/file-tree/state";
 import { MENU_ITEM_ICON_CLASS } from "@/components/editor/file-tree/tree-actions";
-import { pinnedNotebooksAtom } from "@/components/home/state";
+import { pinnedNotebooksAtom, RUNNING_NOTEBOOKS_POLL_INTERVAL_MS } from "@/components/home/state";
 import { useImperativeModal } from "@/components/modal/ImperativeModal";
 import { AlertDialogDestructiveAction } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/use-toast";
+import { isSessionId } from "@/core/kernel/session";
 import { useRequestClient } from "@/core/network/requests";
 import type { FileInfo, MarimoFile } from "@/core/network/types";
 import { filenameAtom } from "@/core/saving/file-state";
@@ -40,7 +42,9 @@ import { ErrorBanner } from "@/plugins/impl/common/error-banner";
 import { cn } from "@/utils/cn";
 import { openNotebook, openNotebookInCurrentTab } from "@/utils/links";
 import { Maps } from "@/utils/maps";
+import { PathBuilder } from "@/utils/paths";
 import { useChromeActions } from "../../state";
+import { PanelEmptyState } from "../empty-state";
 import {
   PANEL_EYEBROW,
   PANEL_SEARCH_INPUT,
@@ -55,13 +59,9 @@ import {
   relativeToRoot,
 } from "./notebook-switcher-utils";
 
-/** Poll interval for running sessions, mirroring the home page. */
-const RUNNING_POLL_INTERVAL_MS = 10_000;
-
 interface SwitcherData {
   workspaceRoot: string;
   workspaceFiles: FileInfo[];
-  running: Map<string, MarimoFile>;
   recents: MarimoFile[];
 }
 
@@ -78,42 +78,75 @@ export const NotebookSwitcherPanel: React.FC = () => {
 
   const filename = useAtomValue(filenameAtom);
   const [pinned, setPinned] = useAtom(pinnedNotebooksAtom);
+  const setRevealPath = useSetAtom(revealPathAtom);
   const [query, setQuery] = useState("");
   const [nonce, setNonce] = useState(0);
 
-  // Keep running sessions fresh while the panel is open.
+  // Poll running sessions only: cheap, and keeps the Running section fresh
+  // without refetching (and reordering) the workspace/recent lists under
+  // the cursor. The full lists refetch on mount and on explicit actions.
   useInterval(() => setNonce((n) => n + 1), {
-    delayMs: RUNNING_POLL_INTERVAL_MS,
+    delayMs: RUNNING_NOTEBOOKS_POLL_INTERVAL_MS,
     whenVisible: true,
   });
 
   const { data, isPending, error, refetch } = useAsyncData<SwitcherData>(
     async () => {
-      const [workspace, running, recents] = await Promise.all([
+      const [workspace, recents] = await Promise.all([
         getWorkspaceFiles({ includeMarkdown: true }),
-        getRunningNotebooks(),
         getRecentFiles(),
       ]);
       return {
         workspaceRoot: workspace.root,
         workspaceFiles: workspace.files,
-        running: Maps.keyBy(running.files, (file) => file.path),
         recents: recents.files,
       };
+    },
+    [],
+  );
+
+  const { data: runningFiles, refetch: refetchRunning } = useAsyncData(
+    async () => {
+      const running = await getRunningNotebooks();
+      return running.files;
     },
     [nonce],
   );
 
-  const sections = data
-    ? buildNotebookSections({
-        workspaceFiles: data.workspaceFiles,
-        running: data.running,
-        recents: data.recents,
-        pinned,
-        currentFilename: filename,
-        query,
-      })
-    : null;
+  const refreshAll = useEvent(() => {
+    refetch();
+    refetchRunning();
+  });
+
+  // Preserve the Running section's row order across polls so entries don't
+  // shift under the cursor; newly started notebooks append at the end.
+  const runningOrderRef = useRef<string[]>([]);
+  const sections = useMemo(() => {
+    if (!data) {
+      return null;
+    }
+    const running = Maps.keyBy(runningFiles ?? [], (file) => file.path);
+    const next = buildNotebookSections({
+      workspaceFiles: data.workspaceFiles,
+      running,
+      recents: data.recents,
+      pinned,
+      currentFilename: filename,
+      query,
+    });
+    const byPath = new Map(next.running.map((item) => [item.path, item]));
+    const previous = runningOrderRef.current;
+    const kept = previous
+      .map((path) => byPath.get(path))
+      .filter((item): item is NotebookItem => item !== undefined);
+    const keptPaths = new Set(kept.map((item) => item.path));
+    const stabilized = [
+      ...kept,
+      ...next.running.filter((item) => !keptPaths.has(item.path)),
+    ];
+    runningOrderRef.current = stabilized.map((item) => item.path);
+    return { ...next, running: stabilized };
+  }, [data, runningFiles, pinned, filename, query]);
 
   const handleSwitch = useEvent((item: NotebookItem) => {
     const { fileKey, sessionId } = navigationTarget(item);
@@ -145,7 +178,7 @@ export const NotebookSwitcherPanel: React.FC = () => {
             await shutdownSession({ sessionId });
             closeModal();
             toast({ description: "Notebook has been shutdown." });
-            refetch();
+            refreshAll();
           }}
         >
           Shutdown
@@ -175,13 +208,19 @@ export const NotebookSwitcherPanel: React.FC = () => {
           response.info.path,
           data?.workspaceRoot ?? "",
         );
-        refetch();
+        refreshAll();
         openNotebookInCurrentTab(fileKey);
       },
     });
   });
 
-  const revealInFileExplorer = useEvent(() => {
+  const revealInFileExplorer = useEvent((item: NotebookItem) => {
+    // Unsaved running notebooks have no workspace file to reveal; for them
+    // the item simply opens the Files panel.
+    if (!isSessionId(item.path) && data?.workspaceRoot) {
+      const builder = PathBuilder.guessDeliminator(data.workspaceRoot);
+      setRevealPath(builder.join(data.workspaceRoot, item.path));
+    }
     openApplication("files");
   });
 
@@ -234,7 +273,7 @@ export const NotebookSwitcherPanel: React.FC = () => {
             variant="text"
             size="xs"
             aria-label="Refresh notebooks"
-            onClick={() => refetch()}
+            onClick={refreshAll}
           >
             <RefreshCwIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
           </Button>
@@ -278,7 +317,7 @@ const SwitcherSections: React.FC<{
   onSwitch: (item: NotebookItem) => void;
   onTogglePin: (item: NotebookItem) => void;
   onShutdown: (item: NotebookItem) => void;
-  onReveal: () => void;
+  onReveal: (item: NotebookItem) => void;
   onCreateNotebook: () => void;
 }> = ({
   sections,
@@ -292,19 +331,21 @@ const SwitcherSections: React.FC<{
   const isEmpty = sections.all.length === 0 && sections.running.length === 0;
 
   if (isEmpty) {
-    return (
-      <div className="flex flex-col items-start gap-2 p-3 text-[13px] text-muted-foreground">
-        {query ? (
-          <span>No notebooks match &ldquo;{query}&rdquo;.</span>
-        ) : (
-          <>
-            <span>No notebooks in this project yet.</span>
-            <Button variant="link" size="sm" onClick={onCreateNotebook}>
-              Create your first notebook
-            </Button>
-          </>
-        )}
-      </div>
+    return query ? (
+      <PanelEmptyState
+        icon={<SearchIcon />}
+        title={`No notebooks match “${query}”.`}
+      />
+    ) : (
+      <PanelEmptyState
+        icon={<NotebookIcon />}
+        title="No notebooks in this project yet."
+        action={
+          <Button variant="link" size="sm" onClick={onCreateNotebook}>
+            Create your first notebook
+          </Button>
+        }
+      />
     );
   }
 
@@ -389,7 +430,7 @@ const GroupedRows: React.FC<{
   onSwitch: (item: NotebookItem) => void;
   onTogglePin: (item: NotebookItem) => void;
   onShutdown: (item: NotebookItem) => void;
-  onReveal: () => void;
+  onReveal: (item: NotebookItem) => void;
 }> = ({ items, onSwitch, onTogglePin, onShutdown, onReveal }) => {
   const rows: React.ReactNode[] = [];
   let lastDirectory: string | null = null;
@@ -400,7 +441,7 @@ const GroupedRows: React.FC<{
         rows.push(
           <div
             key={`dir-${item.directory}`}
-            className="flex items-center gap-1.5 px-3 pt-1.5 pb-0.5 text-xs text-muted-foreground/80"
+            className="flex items-center gap-1.5 px-3 pt-1.5 pb-0.5 text-xs text-muted-foreground"
           >
             <FolderIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
             <span className="truncate">{item.directory}</span>
@@ -432,7 +473,7 @@ const NotebookRow: React.FC<{
   onSwitch: (item: NotebookItem) => void;
   onTogglePin: (item: NotebookItem) => void;
   onShutdown: (item: NotebookItem) => void;
-  onReveal: () => void;
+  onReveal: (item: NotebookItem) => void;
 }> = ({
   item,
   hideRunningDot,
@@ -449,7 +490,7 @@ const NotebookRow: React.FC<{
         indent ? "pl-3.5" : "pl-1.5",
         item.isCurrent
           ? "bg-primary/[0.07] text-primary"
-          : "hover:bg-[rgba(63,66,87,0.2)]",
+          : "hover:bg-[var(--hover-wash)]",
       )}
       aria-current={item.isCurrent ? "true" : undefined}
       data-testid={`notebook-switcher-row-${item.path}`}
@@ -467,20 +508,27 @@ const NotebookRow: React.FC<{
       </span>
       {item.isRunning && !hideRunningDot && (
         <span
-          className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mr-1"
+          className="w-1.5 h-1.5 rounded-full bg-success shrink-0 mr-1"
           title="Running"
           data-testid={`notebook-switcher-running-${item.path}`}
         />
       )}
       <FileActionsDropdown
         testId={`notebook-switcher-actions-${item.path}`}
-        contentClassName="print:hidden w-[220px]"
+        contentClassName="print:hidden min-w-[180px] w-fit"
       >
-        <DropdownMenuItem onSelect={() => openNotebook(item.path)}>
+        <DropdownMenuItem
+          onSelect={() => {
+            // Same tab-reuse semantics as home rows (named target), with a
+            // warm-resume session id so a second kernel never starts silently.
+            const { fileKey, sessionId } = navigationTarget(item);
+            openNotebook(fileKey, sessionId ?? undefined);
+          }}
+        >
           <ExternalLinkIcon className={MENU_ITEM_ICON_CLASS} />
           Open in new tab
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={onReveal}>
+        <DropdownMenuItem onSelect={() => onReveal(item)}>
           <ListTreeIcon className={MENU_ITEM_ICON_CLASS} />
           Reveal in file explorer
         </DropdownMenuItem>

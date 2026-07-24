@@ -1,4 +1,5 @@
 /* Copyright 2026 Marimo. All rights reserved. */
+import { getSessionId } from "@/core/kernel/session";
 import { asURL } from "./url";
 
 /**
@@ -46,13 +47,29 @@ export function preparePageExitTransition(): void {
   );
 }
 
+/** Consistent tab target so we open in the same tab when clicking on the same notebook. */
+export function tabTarget(path: string) {
+  return `${getSessionId()}-${encodeURIComponent(path)}`;
+}
+
 /**
  * Open a notebook in a new tab.
+ *
+ * Uses a named tab target (see {@link tabTarget}) so re-opening the same
+ * notebook reuses its tab instead of spawning duplicates. When `sessionId`
+ * is given, the URL carries `session_id` so the backend warm-resumes the
+ * existing kernel instead of silently starting a second one.
+ *
  * @param path - The path to the notebook.
+ * @param sessionId - Optional session id of a running notebook.
  */
-export function openNotebook(path: string) {
+export function openNotebook(path: string, sessionId?: string) {
   // There is no leading `/` in the path in order to work when marimo is at a subpath.
-  window.open(asURL(`?file=${encodeURIComponent(path)}`).toString(), "_blank");
+  const url = asURL(`?file=${encodeURIComponent(path)}`);
+  if (sessionId) {
+    url.searchParams.set("session_id", sessionId);
+  }
+  window.open(url.toString(), tabTarget(path));
 }
 
 /**

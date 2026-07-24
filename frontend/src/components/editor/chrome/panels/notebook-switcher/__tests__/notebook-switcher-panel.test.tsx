@@ -307,6 +307,7 @@ describe("NotebookSwitcherPanel", () => {
     fireEvent.keyDown(trigger, { key: "ArrowDown" });
     const openInNewTab = await screen.findByText("Open in new tab");
     fireEvent.click(openInNewTab);
-    expect(mockOpenNotebook).toHaveBeenCalledWith("a.py");
+    // Second arg is the warm-resume session id (undefined when not running).
+    expect(mockOpenNotebook).toHaveBeenCalledWith("a.py", undefined);
   });
 });

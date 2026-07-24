@@ -149,7 +149,7 @@ export const BackendConnectionStatus: React.FC = () => {
       <button
         type="button"
         onClick={handleClick}
-        className="h-6 px-1.5 hover:bg-[rgba(63,66,87,0.2)] rounded-sm flex items-center gap-1.5 text-[11px] text-muted-foreground"
+        className="h-6 px-1.5 hover:bg-[var(--hover-wash)] rounded-sm flex items-center gap-1.5 text-[11px] text-muted-foreground"
         data-testid="backend-status"
       >
         {getStatusIcon()}

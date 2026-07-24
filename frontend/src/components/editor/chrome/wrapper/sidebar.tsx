@@ -151,7 +151,7 @@ export const Sidebar: React.FC = () => {
       data-testid="chrome-sidebar"
       // Skies' collapsed rail has no right border — the vertical divider only
       // appears at the open panel's right edge (app-chrome's helperPanel).
-      className="h-full w-[44px] shrink-0 pt-1.5 pb-1.5 flex flex-col items-center gap-0 text-foreground text-sm select-none z-50 bg-background print:hidden hide-on-fullscreen"
+      className="h-full w-[44px] shrink-0 pt-1.5 pb-1.5 flex flex-col items-center gap-0 text-foreground text-sm select-none bg-background print:hidden hide-on-fullscreen"
     >
       <ReorderableList<PanelDescriptor>
         value={sidebarItems}
@@ -221,7 +221,7 @@ const SidebarItem: React.FC<
   // primary tint.
   const itemClassName = cn(
     "flex items-center justify-center h-[36px] w-[36px] rounded-[3px]",
-    !selected && "text-foreground hover:bg-[rgba(63,66,87,0.2)]",
+    !selected && "text-foreground hover:bg-[var(--hover-wash)]",
     selected && "bg-primary/[0.07] text-primary",
     className,
   );
@@ -271,7 +271,7 @@ const RailDeveloperPanelToggle: React.FC = () => {
           className={cn("h-[16px] w-[16px]", issueCount > 0 && "text-error")}
         />
         {issueCount > 0 && (
-          <span className="absolute -right-2 -top-1.5 flex h-3 min-w-[12px] items-center justify-center rounded-full bg-error px-[3px] text-[9px] font-semibold leading-none text-white">
+          <span className="absolute -right-2 -top-1.5 flex h-3 min-w-[14px] items-center justify-center rounded-full bg-error px-[3px] text-[9px] font-semibold leading-none text-white">
             {issueCount}
           </span>
         )}

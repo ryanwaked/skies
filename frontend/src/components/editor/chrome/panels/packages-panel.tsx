@@ -488,9 +488,26 @@ const DependencyTree: React.FC<{
     new Set(),
   );
 
-  // Reset tree to collapsed state when tree data changes (including refetches)
+  // Node ids are name paths (e.g. "root-pandas-numpy"), so expansion state
+  // survives refetches. When tree data changes, prune only the ids that no
+  // longer exist instead of collapsing everything.
   React.useEffect(() => {
-    setExpandedNodes(new Set());
+    setExpandedNodes((prev) => {
+      if (prev.size === 0 || !tree) {
+        return prev;
+      }
+      const valid = new Set<string>();
+      const walk = (nodes: DependencyTreeNode[], prefix: string) => {
+        for (const node of nodes) {
+          const id = `${prefix}-${node.name}`;
+          valid.add(id);
+          walk(node.dependencies, id);
+        }
+      };
+      walk(tree.dependencies, "root");
+      const next = new Set([...prev].filter((id) => valid.has(id)));
+      return next.size === prev.size ? prev : next;
+    });
   }, [tree]);
 
   if (error) {
@@ -529,7 +546,7 @@ const DependencyTree: React.FC<{
         {tree.dependencies.map((dep, index) => (
           <div key={`${dep.name}-${index}`} className="border-b">
             <DependencyTreeNode
-              nodeId={`root-${index}`}
+              nodeId={`root-${dep.name}`}
               node={dep}
               level={0}
               isTopLevel={true}
@@ -699,7 +716,7 @@ const DependencyTreeNode: React.FC<{
           {node.dependencies.map((child, index) => (
             <DependencyTreeNode
               key={`${child.name}-${index}`}
-              nodeId={`${nodeId}-${index}`}
+              nodeId={`${nodeId}-${child.name}`}
               node={child}
               level={level + 1}
               isTopLevel={false}

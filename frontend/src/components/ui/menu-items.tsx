@@ -5,7 +5,7 @@ import React from "react";
 import { cn } from "@/utils/cn";
 
 export const menuContentCommon = cva(
-  "z-50 min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+  "z-modal min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
   {
     variants: {
       subcontent: {

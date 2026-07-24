@@ -108,7 +108,7 @@ export const ColumnVisibilityDropdown = <TData,>({
             "print:hidden h-7 text-xs gap-1.5 rounded-[3px] transition-colors",
             list.open
               ? "bg-primary/[0.07] text-primary hover:bg-primary/[0.07]"
-              : "text-muted-foreground hover:text-foreground hover:bg-[rgba(63,66,87,0.2)]",
+              : "text-muted-foreground hover:text-foreground hover:bg-[var(--hover-wash)]",
           )}
         >
           <Columns3Icon className="w-3.5 h-3.5" strokeWidth={1.5} />

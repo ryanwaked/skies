@@ -17,7 +17,7 @@ import {
   UploadIcon,
   ViewIcon,
 } from "lucide-react";
-import React, { Suspense, use, useRef, useState } from "react";
+import React, { Suspense, use, useEffect, useRef, useState } from "react";
 import {
   type NodeApi,
   type NodeRendererProps,
@@ -68,13 +68,13 @@ import { copyToClipboard } from "@/utils/copy";
 import { downloadBlob } from "@/utils/download";
 import { type Base64String, base64ToDataURL } from "@/utils/json/base64";
 import { openNotebook, openNotebookInCurrentTab } from "@/utils/links";
-import type { FilePath } from "@/utils/paths";
+import { type FilePath, PathBuilder } from "@/utils/paths";
 import { makeDuplicateName } from "@/utils/pathUtils";
 import { jotaiJsonStorage } from "@/utils/storage/jotai";
 import { useTreeDndManager } from "./dnd-wrapper";
 import { FileViewer } from "./file-viewer";
 import type { RequestingTree } from "./requesting-tree";
-import { openStateAtom, treeAtom } from "./state";
+import { openStateAtom, revealPathAtom, treeAtom } from "./state";
 import { PYTHON_CODE_FOR_FILE_TYPE } from "./types";
 import { useFileExplorerUpload } from "./upload";
 
@@ -178,6 +178,65 @@ export const FileExplorer: React.FC<{
     treeRef.current?.closeAll();
     setOpenState({});
   });
+
+  // Reveal a file requested from another panel (e.g. the notebook switcher):
+  // expand its ancestor folders (fetching children as needed), then scroll
+  // the row into view and focus it. The atom is cleared once consumed.
+  const [revealPath, setRevealPath] = useAtom(revealPathAtom);
+  useEffect(() => {
+    if (!revealPath || isPending) {
+      return;
+    }
+    let cancelled = false;
+    const reveal = async () => {
+      // Leave the file viewer (if open) so the tree is visible.
+      setOpenFile(null);
+      const builder = PathBuilder.guessDeliminator(revealPath);
+      const relative = tree.relativeFromRoot(revealPath as FilePath);
+      const depth = relative
+        .split(builder.deliminator)
+        .filter(Boolean).length;
+      // Ancestor directories, topmost first, so each expand can fetch the
+      // children the next one needs.
+      const ancestors: string[] = [];
+      let cursor = revealPath;
+      for (let i = 0; i < depth - 1; i++) {
+        cursor = builder.dirname(cursor as FilePath);
+        ancestors.unshift(cursor);
+      }
+      const opened: Record<string, boolean> = {};
+      for (const id of ancestors) {
+        if (cancelled) {
+          return;
+        }
+        await tree.expand(id);
+        treeRef.current?.open(id);
+        opened[id] = true;
+      }
+      if (cancelled) {
+        return;
+      }
+      if (Object.keys(opened).length > 0) {
+        setOpenState((prev) => ({ ...prev, ...opened }));
+      }
+      // Wait for the expanded rows to render before scrolling.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (cancelled) {
+            return;
+          }
+          treeRef.current?.scrollTo(revealPath);
+          treeRef.current?.focus(revealPath);
+        });
+      });
+      setRevealPath(null);
+    };
+    void reveal();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [revealPath, isPending, tree]);
 
   const visibleData = React.useMemo(
     () => filterHiddenTree(data, showHiddenFiles),
@@ -568,7 +627,7 @@ const Node = ({ node, style, dragHandle }: NodeRendererProps<FileInfo>) => {
           "flex items-center pl-1 py-0.5 cursor-pointer text-[13px] rounded-[3px] flex-1 overflow-hidden group",
           node.isSelected
             ? "bg-primary/[0.07] text-primary"
-            : "hover:bg-[rgba(63,66,87,0.2)] hover:text-foreground",
+            : "hover:bg-[var(--hover-wash)] hover:text-foreground",
           node.willReceiveDrop &&
             node.data.isDirectory &&
             "bg-primary/[0.07] hover:bg-primary/[0.07] text-primary hover:text-primary",

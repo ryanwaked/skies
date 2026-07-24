@@ -22,6 +22,14 @@ export const treeAtom = atom<RequestingTree>((get) => {
 
 export const openStateAtom = atom<Record<string, boolean>>({});
 
+/**
+ * Absolute path of a file the explorer should reveal: expand its ancestor
+ * folders, scroll it into view, and focus its row. Set by other panels
+ * (e.g. the notebook switcher's "Reveal in file explorer"); consumed and
+ * cleared by the explorer.
+ */
+export const revealPathAtom = atom<string | null>(null);
+
 export async function refreshRoot() {
   await store.get(treeAtom).refreshAll([]);
 }
